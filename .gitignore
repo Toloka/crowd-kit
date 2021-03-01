@@ -1,0 +1,20 @@
+# Ignore all
+*
+
+# Unignore dirs
+!*/
+
+# Unignore specific files without extensions
+!AUTHORS
+!LICENSE
+!py.typed
+!.gitignore
+
+# Unignore useful extensions
+!*.in
+!*.ini
+!*.md
+!*.py
+!*.pyi
+!*.toml
+!*.yml
