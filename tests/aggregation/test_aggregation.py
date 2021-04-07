@@ -13,6 +13,7 @@ from .data_mmsr import *  # noqa: F401, F403
 from .data_gold_mv import *  # noqa: F401, F403
 from .data_wawa import *  # noqa: F401, F403
 from .data_zbs import *  # noqa: F401, F403
+from pandas.testing import assert_series_equal, assert_frame_equal
 
 
 def asserts_compare_df(left_df, right_df, sort_flds):
@@ -36,8 +37,8 @@ def asserts_compare_matrix_df(left_df, right_df):
         (MajorityVote, None, 'fit_predict_proba', 'simple', 'mv'),
         (MMSR, None, 'fit_predict', 'toy', 'mmsr'),
         (MMSR, None, 'fit_predict', 'simple', 'mmsr'),
-        (MMSR, None, 'fit_predict_proba', 'toy', 'mmsr'),
-        (MMSR, None, 'fit_predict_proba', 'simple', 'mmsr'),
+        (MMSR, None, 'fit_predict_score', 'toy', 'mmsr'),
+        (MMSR, None, 'fit_predict_score', 'simple', 'mmsr'),
         (Wawa, None, 'fit_predict', 'toy', 'wawa'),
         (Wawa, None, 'fit_predict', 'simple', 'wawa'),
         (Wawa, None, 'fit_predict_proba', 'toy', 'wawa'),
@@ -53,13 +54,13 @@ def asserts_compare_matrix_df(left_df, right_df):
     ],
     ids=[
         'Majority Vote predict labels on toy YSDA',
-        'Majority Vote predict labelson simple dataset',
+        'Majority Vote predict labels on simple dataset',
         'Majority Vote predict probabilities on toy YSDA',
         'Majority Vote predict probabilities on simple dataset',
         'MMSR predict labels on toy YSDA',
         'MMSR predict labelson simple dataset',
-        'MMSR predict probabilities on toy YSDA',
-        'MMSR predict probabilities on simple dataset',
+        'MMSR predict scores on toy YSDA',
+        'MMSR predict scores on simple dataset',
         'Wawa predict labels on toy YSDA',
         'Wawa predict labels on simple dataset',
         'Wawa predict probabilities on toy YSDA',
@@ -92,21 +93,32 @@ def test_fit_predict_aggregations_methods(
     # result datasets for comparison
     labels_result = request.getfixturevalue(f'{dataset}_labels_result_{results_dataset}')
     skills_result = request.getfixturevalue(f'{dataset}_skills_result_{results_dataset}')
-    probas_result = request.getfixturevalue(f'{dataset}_probas_result_{results_dataset}')
 
     aggregator = agg_class()
+
+    if hasattr(aggregator, 'predict_score'):
+        scores_result = request.getfixturevalue(f'{dataset}_scores_result_{results_dataset}')
+    else:
+        probas_result = request.getfixturevalue(f'{dataset}_probas_result_{results_dataset}')
+
     if fit_method is not None:
         ret_val = getattr(aggregator, fit_method)(answers, gold)
         assert isinstance(ret_val, agg_class)
-        asserts_compare_df(aggregator.performers_skills, skills_result, ['performer', 'skill'])
+        assert_series_equal(aggregator.skills_, skills_result, rtol=1e-5)
 
     somethings_predict = getattr(aggregator, predict_method)(answers)
 
     # checking after predict
-    asserts_compare_df(aggregator.tasks_labels, labels_result, ['label', 'task'])
-    asserts_compare_matrix_df(aggregator.probas, probas_result)
-    asserts_compare_df(aggregator.performers_skills, skills_result, ['performer', 'skill'])
-    if 'proba' in predict_method:
-        assert somethings_predict is aggregator.probas
+    assert_series_equal(aggregator.labels_.sort_index(), labels_result.sort_index(), rtol=1e-5)
+    assert_series_equal(aggregator.skills_.sort_index(), skills_result.sort_index(), rtol=1e-5)
+    if hasattr(aggregator, 'predict_score'):
+        assert_frame_equal(aggregator.scores_, scores_result, check_like=True, rtol=1e-5)
     else:
-        assert somethings_predict is aggregator.tasks_labels
+        assert_frame_equal(aggregator.probas_, probas_result, check_like=True, rtol=1e-5)
+
+    if 'proba' in predict_method:
+        assert somethings_predict is aggregator.probas_
+    elif 'score' in predict_method:
+        assert somethings_predict is aggregator.scores_
+    else:
+        assert somethings_predict is aggregator.labels_

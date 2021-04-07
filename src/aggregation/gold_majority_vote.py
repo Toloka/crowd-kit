@@ -1,14 +1,16 @@
 __all__ = ['GoldMajorityVote']
 
 import attr
-import pandas as pd
+from sklearn.utils.validation import check_is_fitted
 
 from . import annotations
-from .annotations import manage_docstring
+from .annotations import manage_docstring, Annotation
 from .base_aggregator import BaseAggregator
+from .majority_vote import MajorityVote
+from .utils import get_accuracy
 
 
-@attr.attrs(auto_attribs=True)
+@attr.s
 @manage_docstring
 class GoldMajorityVote(BaseAggregator):
     """Majority Vote when exist golden dataset (ground truth) for some tasks
@@ -24,98 +26,41 @@ class GoldMajorityVote(BaseAggregator):
     It's necessary that:
     1. All performers must done at least one task from golden dataset.
     2. All performers in dataset that send to 'predict', existed in answers dataset that was sent to 'fit'
-
-    After fit stored 'performers_skills' - Predicted labels for each task.
-
-    After predicting stored different data frames (details in BaseAggregator):
-        tasks_labels: Predicted labels for each task
-        probas: Probabilities for each label for task
     """
 
-    def fit(self, answers_on_gold: pd.DataFrame, gold_df: pd.DataFrame) -> 'GoldMajorityVote':
-        """Calculates the skill for each performers, based on answers on golden dataset
-        The calculated skills are stored in an instance of the class and can be obtained by the field 'performers_skills'
-        After 'fit' you can get 'performer_skills' from class field.
+    # Available after fit
+    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
 
-        Args:
-            answers_on_gold(pandas.DataFrame): Frame contains performers answers on golden tasks. One row per answer.
-                Should contain columns 'performer', 'task', 'label'. Dataframe could contains answers not only for golden
-                tasks. This answers will be ignored.
-            gold_df(pandas.DataFrame): Frame with ground truth labels for tasks.
-                Should contain columns 'performer', 'task'. And may contain column 'weight', if you have different scores
-                for different tasks.
-        Returns:
-            GoldMajorityVote: self for call next methods
+    # Available after predict or predict_proba
+    probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
+    labels_: annotations.OPTIONAL_LABELS = attr.ib(init=False)
 
-        Raises:
-            TypeError: If the input datasets are not of type pandas.DataFrame.
-            AssertionError: If there is some collumn missing in 'dataframes'. Or if it's impossible to calculate the
-                skill for any performer. For example, some performers do not have answers to tasks from the golden dataset.
-        """
-        self._answers_base_checks(answers_on_gold)
-
-        if not isinstance(gold_df, pd.DataFrame):
-            raise TypeError('"gold_df" parameter must be of type pandas DataFrame')
-        assert 'task' in gold_df, 'There is no "task" column in "gold_df"'
-        assert 'label' in gold_df, 'There is no "label" column in "gold_df"'
-
-        # checking that we can compute skills for all performers
-        answers_with_truth = answers_on_gold.merge(gold_df, on='task', suffixes=('', '_truth'))
-        performers_without_skill = set(answers_on_gold['performer'].unique()) - set(answers_with_truth['performer'].unique())
-        assert not performers_without_skill, 'It is impossible to compute skills for some performers in "crowd_on_gold_df"'\
-            ' because of that performers did not complete any golden task (no tasks for this performers in "gold_df"))'
-
-        self._calc_performers_skills(answers_on_gold, gold_df)
+    @manage_docstring
+    def _apply(self, data: annotations.LABELED_DATA) -> Annotation('GoldMajorityVote', 'self'):
+        check_is_fitted(self, attributes='skills_')
+        mv = MajorityVote().fit(data, self.skills_)
+        self.labels_ = mv.labels_
+        self.probas_ = mv.probas_
         return self
 
     @manage_docstring
-    def predict(self, data: annotations.DATA) -> annotations.TASKS_LABELS:
-        """Predict correct labels for tasks. Using calculated performers skill, stored in self instance.
-        After 'predict' you can get probabilities for all labels from class field 'probas'.
-
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'.
-                Or when 'predict' called without 'fit'.
-                Or if there are new performers in 'answer' that were not in 'answers_on_gold' in 'fit'.
-        """
-        self._predict_impl(data)
-        return self.tasks_labels
+    def fit(self, data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS) -> Annotation('GoldMajorityVote', 'self'):
+        data = data[['task', 'performer', 'label']]
+        self.skills_ = get_accuracy(data, true_labels=true_labels, by='performer')
+        return self
 
     @manage_docstring
-    def predict_proba(self, data: annotations.DATA) -> annotations.PROBAS:
-        """Calculates Probabilities for each label of task.
-        If it was no such label for some task, this task doesn't has probs for this label.
-        After 'predict_proba' you can get predicted labels from class field 'tasks_labels'.
-
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'.
-                Or when 'predict' called without 'fit'.
-                Or if there are new performers in 'answer' that were not in 'answers_on_gold' in 'fit'.
-        """
-        self._predict_impl(data)
-        return self.probas
+    def predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        return self._apply(data).labels_
 
     @manage_docstring
-    def _predict_impl(self, answers: annotations.DATA) -> None:
-        self._answers_base_checks(answers)
+    def predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
+        return self._apply(data).probas_
 
-        assert self.performers_skills is not None, '"Predict" called without "fit".'
+    @manage_docstring
+    def fit_predict(self, data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS) -> annotations.TASKS_LABELS:
+        return self.fit(data, true_labels).predict(data)
 
-        # checking that all performers in crowd_df has skills in "performers_skills"
-        performers_without_skill_in_crowd = set(answers['performer'].unique()) - set(self.performers_skills['performer'].unique())
-        assert not performers_without_skill_in_crowd, 'Unknown skill for some performers in "crowd_df"'\
-            ' because of that performers have no tasks in "crowd_on_gold_df"'
-
-        # join labels and skills
-        labels_probas = answers.merge(self.performers_skills, on='performer')
-        labels_probas = (
-            labels_probas
-            .groupby(['task', 'label'])
-            .agg({'skill': sum})
-            .reset_index()
-            .rename(columns={'skill': 'score'}))
-
-        labels_probas = self._calculate_probabilities(labels_probas)
-        self._choose_labels(labels_probas)
+    @manage_docstring
+    def fit_predict_proba(self, data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS) -> annotations.TASKS_LABEL_PROBAS:
+        return self.fit(data, true_labels).predict_proba(data)

@@ -14,12 +14,6 @@ def main():
 
     for module_name, module in traverse_modules(args.module_root, args.src_root):
 
-        if module_name not in (
-            'crowdlib.aggregation.dawid_skene',
-            'crowdlib.aggregation.base_aggregator',
-        ):
-            continue
-
         stub_path = module.__file__ + 'i'
         with open(stub_path, 'w') as stub_flo:
             stub_flo.write(str(ASTBuilder(module_name, module)))

@@ -1,4 +1,5 @@
 from ..common import BaseLiteral
+from typing import ForwardRef
 
 
 class ValueLiteral(BaseLiteral):
@@ -7,10 +8,13 @@ class ValueLiteral(BaseLiteral):
         if self.obj is None:
             return 'None'
 
-        if isinstance(self.obj, str):
+        if isinstance(self.obj, (int, str, bool)):
             return repr(self.obj)
 
-        return f'...{self.obj}'
+        if isinstance(self.obj, ForwardRef):
+            return repr(self.obj.__forward_arg__)
+
+        return '...'
 
     __repr__ = __str__
 

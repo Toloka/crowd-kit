@@ -1,17 +1,15 @@
-from typing import Any, Callable, Optional, Union
-import pandas as pd
+from typing import Optional, Union
 
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+import pandas as pd
 from crowdkit.aggregation import MajorityVote
-from .golden_set_accuracy import golden_set_accuracy
+from crowdkit.aggregation.base_aggregator import BaseAggregator
+from crowdkit.aggregation.utils import get_accuracy
 
 
 def accuracy_on_aggregates(answers: pd.DataFrame,
                            aggregator: Optional[BaseAggregator] = MajorityVote(),
                            aggregates: Optional[pd.Series] = None,
-                           by_performer: bool = False,
-                           answer_column: Any = 'label',
-                           comapre_function: Optional[Callable[[Any, Any], float]] = None) -> Union[float, pd.Series]:
+                           by: Optional[str] = None) -> Union[float, pd.Series]:
     """
     Accuracy on aggregates: a fraction of worker's answers that match the aggregated one.
     Args:
@@ -30,5 +28,5 @@ def accuracy_on_aggregates(answers: pd.DataFrame,
     if aggregates is None and aggregator is None:
         raise AssertionError('One of aggregator or aggregates should be not None')
     if aggregates is None:
-        aggregates = aggregator.fit_predict(answers).set_index('task')[answer_column]
-    return golden_set_accuracy(answers, aggregates, by_performer, answer_column, comapre_function)
+        aggregates = aggregator.fit_predict(answers)
+    return get_accuracy(answers, aggregates, by=by)

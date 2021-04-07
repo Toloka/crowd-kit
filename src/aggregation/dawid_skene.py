@@ -1,15 +1,18 @@
 __all__ = ['DawidSkene']
 
+import attr
 import numpy as np
 
 from . import annotations
 from .annotations import manage_docstring, Annotation
 from .base_aggregator import BaseAggregator
 from .majority_vote import MajorityVote
+from .utils import get_most_probable_labels
 
 _EPS = np.float_power(10, -10)
 
 
+@attr.s
 @manage_docstring
 class DawidSkene(BaseAggregator):
     """
@@ -21,25 +24,16 @@ class DawidSkene(BaseAggregator):
     https://doi.org/10.2307/2346806
     """
 
-    probas: annotations.OPTIONAL_CLASSLEVEL_PROBAS
-    priors: annotations.OPTIONAL_CLASSLEVEL_PRIORS
-    task_labels: annotations.OPTIONAL_CLASSLEVEL_TASKS_LABELS
-    errors: annotations.OPTIONAL_CLASSLEVEL_ERRORS
+    n_iter: int = attr.ib()
 
-    def __init__(self, n_iter: int):
-        """
-        Args:
-            n_iter: Number of iterations to perform
-        """
-        self.n_iter = n_iter
-        self.proba = None
-        self.priors = None
-        self.tasks_labels = None
-        self.errors = None
+    probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
+    priors_: annotations.OPTIONAL_PRIORS = attr.ib(init=False)
+    labels_: annotations.OPTIONAL_LABELS = attr.ib(init=False)
+    errors_: annotations.OPTIONAL_ERRORS = attr.ib(init=False)
 
     @staticmethod
     @manage_docstring
-    def _m_step(data: annotations.DATA, probas: annotations.PROBAS) -> annotations.ERRORS:
+    def _m_step(data: annotations.LABELED_DATA, probas: annotations.TASKS_LABEL_PROBAS) -> annotations.ERRORS:
         """Perform M-step of Dawid-Skene algorithm.
 
         Given performers' answers and tasks' true labels probabilities estimates
@@ -53,7 +47,7 @@ class DawidSkene(BaseAggregator):
 
     @staticmethod
     @manage_docstring
-    def _e_step(data: annotations.DATA, priors: annotations.PROBAS, errors: annotations.ERRORS) -> annotations.PROBAS:
+    def _e_step(data: annotations.LABELED_DATA, priors: annotations.LABEL_PRIORS, errors: annotations.ERRORS) -> annotations.TASKS_LABEL_PROBAS:
         """
         Perform E-step of Dawid-Skene algorithm.
 
@@ -66,29 +60,32 @@ class DawidSkene(BaseAggregator):
         return probas.div(probas.sum(axis=1), axis=0)
 
     @manage_docstring
-    def fit(self, data: annotations.DATA) -> Annotation(type='DawidSkene', title='self'):
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):
 
         # Initialization
         data = data[['task', 'performer', 'label']]
-        self.probas = MajorityVote().fit_predict_proba(data).fillna(0)
-        self.priors = self.probas.mean()
-        self.errors = self._m_step(data, self.probas)
+        probas = MajorityVote().fit_predict_proba(data)
+        priors = probas.mean()
+        errors = self._m_step(data, probas)
 
         # Updating proba and errors n_iter times
         for _ in range(self.n_iter):
-            self.probas = self._e_step(data, self.priors, self.errors)
-            self.priors = self.probas.mean()
-            self.errors = self._m_step(data, self.probas)
+            probas = self._e_step(data, priors, errors)
+            priors = probas.mean()
+            errors = self._m_step(data, probas)
 
         # Saving results
-        self.task_labels = self._choose_labels(self.probas)
+        self.probas_ = probas
+        self.priors_ = priors
+        self.errors_ = errors
+        self.labels_ = get_most_probable_labels(probas)
 
         return self
 
     @manage_docstring
-    def fit_predict_proba(self, data: annotations.DATA) -> annotations.PROBAS:
-        return self.fit(data).probas
+    def fit_predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
+        return self.fit(data).probas_
 
     @manage_docstring
-    def fit_predict(self, data: annotations.DATA) -> annotations.TASKS_LABELS:
-        return self.fit(data).tasks_labels
+    def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        return self.fit(data).labels_

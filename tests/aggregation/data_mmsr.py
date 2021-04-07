@@ -1,47 +1,34 @@
-import pytest
 import pandas as pd
-import numpy as np
+import pytest
 
 
 # Wawa on toy YSDA
 
 @pytest.fixture
 def toy_labels_result_mmsr():
-    return pd.DataFrame(
-        [
-            ['t1', 'yes'],
-            ['t2', 'yes'],
-            ['t3', 'no'],
-            ['t4', 'yes'],
-            ['t5', 'no'],
-        ],
-        columns=['task', 'label']
+    return pd.Series(
+        ['yes', 'no', 'no', 'yes', 'no'],
+        index=pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task')
     )
 
 
 @pytest.fixture
 def toy_skills_result_mmsr():
-    return pd.DataFrame(
-        [
-            ['w1', 0.328452],
-            ['w2', 0.776393],
-            ['w3', 0.759235],
-            ['w4', 0.671548],
-            ['w5', 0.776393],
-        ],
-        columns=['performer', 'skill']
+    return pd.Series(
+        [-0.9486439852160969, 0.9764628672747041, 1.2428113335479982, 0.948643985216097, 0.9764628672747041],
+        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
     )
 
 
 @pytest.fixture
-def toy_probas_result_mmsr():
+def toy_scores_result_mmsr():
     result_df = pd.DataFrame(
         [
-            [0.473821, 0.526179],
-            [0.414814, 0.585186],
-            [0.639077, 0.360923],
-            [np.NaN, 1.000000],
-            [0.840177, 0.159823],
+            [0.014244720916141606, 0.9857552790838584],
+            [0.6023983861841676, 0.3976016138158324],
+            [1.0, 3.474074997309249e-17],
+            [0.0, 1.0],
+            [1.2968466945188564, -0.2968466945188564],
         ],
         columns=['no', 'yes'],
         index=['t1', 't2', 't3', 't4', 't5'],
@@ -58,33 +45,32 @@ def simple_labels_result_mmsr(simple_ground_truth_df):
 
 @pytest.fixture
 def simple_skills_result_mmsr():
-    return pd.DataFrame(
-        [
-            ['0c3eb7d5fcc414db137c4180a654c06e', 0.210819],
-            ['0f65edea0a6dc7b9acba1dea313bbb3d', 0.789181],
-            ['a452e450f913cfa987cad58d50393718', 0.789181],
-            ['b17c3301ad2ccbb798716fdd405d16e8', 0.789181],
-            ['bde3b214b06c1efa6cb1bc6284dc72d2', 0.789181],
-            ['e563e2fb32fce9f00123a65a1bc78c55', 0.779799],
-        ],
-        columns=['performer', 'skill']
-    )
+    skills = pd.Series({
+        '0c3eb7d5fcc414db137c4180a654c06e': -0.6268515139467665,
+        '0f65edea0a6dc7b9acba1dea313bbb3d': 2.0131458750666567,
+        'a452e450f913cfa987cad58d50393718': 2.0131458750666567,
+        'b17c3301ad2ccbb798716fdd405d16e8': 2.0131458750666567,
+        'bde3b214b06c1efa6cb1bc6284dc72d2': 2.0131458750666567,
+        'e563e2fb32fce9f00123a65a1bc78c55': 1.8527467194291514,
+    })
+    skills.index.name = 'performer'
+    return skills
 
 
 @pytest.fixture
-def simple_probas_result_mmsr():
+def simple_scores_result_mmsr():
     result_df = pd.DataFrame(
         [
-            [0.783892, np.NaN, 0.216108],
-            [0.751367, 0.248633, np.NaN],
-            [np.NaN, 0.844744, 0.155256],
-            [np.NaN, np.NaN, 1.000000],
-            [0.393067, 0.390206, 0.216726],
-            [np.NaN, np.NaN, 1.000000],
-            [np.NaN, 1.000000, np.NaN],
-            [np.NaN, 0.783892, 0.216108],
-            [np.NaN, np.NaN, 1.000000],
-            [np.NaN, np.NaN, 1.000000],
+            [1.1843984510373275, 0.0, -0.18439845103732766],
+            [0.7652428480475112, 0.23475715195248875, 0.0],
+            [0.0, 1.1158136796463138, -0.11581367964631392],
+            [0.0, 0.0, 1.0],
+            [0.6215252678195158, 0.5720046993399346, -0.19352996715945034],
+            [0.0, 0.0, 1.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 1.1843984510373275, -0.18439845103732766],
+            [0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0],
         ],
         columns=['chicken', 'goose', 'parrot'],
         index=[

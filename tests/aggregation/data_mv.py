@@ -1,35 +1,22 @@
-import pytest
 import pandas as pd
-import numpy as np
+import pytest
 
 
 # Majority vote on toy YSDA
 
 @pytest.fixture
 def toy_labels_result_mv():
-    return pd.DataFrame(
-        [
-            ['t1', 'no'],
-            ['t2', 'yes'],
-            ['t3', 'no'],
-            ['t4', 'yes'],
-            ['t5', 'no'],
-        ],
-        columns=['task', 'label']
+    return pd.Series(
+        ['no', 'yes', 'no', 'yes', 'no'],
+        pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
     )
 
 
 @pytest.fixture
 def toy_skills_result_mv():
-    return pd.DataFrame(
-        [
-            ['w1', 0.6],
-            ['w2', 0.8],
-            ['w3', 1.0],
-            ['w4', 0.4],
-            ['w5', 0.8],
-        ],
-        columns=['performer', 'skill']
+    return pd.Series(
+        [0.6, 0.8, 1.0, 0.4, 0.8],
+        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer')
     )
 
 
@@ -40,7 +27,7 @@ def toy_probas_result_mv():
             [0.5, 0.5],
             [0.6, 0.4],
             [0.4, 0.6],
-            [1.0, np.NaN],
+            [1.0, 0.0],
             [0.2, 0.8],
         ],
         columns=['yes', 'no'],
@@ -60,33 +47,32 @@ def simple_labels_result_mv(simple_ground_truth_df):
 
 @pytest.fixture
 def simple_skills_result_mv():
-    return pd.DataFrame(
-        [
-            ['0c3eb7d5fcc414db137c4180a654c06e',  0.333333],
-            ['0f65edea0a6dc7b9acba1dea313bbb3d',  1.000000],
-            ['a452e450f913cfa987cad58d50393718',  1.000000],
-            ['b17c3301ad2ccbb798716fdd405d16e8',  1.000000],
-            ['bde3b214b06c1efa6cb1bc6284dc72d2',  1.000000],
-            ['e563e2fb32fce9f00123a65a1bc78c55',  0.666667],
-        ],
-        columns=['performer', 'skill']
-    )
+    skills = pd.Series({
+        '0c3eb7d5fcc414db137c4180a654c06e': 0.333333,
+        '0f65edea0a6dc7b9acba1dea313bbb3d': 1.000000,
+        'a452e450f913cfa987cad58d50393718': 1.000000,
+        'b17c3301ad2ccbb798716fdd405d16e8': 1.000000,
+        'bde3b214b06c1efa6cb1bc6284dc72d2': 1.000000,
+        'e563e2fb32fce9f00123a65a1bc78c55': 0.666667,
+    })
+    skills.index.name = 'performer'
+    return skills
 
 
 @pytest.fixture
 def simple_probas_result_mv():
     result_df = pd.DataFrame(
         [
-            [0.666667, np.NaN, 0.333333],
-            [0.750000, 0.250000, np.NaN],
-            [np.NaN, 0.750000, 0.250000],
-            [np.NaN, np.NaN, 1.000000],
-            [0.333333, 0.333333, 0.333333],
-            [np.NaN, np.NaN, 1.000000],
-            [np.NaN, 1.000000, np.NaN],
-            [np.NaN, 0.666667, 0.333333],
-            [np.NaN, np.NaN, 1.000000],
-            [np.NaN, np.NaN, 1.000000],
+            [2/3, 0.0, 1/3],
+            [3/4, 1/4, 0.0],
+            [0.0, 3/4, 1/4],
+            [0.0, 0.0, 1.0],
+            [1/3, 1/3, 1/3],
+            [0.0, 0.0, 1.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 2/3, 1/3],
+            [0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0],
         ],
         columns=['chicken', 'goose', 'parrot'],
         index=[

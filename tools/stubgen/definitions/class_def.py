@@ -3,6 +3,7 @@ from io import StringIO
 from typing import get_type_hints
 
 from ..common import Node, BaseDefinition, BaseASTBuilder
+from . import AttributeDef
 
 
 class ClassDef(BaseDefinition):
@@ -17,7 +18,7 @@ class ClassDef(BaseDefinition):
         self.bases = []
         if self.obj.__bases__ != (object,):
             for base in self.node.obj.__bases__:
-                self.bases.append(self.ast.get_literal(base))
+                self.bases.append(self.ast.get_literal(Node(self.namespace, None, base)))
 
         self.members = {}
         for member_name in self.get_public_member_names():
@@ -46,7 +47,11 @@ class ClassDef(BaseDefinition):
 
         self.annotations = {}
         for member_name, annotation in get_type_hints(self.obj).items():
-            self.annotations[member_name] = self.get_annotation_rep(member_name)
+            self.annotations[member_name] = self.ast.get_attribute_annotation_definition(Node(
+                namespace=f'{self.namespace}.{self.name}' if self.namespace else self.name,
+                name=member_name,
+                obj=get_type_hints(self.obj)[member_name],
+            ))
 
     def __str__(self):
         sio = StringIO()
@@ -54,22 +59,23 @@ class ClassDef(BaseDefinition):
         if self.node.obj.__bases__ == (object,):
             sio.write(f'class {self.name}:\n')
         else:
-            bases = ', '.join(base.__name__ for base in self.node.obj.__bases__)
+            bases = ', '.join(str(base) for base in self.bases)
             sio.write(f'class {self.name}({bases}):\n')
 
         if self.docstring:
             sio.write(self.indent(f'{self.docstring}\n'))
+
+        if self.members:
+            for name, rep in self.members.items():
+                sio.write(self.indent(f'{rep}\n\n'))
 
         if self.annotations:
             for name, annotation in self.annotations.items():
                 sio.write(self.indent(f'{annotation}\n'))
             sio.write('\n')
 
-        if self.members:
-            for name, rep in self.members.items():
-                sio.write(self.indent(f'{rep}\n\n'))
-        else:
-            sio.write(self.indent('pass'))
+        if not self.docstring and not self.members and not self.annotations:
+            sio.write(self.indent('...'))
 
         return sio.getvalue()
 
@@ -92,7 +98,84 @@ class ClassDef(BaseDefinition):
                 continue
 
             # Only considering members that were actually (re)defined in cls
-            if getattr(cls, name) is not getattr(super_cls, name, None):
+            cls_attr = getattr(cls, name)
+            super_cls_attr = getattr(super_cls, name, None)
+
+            if hasattr(cls_attr, '__func__') and hasattr(super_cls_attr, '__func__'):
+                if getattr(cls_attr, '__func__') != getattr(super_cls_attr, '__func__'):
+                    yield name
+            elif getattr(cls, name) is not getattr(super_cls, name, None):
                 yield name
 
         # return [name for name in dir(self.obj) if not name.startswith('__') and name != '__init__']
+
+    def get_markdown(self):
+        sio = StringIO()
+
+        if self.name.startswith('_'):
+            return ''
+
+        sio.write('***\n\n')
+
+        if self.node.namespace:
+            sio.write(f'### {self.escape_markdown(self.node.obj.__module__)}.{self.escape_markdown(self.node.namespace)}.{self.escape_markdown(self.name)}\n\n')
+        else:
+            sio.write(f'### {self.escape_markdown(self.node.obj.__module__)}.{self.escape_markdown(self.name)}\n\n')
+
+        if self.node.obj.__bases__ == (object,):
+            sio.write(f'class {self.escape_markdown(self.name)}:\n\n')
+        else:
+            bases = ', '.join(str(base) for base in self.bases)
+            sio.write(f'class {self.escape_markdown(self.name)}({self.escape_markdown(bases)}):\n\n')
+
+        if self.docstring:
+            parsed_docstring = self.docstring.get_parsed()
+            if parsed_docstring.short_description:
+                sio.write(f'{self.escape_markdown(parsed_docstring.short_description)}\n\n')
+            if parsed_docstring.long_description:
+                sio.write(f'{self.escape_markdown(parsed_docstring.long_description)}\n\n')
+
+            if parsed_docstring.params:
+                first_attribute = True
+                for param in parsed_docstring.params:
+                    if param.args[0] == 'attribute':
+                        if first_attribute:
+                            sio.write('**Attributes:**\n\n')
+                            first_attribute = False
+                        sio.write(f'* ***{self.escape_markdown(str(self.annotations.get(param.arg_name) or param.arg_name))}***\n')
+                        sio.write(f'* * {self.escape_markdown(param.description)}\n\n')
+
+                first_arg = True
+                for param in parsed_docstring.params:
+                    if param.args[0] == 'param':
+                        if first_arg:
+                            sio.write('**Args:**\n\n')
+                            first_arg = False
+                        init_member = self.members['__init__']
+                        annotation = init_member.signature.parameters.get(param.arg_name) \
+                                     and init_member.signature.parameters[param.arg_name].annotation
+                        if annotation:
+                            sio.write(f'* ***{self.escape_markdown(param.arg_name)}: '
+                                      f'{self.escape_markdown(str(annotation))}***\n')
+                        else:
+                            sio.write(f'* ***{self.escape_markdown(param.arg_name)}***\n')
+                        sio.write(f'* * {self.escape_markdown(param.description)}\n\n')
+
+            first_example = True
+            for m in parsed_docstring.meta:
+                if m.args[0] == 'examples':
+                    if first_example:
+                        sio.write('**Examples:**\n\n')
+                        first_example = False
+                    description = m.description.replace('>>>', '\t')
+                    sio.write(f'{description}\n\n')
+
+        if self.members:
+            for name, rep in self.members.items():
+                if isinstance(rep, AttributeDef):
+                    continue
+                rep_markdown = rep.get_markdown()
+                if rep_markdown:
+                    sio.write(f'{rep_markdown}\n\n')
+        sio.write('***\n\n')
+        return sio.getvalue()

@@ -1,15 +1,21 @@
+__all__ = ['MMSR']
+
+from typing import Optional, Tuple
+
 import attr
 import numpy as np
 import pandas as pd
 import scipy.sparse.linalg as sla
 import scipy.stats as sps
-from typing import Optional, Tuple
 
+from . import annotations
+from .annotations import manage_docstring, Annotation
 from .base_aggregator import BaseAggregator
 from .majority_vote import MajorityVote
 
 
-@attr.attrs(auto_attribs=True)
+@attr.s
+@manage_docstring
 class MMSR(BaseAggregator):
     """
     Matrix Mean-Subsequence-Reduced Algorithm
@@ -17,144 +23,56 @@ class MMSR(BaseAggregator):
     Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion
     34th Conference on Neural Information Processing Systems (NeurIPS 2020)
     https://arxiv.org/abs/2010.12181
-
-    Input:
-    - crowd-dataframe [task, performer, label]
-    - n_iter - optional, the number of iterations to stop after
-    - eps - optional, threshold in change to stop the algorithm
-    Output:
-    - result-dataframe - [task, label]
     """
-    n_iter: int = 10000
-    eps: float = 1e-10
-    random_state: Optional[int] = 0
-    _observation_matrix: np.ndarray = np.array([])
-    _covariation_matrix: np.ndarray = np.array([])
-    _n_common_tasks: np.ndarray = np.array([])
-    _n_performers: int = 0
-    _n_tasks: int = 0
-    _n_labels: int = 0
-    _labels_mapping: dict = dict()
-    _performers_mapping: dict = dict()
-    _tasks_mapping: dict = dict()
+    n_iter: int = attr.ib(default=10000)
+    eps: float = attr.ib(default=1e-10)
+    random_state: Optional[int] = attr.ib(default=0)
+    _observation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
+    _covariation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
+    _n_common_tasks: np.ndarray = attr.ib(factory=lambda: np.array([]))
+    _n_performers: int = attr.ib(default=0)
+    _n_tasks: int = attr.ib(default=0)
+    _n_labels: int = attr.ib(default=0)
+    _labels_mapping: dict = attr.ib(factory=dict)
+    _performers_mapping: dict = attr.ib(factory=dict)
+    _tasks_mapping: dict = attr.ib(factory=dict)
 
-    def fit(self, answers: pd.DataFrame) -> 'MMSR':
-        """Calculates the skill for each performers through rank-one matrix completion
-        The calculated skills are stored in an instance of the class and can be obtained by the field 'performers_skills'
-        After 'fit' you can get 'performer_skills' from class field.
+    # Available after fit
+    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
 
-        Args:
-            answers(pandas.DataFrame): Frame contains performers answers. One row per answer.
-                Should contain columns 'performer', 'task', 'label'.
-        Returns:
-            MMSR: self for call next methods
+    # Available after predict or predict_score
+    scores_: annotations.OPTIONAL_SCORES = attr.ib(init=False)
+    labels_: annotations.OPTIONAL_LABELS = attr.ib(init=False)
 
-        Raises:
-            TypeError: If the input datasets are not of type pandas.DataFrame.
-            AssertionError: If there is some collumn missing in 'dataframes'.
-        """
-        self._answers_base_checks(answers)
-        self._fit_impl(answers)
+    @manage_docstring
+    def _apply(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):
+        mv = MajorityVote().fit(data, skills=self.skills_)
+        self.labels_ = mv.labels_
+        self.scores_ = mv.probas_
         return self
 
-    def predict(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Predict correct labels for tasks. Using calculated performers skill, stored in self instance.
-        After 'predict' you can get probabilities for all labels from class field 'probas'.
-
-        Args:
-            answers(pandas.DataFrame): Frame with performers answers on task. One row per answer.
-                Should contain columns 'performer', 'task', 'label'
-
-        Returns:
-            pandas.DataFrame: Predicted label for each task.
-                - task - unique values from input dataset
-                - label - most likely label
-
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'.
-                Or when 'predict' called without 'fit'.
-                Or if there are new performers in 'answer' that were not in 'answers' in 'fit'.
-        """
-        self._answers_base_checks(answers)
-        return self._predict_impl(answers)
-
-    def predict_proba(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Calculates probabilities for each label of task.
-        After 'predict_proba' you can get predicted labels from class field 'tasks_labels'.
-
-        Args:
-            answers(pandas.DataFrame): Frame with performers answers on task. One row per answer.
-                Should contain columns 'performer', 'task', 'label'
-
-        Returns:
-            pandas.DataFrame: Scores for each task and the likelihood of correctness.
-                - task - as dataframe index
-                - label - as dataframe columns
-                - proba - dataframe values
-
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'.
-                Or when 'predict' called without 'fit'.
-                Or if there are new performers in 'answer' that were not in 'answers' in 'fit'.
-        """
-        self._answers_base_checks(answers)
-        self._predict_impl(answers)
-        return self.probas
-
-    def fit_predict(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Performes 'fit' and 'predict' in one call.
-
-        Args:
-            answers(pandas.DataFrame): Frame with performers answers on task. One row per answer.
-                Should contain columns 'performer', 'task', 'label'
-
-        Returns:
-            pandas.DataFrame: Predicted label for each task.
-                - task - unique values from input dataset
-                - label - most likely label
-
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'.
-        """
-        self._answers_base_checks(answers)
-        self._fit_impl(answers)
-        return self._predict_impl(answers)
-
-    def fit_predict_proba(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Performes 'fit' and 'predict_proba' in one call.
-
-        Args:
-            answers(pandas.DataFrame): Frame with performers answers on task. One row per answer.
-                Should contain columns 'performer', 'task', 'label'
-
-        Returns:
-            pandas.DataFrame: Scores for each task and the likelihood of correctness.
-                - task - as dataframe index
-                - label - as dataframe columns
-                - proba - dataframe values
-
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'.
-        """
-        self._answers_base_checks(answers)
-        self._fit_impl(answers)
-        self._predict_impl(answers)
-        return self.probas
-
-    def _fit_impl(self, answers: pd.DataFrame) -> None:
-        self._construnct_covariation_matrix(answers)
+    @manage_docstring
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):
+        data = data[['task', 'performer', 'label']]
+        self._construnct_covariation_matrix(data)
         self._m_msr()
+        return self
 
-    def _predict_impl(self, answers: pd.DataFrame) -> pd.DataFrame:
-        weighted_mv = MajorityVote()
-        labels = weighted_mv.fit_predict(answers, self._performers_weights)
-        self.tasks_labels = labels
-        self.probas = weighted_mv.probas
-        return self.tasks_labels
+    @manage_docstring
+    def predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        return self._apply(data).labels_
+
+    @manage_docstring
+    def predict_score(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_SCORES:
+        return self._apply(data).scores_
+
+    @manage_docstring
+    def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        return self.fit(data).predict(data)
+
+    @manage_docstring
+    def fit_predict_score(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_SCORES:
+        return self.fit(data).predict_score(data)
 
     def _m_msr(self) -> None:
         F_param = int(np.floor(self._sparsity / 2)) - 1
@@ -165,10 +83,10 @@ class MMSR(BaseAggregator):
         X = np.abs(self._covariation_matrix)
 
         for _ in range(self.n_iter):
-            v_prev = v
-            u_prev = u
+            v_prev = np.copy(v)
+            u_prev = np.copy(u)
             for j in range(n):
-                target_v = X[:, j]
+                target_v = X[:, j].reshape(-1, 1)
                 target_v = target_v[observed_entries[:, j]] / u[observed_entries[:, j]]
 
                 y = self._remove_largest_and_smallest_F_value(target_v, F_param, v[j][0], self._n_tasks)
@@ -179,7 +97,7 @@ class MMSR(BaseAggregator):
 
             for i in range(m):
                 target_u = X[i, :].reshape(-1, 1)
-                target_u = target_u[observed_entries[i, :].ravel()] / v[observed_entries[i, :].ravel()]
+                target_u = target_u[observed_entries[i, :]] / v[observed_entries[i, :]]
                 y = self._remove_largest_and_smallest_F_value(target_u, F_param, u[i][0], self._n_tasks)
                 if len(y) == 0:
                     u[i] = u[i]
@@ -197,22 +115,15 @@ class MMSR(BaseAggregator):
 
         performers_probas = x_MSR * (self._n_labels - 1) / (self._n_labels) + 1 / self._n_labels
         performers_probas = performers_probas.ravel()
-        self._set_skills_from_array(performers_probas)
-        self._set_performers_weights()
+        skills = np.log(performers_probas * (self._n_labels - 1) / (1 - performers_probas))
 
-    def _set_skills_from_array(self, array: np.ndarray) -> None:
+        self.skills_ = self._get_skills_from_array(skills)
+
+    @manage_docstring
+    def _get_skills_from_array(self, array: np.ndarray) -> annotations.SKILLS:
         inverse_performers_mapping = {ind: performer for performer, ind in self._performers_mapping.items()}
-        self.performers_skills = pd.DataFrame(
-            [
-                [inverse_performers_mapping[ind], array[ind]]
-                for ind in range(len(array))
-            ],
-            columns=['performer', 'skill']
-        )
-
-    def _set_performers_weights(self) -> None:
-        self._performers_weights = self.performers_skills.copy().rename(columns={'skill': 'weight'})
-        self._performers_weights['weight'] = self._performers_weights['weight'] * (self._n_labels - 1) / (self._n_labels) + 1 / self._n_labels
+        index = [inverse_performers_mapping[i] for i in range(len(array))]
+        return pd.Series(array, index=pd.Index(index, name='performer'))
 
     @staticmethod
     def _sign_determination_valid(C: np.ndarray, s_abs: np.ndarray) -> np.ndarray:
@@ -256,7 +167,8 @@ class MMSR(BaseAggregator):
             y[0][0] = 1 / np.sqrt(n_tasks)
         return y
 
-    def _construnct_covariation_matrix(self, answers: pd.DataFrame) -> Tuple[np.ndarray]:
+    @manage_docstring
+    def _construnct_covariation_matrix(self, answers: annotations.LABELED_DATA) -> Tuple[np.ndarray]:
         labels = pd.unique(answers.label)
         self._n_labels = len(labels)
         self._labels_mapping = {labels[idx]: idx + 1 for idx in range(self._n_labels)}
@@ -271,7 +183,8 @@ class MMSR(BaseAggregator):
 
         self._observation_matrix = np.zeros(shape=(self._n_performers, self._n_tasks))
         for i, row in answers.iterrows():
-            self._observation_matrix[self._performers_mapping[row['performer']]][self._tasks_mapping[row['task']]] = self._labels_mapping[row['label']]
+            self._observation_matrix[self._performers_mapping[row['performer']]][self._tasks_mapping[row['task']]] = \
+            self._labels_mapping[row['label']]
 
         self._n_common_tasks = np.sign(self._observation_matrix) @ np.sign(self._observation_matrix).T
         self._n_common_tasks -= np.diag(np.diag(self._n_common_tasks))

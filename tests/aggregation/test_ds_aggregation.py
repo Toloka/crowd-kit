@@ -1,28 +1,28 @@
 """
-Simplest aggregation algorythms tests on toy YSDA dataset
+Simplest aggregation algorithms tests on toy YSDA dataset
 Testing all boundary conditions and asserts
 """
 import numpy as np
 import pandas as pd
 import pytest
-
-from pandas.testing import assert_frame_equal
 from crowdkit.aggregation import DawidSkene
-from crowdkit.aggregation.utils import evaluate
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 
 def test_aggregate_ds_on_toy_ysda(toy_answers_df, toy_ground_truth_df):
     np.random.seed(42)
-    predict_df = DawidSkene(10).fit_predict(toy_answers_df)
-    accuracy = evaluate(toy_ground_truth_df, predict_df)
-    assert accuracy == 1.0
+    assert_series_equal(
+        DawidSkene(10).fit(toy_answers_df).labels_.sort_index(),
+        toy_ground_truth_df.sort_index(),
+    )
 
 
 def test_aggregate_ds_on_simple(simple_answers_df, simple_ground_truth_df):
     np.random.seed(42)
-    predict_df = DawidSkene(10).fit_predict(simple_answers_df)
-    accuracy = evaluate(simple_ground_truth_df, predict_df)
-    assert accuracy == 1.0
+    assert_series_equal(
+        DawidSkene(10).fit(simple_answers_df).labels_.sort_index(),
+        simple_ground_truth_df.sort_index(),
+    )
 
 
 def _make_probas(data):
@@ -33,7 +33,7 @@ def _make_probas(data):
 
 def _make_tasks_labels(data):
     # TODO: should task be indexed?
-    return pd.DataFrame(data, columns=['task', 'label'])
+    return pd.DataFrame(data, columns=['task', 'label']).set_index('task').squeeze().rename()
 
 
 def _make_errors(data):
@@ -182,6 +182,6 @@ def test_dawid_skene_step_by_step(request, data, n_iter):
     errors_iter = request.getfixturevalue(f'errors_iter_{n_iter}')
 
     ds = DawidSkene(n_iter).fit(data)
-    assert_frame_equal(probas, ds.probas, check_like=True, atol=0.005)
-    assert_frame_equal(tasks_labels, ds.tasks_labels, check_like=True, atol=0.005)
-    assert_frame_equal(errors_iter, ds.errors, check_like=True, atol=0.005)
+    assert_frame_equal(probas, ds.probas_, check_like=True, atol=0.005)
+    assert_frame_equal(errors_iter, ds.errors_, check_like=True, atol=0.005)
+    assert_series_equal(tasks_labels, ds.labels_, atol=0.005)

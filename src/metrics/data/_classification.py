@@ -42,8 +42,8 @@ def consistency(answers: pd.DataFrame,
     """
     _check_answers(answers)
     aggregated = aggregator.fit_predict(answers)
-    if performers_skills is None and hasattr(aggregator, 'performers_skills'):
-        performers_skills = aggregator.performers_skills.set_index('performer')['skill']
+    if performers_skills is None and hasattr(aggregator, 'skills_'):
+        performers_skills = aggregator.skills_
     else:
         raise AssertionError('This aggregator is not supported. Please, provide performers skills.')
 
@@ -56,7 +56,7 @@ def consistency(answers: pd.DataFrame,
     for label in labels:
         answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
     labels_proba = answers.groupby('task').prod()
-    labels_proba['aggregated_label'] = aggregated.set_index('task')['label']
+    labels_proba['aggregated_label'] = aggregated
     labels_proba['denominator'] = labels_proba[list(labels)].sum(axis=1)
     consistecies = labels_proba.apply(_task_consistency, axis=1)
 

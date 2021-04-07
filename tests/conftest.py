@@ -48,27 +48,18 @@ def toy_answers_df():
 
 @pytest.fixture
 def toy_ground_truth_df():
-    return pd.DataFrame(
-        [
-            ['t1', 'yes'],
-            ['t2', 'yes'],
-            ['t3', 'no'],
-            ['t4', 'yes'],
-            ['t5', 'no'],
-        ],
-        columns=['task', 'label']
+    return pd.Series(
+        ['yes', 'yes', 'no', 'yes', 'no'],
+        pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
     )
 
 
 @pytest.fixture
 def toy_gold_df():
-    return pd.DataFrame(
-        [
-            ['t1', 'yes', 1.0],
-            ['t2', 'yes', 1.0],
-        ],
-        columns=['task', 'label', 'weight']
-    )
+    return pd.Series({
+        't1': 'yes',
+        't2': 'yes',
+    })
 
 
 # Simple dataset that imitates real toloka answers
@@ -120,33 +111,31 @@ def simple_answers_df():
 
 @pytest.fixture
 def simple_ground_truth_df():
-    return pd.DataFrame(
-        [
-            ['1231239876--5fac0d234ffb2f3b00893eec', 'goose'],
-            ['1231239876--5fac0d234ffb2f3b00893f03', 'goose'],
-            ['1231239876--5fac0d234ffb2f3b00893f05', 'goose'],
-            ['1231239876--5fac0d234ffb2f3b00893efb', 'parrot'],
-            ['1231239876--5fac0d234ffb2f3b00893f02', 'parrot'],
-            ['1231239876--5fac0d234ffb2f3b00893f08', 'parrot'],
-            ['1231239876--5fac0d234ffb2f3b00893f07', 'parrot'],
-            ['1231239876--5fac0d234ffb2f3b00893ee8', 'chicken'],
-            ['1231239876--5fac0d234ffb2f3b00893efd', 'chicken'],
-            ['1231239876--5fac0d234ffb2f3b00893ee4', 'chicken'],
-        ],
-        columns=['task', 'label']
-    )
+    ground_truth = pd.Series({
+        '1231239876--5fac0d234ffb2f3b00893eec': 'goose',
+        '1231239876--5fac0d234ffb2f3b00893f03': 'goose',
+        '1231239876--5fac0d234ffb2f3b00893f05': 'goose',
+        '1231239876--5fac0d234ffb2f3b00893efb': 'parrot',
+        '1231239876--5fac0d234ffb2f3b00893f02': 'parrot',
+        '1231239876--5fac0d234ffb2f3b00893f08': 'parrot',
+        '1231239876--5fac0d234ffb2f3b00893f07': 'parrot',
+        '1231239876--5fac0d234ffb2f3b00893ee8': 'chicken',
+        '1231239876--5fac0d234ffb2f3b00893efd': 'chicken',
+        '1231239876--5fac0d234ffb2f3b00893ee4': 'chicken',
+    })
+    ground_truth.index.name = 'task'
+    return ground_truth
 
 
 @pytest.fixture
 def simple_gold_df():
-    return pd.DataFrame(
-        [
-            ['1231239876--5fac0d234ffb2f3b00893eec', 'goose'],
-            ['1231239876--5fac0d234ffb2f3b00893efb', 'parrot'],
-            ['1231239876--5fac0d234ffb2f3b00893ee8', 'chicken'],
-        ],
-        columns=['task', 'label']
-    )
+    true_labels = pd.Series({
+        '1231239876--5fac0d234ffb2f3b00893eec': 'goose',
+        '1231239876--5fac0d234ffb2f3b00893efb': 'parrot',
+        '1231239876--5fac0d234ffb2f3b00893ee8': 'chicken',
+    })
+    true_labels.index.name = 'task'
+    return true_labels
 
 
 @pytest.fixture
@@ -211,4 +200,12 @@ def simple_text_df():
             ['7601-101619-0003', 'nature discovers his confusion to us painters hold the same emotions and grimaces of the face that serve for gripping serve for laughter too and indeed before the one or the other be finished do but observe the painter\'s manner of handling and you will be in doubt to which of the two the design tends and the extreme of laughter doesn\'t last to bring tears', 'caf701c07a3374bdc98ae6bf230d4d56', np.nan, np.array([0.77356094, 2.0207922]), np.nan],  # noqa
         ],
         columns=['task', 'output', 'performer', 'golden', 'embedding', 'golden_embedding']
+    )
+
+
+@pytest.fixture
+def simple_text_true_embeddings():
+    return pd.Series(
+        [np.array([0.8619265, 0.3983395]), np.array([10.686009, 17.633106])],
+        index=pd.Index(['1255-74899-0020', '7601-175351-0021'], name='task')
     )

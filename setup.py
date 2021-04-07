@@ -9,7 +9,7 @@ setup(
     name='crowd-kit',
     package_dir={PREFIX: 'src'},
     packages=[f'{PREFIX}.{package}' for package in find_packages('src')],
-    version='0.0.1',
+    version='0.0.2',
     description='Python libraries for crowdsourcing',
     license='Apache 2.0',
     author='Vladimir Losev',

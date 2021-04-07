@@ -1,18 +1,23 @@
 from typing import Any, Iterator, Tuple, Union
+
+import nltk.translate.gleu_score as gleu
+import numpy as np
 import pandas as pd
 import scipy.stats as sps
-import numpy as np
 from tqdm.auto import tqdm
-import nltk.translate.gleu_score as gleu
-# from sentence_transformers import SentenceTransformer
+import attr
 
 from .base_embedding_aggregator import BaseEmbeddingAggregator
+
+
+# from sentence_transformers import SentenceTransformer
 
 
 def glue_similarity(hyp, ref):
     return gleu.sentence_gleu([hyp.split()], ref)
 
 
+@attr.s
 class HRRASA(BaseEmbeddingAggregator):
     """
     Hybrid Reliability and Representation Aware Sequence Aggregation
@@ -24,26 +29,13 @@ class HRRASA(BaseEmbeddingAggregator):
     https://doi.org/10.1145/3397271.3401239
     """
 
-    def __init__(self, n_iter: int = 100, encoder: Any = None, output_similarity: Any = glue_similarity, lambda_emb: float = 0.5, lambda_out: float = 0.5, alpha: float = 0.05, silent: bool = True):
-        """
-        Args:
-            n_iter: A number of iterations. Default: 100.
-            encoder: A class that encodes a given performer's output into a fixed-size vector (ndarray)
-                with `encode` method. default: `paraphrase-distilroberta-base-v1` from sentence-transformers.
-            output_similarity: a similarity metric on raw outputs. A function that takes two arguments: performer's
-                outputs and returns a single number — a similarity measure. default: GLUE.
-            lambda_emb: embedding reliablity weight. default: 0.5.
-            lambda_out: raw output reliability weight. default: 0.5.
-            alpha: confidence level for processing performers' reliabilities.
-            silent: if not set, shows progress-bar during the training. default: True.
-        """
-        super(HRRASA, self).__init__(encoder, silent)
-        self.n_iter = n_iter
-
-        self._output_similarity = output_similarity
-        self.lambda_emb = lambda_emb
-        self.lambda_out = lambda_out
-        self.alpha = alpha
+    n_iter: int = attr.ib(default=100)
+    encoder = attr.ib(default=None)
+    output_similarity = attr.ib(default=glue_similarity)
+    lambda_emb: float = attr.ib(default=0.5)
+    lambda_out: float = attr.ib(default=0.5)
+    alpha: float = attr.ib(default=0.05)
+    silent: bool = attr.ib(default=True)
 
     def fit_predict(self, answers: pd.DataFrame, return_ranks: bool = False) -> Union[pd.Series, pd.DataFrame]:
         """
@@ -111,7 +103,6 @@ class HRRASA(BaseEmbeddingAggregator):
     def _preprocess_answers(self, answers: pd.DataFrame) -> pd.DataFrame:
         """Does basic checks for given data and obtaines embeddings if they are not provided.
         """
-        self._answers_base_checks(answers)
         assert not ('golden' in answers and 'golden_embedding' not in answers and self.encoder is None), 'Provide encoder or golden_embeddings'
         processed_answers = answers.copy(deep=False)
         if 'embedding' not in answers:
@@ -164,39 +155,3 @@ class HRRASA(BaseEmbeddingAggregator):
             seq_sum /= (overlap - 1)
 
             yield performer, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
-
-
-class RASA(HRRASA):
-    """
-    Representation Aware Sequence Aggregation
-    Jiyi Li and Fumiyo Fukumoto. 2019.
-    A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation
-    Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP. 24–28.
-
-    https://doi.org/10.18653/v1/D19-5904
-
-    """
-    def __init__(self, n_iter: int = 100, encoder: Any = None, alpha: float = 0.05, silent: bool = True):
-        """
-        Args:
-            n_iter: A number of iterations. Default: 100.
-            encoder: A class that encodes a given performer's output into a fixed-size vector (ndarray)
-                with `encode` method. default: `paraphrase-distilroberta-base-v1` from sentence-transformers.
-            alpha: confidence level for processing performers' reliabilities.
-            silent: if not set, shows progress-bar during the training. Default: True.
-        """
-        super(RASA, self).__init__(n_iter, encoder, alpha=alpha, silent=silent)
-
-    def fit_predict(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """
-        Args:
-            answers: A pandas.DataFrame containing `task`, `performer` and `output` columns.
-                If the `embedding` column exists, embeddings are not obtained by the `encoder`.
-            golden_embeddings: A pandas Series containing embeddings of golden outputs with
-                `task` as an index. If is not passed, embeddings are computed by the `encoder`.
-
-        Returns:
-            pandas.Series indexed by `task` with values — aggregated outputs.
-        """
-        processed_answers = self._preprocess_answers(answers)
-        return self._fit_impl(processed_answers, use_local_reliability=False)

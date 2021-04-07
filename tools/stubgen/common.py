@@ -1,11 +1,13 @@
 import textwrap
-from typing import Optional, Generator, get_type_hints
+import re
+
+from typing import Generator, Optional
 
 
 class Node:
     """Spec for a represented object"""
 
-    def __init__(self, namespace: str, name: str, obj):
+    def __init__(self, namespace: str, name: Optional[str], obj):
         self.namespace = namespace
         self.name = name
         self.obj = obj
@@ -23,45 +25,15 @@ class Node:
             obj=getattr(self.obj, member_name)
         )
 
-    def get_annotation(self, member_name: str) -> 'Node':
+    def get_literal_node(self, obj):
         return Node(
-            namespace=f'{self.namespace}.{self.name}' if self.namespace else self.name if self.name else '',
-            name=member_name,
-            obj=get_type_hints(self.obj)[member_name],
+            namespace=self.namespace,
+            name=None,
+            obj=obj
         )
 
 
 class BaseRepresentation:
-
-    def __str__(self):
-        raise NotImplementedError
-
-    def __iter__(self):
-        raise NotImplementedError
-
-    def traverse(self) -> Generator['BaseRepresentation', None, None]:
-        """Recursively traverses the definition tree"""
-        yield self
-        for child in self:
-            yield from child.traverse()
-
-
-class BaseLiteral(BaseRepresentation):
-
-    def __init__(self, obj, ast: 'ASTBuilder'):
-        self.obj = obj
-        self.ast = ast
-
-    def __str__(self):
-        raise NotImplementedError
-
-    def __iter__(self):
-        raise NotImplementedError
-
-
-class BaseDefinition(BaseRepresentation):
-
-    INDENT = ' ' * 4
 
     def __init__(self, node: Node, ast: 'ASTBuilder'):
         self.node = node
@@ -81,14 +53,51 @@ class BaseDefinition(BaseRepresentation):
     def name(self):
         return self.node.name
 
+    @property
+    def namespace(self):
+        return self.node.namespace
+
+    def traverse(self) -> Generator['BaseRepresentation', None, None]:
+        """Recursively traverses the definition tree"""
+        yield self
+        for child in self:
+            yield from child.traverse()
+
+
+class BaseLiteral(BaseRepresentation):
+
+    def __str__(self):
+        raise NotImplementedError
+
+    def __iter__(self):
+        raise NotImplementedError
+
+
+class BaseDefinition(BaseRepresentation):
+
+    INDENT = ' ' * 4
+
+    def __str__(self):
+        raise NotImplementedError
+
+    def __iter__(self):
+        raise NotImplementedError
+
     def indent(self, string: str, level: int = 1) -> str:
         return textwrap.indent(string, self.INDENT * level)
 
     def get_member_rep(self, member_name: str):
         return self.ast.get_definition(self.node.get_member(member_name))
 
-    def get_annotation_rep(self, member_name: str):
-        return self.ast.get_attribute_annotation_definition(self.node.get_annotation(member_name))
+    def get_markdown(self):
+        raise NotImplementedError
+
+    def escape_markdown(self, s: str, escape_asterisk: bool = False):
+        new_s = re.sub(r'_$|__$|^_|^__| _| __|_ |__ ', r'\\\g<0>', s)
+        if escape_asterisk:
+            return re.sub(r'\*', r'\\\g<0>', new_s)
+        else:
+            return re.sub(r'\*', r'\t\g<0>', new_s)
 
 
 class BaseASTBuilder:

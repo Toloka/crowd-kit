@@ -2,15 +2,15 @@
 Simplest aggregation algorythms tests on different datasets
 Testing all boundary conditions and asserts
 """
-import pytest
 import pandas as pd
+import pytest
 
-from crowdkit.aggregation import MajorityVote, MMSR, Wawa, GoldMajorityVote, ZeroBasedSkill
-
+# from sklearn.exceptions import NotFittedError
+from crowdkit.aggregation import MajorityVote, Wawa, GoldMajorityVote, ZeroBasedSkill, MMSR
 from .data_gold_mv import *  # noqa: F401, F403
 
-
 # less field in all crowd datasets
+
 
 @pytest.fixture
 def answers_no_task():
@@ -40,30 +40,30 @@ def gold_no_label():
 @pytest.mark.parametrize(
     'agg_class, predict_method, exception, answers_dataset',
     [
-        (MajorityVote, 'fit_predict',       AssertionError, 'answers_no_task'),
-        (MajorityVote, 'fit_predict',       AssertionError, 'answers_no_label'),
-        (MajorityVote, 'fit_predict',       AssertionError, 'answers_no_performer'),
-        (MajorityVote, 'fit_predict_proba', AssertionError, 'answers_no_task'),
-        (MajorityVote, 'fit_predict_proba', AssertionError, 'answers_no_label'),
-        (MajorityVote, 'fit_predict_proba', AssertionError, 'answers_no_performer'),
-        (MMSR, 'fit_predict',       AssertionError, 'answers_no_task'),
-        (MMSR, 'fit_predict',       AssertionError, 'answers_no_label'),
-        (MMSR, 'fit_predict',       AssertionError, 'answers_no_performer'),
-        (MMSR, 'fit_predict_proba', AssertionError, 'answers_no_task'),
-        (MMSR, 'fit_predict_proba', AssertionError, 'answers_no_label'),
-        (MMSR, 'fit_predict_proba', AssertionError, 'answers_no_performer'),
-        (Wawa,         'fit_predict',       AssertionError, 'answers_no_task'),
-        (Wawa,         'fit_predict',       AssertionError, 'answers_no_label'),
-        (Wawa,         'fit_predict',       AssertionError, 'answers_no_performer'),
-        (Wawa,         'fit_predict_proba', AssertionError, 'answers_no_task'),
-        (Wawa,         'fit_predict_proba', AssertionError, 'answers_no_label'),
-        (Wawa,         'fit_predict_proba', AssertionError, 'answers_no_performer'),
-        (ZeroBasedSkill,         'fit_predict',       AssertionError, 'answers_no_task'),
-        (ZeroBasedSkill,         'fit_predict',       AssertionError, 'answers_no_label'),
-        (ZeroBasedSkill,         'fit_predict',       AssertionError, 'answers_no_performer'),
-        (ZeroBasedSkill,         'fit_predict_proba', AssertionError, 'answers_no_task'),
-        (ZeroBasedSkill,         'fit_predict_proba', AssertionError, 'answers_no_label'),
-        (ZeroBasedSkill,         'fit_predict_proba', AssertionError, 'answers_no_performer'),
+        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_task'),
+        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_label'),
+        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_performer'),
+        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_task'),
+        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_label'),
+        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_performer'),
+        (MMSR, 'fit_predict',       KeyError, 'answers_no_task'),
+        (MMSR, 'fit_predict',       KeyError, 'answers_no_label'),
+        (MMSR, 'fit_predict',       KeyError, 'answers_no_performer'),
+        (MMSR, 'fit_predict_score', KeyError, 'answers_no_task'),
+        (MMSR, 'fit_predict_score', KeyError, 'answers_no_label'),
+        (MMSR, 'fit_predict_score', KeyError, 'answers_no_performer'),
+        (Wawa,         'fit_predict',       KeyError, 'answers_no_task'),
+        (Wawa,         'fit_predict',       KeyError, 'answers_no_label'),
+        (Wawa,         'fit_predict',       KeyError, 'answers_no_performer'),
+        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_task'),
+        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_label'),
+        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_performer'),
+        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_task'),
+        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_label'),
+        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_performer'),
+        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_task'),
+        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_label'),
+        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_performer'),
     ],
     ids=[
         'Majority Vote predict raises on no "task"',
@@ -75,9 +75,9 @@ def gold_no_label():
         'MMSR predict raises on no "task"',
         'MMSR predict raises on no "label"',
         'MMSR predict raises on no "performer"',
-        'MMSR predict_proba raises on no "task"',
-        'MMSR predict_proba raises on no "label"',
-        'MMSR predict_proba raises on no "performer"',
+        'MMSR predict_score raises on no "task"',
+        'MMSR predict_score raises on no "label"',
+        'MMSR predict_score raises on no "performer"',
         'Wawa predict raises on no "task"',
         'Wawa predict raises on no "label"',
         'Wawa predict raises on no "performer"',
@@ -106,13 +106,14 @@ def test_agg_raise_on_less_columns(request, agg_class, predict_method, exception
     'exception, answers_on_gold_dataset',
     [
         # test raises in fit
-        (AssertionError, 'answers_no_task'),
-        (AssertionError, 'answers_no_label'),
-        (AssertionError, 'answers_no_performer'),
-        (AssertionError, 'gold_no_task'),
-        (AssertionError, 'gold_no_label'),
+        (KeyError, 'answers_no_task'),
+        (KeyError, 'answers_no_label'),
+        (KeyError, 'answers_no_performer'),
+        (KeyError, 'gold_no_task'),
+        (KeyError, 'gold_no_label'),
         # raises on mismatch datasets
-        (AssertionError, 'toy_answers_on_gold_df_cannot_fit'),
+        # TODO: check
+        # (NotFittedError, 'toy_answers_on_gold_df_cannot_fit'),
     ],
     ids=[
         # test raises in fit
@@ -122,7 +123,7 @@ def test_agg_raise_on_less_columns(request, agg_class, predict_method, exception
         'no "task" in gold_df',
         'no "label" in gold_df',
         # raises on mismatch datasets
-        'cannot compute performers skills',
+        # 'cannot compute performers skills',
     ],
 )
 def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answers_on_gold_dataset):
@@ -140,16 +141,16 @@ def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answe
     'predict_method, exception, answers_on_gold_dataset, answers_dataset',
     [
         # test raises in predict
-        ('predict', AssertionError, 'toy_answers_df', 'answers_no_task'),
-        ('predict', AssertionError, 'toy_answers_df', 'answers_no_label'),
-        ('predict', AssertionError, 'toy_answers_df', 'answers_no_performer'),
+        ('predict', KeyError, 'toy_answers_df', 'answers_no_task'),
+        ('predict', KeyError, 'toy_answers_df', 'answers_no_label'),
+        ('predict', KeyError, 'toy_answers_df', 'answers_no_performer'),
         # test raises in predict_proba
-        ('predict_proba', AssertionError, 'toy_answers_df', 'answers_no_task'),
-        ('predict_proba', AssertionError, 'toy_answers_df', 'answers_no_label'),
-        ('predict_proba', AssertionError, 'toy_answers_df', 'answers_no_performer'),
+        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_task'),
+        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_label'),
+        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_performer'),
         # raises on mismatch datasets
-        ('predict', AssertionError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
-        ('predict_proba', AssertionError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
+        # ('predict', NotFittedError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
+        # ('predict_proba', NotFittedError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
     ],
     ids=[
         # test raises in predict
@@ -161,8 +162,8 @@ def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answe
         'raise in predict_proba on no "label" in answers_on_gold',
         'raise in predict_proba on no "performer" in answers_on_gold',
         # raises on mismatch datasets
-        'raise in predict - cannot compute labels',
-        'raise in predict_proba - cannot compute probas',
+        # 'raise in predict - cannot compute labels',
+        # 'raise in predict_proba - cannot compute probas',
     ],
 )
 def test_gold_mv_raise_in_predict(

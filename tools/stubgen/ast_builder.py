@@ -1,9 +1,11 @@
 import inspect
-from typing import Optional
+
+from enum import Enum
+from typing import Optional, TypeVar
 
 from .common import BaseDefinition, BaseLiteral, BaseASTBuilder, Node
-from .definitions import AttributeAnnotationDef, AttributeDef, ClassDef, DocumentationDef, FunctionDef, ModuleDef, StaticMethodDef, ClassMethodDef
-from .literals import AnnotationLiteral, ReferenceLiteral, TypeHintLiteral, ValueLiteral
+from .definitions import AttributeAnnotationDef, AttributeDef, ClassDef, DocumentationDef, FunctionDef, ModuleDef, StaticMethodDef, ClassMethodDef, EnumDef
+from .literals import ReferenceLiteral, TypeHintLiteral, TypeVarLiteral, ValueLiteral
 
 
 class ASTBuilder(BaseASTBuilder):
@@ -15,7 +17,8 @@ class ASTBuilder(BaseASTBuilder):
     def __str__(self):
         return str(self.module_rep)
 
-    #
+    def get_markdown(self):
+        return self.module_rep.get_markdown()
 
     def get_docstring(self, node: Node) -> Optional[BaseDefinition]:
         if getattr(node.obj, '__doc__') is not None:
@@ -63,6 +66,8 @@ class ASTBuilder(BaseASTBuilder):
     def get_class_definition(self, node: Node) -> BaseDefinition:
 
         if node.obj.__module__ == self.module_name:
+            if node.obj.__bases__ == (Enum,):
+                return EnumDef(node, self)
             return ClassDef(node, self)
 
         return self.get_attribute_definition(node)
@@ -83,20 +88,19 @@ class ASTBuilder(BaseASTBuilder):
 
     # Get representations for values
 
-    def get_literal(self, obj):
+    def get_literal(self, node: Node):
         """Resolves an object to a literal"""
 
-        if inspect.isclass(obj) or inspect.ismodule(obj):
-            return ReferenceLiteral(obj, self)
+        if inspect.isclass(node.obj) or inspect.ismodule(node.obj):
+            return ReferenceLiteral(node, self)
 
-        if str(obj).startswith('typing.'):
-            return TypeHintLiteral(obj, self)
+        if isinstance(node.obj, TypeVar):
+            return TypeVarLiteral(node, self)
 
-        return ValueLiteral(obj, self)
+        if str(node.obj).startswith('typing.'):
+            return TypeHintLiteral(node, self)
 
-    def get_literal_for_annotation(self, obj) -> AnnotationLiteral:
-        """Get a literal for annotations"""
-        return AnnotationLiteral(obj, self)
+        return ValueLiteral(node, self)
 
     def get_literal_for_reference(self, obj) -> BaseLiteral:
         """Get a literal in form of `x.y.z`"""

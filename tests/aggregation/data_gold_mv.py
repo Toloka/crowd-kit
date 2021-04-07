@@ -1,6 +1,5 @@
-import pytest
 import pandas as pd
-import numpy as np
+import pytest
 
 
 # Gold Majority vote on toy YSDA
@@ -12,15 +11,9 @@ def toy_labels_result_gold(toy_ground_truth_df):
 
 @pytest.fixture
 def toy_skills_result_gold():
-    return pd.DataFrame(
-        [
-            ['w1', 0.5],
-            ['w2', 1.0],
-            ['w3', 1.0],
-            ['w4', 0.5],
-            ['w5', 0.0],
-        ],
-        columns=['performer', 'skill']
+    return pd.Series(
+        [0.5, 1.0, 1.0, 0.5, 0.0],
+        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
     )
 
 
@@ -31,7 +24,7 @@ def toy_probas_result_gold():
             [0.750000, 0.250000],
             [0.833333, 0.166667],
             [0.333333, 0.666667],
-            [1.0, np.NaN],
+            [1.0, 0.0],
             [0.166667, 0.833333],
         ],
         columns=['yes', 'no'],
@@ -83,33 +76,32 @@ def simple_labels_result_gold(simple_ground_truth_df):
 
 @pytest.fixture
 def simple_skills_result_gold():
-    return pd.DataFrame(
-        [
-            ['0c3eb7d5fcc414db137c4180a654c06e', 0.5],
-            ['0f65edea0a6dc7b9acba1dea313bbb3d', 1.0],
-            ['a452e450f913cfa987cad58d50393718', 1.0],
-            ['b17c3301ad2ccbb798716fdd405d16e8', 1.0],
-            ['bde3b214b06c1efa6cb1bc6284dc72d2', 1.0],
-            ['e563e2fb32fce9f00123a65a1bc78c55', 0.5],
-        ],
-        columns=['performer', 'skill']
-    )
+    skills = pd.Series({
+        '0c3eb7d5fcc414db137c4180a654c06e': 0.5,
+        '0f65edea0a6dc7b9acba1dea313bbb3d': 1.0,
+        'a452e450f913cfa987cad58d50393718': 1.0,
+        'b17c3301ad2ccbb798716fdd405d16e8': 1.0,
+        'bde3b214b06c1efa6cb1bc6284dc72d2': 1.0,
+        'e563e2fb32fce9f00123a65a1bc78c55': 0.5,
+    })
+    skills.index.name = 'performer'
+    return skills
 
 
 @pytest.fixture
 def simple_probas_result_gold():
     result_df = pd.DataFrame(
         [
-            [0.800000, np.NaN, 0.200000],
-            [0.857143, 0.142857, np.NaN],
-            [np.NaN, 0.857143, 0.142857],
-            [np.NaN, np.NaN, 1.000000],
-            [0.500000, 0.250000, 0.250000],
-            [np.NaN, np.NaN, 1.000000],
-            [np.NaN, 1.000000, np.NaN],
-            [np.NaN, 0.800000, 0.200000],
-            [np.NaN, np.NaN, 1.000000],
-            [np.NaN, np.NaN, 1.000000],
+            [0.8, 0.0, 0.2],
+            [0.857143, 0.142857, 0.0],
+            [0.0, 0.857143, 0.142857],
+            [0.0, 0.0, 1.0],
+            [0.5, 0.25, 0.25],
+            [0.0, 0.0, 1.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.8, 0.2],
+            [0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0],
         ],
         columns=['chicken', 'goose', 'parrot'],
         index=[

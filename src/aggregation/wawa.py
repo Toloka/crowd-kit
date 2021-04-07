@@ -1,11 +1,17 @@
-import attr
-import pandas as pd
+__all__ = ['Wawa']
 
+import attr
+
+from sklearn.utils.validation import check_is_fitted
+from . import annotations
+from .annotations import Annotation, manage_docstring
+from .base_aggregator import BaseAggregator
 from .majority_vote import MajorityVote
-from.base_aggregator import BaseAggregator
+from .utils import get_accuracy
 
 
 @attr.attrs(auto_attribs=True)
+@manage_docstring
 class Wawa(BaseAggregator):
     """
     Worker Agreement with Aggregate
@@ -21,67 +27,38 @@ class Wawa(BaseAggregator):
 
     """
 
-    def fit_predict(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Predict correct labels for tasks.
-        After 'fit_predict' you can get probabilities for all labels from class field 'probas', and
-        workers skills from 'workers_skills'.
+    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
+    probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
+    labels_: annotations.OPTIONAL_LABELS = attr.ib(init=False)
 
-        Args:
-            answers(pandas.DataFrame): Frame with performers answers on task. One row per answer.
-                Should contain columns 'performer', 'task', 'label'
+    @manage_docstring
+    def _apply(self, data: annotations.LABELED_DATA) -> Annotation('Wawa', 'self'):
+        check_is_fitted(self, attributes='skills_')
+        mv = MajorityVote().fit(data, skills=self.skills_)
+        self.probas_ = mv.probas_
+        self.labels_ = mv.labels_
+        return self
 
-        Returns:
-            pandas.DataFrame: Scores for each task.
-                - task - unique values from input dataset
-                - label - most likely label
+    @manage_docstring
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation('Wawa', 'self'):
+        # TODO: support weights?
+        data = data[['task', 'performer', 'label']]
+        mv = MajorityVote().fit(data)
+        self.skills_ = get_accuracy(data, true_labels=mv.labels_, by='performer')
+        return self
 
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'
-        """
-        self._predict_impl(answers)
-        return self.tasks_labels
+    @manage_docstring
+    def predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        return self._apply(data).labels_
 
-    def fit_predict_proba(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Calculates probabilities for each label of task.
-        If it was no such label for some task, this task doesn't has probs for this label.
-        After 'fit_predict_proba' you can get predicted labels from class field 'tasks_labels', and
-        workers skills from 'workers_skills'.
+    @manage_docstring
+    def predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
+        return self._apply(data).probas_
 
-        Args:
-            answers(pandas.DataFrame): Frame with performers answers on task. One row per answer.
-                Should contain columns 'performer', 'task', 'label'
+    @manage_docstring
+    def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        return self.fit(data).predict(data)
 
-        Returns:
-            pandas.DataFrame: probabilities for each label.
-                - task - as dataframe index
-                - label - as dataframe columns
-                - proba - dataframe values
-
-        Raises:
-            TypeError: If answers don't has pandas.DataFrame type
-            AssertionError: If there is some collumn missing in 'answers'
-        """
-        self._predict_impl(answers)
-        return self.probas
-
-    def _predict_impl(self, answers: pd.DataFrame) -> pd.DataFrame:
-        self._answers_base_checks(answers)
-
-        # calculating performers skills
-        mv_aggregation = MajorityVote()
-        mv_aggregation.fit_predict(answers)
-        self.performers_skills = mv_aggregation.performers_skills
-
-        # join labels and skills
-        labels_probas = answers.merge(self.performers_skills, on='performer')
-        labels_probas = (
-            labels_probas
-            .groupby(['task', 'label'])
-            .agg({'skill': sum})
-            .reset_index()
-            .rename(columns={'skill': 'score'})
-        )
-
-        labels_probas = self._calculate_probabilities(labels_probas)
-        self._choose_labels(labels_probas)
+    @manage_docstring
+    def fit_predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
+        return self.fit(data).predict_proba(data)

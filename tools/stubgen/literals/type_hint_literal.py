@@ -1,23 +1,24 @@
-from typing import get_args
-
-from ..common import BaseLiteral, BaseASTBuilder
+from ..common import BaseLiteral, BaseASTBuilder, Node
 
 
 class TypeHintLiteral(BaseLiteral):
     """Represents a type hint"""
 
-    def __init__(self, obj, ast: BaseASTBuilder):
-        super().__init__(obj, ast)
+    def __init__(self, node: Node, ast: BaseASTBuilder):
+        super().__init__(node, ast)
 
-        name = obj._name or obj.__origin__._name
-        args = get_args(obj)
+        name = self.obj._name or self.obj.__origin__._name
+        # typing.get_args works with Callable[[], int] but does not work with
+        # Callable in Python 3.8. So __args__ seems more reliable 
+        args = getattr(self.obj, '__args__', ())
 
         if name == 'Union' and len(args) == 2 and args[-1] is type(None):  # noqa: E721
             name = 'Optional'
             args = args[:-1]
 
+        args = [None if arg is type(None) else arg for arg in args]  # noqa: E721
         self.type_hint_name = name
-        self.type_hint_args = [self.ast.get_literal(arg) for arg in args]
+        self.type_hint_args = [self.ast.get_literal(Node(self.namespace, None, arg)) for arg in args]
 
     def __str__(self) -> str:
         if self.type_hint_args:
