@@ -152,6 +152,15 @@ TASKS_TRUE_LABELS = Annotation(
 )
 
 
+# Performers related annotations
+
+
+BIASES = Annotation(
+    type=pd.Series,
+    title='Predicted biases for each performer. Indicates the probability of a performer to choose the left item.',
+    description=textwrap.dedent("A series of performers' biases indexed by performers"),
+)
+
 SKILLS = Annotation(
     type=pd.Series,
     title="Performers' skills",
@@ -184,14 +193,14 @@ WEIGHTS = Annotation(
 )
 
 
-def _make_opitonal(annotation: Annotation):
+def _make_optional(annotation: Annotation):
     return attr.evolve(annotation, type=Optional[annotation.type])
 
 
-OPTIONAL_SCORES = _make_opitonal(TASKS_LABEL_SCORES)
-OPTIONAL_SKILLS = _make_opitonal(SKILLS)
-OPTIONAL_PROBAS = _make_opitonal(TASKS_LABEL_PROBAS)
-OPTIONAL_PRIORS = _make_opitonal(LABEL_PRIORS)
-OPTIONAL_LABELS = _make_opitonal(TASKS_LABELS)
-OPTIONAL_ERRORS = _make_opitonal(ERRORS)
-OPTIONAL_WEIGHTS = _make_opitonal(WEIGHTS)
+OPTIONAL_SCORES = _make_optional(TASKS_LABEL_SCORES)
+OPTIONAL_SKILLS = _make_optional(SKILLS)
+OPTIONAL_PROBAS = _make_optional(TASKS_LABEL_PROBAS)
+OPTIONAL_PRIORS = _make_optional(LABEL_PRIORS)
+OPTIONAL_LABELS = _make_optional(TASKS_LABELS)
+OPTIONAL_ERRORS = _make_optional(ERRORS)
+OPTIONAL_WEIGHTS = _make_optional(WEIGHTS)

@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
 
-from crowdkit.aggregation import BradleyTerry
 from pandas.testing import assert_series_equal
+from crowdkit.aggregation import BradleyTerry, NoisyBradleyTerry
 
 
 @pytest.fixture
@@ -45,6 +45,16 @@ def result_equal():
 
 
 @pytest.fixture
+def noisy_bt_result():
+    return pd.Series([0.999993, 0.653991, 0.000025], index=pd.Index(['a', 'b', 'c'], name='label'), name='score')
+
+
+@pytest.fixture
+def noisy_bt_result_equal():
+    return pd.Series([0.672879, 0.043679, 0.985681], index=pd.Index(['a', 'b', 'c'], name='label'), name='score')
+
+
+@pytest.fixture
 def result_iter_0():
     return pd.Series([.333, .333, .333], index=['a', 'b', 'c'])
 
@@ -69,3 +79,13 @@ def test_bradley_terry_step_by_step(request, data_abc, n_iter):
     result = request.getfixturevalue(f'result_iter_{n_iter}')
     bt = BradleyTerry(n_iter=n_iter).fit(data_abc)
     assert_series_equal(result, bt.result_, atol=0.005)
+
+
+def test_noisy_bradley_terry(data_abc, noisy_bt_result):
+    noisy_bt = NoisyBradleyTerry().fit(data_abc)
+    assert_series_equal(noisy_bt.result_, noisy_bt_result, atol=0.005)
+
+
+def test_noisy_bradley_terry_equal(data_equal, noisy_bt_result_equal):
+    noisy_bt = NoisyBradleyTerry().fit(data_equal)
+    assert_series_equal(noisy_bt.result_, noisy_bt_result_equal, atol=0.005)

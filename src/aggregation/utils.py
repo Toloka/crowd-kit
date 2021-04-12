@@ -1,4 +1,4 @@
-from typing import Union, Callable, Optional
+from typing import Tuple, Union, Callable, Optional
 
 import numpy as np
 import pandas as pd
@@ -29,6 +29,11 @@ def evaluate(df_true: pd.DataFrame, df_pred: pd.DataFrame,
 
     df['evaluation'] = df.apply(evaluate_func, axis=1)
     return float(df['evaluation'].mean())
+
+
+def factorize(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    unique_values, coded = np.unique(data, return_inverse=True)
+    return unique_values, coded.reshape(data.shape)
 
 
 @manage_docstring

@@ -4,9 +4,10 @@ from .gold_majority_vote import GoldMajorityVote
 from .hrrasa import HRRASA
 from .m_msr import MMSR
 from .majority_vote import MajorityVote
+from .noisy_bt import NoisyBradleyTerry
 from .rasa import RASA
 from .wawa import Wawa
 from .zero_based_skill import ZeroBasedSkill
 
 __all__ = ['DawidSkene', 'MajorityVote', 'MMSR', 'Wawa', 'GoldMajorityVote', 'ZeroBasedSkill', 'HRRASA', 'RASA',
-           'BradleyTerry']
+           'BradleyTerry', 'NoisyBradleyTerry']
