@@ -180,3 +180,12 @@ def test_gold_mv_raise_in_predict(
     aggregator.fit(answers_on_gold, toy_gold_df)
     with pytest.raises(exception):
         getattr(aggregator, predict_method)(answers)
+
+
+def test_gold_mv_empty():
+    aggregator = GoldMajorityVote()
+    probas = aggregator.fit_predict_proba(pd.DataFrame({'task': [],
+                                                        'performer': [],
+                                                        'label': []}),
+                                          pd.Series())
+    assert probas.empty

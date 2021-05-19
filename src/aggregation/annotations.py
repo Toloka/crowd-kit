@@ -125,7 +125,7 @@ TASKS_LABELS = Annotation(
 
 TASKS_LABEL_PROBAS = Annotation(
     type=pd.DataFrame,
-    title="Tasks' true label probability distributions",
+    title="Tasks' label probability distributions",
     description=textwrap.dedent('''
         A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
         is the probability of `task`'s true label to be equal to `label`. Each
@@ -135,7 +135,7 @@ TASKS_LABEL_PROBAS = Annotation(
 
 TASKS_LABEL_SCORES = Annotation(
     type=pd.DataFrame,
-    title="Tasks' true label scores",
+    title="Tasks' label scores",
     description=textwrap.dedent('''
         A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
         is the score of `label` for `task`.
@@ -187,9 +187,9 @@ WEIGHTED_DATA = Annotation(
 )
 
 WEIGHTS = Annotation(
-    type=pd.Series,
+    type=pd.DataFrame,
     title='Task weights',
-    description='A pandas.Series indexed by `task` containing task weights'
+    description='A pandas.DataFrame containing `task`, `performer` and `weight`'
 )
 
 

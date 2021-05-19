@@ -2,6 +2,7 @@ __all__ = ['DawidSkene']
 
 import attr
 import numpy as np
+import pandas as pd
 
 from . import annotations
 from .annotations import manage_docstring, Annotation
@@ -54,16 +55,36 @@ class DawidSkene(BaseAggregator):
         Given performer's answers, labels' prior probabilities and performer's performer's
         errors probabilities matrix estimates tasks' true labels probabilities.
         """
-        joined = data.join(errors, on=['performer', 'label'])
+
+        # We have to multiply lots of probabilities and such products are known to converge
+        # to zero exponentialy fast. To avoid floating-point precision problems we work with
+        # logs of original values
+        joined = data.join(np.log2(errors), on=['performer', 'label'])
         joined.drop(columns=['performer', 'label'], inplace=True)
-        probas = priors * joined.groupby('task', sort=False).prod()
-        return probas.div(probas.sum(axis=1), axis=0)
+        log_likelihoods = np.log2(priors) + joined.groupby('task', sort=False).sum()
+
+        # Exponentiating log_likelihoods 'as is' may still get us beyond our precision.
+        # So we shift every row of log_likelihoods by a constant (which is equivalent to
+        # multiplying likelihoods rows by a constant) so that max log_likelihood in each
+        # row is equal to 0. This trick ensures proper scaling after exponentiating and
+        # does not affect the result of E-step
+        scaled_likelihoods = np.exp2(log_likelihoods.sub(log_likelihoods.max(axis=1), axis=0))
+        return scaled_likelihoods.div(scaled_likelihoods.sum(axis=1), axis=0)
 
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):
 
-        # Initialization
         data = data[['task', 'performer', 'label']]
+
+        # Early exit
+        if not data.size:
+            self.probas_ = pd.DataFrame()
+            self.priors_ = pd.Series()
+            self.errors_ = pd.DataFrame()
+            self.labels_ = pd.Series()
+            return self
+
+        # Initialization
         probas = MajorityVote().fit_predict_proba(data)
         priors = probas.mean()
         errors = self._m_step(data, probas)

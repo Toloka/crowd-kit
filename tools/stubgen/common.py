@@ -89,15 +89,12 @@ class BaseDefinition(BaseRepresentation):
     def get_member_rep(self, member_name: str):
         return self.ast.get_definition(self.node.get_member(member_name))
 
-    def get_markdown(self):
-        raise NotImplementedError
+    def get_doc_sources(self):
+        return self.__str__()
 
-    def escape_markdown(self, s: str, escape_asterisk: bool = False):
-        new_s = re.sub(r'_$|__$|^_|^__| _| __|_ |__ ', r'\\\g<0>', s)
-        if escape_asterisk:
-            return re.sub(r'\*', r'\\\g<0>', new_s)
-        else:
-            return re.sub(r'\*', r'\t\g<0>', new_s)
+    @property
+    def expanded_docstring(self):
+        raise NotImplementedError
 
 
 class BaseASTBuilder:

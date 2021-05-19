@@ -33,29 +33,3 @@ class EnumDef(BaseDefinition):
     def __iter__(self):
         yield ReferenceLiteral(Node(self.namespace, None, Enum), self.ast)
         yield from self.enum_dict.values()
-
-    def get_markdown(self):
-        sio = StringIO()
-
-        if self.name.startswith('_'):
-            return ''
-
-        sio.write('***\n\n')
-
-        if self.node.namespace:
-            sio.write(f'### {self.escape_markdown(self.node.obj.__module__)}.{self.escape_markdown(self.node.namespace)}.{self.escape_markdown(self.name)}\n\n')
-        else:
-            sio.write(f'### {self.escape_markdown(self.node.obj.__module__)}.{self.escape_markdown(self.name)}\n\n')
-
-        sio.write(f'class {self.escape_markdown(self.name)}(Enum):\n\n')
-
-        if self.docstring:
-            sio.write(str(self.docstring).lstrip('"""').rstrip('"""\n'))
-            sio.write('\n\n')
-
-        if self.enum_dict:
-            for name, literal in self.enum_dict.items():
-                sio.write(self.escape_markdown(f'{name} = {literal}\n\n'))
-
-        sio.write('***\n\n')
-        return sio.getvalue()

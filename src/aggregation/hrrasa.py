@@ -1,16 +1,28 @@
-from typing import Any, Iterator, Tuple, Union
+from typing import Any, Iterator, Tuple, Callable
 
+from functools import partial
 import nltk.translate.gleu_score as gleu
 import numpy as np
 import pandas as pd
 import scipy.stats as sps
-from tqdm.auto import tqdm
+from scipy.spatial import distance
 import attr
 
+from .annotations import (
+    Annotation,
+    manage_docstring,
+    TASKS_EMBEDDINGS,
+    EMBEDDED_DATA,
+    SKILLS,
+    TASKS_LABEL_SCORES,
+    TASKS_LABELS,
+    WEIGHTS,
+    LABELED_DATA
+)
 from .base_embedding_aggregator import BaseEmbeddingAggregator
+from .closest_to_average import ClosestToAverage
 
-
-# from sentence_transformers import SentenceTransformer
+_EPS = 1e-5
 
 
 def glue_similarity(hyp, ref):
@@ -30,106 +42,124 @@ class HRRASA(BaseEmbeddingAggregator):
     """
 
     n_iter: int = attr.ib(default=100)
-    encoder = attr.ib(default=None)
-    output_similarity = attr.ib(default=glue_similarity)
     lambda_emb: float = attr.ib(default=0.5)
     lambda_out: float = attr.ib(default=0.5)
     alpha: float = attr.ib(default=0.05)
-    silent: bool = attr.ib(default=True)
+    calculate_ranks: bool = attr.ib(default=False)
+    _output_similarity = attr.ib(default=glue_similarity)
 
-    def fit_predict(self, answers: pd.DataFrame, return_ranks: bool = False) -> Union[pd.Series, pd.DataFrame]:
+    @manage_docstring
+    def fit(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
+                                                                                               title='self'):
+        data = data[['task', 'performer', 'embedding', 'output']]
+        data = self._get_local_skills(data)
+
+        # What we call reliabilities here is called skills in the paper
+        prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
+        skills = pd.Series(1.0, index=data.performer.unique())
+        weights = self._calc_weights(data, skills)
+        aggregated_embeddings = None
+
+        for _ in range(self.n_iter):
+            aggregated_embeddings = self._aggregate_embeddings(data, weights, true_embeddings)
+            skills = self._update_skills(data, aggregated_embeddings, prior_skills)
+            weights = self._calc_weights(data, skills)
+
+        self.prior_skills_ = prior_skills
+        self.skills_ = skills
+        self.weights_ = weights
+        self.aggregated_embeddings_ = aggregated_embeddings
+        if self.calculate_ranks:
+            self.ranks_ = self._rank_outputs(data, skills)
+
+        return self
+
+    @manage_docstring
+    def fit_predict_scores(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> TASKS_LABEL_SCORES:
+        return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
+
+    @manage_docstring
+    def fit_predict(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> TASKS_LABELS:
+        return self.fit(data, true_embeddings)._apply(data, true_embeddings).outputs_
+
+    @staticmethod
+    def _cosine_distance(embedding, avg_embedding):
+        if not embedding.any() or not avg_embedding.any():
+            return float('inf')
+        return distance.cosine(embedding, avg_embedding)
+
+    @manage_docstring
+    def _apply(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
+                                                                                                  title='self'):
+        cta = ClosestToAverage(distance=self._cosine_distance)
+        cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
+        self.scores_ = cta.scores_
+        self.outputs_ = cta.outputs_
+        return self
+
+    @staticmethod
+    @manage_docstring
+    def _aggregate_embeddings(data: EMBEDDED_DATA, weights: WEIGHTS,
+                              true_embeddings: TASKS_EMBEDDINGS = None) -> TASKS_EMBEDDINGS:
+        """Calculates weighted average of embeddings for each task."""
+        data = data.join(weights, on=['task', 'performer'])
+        data['weighted_embedding'] = data.weight * data.embedding
+        group = data.groupby('task')
+        aggregated_embeddings = (group.weighted_embedding.apply(np.sum) / group.weight.sum())
+        aggregated_embeddings.update(true_embeddings)
+        return aggregated_embeddings
+
+    def _rank_outputs(self, data: EMBEDDED_DATA, skills: SKILLS) -> TASKS_LABEL_SCORES:
+        """Returns ranking score for each record in `data` data frame.
         """
-        Args:
-            answers: A pandas.DataFrame containing `task`, `performer` and `output` columns.
-                If the `embedding` column exists, embeddings are not obtained by the `encoder`.
-            golden_embeddings: A pandas Series containing embeddings of golden outputs with
-                `task` as an index. If is not passed, embeddings are computed by the `encoder`.
-            return_ranks: if `True` returns ranking score for each of performers answers.
+        data = self._distance_from_aggregated(data)
+        data['norms_prod'] = data.apply(lambda row: np.sum(row['embedding'] ** 2) * np.sum(row['task_aggregate'] ** 2),
+                                        axis=1)
+        data['rank'] = skills * np.exp(-data.distance / data.norms_prod) + data.local_skill
+        return data[['task', 'output', 'rank']]
 
-        Returns:
-            If `return_ranks=False`, pandas.Series indexed by `task` with values — aggregated outputs.
-            If `return_ranks=True`, pandas.DataFrame with columns `task`, `performer`, `output`, `rank`.
+    @staticmethod
+    @manage_docstring
+    def _calc_weights(data: EMBEDDED_DATA, performer_skills: SKILLS) -> WEIGHTS:
+        """Calculates the weight for every embedding according to its local and global skills.
         """
-        processed_answers = self._preprocess_answers(answers)
-        return self._fit_impl(processed_answers, return_ranks=return_ranks)
+        data = data.set_index('performer')
+        data['performer_skill'] = performer_skills
+        data = data.reset_index()
+        data['weight'] = data['performer_skill'] * data['local_skill']
+        return data[['task', 'performer', 'weight']].set_index(['task', 'performer'])
 
-    def _fit_impl(self, answers: pd.DataFrame, use_local_reliability: bool = True, return_ranks: bool = False) -> Union[pd.Series, pd.DataFrame]:
-        self.use_local_reliability = use_local_reliability
-        if use_local_reliability:
-            answers = self._get_local_reliabilities(answers)
-        self.performers_prior_reliability_ = answers.groupby('performer').count()['task'].apply(lambda x: sps.chi2.isf(self.alpha / 2, x))
-        self.performers_reliabilities_ = pd.Series(1.0, index=pd.unique(answers.performer))
-        answers = self._calc_score(answers)
+    @staticmethod
+    @manage_docstring
+    def _update_skills(data: EMBEDDED_DATA, aggregated_embeddings: TASKS_EMBEDDINGS,
+                       prior_skills: SKILLS) -> SKILLS:
+        """Estimates global reliabilities by aggregated embeddings."""
+        data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
+        data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
+        data['distance'] = data['distance'] / data['local_skill']
+        total_distances = data.groupby('performer').distance.apply(np.sum)
+        total_distances.clip(lower=_EPS, inplace=True)
+        return prior_skills / total_distances
 
-        for _ in range(self.n_iter) if self.silent else tqdm(range(self.n_iter)):
-            self._aggregate_embeddings(answers)
-            self._update_reliabilities(answers)
-            answers = self._calc_score(answers)
-
-        if not return_ranks:
-            return self._choose_nearest_output(answers)
-        else:
-            return self._rank_outputs(answers)
-
-    def _rank_outputs(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Returns ranking score for each record in `answers` data frame.
-        """
-        answers = self._distance_from_aggregated(answers)
-        answers['norms_prod'] = answers.apply(lambda row: np.sum(row['embedding'] ** 2) * np.sum(row['task_aggregate'] ** 2), axis=1)
-        answers['rank'] = answers.performer_reliability * np.exp(-answers.distance / answers.norms_prod) + answers.local_reliability
-        return answers[['task', 'performer', 'output', 'rank']]
-
-    def _calc_score(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Calculates the weight for every embedding according to its local and global reliabilities.
-        """
-        answers = answers.set_index('performer')
-        answers['performer_reliability'] = self.performers_reliabilities_
-        answers = answers.reset_index()
-        if self.use_local_reliability:
-            answers['score'] = answers['performer_reliability'] * answers['local_reliability']
-        else:
-            answers['score'] = answers['performer_reliability']
-        return answers
-
-    def _update_reliabilities(self, answers: pd.DataFrame) -> None:
-        """Estimates global reliabilities by aggregated embeddings.
-        """
-        distances = self._distance_from_aggregated(answers)
-        if self.use_local_reliability:
-            distances['distance'] = distances['distance'] / distances['local_reliability']
-        total_distance = distances.groupby('performer').distance.apply(np.sum)
-        self.performers_reliabilities_ = self.performers_prior_reliability_ / total_distance
-
-    def _preprocess_answers(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Does basic checks for given data and obtaines embeddings if they are not provided.
-        """
-        assert not ('golden' in answers and 'golden_embedding' not in answers and self.encoder is None), 'Provide encoder or golden_embeddings'
-        processed_answers = answers.copy(deep=False)
-        if 'embedding' not in answers:
-            assert self.encoder is not None, 'Provide encoder or embedding column'
-            self._get_embeddings(processed_answers)
-        if 'golden' in answers:
-            self._get_golden_embeddings(processed_answers)
-        return processed_answers
-
-    def _get_local_reliabilities(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Computes local (relative) reliabilities for each task's answer.
+    @manage_docstring
+    def _get_local_skills(self, data: EMBEDDED_DATA) -> EMBEDDED_DATA:
+        """Computes local (relative) skills for each task's answer.
         """
         index = []
-        local_reliabilities = []
+        local_skills = []
         processed_pairs = set()
-        for task, task_answers in answers.groupby('task'):
-            for performer, reliability in self._local_reliabilities_on_task(task_answers):
+        for task, task_answers in data.groupby('task'):
+            for performer, skill in self._local_skills_on_task(task_answers):
                 if (task, performer) not in processed_pairs:
-                    local_reliabilities.append(reliability)
+                    local_skills.append(skill)
                     index.append((task, performer))
                     processed_pairs.add((task, performer))
-        answers = answers.set_index(['task', 'performer'])
-        local_reliabilities = pd.Series(local_reliabilities, index=pd.MultiIndex.from_tuples(index, names=['task', 'performer']))
-        answers['local_reliability'] = local_reliabilities
-        return answers.reset_index()
+        data = data.set_index(['task', 'performer'])
+        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'performer']))
+        data['local_skill'] = local_skills
+        return data.reset_index()
 
-    def _local_reliabilities_on_task(self, task_answers: pd.DataFrame) -> Iterator[Tuple[Any, float]]:
+    def _local_skills_on_task(self, task_answers: pd.DataFrame) -> Iterator[Tuple[Any, float]]:
         overlap = len(task_answers)
         for _, cur_row in task_answers.iterrows():
             performer = cur_row['performer']
@@ -155,3 +185,32 @@ class HRRASA(BaseEmbeddingAggregator):
             seq_sum /= (overlap - 1)
 
             yield performer, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
+
+
+class TextHRRASA:
+
+    def __init__(self, encoder: Callable, n_iter: int = 100, lambda_emb: float = 0.5, lambda_out: float = 0.5,
+                 alpha: float = 0.05, calculate_ranks: bool = False, output_similarity: Callable = glue_similarity):
+        self.encoder = encoder
+        self._rasa = HRRASA(n_iter, lambda_emb, lambda_out, alpha, calculate_ranks, output_similarity)
+
+    def __getattr__(self, name):
+        return getattr(self._rasa, name)
+
+    @manage_docstring
+    def fit(self, data: EMBEDDED_DATA, true_objects=None) -> Annotation(type='TextHRRASA', title='self'):
+        self._rasa.fit(self._encode(data), true_objects)
+        return self
+
+    @manage_docstring
+    def fit_predict_scores(self, data: LABELED_DATA, skills: SKILLS = None) -> TASKS_LABEL_SCORES:
+        return self._rasa.fit_predict_scores(self._encode(data), skills)
+
+    @manage_docstring
+    def fit_predict(self, data: LABELED_DATA, skills: SKILLS = None) -> TASKS_LABELS:
+        return self._rasa.fit_predict(self._encode(data), skills)
+
+    def _encode(self, data):
+        data = data[['task', 'performer', 'output']]
+        data['embedding'] = data.output.apply(self.encoder)
+        return data

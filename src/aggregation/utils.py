@@ -39,6 +39,9 @@ def factorize(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 @manage_docstring
 def get_most_probable_labels(proba: annotations.TASKS_LABEL_PROBAS):
     """Returns most probable labels"""
+    # patch for pandas<=1.1.5
+    if not proba.size:
+        return pd.Series([], dtype='O')
     return proba.idxmax(axis='columns')
 
 
@@ -71,10 +74,17 @@ def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_
         data = data[['task', 'performer', 'label', 'weight']]
     else:
         data = data[['task', 'performer', 'label']]
+
+    if data.empty:
+        data['true_label'] = []
+    else:
+        data = data.join(pd.Series(true_labels, name='true_label'), on='task')
+
+    data = data[data.true_label.notna()]
+
+    if 'weight' not in data.columns:
         data['weight'] = 1
 
-    data = data.join(pd.Series(true_labels, name='true_label'), on='task')
-    data = data[data.true_label.notna()]
     data.eval('score = weight * (label == true_label)', inplace=True)
 
     if by is not None:

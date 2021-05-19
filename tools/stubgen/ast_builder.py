@@ -17,8 +17,8 @@ class ASTBuilder(BaseASTBuilder):
     def __str__(self):
         return str(self.module_rep)
 
-    def get_markdown(self):
-        return self.module_rep.get_markdown()
+    def get_doc_source(self):
+        return self.module_rep.get_doc_sources()
 
     def get_docstring(self, node: Node) -> Optional[BaseDefinition]:
         if getattr(node.obj, '__doc__') is not None:

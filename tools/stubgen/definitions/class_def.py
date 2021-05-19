@@ -109,73 +109,77 @@ class ClassDef(BaseDefinition):
 
         # return [name for name in dir(self.obj) if not name.startswith('__') and name != '__init__']
 
-    def get_markdown(self):
+    def get_doc_sources(self):
         sio = StringIO()
 
-        if self.name.startswith('_'):
-            return ''
-
-        sio.write('***\n\n')
-
-        if self.node.namespace:
-            sio.write(f'### {self.escape_markdown(self.node.obj.__module__)}.{self.escape_markdown(self.node.namespace)}.{self.escape_markdown(self.name)}\n\n')
-        else:
-            sio.write(f'### {self.escape_markdown(self.node.obj.__module__)}.{self.escape_markdown(self.name)}\n\n')
-
         if self.node.obj.__bases__ == (object,):
-            sio.write(f'class {self.escape_markdown(self.name)}:\n\n')
+            sio.write(f'class {self.name}:\n')
         else:
             bases = ', '.join(str(base) for base in self.bases)
-            sio.write(f'class {self.escape_markdown(self.name)}({self.escape_markdown(bases)}):\n\n')
+            sio.write(f'class {self.name}({bases}):\n')
 
         if self.docstring:
+            sio.write(self.indent(f'{self.expanded_docstring}\n'))
+
+        if self.members:
+            for name, rep in self.members.items():
+                if type(rep) is not AttributeDef:
+                    sio.write(self.indent(f'{rep.get_doc_sources()}\n\n'))
+
+        if not self.docstring and not self.members:
+            sio.write(self.indent('...'))
+
+        return sio.getvalue()
+
+    @property
+    def expanded_docstring(self):
+        sio = StringIO()
+
+        if self.docstring:
+            sio.write('"""')
             parsed_docstring = self.docstring.get_parsed()
             if parsed_docstring.short_description:
-                sio.write(f'{self.escape_markdown(parsed_docstring.short_description)}\n\n')
+                sio.write(f'{parsed_docstring.short_description}\n')
             if parsed_docstring.long_description:
-                sio.write(f'{self.escape_markdown(parsed_docstring.long_description)}\n\n')
+                sio.write(f'\n{parsed_docstring.long_description}\n')
 
             if parsed_docstring.params:
                 first_attribute = True
                 for param in parsed_docstring.params:
                     if param.args[0] == 'attribute':
                         if first_attribute:
-                            sio.write('**Attributes:**\n\n')
+                            sio.write('\nAttributes:\n')
                             first_attribute = False
-                        sio.write(f'* ***{self.escape_markdown(str(self.annotations.get(param.arg_name) or param.arg_name))}***\n')
-                        sio.write(f'* * {self.escape_markdown(param.description)}\n\n')
+                        arg_with_annotations = self.annotations.get(param.arg_name)
+                        if arg_with_annotations:
+                            arr = str(arg_with_annotations).split(':')
+                            arg_with_annotations = f'{arr[0]} ({arr[1][1:]})'
+                        sio.write(self.indent(f'{arg_with_annotations or param.arg_name}'))
+                        description = param.description.replace('\n', '\n\t\t')
+                        sio.write(f': {description}\n')
 
                 first_arg = True
                 for param in parsed_docstring.params:
                     if param.args[0] == 'param':
                         if first_arg:
-                            sio.write('**Args:**\n\n')
+                            sio.write('\nArgs:\n')
                             first_arg = False
                         init_member = self.members['__init__']
                         annotation = init_member.signature.parameters.get(param.arg_name) \
                                      and init_member.signature.parameters[param.arg_name].annotation
                         if annotation:
-                            sio.write(f'* ***{self.escape_markdown(param.arg_name)}: '
-                                      f'{self.escape_markdown(str(annotation))}***\n')
+                            sio.write(self.indent(f'{param.arg_name} ({str(annotation)})'))
                         else:
-                            sio.write(f'* ***{self.escape_markdown(param.arg_name)}***\n')
-                        sio.write(f'* * {self.escape_markdown(param.description)}\n\n')
+                            sio.write(self.indent(f'{param.arg_name}'))
+                        description = param.description.replace('\n', '\n\t\t')
+                        sio.write(f': {description}\n')
 
             first_example = True
             for m in parsed_docstring.meta:
                 if m.args[0] == 'examples':
                     if first_example:
-                        sio.write('**Examples:**\n\n')
+                        sio.write('\nExamples:\n')
                         first_example = False
-                    description = m.description.replace('>>>', '\t')
-                    sio.write(f'{description}\n\n')
-
-        if self.members:
-            for name, rep in self.members.items():
-                if isinstance(rep, AttributeDef):
-                    continue
-                rep_markdown = rep.get_markdown()
-                if rep_markdown:
-                    sio.write(f'{rep_markdown}\n\n')
-        sio.write('***\n\n')
+                    sio.write(f'{m.description}\n')
+            sio.write('"""\n')
         return sio.getvalue()

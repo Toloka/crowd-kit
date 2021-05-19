@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -36,12 +37,12 @@ def data_equal():
 
 @pytest.fixture
 def result_empty():
-    return pd.Series([])
+    return pd.Series([], dtype=np.float64)
 
 
 @pytest.fixture
 def result_equal():
-    return pd.Series([.333, .333, .333], index=['a', 'b', 'c'])
+    return pd.Series([1/3, 1/3, 1/3], index=['a', 'b', 'c'])
 
 
 @pytest.fixture
@@ -56,7 +57,7 @@ def noisy_bt_result_equal():
 
 @pytest.fixture
 def result_iter_0():
-    return pd.Series([.333, .333, .333], index=['a', 'b', 'c'])
+    return pd.Series([1/3, 1/3, 1/3], index=['a', 'b', 'c'])
 
 
 @pytest.fixture

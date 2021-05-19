@@ -13,6 +13,3 @@ class AttributeAnnotationDef(BaseDefinition):
 
     def __iter__(self):
         yield self.annotation
-
-    def get_markdown(self):
-        return self.name

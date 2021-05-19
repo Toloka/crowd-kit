@@ -37,7 +37,7 @@ class BradleyTerry(BaseAggregator):
         M, unique_labels = self._build_win_matrix(data)
 
         if not unique_labels.size:
-            self.result_ = pd.Series([])
+            self.result_ = pd.Series([], dtype=np.float64)
             return self
 
         T = M.T + M

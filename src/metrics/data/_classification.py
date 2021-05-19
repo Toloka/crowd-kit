@@ -1,4 +1,5 @@
 from typing import Any, Optional, Union
+import numpy as np
 import pandas as pd
 
 from crowdkit.aggregation.base_aggregator import BaseAggregator
@@ -64,3 +65,44 @@ def consistency(answers: pd.DataFrame,
         return consistecies
     else:
         return consistecies.mean()
+
+
+def _task_uncertainty(row, labels):
+    if row['denominator'] == 0:
+        row[labels] = 1 / len(labels)
+    else:
+        row[labels] /= row['denominator']
+    softmax = row[labels]
+    log_softmax = np.log(row[list(labels)])
+    return -np.sum(softmax * log_softmax)
+
+
+def uncertainty(answers, performers_skills, by_task: bool = False) -> Union[float, pd.Series]:
+    """
+    Label uncertainty metric: entropy of labels probability distribution.
+    Args:
+            answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
+            performers_skills (pandas.Series): performers skills e.g. golden set skills. If not provided,
+                uses aggregator's `performers_skills` attribute.
+            by_task (bool): if set, returns consistencies for every task in provided data frame.
+
+        Returns:
+            Union[float, pd.Series]
+    """
+    _check_answers(answers)
+    answers = answers.copy(deep=False)
+    answers.set_index('task', inplace=True)
+    answers = answers.reset_index().set_index('performer')
+    answers['skill'] = performers_skills
+    answers.reset_index(inplace=True)
+    labels = pd.unique(answers.label)
+    for label in labels:
+        answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
+    labels_proba = answers.groupby('task').prod()
+    labels_proba['denominator'] = labels_proba[list(labels)].sum(axis=1)
+    uncertainties = labels_proba.apply(lambda row: _task_uncertainty(row, list(labels)), axis=1)
+
+    if by_task:
+        return uncertainties
+    else:
+        return uncertainties.mean()

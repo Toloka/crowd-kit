@@ -118,22 +118,43 @@ class ModuleDef(BaseDefinition):
             return list(self.obj.__all__)
         return [name for name in dir(self.obj) if not name.startswith('_')]
 
-    def get_markdown(self) -> str:
+    def get_doc_sources(self):
+        # TODO: print __all__ if present
+
         sio = StringIO()
 
-        if self.node.obj.__name__.split('.')[-1].startswith('_'):
-            return ''
-        sio.write(f'# {self.escape_markdown(self.node.obj.__name__)}\n\n')
+        if hasattr(self.obj, '__all__'):
+            sio.write(f'__all__ = {list(self.obj.__all__)}\n')
 
         if self.docstring:
-            sio.write(str(self.docstring))
-            sio.write('\n\n')
+            sio.write(self.docstring.get_doc_sources())
+
+        imports, from_imports = self.get_imports()
+        if imports:
+            for name in sorted(imports):
+                sio.write(f'import {name}\n')
+            sio.write('\n')
+
+        if from_imports:
+            for key in sorted(from_imports.keys()):
+                if len(from_imports[key]) > 1:
+                    names = ',\n'.join(
+                        self.indent(f'{name} as {import_as}' if import_as else f'{name}')
+                        for name, import_as in from_imports[key]
+                    )
+                    sio.write(f'from {key} import (\n{names}\n)\n')
+                else:
+                    names = ', '.join(
+                        f'{name} as {import_as}' if import_as else name for name, import_as in from_imports[key])
+                    sio.write(f'from {key} import {names}\n')
+
+        if self.annotations:
+            for name, annotation in self.annotations.items():
+                sio.write(f'{annotation.get_doc_sources()}\n')
+            sio.write('\n')
+
         if self.members:
             for name, rep in self.members.items():
-                if isinstance(rep, AttributeDef):
-                    continue
-                rep_markdown = rep.get_markdown()
-                if rep_markdown:
-                    sio.write(f'{rep_markdown}\n\n')
+                sio.write(f'{rep.get_doc_sources()}\n\n')
 
         return sio.getvalue()

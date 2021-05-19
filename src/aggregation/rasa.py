@@ -1,5 +1,3 @@
-__all__ = ['RASA']
-
 from functools import partial
 from typing import Callable
 
@@ -22,13 +20,12 @@ _EPS = 1e-5
 @manage_docstring
 class RASA(BaseEmbeddingAggregator):
     """
-    Hybrid Reliability and Representation Aware Sequence Aggregation
-    Jiyi Li. 2020.
-    Crowdsourced Text Sequence Aggregation based on Hybrid Reliability and Representation.
-    Proceedings of the 43rd International ACM SIGIR Conference on Research and Development
-    in Information Retrieval (SIGIR ’20), July 25–30, 2020, Virtual Event, China. ACM, New York, NY, USA,
-
-    https://doi.org/10.1145/3397271.3401239
+    Reliability Aware Sequence Aggregation
+    Jiyi Li. 2019.
+    A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
+    Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP,
+    pages 24–28 Hong Kong, China, November 3, 2019.
+    http://doi.org/10.18653/v1/D19-5904
     """
 
     n_iter: int = attr.ib(default=100)
@@ -66,7 +63,7 @@ class RASA(BaseEmbeddingAggregator):
     @manage_docstring
     def _apply(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):
         cta = ClosestToAverage(distance=self._cosine_distance)
-        cta.fit(data, skills=self.skills_, true_embeddings=true_embeddings)
+        cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
         self.scores_ = cta.scores_
         self.outputs_ = cta.outputs_
         return self
@@ -78,16 +75,18 @@ class RASA(BaseEmbeddingAggregator):
         # What we call skills here is called reliabilities in the paper
         prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
         skills = pd.Series(1.0, index=data.performer.unique())
+        aggregated_embeddings = None
         for _ in range(self.n_iter):
             aggregated_embeddings = self._aggregate_embeddings(data, skills, true_embeddings)
             skills = self._update_skills(data, aggregated_embeddings, prior_skills)
 
         self.prior_skills_ = prior_skills
         self.skills_ = skills
+        self.aggregated_embeddings_ = aggregated_embeddings
         return self
 
     @manage_docstring
-    def fit_predict_scores(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_LABEL_PROBAS:
+    def fit_predict_scores(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_LABEL_SCORES:
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
     @manage_docstring
@@ -95,16 +94,11 @@ class RASA(BaseEmbeddingAggregator):
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).outputs_
 
 
-@attr.s
 class TextRASA:
 
-    encoder: attr.ib(type=Callable)
-    n_iter: int = attr.ib(default=100)
-    alpha: float = attr.ib(default=0.05)
-
-    def __init__(self, encoder: Callable, *args, **kwargs):
+    def __init__(self, encoder: Callable, n_iter: int = 100, alpha: float = 0.05):
         self.encoder = encoder
-        self._rasa = RASA(self.n_iter, *args, **kwargs)
+        self._rasa = RASA(n_iter, alpha)
 
     def __getattr__(self, name):
         return getattr(self._rasa, name)
@@ -116,7 +110,7 @@ class TextRASA:
 
     # TODO: not labeled data
     @manage_docstring
-    def fit_predict_scores(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABEL_PROBAS:
+    def fit_predict_scores(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABEL_SCORES:
         return self._rasa.fit_predict_scores(self._encode(data), skills)
 
     @manage_docstring

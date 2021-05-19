@@ -13,6 +13,3 @@ class AttributeDef(BaseDefinition):
 
     def __iter__(self):
         yield self.value
-
-    def get_markdown(self):
-        return f'{self.name} = {self.value}'

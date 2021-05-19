@@ -21,19 +21,15 @@ class ClosestToAverage(BaseAggregator):
     distance: Callable[[np.array, np.array], float] = attr.ib()
 
     @manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA, skills: annotations.SKILLS = None,
+    def fit(self, data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None,
             true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='ClosestToAverage', title='self'):
 
         data = data[['task', 'performer', 'output', 'embedding']]
-        if skills is None:
+        if aggregated_embeddings is None:
             avg_embeddings = data.groupby('task')['embedding'].avg()
+            avg_embeddings.update(true_embeddings)
         else:
-            data = data.join(skills.rename('skill'), on='performer')
-            data['weighted_embedding'] = data.skill * data.embedding
-            group = data.groupby('task')
-            avg_embeddings = (group.weighted_embedding.apply(np.sum) / group.skill.sum())
-
-        avg_embeddings.update(true_embeddings)
+            avg_embeddings = aggregated_embeddings
 
         # Calculating distances (scores)
         data = data.join(avg_embeddings.rename('avg_embedding'), on='task')

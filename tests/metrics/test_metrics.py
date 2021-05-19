@@ -1,12 +1,20 @@
 import pandas as pd
 from crowdkit.aggregation.utils import get_accuracy
-from crowdkit.metrics.data import consistency
+from crowdkit.metrics.data import consistency, uncertainty
 from crowdkit.metrics.performers import accuracy_on_aggregates
 from pandas.testing import assert_series_equal
 
 
 def test_consistency(toy_answers_df):
     assert consistency(toy_answers_df) == 0.9384615384615385
+
+
+def test_uncertainty(toy_answers_df):
+    performers_skills = pd.Series(
+        [0.6, 0.8, 1.0,  0.4, 0.8],
+        index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+    )
+    assert uncertainty(toy_answers_df, performers_skills) == 0.12344835394606832
 
 
 def test_golden_set_accuracy(toy_answers_df, toy_gold_df):
