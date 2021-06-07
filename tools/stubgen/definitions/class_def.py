@@ -91,10 +91,20 @@ class ClassDef(BaseDefinition):
         cls = self.obj
         super_cls = super(cls, cls)
 
+        var_reg = None
+        if hasattr(cls, '_variant_registry'):
+            var_reg = cls._variant_registry
+
         for name in dir(cls):
 
             # Skipping all dunder members except for __init__
             if name.startswith('__') and name != '__init__':
+                continue
+
+            if var_reg and name == var_reg.field:
+                continue
+
+            if name == '_variant_registry':
                 continue
 
             # Only considering members that were actually (re)defined in cls

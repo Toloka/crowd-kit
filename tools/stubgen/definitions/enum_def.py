@@ -27,6 +27,7 @@ class EnumDef(BaseDefinition):
                 sio.write(self.indent(f'{name} = {literal}\n'))
         else:
             sio.write(self.indent('...'))
+        sio.write('\n')
 
         return sio.getvalue()
 

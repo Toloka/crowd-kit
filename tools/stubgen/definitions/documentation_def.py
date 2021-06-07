@@ -7,7 +7,7 @@ from ..common import BaseDefinition
 class DocumentationDef(BaseDefinition):
 
     def __str__(self) -> str:
-        return f'"""{inspect.cleandoc(self.obj).rstrip()}"""\n'
+        return f'"""{inspect.cleandoc(self.obj).rstrip()}\n"""\n'
 
     def __iter__(self):
         yield from ()

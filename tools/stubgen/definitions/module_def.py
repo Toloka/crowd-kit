@@ -51,7 +51,7 @@ class ModuleDef(BaseDefinition):
         sio = StringIO()
 
         if self.docstring:
-            sio.write(str(self.docstring))
+            sio.write(f'{str(self.docstring)}\n')
 
         imports, from_imports = self.get_imports()
         if imports:
@@ -72,7 +72,7 @@ class ModuleDef(BaseDefinition):
                     sio.write(f'from {key} import {names}\n')
 
         if imports or from_imports:
-            print('\n\n')
+            sio.write('\n\n')
 
         if self.annotations:
             for name, annotation in self.annotations.items():
@@ -81,7 +81,7 @@ class ModuleDef(BaseDefinition):
 
         if self.members:
             for name, rep in self.members.items():
-                sio.write(f'{rep}\n\n')
+                sio.write(f'{rep}')
 
         return sio.getvalue()
 
