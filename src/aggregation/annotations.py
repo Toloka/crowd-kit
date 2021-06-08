@@ -10,6 +10,7 @@ from io import StringIO
 from typing import Dict, Optional, Type
 
 import attr
+import numpy as np
 import pandas as pd
 
 
@@ -90,6 +91,15 @@ PAIRWISE_DATA = Annotation(
 )
 
 
+SEGMENTATION_DATA = Annotation(
+    type=pd.DataFrame,
+    title='Performers\' segmentations',
+    description=textwrap.dedent('''
+        A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+    ''')
+)
+
+
 # Commonly used types
 
 LABEL_PRIORS = Annotation(
@@ -148,6 +158,47 @@ TASKS_TRUE_LABELS = Annotation(
     description=textwrap.dedent('''
         A pandas.Series indexed by `task` such that `labels.loc[task]`
         is the tasks's ground truth label.
+    '''),
+)
+
+SEGMENTATIONS = Annotation(
+    type=pd.Series,
+    title='Single task segmentations',
+    description=textwrap.dedent('''
+         A pandas.Series containing segmentations for a single task - 2d boolean ndarray.
+    '''),
+)
+
+SEGMENTATION = Annotation(
+    type=np.ndarray,
+    title='Segmentation',
+    description=textwrap.dedent('''
+         A numpy 2d ndarray, which is a bitmask of segmentation.
+    '''),
+)
+
+SEGMENTATION_ERRORS = Annotation(
+    type=np.ndarray,
+    title='Errors',
+    description=textwrap.dedent('''
+         A numpy 1d ndarray, which contains the probability of correct answers for performers.
+    '''),
+)
+
+IMAGE_PIXEL_PROBAS = Annotation(
+    type=np.ndarray,
+    title='Image pixel probas',
+    description=textwrap.dedent('''
+         A numpy 2d ndarray, which in each pixel contains the probability of inclusion in the segmentation.
+    '''),
+)
+
+TASKS_SEGMENTATIONS = Annotation(
+    type=np.ndarray,
+    title='Tasks\' segmentations',
+    description=textwrap.dedent('''
+        A pandas.Series indexed by `task` such that `labels.loc[task]`
+        is the tasks's aggregated segmentation.
     '''),
 )
 
