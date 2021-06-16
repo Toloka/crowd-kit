@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
        matrix:
          python-version: [3.7, 3.8, 3.9]
@@ -25,3 +27,10 @@ jobs:
     - name: Run tox with Python ${{ matrix.python-version }}
       run: |
         python -m tox
+    - name: Upload coverage to Codecov
+      # We only want one upload per tests run
+      if: ${{  matrix.python-version == "3.8" }}
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true
+        files: .coverage

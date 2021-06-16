@@ -1,9 +1,12 @@
 # Crowd-kit
 
 [![GitHub Tests][github_tests_badge]][github_tests_link]
+[![GitHub Tests][github_coverage_badge]][github_coverage_link]
 
 [github_tests_badge]: https://github.com/Toloka/crowdlib/workflows/Tests/badge.svg?branch=main
 [github_tests_link]: https://github.com/Toloka/crowdlib/actions?query=workflow:Tests
+[github_coverage_badge]: https://codecov.io/gh/Toloka/crowd-kit/branch/main/graph/badge.svg
+[github_coverage_link]: https://codecov.io/gh/Toloka/crowd-kit
 
 
 `crowd-kit` is a Python module for crowdsourcing distributed under the Apache-2.0 license. We strive to implement functionality that eases working with crowd-sourced data. Currently module contains:
