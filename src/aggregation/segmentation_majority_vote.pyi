@@ -13,7 +13,7 @@ class SegmentationMajorityVote(BaseAggregator):
     Attributes:
         segmentations_ (ndarray): Tasks' segmentations
             A pandas.Series indexed by `task` such that `labels.loc[task]`
-                    is the tasks's aggregated segmentation."""
+                is the tasks's aggregated segmentation."""
 
     @staticmethod
     def _segmentation_majority_vote(segmentations: Series) -> ndarray:
@@ -46,7 +46,7 @@ class SegmentationMajorityVote(BaseAggregator):
         Returns:
             ndarray: Tasks' segmentations
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                        is the tasks's aggregated segmentation."""
+                    is the tasks's aggregated segmentation."""
         ...
 
     segmentations_: ndarray
