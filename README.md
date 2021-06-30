@@ -9,7 +9,7 @@
 [github_coverage_link]: https://codecov.io/gh/Toloka/crowd-kit
 
 
-`crowd-kit` is a powerful Python module that provides an implementation of commonly used aggregation methods for crowdsourced annotation, metrics, and datasets. We strive to implement functionality that eases working with crowdsourced data. Currently, the module contains:
+`crowd-kit` is a powerful Python library that provides an implementation of commonly used aggregation methods for crowdsourced annotation, metrics, and datasets. We strive to implement functionality that eases working with crowdsourced data. Currently, the module contains:
 * Implementations of commonly used aggregation methods for the following types of responses: **categorical**, **text**, **image segmentations** and **pair-wise comparisons**.
 * A set of metrics
 * Datasets for categorical aggregation
@@ -33,16 +33,16 @@ from crowdkit.datasets import load_dataset
 import pandas as pd
 ````
 
-Then, you need to read your annotations into Pandas DataFrame with columns `task`, `performer`, `label`. Alternatively, you can download the example dataset.
+Then, you need to read your annotations into Pandas DataFrame with columns `task`, `performer`, `label`. Alternatively, you can download an example dataset.
 
 ````python
 crowd_annotations = pd.read_csv('your_dataset.csv')  # Should contatin columns ['task', 'performer', 'label']
 
-# Or download the example dataset
-# crowd_annotations, gt = load_dataset('relevance-2')
+# Or download an example dataset
+# crowd_annotations, ground_truth = load_dataset('relevance-2')
 ````
 
-After that, you can aggregate performers' responses as easily as fitting a `sklearn` model.
+After that, you can aggregate performers' responses as easily as fitting an `sklearn` model.
 
 ````python
 aggregated_labels = DawidSkene(n_iter=100).fit_predict(crowd_annotations)
