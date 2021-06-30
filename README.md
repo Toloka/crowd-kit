@@ -1,4 +1,4 @@
-# Crowd-kit
+# Crowd-Kit: Crowdsourcing Aggregation, Metrics and Datasets
 
 [![GitHub Tests][github_tests_badge]][github_tests_link]
 [![GitHub Tests][github_coverage_badge]][github_coverage_link]
@@ -9,16 +9,78 @@
 [github_coverage_link]: https://codecov.io/gh/Toloka/crowd-kit
 
 
-`crowd-kit` is a Python module for crowdsourcing distributed under the Apache-2.0 license. We strive to implement functionality that eases working with crowd-sourced data. Currently module contains:
-* Implementations of commonly used aggregation methods
+`crowd-kit` is a powerful Python module that provides an implementation of commonly used aggregation methods for crowdsourced annotation, metrics, and datasets. We strive to implement functionality that eases working with crowdsourced data. Currently, the module contains:
+* Implementations of commonly used aggregation methods for the following types of responses: **categorical**, **text**, **image segmentations** and **pair-wise comparisons**.
 * A set of metrics
+* Datasets for categorical aggregation
 
-The module is currenly in a heavy development state and interfaces are subject to change.
+*The module is currently in a heavy development state, and interfaces are subject to change.*
 
 Install
 --------------
-Installing crowdlib is as easy as `pip install crowd-kit`
+Installing Crowd-Kit is as easy as `pip install crowd-kit`
 
+
+Getting Started
+--------------
+This example shows how to use Crowd-Kit for categorical aggregation using the Dawid-Skene algorithm.
+
+First, let's do all the necessary imports.
+````python
+from crowdkit.aggregation import DawidSkene
+from crowdkit.datasets import load_dataset
+
+import pandas as pd
+````
+
+Then, you need to read your annotations into Pandas DataFrame with columns `task`, `performer`, `label`. Alternatively, you can download the example dataset.
+
+````python
+crowd_annotations = pd.read_csv('your_dataset.csv')  # Should contatin columns ['task', 'performer', 'label']
+
+# Or download the example dataset
+# crowd_annotations, gt = load_dataset('relevance-2')
+````
+
+After that, you can aggregate performers' responses as easily as fitting a `sklearn` model.
+
+````python
+aggregated_labels = DawidSkene(n_iter=100).fit_predict(crowd_annotations)
+````
+
+Implemented Aggregation Methods
+--------------
+### Categorical
+| Method        | Status        |
+| ------------- |:-------------:|
+| Majority Vote | ✅            |
+| [Dawid-Skene](https://doi.org/10.2307/2346806)   | ✅      |
+| Gold Majority Vote | ✅      |
+| [M-MSR](https://arxiv.org/abs/2010.12181) | ✅      |
+| Wawa | ✅      |
+| Zero-Based Skill | ✅      |
+| GLAD | ❌      |
+| BCC | ❌      |
+
+### Text
+| Method        | Status        |
+| ------------- |:-------------:|
+| [RASA](https://doi.org/10.1145/3397271.3401239) | ✅            |
+| [HRRASA](https://doi.org/10.1145/3397271.3401239)   | ✅      |
+| [ROVER](https://ieeexplore.ieee.org/document/659110) | ❌      |
+
+### Image Segmentations
+| Method        | Status        |
+| ------------- |:-------------:|
+| Segmentation MV | ✅            |
+| Segmentation RASA   | ❌      |
+| Segmentation EM | ❌      |
+
+### Pair-Wise Comparisons
+| Method        | Status        |
+| ------------- |:-------------:|
+| Breadley-Terry | ✅            |
+| Noisy  Breadley-Terry  | ✅      |
 
 Questions and bug reports
 --------------
