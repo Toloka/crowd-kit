@@ -79,8 +79,8 @@ Implemented Aggregation Methods
 ### Pair-Wise Comparisons
 | Method        | Status        |
 | ------------- |:-------------:|
-| Breadley-Terry | ✅            |
-| Noisy  Breadley-Terry  | ✅      |
+| Bradley-Terry | ✅            |
+| Noisy  Bradley-Terry  | ✅      |
 
 Questions and bug reports
 --------------
