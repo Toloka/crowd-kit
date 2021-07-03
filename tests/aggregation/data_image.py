@@ -119,7 +119,7 @@ def simple_image_mv_result():
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1],
-            ]).astype(bool),
+            ], dtype=bool),
             np.array([
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 1, 1, 1, 1, 0, 0, 1],
@@ -135,4 +135,24 @@ def image_with_skills_mv_result():
     return pd.Series(
         [np.array([[0, 1, 1, 1, 0], [0, 0, 0, 0, 0]], dtype=bool)],
         index=pd.Index([1], name='task')
+    )
+
+
+@pytest.fixture
+def simple_image_rasa_result():
+    return pd.Series(
+        [
+            np.array([
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+            ], dtype=bool),
+            np.array([
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 0],
+            ], dtype=bool),
+        ],
+        index=pd.Index([1, 2], name='task'),
+        name='segmentation'
     )

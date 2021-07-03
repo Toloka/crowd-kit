@@ -1,3 +1,35 @@
+__all__ = [
+    'Annotation',
+    'manage_docstring',
+    'EMBEDDED_DATA',
+    'LABELED_DATA',
+    'PAIRWISE_DATA',
+    'SEGMENTATION_DATA',
+    'LABEL_PRIORS',
+    'LABEL_SCORES',
+    'TASKS_EMBEDDINGS',
+    'TASKS_LABELS',
+    'TASKS_LABEL_PROBAS',
+    'TASKS_LABEL_SCORES',
+    'TASKS_TRUE_LABELS',
+    'SEGMENTATIONS',
+    'SEGMENTATION',
+    'SEGMENTATION_ERRORS',
+    'IMAGE_PIXEL_PROBAS',
+    'TASKS_SEGMENTATIONS',
+    'BIASES',
+    'SKILLS',
+    'ERRORS',
+    'WEIGHTED_DATA',
+    'WEIGHTS',
+    'OPTIONAL_SCORES',
+    'OPTIONAL_SKILLS',
+    'OPTIONAL_PROBAS',
+    'OPTIONAL_PRIORS',
+    'OPTIONAL_LABELS',
+    'OPTIONAL_ERRORS',
+    'OPTIONAL_WEIGHTS'
+]
 """
 This module contains reusable annotations that encapsulate both typing
 and description for commonly used parameters. These annotations are

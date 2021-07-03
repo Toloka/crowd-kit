@@ -7,8 +7,9 @@ from .majority_vote import MajorityVote
 from .noisy_bt import NoisyBradleyTerry
 from .rasa import RASA, TextRASA
 from .segmentation_majority_vote import SegmentationMajorityVote
+from .segmentation_rasa import SegmentationRASA
 from .wawa import Wawa
 from .zero_based_skill import ZeroBasedSkill
 
 __all__ = ['DawidSkene', 'MajorityVote', 'MMSR', 'Wawa', 'GoldMajorityVote', 'ZeroBasedSkill', 'HRRASA', 'RASA',
-           'BradleyTerry', 'NoisyBradleyTerry', 'TextRASA', 'TextHRRASA', 'SegmentationMajorityVote']
+           'BradleyTerry', 'NoisyBradleyTerry', 'TextRASA', 'TextHRRASA', 'SegmentationMajorityVote', 'SegmentationRASA']

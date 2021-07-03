@@ -1,3 +1,4 @@
+__all__ = ['SegmentationMajorityVote']
 import attr
 import numpy as np
 
