@@ -3,7 +3,6 @@ from numpy import ndarray
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 
-
 class SegmentationMajorityVote(BaseAggregator):
     """Majority Vote - chooses a pixel if more than half of performers voted
 
@@ -13,40 +12,31 @@ class SegmentationMajorityVote(BaseAggregator):
     Attributes:
         segmentations_ (ndarray): Tasks' segmentations
             A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's aggregated segmentation."""
+            is the tasks's aggregated segmentation.
+    """
 
-    @staticmethod
-    def _segmentation_majority_vote(segmentations: Series) -> ndarray:
-        """Calculates pixel majority vote for single segmentation
-        Args:
-            segmentations (Series): Single task segmentations
-                A pandas.Series containing segmentations for a single task.
+    def fit(self, data: DataFrame, skills: Series = None) -> 'SegmentationMajorityVote':
+        """Args:
+            data (DataFrame): Performers' segmentations
+                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
 
+            skills (Series): Performers' skills
+                A pandas.Series index by performers and holding corresponding performer's skill
         Returns:
-            ndarray: Segmentation
-                A numpy 2d ndarray, which is a bitmask of segmentation."""
+            SegmentationMajorityVote: self
+        """
         ...
 
-    def fit(self, data: DataFrame) -> 'SegmentationMajorityVote':
+    def fit_predict(self, data: DataFrame, skills: Series = None) -> ndarray:
         """Args:
             data (DataFrame): Performers' outputs with images
                 A pandas.DataFrame containing `performer`, `task`, `image` and `output` columns'.
                 For each row `image` must be ndarray.
-
-        Returns:
-            SegmentationMajorityVote: self"""
-        ...
-
-    def fit_predict(self, data: DataFrame) -> ndarray:
-        """Args:
-            data (DataFrame): Performers' outputs with images
-                A pandas.DataFrame containing `performer`, `task`, `image` and `output` columns'.
-                For each row `image` must be ndarray.
-
         Returns:
             ndarray: Tasks' segmentations
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                    is the tasks's aggregated segmentation."""
+                    is the tasks's aggregated segmentation
+        """
         ...
 
     segmentations_: ndarray
