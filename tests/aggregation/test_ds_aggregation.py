@@ -194,8 +194,8 @@ def test_dawid_skene_on_empty_input(request, data):
     ds = DawidSkene(10).fit(pd.DataFrame([], columns=['task', 'performer', 'label']))
     assert_frame_equal(pd.DataFrame(), ds.probas_, check_like=True, atol=0.005)
     assert_frame_equal(pd.DataFrame(), ds.errors_, check_like=True, atol=0.005)
-    assert_series_equal(pd.Series(), ds.priors_, atol=0.005)
-    assert_series_equal(pd.Series(), ds.labels_, atol=0.005)
+    assert_series_equal(pd.Series(dtype=float), ds.priors_, atol=0.005)
+    assert_series_equal(pd.Series(dtype=float), ds.labels_, atol=0.005)
 
 
 @pytest.mark.parametrize('overlap', [3, 300, 30000])
