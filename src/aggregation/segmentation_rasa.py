@@ -71,7 +71,12 @@ class SegmentationRASA(BaseAggregator):
     def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationRASA', title='self'):
         data = data[['task', 'performer', 'segmentation']]
 
-        self.segmentations_ = data.groupby('task').segmentation.apply(self._aggregate_one)
+        # The latest pandas version installable under Python3.7 is pandas 1.1.5.
+        # This version fails to accept a method with an error but works fine with lambdas
+        # >>> TypeError: unhashable type: 'SegmentationRASA'duito an inner logic that tries
+        aggregate_one = lambda arg: self._aggregate_one(arg)
+
+        self.segmentations_ = data.groupby('task').segmentation.apply(aggregate_one)
         return self
 
     @manage_docstring
