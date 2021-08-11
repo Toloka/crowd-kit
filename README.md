@@ -60,8 +60,8 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 |[M-MSR](https://proceedings.neurips.cc/paper/2020/hash/f86890095c957e9b949d11d15f0d0cd5-Abstract.html)|✅|
 |Wawa|✅|
 |Zero-Based Skill|✅|
-|[GLAD](https://papers.nips.cc/paper/3644-whose-vote-should-count-more-optimal-integration-of-labels-from-labelers-of-unknown-expertise.pdf)|❌|
-|BCC|❌|
+|[GLAD](https://papers.nips.cc/paper/3644-whose-vote-should-count-more-optimal-integration-of-labels-from-labelers-of-unknown-expertise.pdf)|🟡|
+|BCC|🟡|
 
 ### Textual Responses
 
@@ -69,15 +69,15 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 |-|:-:|
 |[RASA](https://doi.org/10.18653/v1/D19-5904)|✅|
 |[HRRASA](https://doi.org/10.1145/3397271.3401239)|✅|
-|[ROVER](https://ieeexplore.ieee.org/document/659110)|❌|
+|[ROVER](https://ieeexplore.ieee.org/document/659110)|🟡|
 
 ### Image Segmentation
 
 |Method|Status|
 |-|:-:|
 |Segmentation MV|✅|
-|Segmentation RASA|❌|
-|Segmentation EM|❌|
+|Segmentation RASA|🟡|
+|Segmentation EM|🟡|
 
 ### Pairwise Comparisons
 
