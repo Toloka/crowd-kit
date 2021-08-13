@@ -1,0 +1,12 @@
+{
+    "strict": true,
+    "notification": "email",
+    "static_members": [
+        "losev",
+        "sinosov",
+        "tulinev",
+        "vlad-mois"
+    ],
+    "approve_count": 1,
+    "total_reviewers": 1
+}
