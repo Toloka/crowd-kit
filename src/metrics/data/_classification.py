@@ -46,10 +46,11 @@ def consistency(answers: pd.DataFrame,
     """
     _check_answers(answers)
     aggregated = aggregator.fit_predict(answers)
-    if performers_skills is None and hasattr(aggregator, 'skills_'):
-        performers_skills = aggregator.skills_
-    else:
-        raise AssertionError('This aggregator is not supported. Please, provide performers skills.')
+    if performers_skills is None:
+        if hasattr(aggregator, 'skills_'):
+            performers_skills = aggregator.skills_
+        else:
+            raise AssertionError('This aggregator is not supported. Please, provide performers skills.')
 
     answers = answers.copy(deep=False)
     answers.set_index('task', inplace=True)
