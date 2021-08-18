@@ -1,6 +1,9 @@
-from typing import Any, Optional, Union
+from typing import Any, Callable, Hashable, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
+
+from nltk.metrics.agreement import AnnotationTask
+from nltk.metrics.distance import binary_distance
 
 from crowdkit.aggregation.base_aggregator import BaseAggregator
 from crowdkit.aggregation import MajorityVote
@@ -32,21 +35,22 @@ def consistency(answers: pd.DataFrame,
     Consistency metric: posterior probability of aggregated label given performers skills
     calculated using standard Dawid-Skene model.
     Args:
-            answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
-            performers_skills (Optional[pandas.Series]): performers skills e.g. golden set skills. If not provided,
-                uses aggregator's `performers_skills` attribute.
-            aggregator (aggregation.BaseAggregator): aggregation method, default: MajorityVote
-            by_task (bool): if set, returns consistencies for every task in provided data frame.
+        answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
+        performers_skills (Optional[pandas.Series]): performers skills e.g. golden set skills. If not provided,
+            uses aggregator's `performers_skills` attribute.
+        aggregator (aggregation.BaseAggregator): aggregation method, default: MajorityVote
+        by_task (bool): if set, returns consistencies for every task in provided data frame.
 
-        Returns:
-            Union[float, pd.Series]
+    Returns:
+        Union[float, pd.Series]
     """
     _check_answers(answers)
     aggregated = aggregator.fit_predict(answers)
-    if performers_skills is None and hasattr(aggregator, 'skills_'):
-        performers_skills = aggregator.skills_
-    else:
-        raise AssertionError('This aggregator is not supported. Please, provide performers skills.')
+    if performers_skills is None:
+        if hasattr(aggregator, 'skills_'):
+            performers_skills = aggregator.skills_
+        else:
+            raise AssertionError('This aggregator is not supported. Please, provide performers skills.')
 
     answers = answers.copy(deep=False)
     answers.set_index('task', inplace=True)
@@ -67,7 +71,7 @@ def consistency(answers: pd.DataFrame,
         return consistecies.mean()
 
 
-def _task_uncertainty(row, labels):
+def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
     if row['denominator'] == 0:
         row[labels] = 1 / len(labels)
     else:
@@ -77,17 +81,19 @@ def _task_uncertainty(row, labels):
     return -np.sum(softmax * log_softmax)
 
 
-def uncertainty(answers, performers_skills, by_task: bool = False) -> Union[float, pd.Series]:
+def uncertainty(answers: pd.DataFrame,
+                performers_skills: pd.Series,
+                by_task: bool = False) -> Union[float, pd.Series]:
     """
     Label uncertainty metric: entropy of labels probability distribution.
     Args:
-            answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
-            performers_skills (pandas.Series): performers skills e.g. golden set skills. If not provided,
-                uses aggregator's `performers_skills` attribute.
-            by_task (bool): if set, returns consistencies for every task in provided data frame.
+        answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
+        performers_skills (pandas.Series): performers skills e.g. golden set skills. If not provided,
+            uses aggregator's `performers_skills` attribute.
+        by_task (bool): if set, returns consistencies for every task in provided data frame.
 
-        Returns:
-            Union[float, pd.Series]
+    Returns:
+        Union[float, pd.Series]
     """
     _check_answers(answers)
     answers = answers.copy(deep=False)
@@ -106,3 +112,50 @@ def uncertainty(answers, performers_skills, by_task: bool = False) -> Union[floa
         return uncertainties
     else:
         return uncertainties.mean()
+
+
+def alpha_krippendorff(answers: pd.DataFrame,
+                       distance: Callable[[Hashable, Hashable], float] = binary_distance) -> float:
+    """Inter-annotator agreement coefficient (Krippendorff 1980).
+
+    Amount that annotators agreed on label assignments beyond what is expected by chance.
+    The value of alpha should be interpreted as follows.
+        alpha >= 0.8 indicates a reliable annotation,
+        alpha >= 0.667 allows making tentative conclusions only,
+        while the lower values suggest the unreliable annotation.
+
+    Args:
+        answers: A data frame containing `task`, `performer` and `label` columns.
+        distance: Distance metric, that takes two arguments,
+            and returns a value between 0.0 and 1.0
+            By default: binary_distance (0.0 for equal labels 1.0 otherwise).
+
+    Returns:
+        Float value.
+
+    Examples:
+        Consistent answers.
+
+        >>> alpha_krippendorff(pd.DataFrame.from_records([
+        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'performer': 'B', 'label': 'Yes'},
+        >>>     {'task': 'Y', 'performer': 'A', 'label': 'No'},
+        >>>     {'task': 'Y', 'performer': 'B', 'label': 'No'},
+        >>> ]))
+        1.0
+
+        Partially inconsistent answers.
+
+        >>> alpha_krippendorff(pd.DataFrame.from_records([
+        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'performer': 'B', 'label': 'Yes'},
+        >>>     {'task': 'Y', 'performer': 'A', 'label': 'No'},
+        >>>     {'task': 'Y', 'performer': 'B', 'label': 'No'},
+        >>>     {'task': 'Z', 'performer': 'A', 'label': 'Yes'},
+        >>>     {'task': 'Z', 'performer': 'B', 'label': 'No'},
+        >>> ]))
+        0.4444444444444444
+    """
+    _check_answers(answers)
+    data: List[Tuple[Any, Hashable, Hashable]] = answers[['performer', 'task', 'label']].values.tolist()
+    return AnnotationTask(data, distance).alpha()
