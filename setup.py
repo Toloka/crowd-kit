@@ -12,7 +12,7 @@ setup(
     name='crowd-kit',
     package_dir={PREFIX: 'src'},
     packages=[f'{PREFIX}.{package}' for package in find_packages('src')],
-    version='0.0.5',
+    version='0.0.6',
     description='Python libraries for crowdsourcing',
     long_description=readme,
     long_description_content_type='text/markdown',
