@@ -23,7 +23,7 @@ setup(
     install_requires=[
         'attrs',
         'numpy',
-        'pandas',
+        'pandas >= 1.1.0',
         'tqdm',
         'scikit-learn',
         'nltk',

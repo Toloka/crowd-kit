@@ -1,6 +1,9 @@
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+__all__ = [
+    'DawidSkene',
+]
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
+from toloka.client.base_aggregator import BaseAggregator
 from typing import Optional
 
 class DawidSkene(BaseAggregator):

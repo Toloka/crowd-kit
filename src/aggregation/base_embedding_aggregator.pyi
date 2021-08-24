@@ -1,4 +1,7 @@
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+__all__ = [
+    'BaseEmbeddingAggregator',
+]
+from toloka.client.base_aggregator import BaseAggregator
 from typing import Any
 
 class BaseEmbeddingAggregator(BaseAggregator):
@@ -9,4 +12,8 @@ class BaseEmbeddingAggregator(BaseAggregator):
         golden_embeddings_: (Optional[pd.Series]): embeddings of golden outputs if the golden outputs are provided.
     """
 
-    def __init__(self, encoder: Any, silent: bool): ...
+    def __init__(
+        self,
+        encoder: Any,
+        silent: bool
+    ): ...

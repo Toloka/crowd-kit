@@ -1,6 +1,9 @@
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+__all__ = [
+    'ClosestToAverage',
+]
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
+from toloka.client.base_aggregator import BaseAggregator
 from typing import Callable
 
 class ClosestToAverage(BaseAggregator):
@@ -21,20 +24,29 @@ class ClosestToAverage(BaseAggregator):
         """
         ...
 
-    def fit(self, data: DataFrame, aggregated_embeddings: DataFrame = None, true_embeddings: DataFrame = None) -> 'ClosestToAverage':
+    def fit(
+        self,
+        data: DataFrame,
+        aggregated_embeddings: Series = None,
+        true_embeddings: Series = None
+    ) -> 'ClosestToAverage':
         """Args:
             data (DataFrame): Performers' outputs with their embeddings
                 A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
-            aggregated_embeddings (DataFrame): Tasks' embeddings
-                A pandas.DataFrame indexed by `task` with a single column `embedding`.
-            true_embeddings (DataFrame): Tasks' embeddings
-                A pandas.DataFrame indexed by `task` with a single column `embedding`.
+            aggregated_embeddings (Series): Tasks' embeddings
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            true_embeddings (Series): Tasks' embeddings
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:
             ClosestToAverage: self
         """
         ...
 
-    def fit_predict(self, data: DataFrame, skills: Series = None) -> DataFrame:
+    def fit_predict(
+        self,
+        data: DataFrame,
+        skills: Series = None
+    ) -> DataFrame:
         """Args:
             data (DataFrame): Performers' outputs with their embeddings
                 A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
@@ -47,7 +59,11 @@ class ClosestToAverage(BaseAggregator):
         """
         ...
 
-    def fit_predict_scores(self, data: DataFrame, skills: Series = None) -> DataFrame:
+    def fit_predict_scores(
+        self,
+        data: DataFrame,
+        skills: Series = None
+    ) -> DataFrame:
         """Args:
             data (DataFrame): Performers' outputs with their embeddings
                 A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.

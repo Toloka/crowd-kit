@@ -2,6 +2,7 @@ __all__ = [
     'Annotation',
     'manage_docstring',
     'EMBEDDED_DATA',
+    'DATA',
     'LABELED_DATA',
     'PAIRWISE_DATA',
     'SEGMENTATION_DATA',
@@ -106,6 +107,12 @@ EMBEDDED_DATA = Annotation(
     description='A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.'
 )
 
+DATA = Annotation(
+    type=pd.DataFrame,
+    title="Performers' outputs",
+    description='A pandas.DataFrame containing `task`, `performer` and `output` columns.'
+)
+
 LABELED_DATA = Annotation(
     type=pd.DataFrame,
     title="Performers' labeling results",
@@ -151,9 +158,9 @@ LABEL_SCORES = Annotation(
 )
 
 TASKS_EMBEDDINGS = Annotation(
-    type=pd.DataFrame,
+    type=pd.Series,
     title="Tasks' embeddings",
-    description=textwrap.dedent("A pandas.DataFrame indexed by `task` with a single column `embedding`."),
+    description=textwrap.dedent("A pandas.Series indexed by `task` and holding corresponding embeddings."),
 )
 
 TASKS_LABELS = Annotation(

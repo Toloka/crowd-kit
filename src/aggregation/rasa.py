@@ -105,20 +105,22 @@ class TextRASA:
         return getattr(self._rasa, name)
 
     @manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA, true_objects=None) -> Annotation(type='TextRASA', title='self'):
-        self._rasa.fit(self._encode(data), true_objects)
+    def fit(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> Annotation(type='TextRASA', title='self'):
+        self._rasa.fit(self._encode_data(data), self._encode_true_objects(true_objects))
         return self
 
-    # TODO: not labeled data
     @manage_docstring
-    def fit_predict_scores(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABEL_SCORES:
-        return self._rasa.fit_predict_scores(self._encode(data), skills)
+    def fit_predict_scores(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> annotations.TASKS_LABEL_SCORES:
+        return self._rasa.fit_predict_scores(self._encode_data(data), self._encode_true_objects(true_objects))
 
     @manage_docstring
-    def fit_predict(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABELS:
-        return self._rasa.fit_predict(self._encode(data), skills)
+    def fit_predict(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> annotations.TASKS_LABELS:
+        return self._rasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))
 
-    def _encode(self, data):
+    def _encode_data(self, data):
         data = data[['task', 'performer', 'output']]
         data['embedding'] = data.output.apply(self.encoder)
         return data
+
+    def _encode_true_objects(self, true_objects):
+        return true_objects and true_objects.apply(self.endcoder)

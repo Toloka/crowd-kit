@@ -1,3 +1,13 @@
+__all__ = [
+    'evaluate_in',
+    'evaluate_equal',
+    'evaluate',
+    'factorize',
+    'get_most_probable_labels',
+    'normalize_rows',
+    'manage_data',
+    'get_accuracy',
+]
 from numpy import ndarray
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
@@ -14,7 +24,11 @@ def evaluate_in(row: Series) -> int: ...
 def evaluate_equal(row: Series) -> int: ...
 
 
-def evaluate(df_true: DataFrame, df_pred: DataFrame, evaluate_func: Callable[Series, int] = ...) -> Union[str, float]: ...
+def evaluate(
+    df_true: DataFrame,
+    df_pred: DataFrame,
+    evaluate_func: Callable[Series, int] = ...
+) -> Union[str, float]: ...
 
 
 def factorize(data: ndarray) -> Tuple[ndarray, ndarray]: ...
@@ -47,7 +61,11 @@ def normalize_rows(scores: DataFrame) -> DataFrame:
     ...
 
 
-def manage_data(data: DataFrame, weights: Optional[Series] = None, skills: Series = None) -> DataFrame:
+def manage_data(
+    data: DataFrame,
+    weights: Optional[Series] = None,
+    skills: Series = None
+) -> DataFrame:
     """Args:
         data (DataFrame): Performers' labeling results
             A pandas.DataFrame containing `task`, `performer` and `label` columns.
@@ -57,7 +75,11 @@ def manage_data(data: DataFrame, weights: Optional[Series] = None, skills: Serie
     ...
 
 
-def get_accuracy(data: DataFrame, true_labels: Series, by: str = None) -> Series:
+def get_accuracy(
+    data: DataFrame,
+    true_labels: Series,
+    by: str = None
+) -> Series:
     """Args:
         data (DataFrame): Performers' labeling results
             A pandas.DataFrame containing `task`, `performer` and `label` columns.

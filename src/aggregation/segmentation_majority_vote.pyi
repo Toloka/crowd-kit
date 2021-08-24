@@ -1,7 +1,10 @@
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+__all__ = [
+    'SegmentationMajorityVote',
+]
 from numpy import ndarray
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
+from toloka.client.base_aggregator import BaseAggregator
 
 class SegmentationMajorityVote(BaseAggregator):
     """Majority Vote - chooses a pixel if more than half of performers voted
@@ -15,7 +18,11 @@ class SegmentationMajorityVote(BaseAggregator):
             is the tasks's aggregated segmentation.
     """
 
-    def fit(self, data: DataFrame, skills: Series = None) -> 'SegmentationMajorityVote':
+    def fit(
+        self,
+        data: DataFrame,
+        skills: Series = None
+    ) -> 'SegmentationMajorityVote':
         """Args:
             data (DataFrame): Performers' segmentations
                 A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
@@ -27,15 +34,21 @@ class SegmentationMajorityVote(BaseAggregator):
         """
         ...
 
-    def fit_predict(self, data: DataFrame, skills: Series = None) -> ndarray:
+    def fit_predict(
+        self,
+        data: DataFrame,
+        skills: Series = None
+    ) -> ndarray:
         """Args:
-            data (DataFrame): Performers' outputs with images
-                A pandas.DataFrame containing `performer`, `task`, `image` and `output` columns'.
-                For each row `image` must be ndarray.
+            data (DataFrame): Performers' segmentations
+                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+
+            skills (Series): Performers' skills
+                A pandas.Series index by performers and holding corresponding performer's skill
         Returns:
             ndarray: Tasks' segmentations
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                    is the tasks's aggregated segmentation
+                is the tasks's aggregated segmentation.
         """
         ...
 

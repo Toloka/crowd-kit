@@ -1,6 +1,9 @@
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+__all__ = [
+    'GoldMajorityVote',
+]
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
+from toloka.client.base_aggregator import BaseAggregator
 from typing import Optional
 
 class GoldMajorityVote(BaseAggregator):
@@ -35,7 +38,11 @@ class GoldMajorityVote(BaseAggregator):
         """
         ...
 
-    def fit(self, data: DataFrame, true_labels: Series) -> 'GoldMajorityVote':
+    def fit(
+        self,
+        data: DataFrame,
+        true_labels: Series
+    ) -> 'GoldMajorityVote':
         """Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
@@ -48,7 +55,11 @@ class GoldMajorityVote(BaseAggregator):
         """
         ...
 
-    def fit_predict(self, data: DataFrame, true_labels: Series) -> DataFrame:
+    def fit_predict(
+        self,
+        data: DataFrame,
+        true_labels: Series
+    ) -> DataFrame:
         """Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
@@ -63,7 +74,11 @@ class GoldMajorityVote(BaseAggregator):
         """
         ...
 
-    def fit_predict_proba(self, data: DataFrame, true_labels: Series) -> DataFrame:
+    def fit_predict_proba(
+        self,
+        data: DataFrame,
+        true_labels: Series
+    ) -> DataFrame:
         """Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.

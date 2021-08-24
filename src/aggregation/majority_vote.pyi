@@ -1,6 +1,9 @@
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+__all__ = [
+    'MajorityVote',
+]
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
+from toloka.client.base_aggregator import BaseAggregator
 from typing import Optional
 
 class MajorityVote(BaseAggregator):
@@ -23,7 +26,11 @@ class MajorityVote(BaseAggregator):
         """
         ...
 
-    def fit(self, data: DataFrame, skills: Series = None) -> 'MajorityVote':
+    def fit(
+        self,
+        data: DataFrame,
+        skills: Series = None
+    ) -> 'MajorityVote':
         """Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
@@ -34,7 +41,11 @@ class MajorityVote(BaseAggregator):
         """
         ...
 
-    def fit_predict(self, data: DataFrame, skills: Series = None) -> DataFrame:
+    def fit_predict(
+        self,
+        data: DataFrame,
+        skills: Series = None
+    ) -> DataFrame:
         """Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
@@ -47,7 +58,11 @@ class MajorityVote(BaseAggregator):
         """
         ...
 
-    def fit_predict_proba(self, data: DataFrame, skills: Series = None) -> DataFrame:
+    def fit_predict_proba(
+        self,
+        data: DataFrame,
+        skills: Series = None
+    ) -> DataFrame:
         """Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
