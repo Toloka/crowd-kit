@@ -1,10 +1,11 @@
 __all__ = [
     'BaseEmbeddingAggregator',
 ]
-from toloka.client.base_aggregator import BaseAggregator
-from typing import Any
+import crowdkit.aggregation.base_aggregator
+import typing
 
-class BaseEmbeddingAggregator(BaseAggregator):
+
+class BaseEmbeddingAggregator(crowdkit.aggregation.base_aggregator.BaseAggregator):
     """Base class for aggregation algorithms that operate with embeddings of performers answers.
 
     Attributes:
@@ -14,6 +15,6 @@ class BaseEmbeddingAggregator(BaseAggregator):
 
     def __init__(
         self,
-        encoder: Any,
+        encoder: typing.Any,
         silent: bool
     ): ...

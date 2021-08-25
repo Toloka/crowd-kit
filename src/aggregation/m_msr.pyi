@@ -1,13 +1,14 @@
 __all__ = [
     'MMSR',
 ]
-from numpy import ndarray
-from pandas.core.frame import DataFrame
-from pandas.core.series import Series
-from toloka.client.base_aggregator import BaseAggregator
-from typing import Optional
+import crowdkit.aggregation.base_aggregator
+import numpy
+import pandas.core.frame
+import pandas.core.series
+import typing
 
-class MMSR(BaseAggregator):
+
+class MMSR(crowdkit.aggregation.base_aggregator.BaseAggregator):
     """Matrix Mean-Subsequence-Reduced Algorithm
     Qianqian Ma and Alex Olshevsky. 2020.
     Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion
@@ -25,14 +26,67 @@ class MMSR(BaseAggregator):
             is the tasks's most likely true label.
     """
 
+    def fit(self, data: pandas.core.frame.DataFrame) -> 'MMSR':
+        """Args:
+            data (DataFrame): Performers' labeling results
+                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+        Returns:
+            MMSR: self
+        """
+        ...
+
+    def predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' labeling results
+                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+        Returns:
+            DataFrame: Tasks' most likely true labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
+        """
+        ...
+
+    def predict_score(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' labeling results
+                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+        Returns:
+            DataFrame: Tasks' label scores
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
+        """
+        ...
+
+    def fit_predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' labeling results
+                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+        Returns:
+            DataFrame: Tasks' most likely true labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
+        """
+        ...
+
+    def fit_predict_score(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' labeling results
+                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+        Returns:
+            DataFrame: Tasks' label scores
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
+        """
+        ...
+
     def __init__(
         self,
         n_iter: int = 10000,
         eps: float = ...,
-        random_state: Optional[int] = 0,
-        observation_matrix: ndarray = ...,
-        covariation_matrix: ndarray = ...,
-        n_common_tasks: ndarray = ...,
+        random_state: typing.Optional[int] = 0,
+        observation_matrix: numpy.ndarray = ...,
+        covariation_matrix: numpy.ndarray = ...,
+        n_common_tasks: numpy.ndarray = ...,
         n_performers: int = 0,
         n_tasks: int = 0,
         n_labels: int = 0,
@@ -44,71 +98,18 @@ class MMSR(BaseAggregator):
         """
         ...
 
-    def fit(self, data: DataFrame) -> 'MMSR':
-        """Args:
-            data (DataFrame): Performers' labeling results
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-        Returns:
-            MMSR: self
-        """
-        ...
-
-    def fit_predict(self, data: DataFrame) -> DataFrame:
-        """Args:
-            data (DataFrame): Performers' labeling results
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-        Returns:
-            DataFrame: Tasks' most likely true labels
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
-        """
-        ...
-
-    def fit_predict_score(self, data: DataFrame) -> DataFrame:
-        """Args:
-            data (DataFrame): Performers' labeling results
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-        Returns:
-            DataFrame: Tasks' label scores
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the score of `label` for `task`.
-        """
-        ...
-
-    def predict(self, data: DataFrame) -> DataFrame:
-        """Args:
-            data (DataFrame): Performers' labeling results
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-        Returns:
-            DataFrame: Tasks' most likely true labels
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
-        """
-        ...
-
-    def predict_score(self, data: DataFrame) -> DataFrame:
-        """Args:
-            data (DataFrame): Performers' labeling results
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-        Returns:
-            DataFrame: Tasks' label scores
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the score of `label` for `task`.
-        """
-        ...
-
     n_iter: int
     eps: float
-    random_state: Optional[int]
-    _observation_matrix: ndarray
-    _covariation_matrix: ndarray
-    _n_common_tasks: ndarray
+    random_state: typing.Optional[int]
+    _observation_matrix: numpy.ndarray
+    _covariation_matrix: numpy.ndarray
+    _n_common_tasks: numpy.ndarray
     _n_performers: int
     _n_tasks: int
     _n_labels: int
     _labels_mapping: dict
     _performers_mapping: dict
     _tasks_mapping: dict
-    skills_: Optional[Series]
-    scores_: Optional[DataFrame]
-    labels_: Optional[DataFrame]
+    skills_: typing.Optional[pandas.core.series.Series]
+    scores_: typing.Optional[pandas.core.frame.DataFrame]
+    labels_: typing.Optional[pandas.core.frame.DataFrame]

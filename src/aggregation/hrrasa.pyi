@@ -3,15 +3,16 @@ __all__ = [
     'HRRASA',
     'TextHRRASA',
 ]
-from pandas.core.frame import DataFrame
-from pandas.core.series import Series
-from toloka.client.base_embedding_aggregator import BaseEmbeddingAggregator
-from typing import Callable
+import crowdkit.aggregation.base_embedding_aggregator
+import pandas.core.frame
+import pandas.core.series
+import typing
+
 
 def glue_similarity(hyp, ref): ...
 
 
-class HRRASA(BaseEmbeddingAggregator):
+class HRRASA(crowdkit.aggregation.base_embedding_aggregator.BaseEmbeddingAggregator):
     """Hybrid Reliability and Representation Aware Sequence Aggregation
     Jiyi Li. 2020.
     Crowdsourced Text Sequence Aggregation based on Hybrid Reliability and Representation.
@@ -20,6 +21,55 @@ class HRRASA(BaseEmbeddingAggregator):
 
     https://doi.org/10.1145/3397271.3401239
     """
+
+    def fit(
+        self,
+        data: pandas.core.frame.DataFrame,
+        true_embeddings: pandas.core.series.Series = None
+    ) -> 'HRRASA':
+        """Args:
+            data (DataFrame): Performers' outputs with their embeddings
+                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+        Returns:
+            HRRASA: self
+        """
+        ...
+
+    def fit_predict_scores(
+        self,
+        data: pandas.core.frame.DataFrame,
+        true_embeddings: pandas.core.series.Series = None
+    ) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' outputs with their embeddings
+                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+        Returns:
+            DataFrame: Tasks' label scores
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
+        """
+        ...
+
+    def fit_predict(
+        self,
+        data: pandas.core.frame.DataFrame,
+        true_embeddings: pandas.core.series.Series = None
+    ) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' outputs with their embeddings
+                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+        Returns:
+            DataFrame: Tasks' most likely true labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
+        """
+        ...
 
     def __init__(
         self,
@@ -34,55 +84,6 @@ class HRRASA(BaseEmbeddingAggregator):
         """
         ...
 
-    def fit(
-        self,
-        data: DataFrame,
-        true_embeddings: Series = None
-    ) -> 'HRRASA':
-        """Args:
-            data (DataFrame): Performers' outputs with their embeddings
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
-        Returns:
-            HRRASA: self
-        """
-        ...
-
-    def fit_predict(
-        self,
-        data: DataFrame,
-        true_embeddings: Series = None
-    ) -> DataFrame:
-        """Args:
-            data (DataFrame): Performers' outputs with their embeddings
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
-        Returns:
-            DataFrame: Tasks' most likely true labels
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
-        """
-        ...
-
-    def fit_predict_scores(
-        self,
-        data: DataFrame,
-        true_embeddings: Series = None
-    ) -> DataFrame:
-        """Args:
-            data (DataFrame): Performers' outputs with their embeddings
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
-        Returns:
-            DataFrame: Tasks' label scores
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the score of `label` for `task`.
-        """
-        ...
-
     n_iter: int
     lambda_emb: float
     lambda_out: float
@@ -93,39 +94,20 @@ class HRRASA(BaseEmbeddingAggregator):
 class TextHRRASA:
     def __init__(
         self,
-        encoder: Callable,
+        encoder: typing.Callable,
         n_iter: int = 100,
         lambda_emb: float = ...,
         lambda_out: float = ...,
         alpha: float = ...,
         calculate_ranks: bool = False,
-        output_similarity: Callable = ...
+        output_similarity: typing.Callable = ...
     ): ...
-
-    def fit_predict(
-        self,
-        data: DataFrame,
-        true_objects: Series = None
-    ) -> DataFrame:
-        """Args:
-            data (DataFrame): Performers' outputs
-                A pandas.DataFrame containing `task`, `performer` and `output` columns.
-            true_objects (Series): Tasks' ground truth labels
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's ground truth label.
-
-        Returns:
-            DataFrame: Tasks' most likely true labels
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
-        """
-        ...
 
     def fit_predict_scores(
         self,
-        data: DataFrame,
-        true_objects: Series = None
-    ) -> DataFrame:
+        data: pandas.core.frame.DataFrame,
+        true_objects: pandas.core.series.Series = None
+    ) -> pandas.core.frame.DataFrame:
         """Args:
             data (DataFrame): Performers' outputs
                 A pandas.DataFrame containing `task`, `performer` and `output` columns.
@@ -137,5 +119,24 @@ class TextHRRASA:
             DataFrame: Tasks' label scores
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
                 is the score of `label` for `task`.
+        """
+        ...
+
+    def fit_predict(
+        self,
+        data: pandas.core.frame.DataFrame,
+        true_objects: pandas.core.series.Series = None
+    ) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' outputs
+                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            DataFrame: Tasks' most likely true labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
         """
         ...

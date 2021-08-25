@@ -1,12 +1,13 @@
 __all__ = [
     'SegmentationMajorityVote',
 ]
-from numpy import ndarray
-from pandas.core.frame import DataFrame
-from pandas.core.series import Series
-from toloka.client.base_aggregator import BaseAggregator
+import crowdkit.aggregation.base_aggregator
+import numpy
+import pandas.core.frame
+import pandas.core.series
 
-class SegmentationMajorityVote(BaseAggregator):
+
+class SegmentationMajorityVote(crowdkit.aggregation.base_aggregator.BaseAggregator):
     """Majority Vote - chooses a pixel if more than half of performers voted
 
     Doris Jung-Lin Lee. 2018.
@@ -20,8 +21,8 @@ class SegmentationMajorityVote(BaseAggregator):
 
     def fit(
         self,
-        data: DataFrame,
-        skills: Series = None
+        data: pandas.core.frame.DataFrame,
+        skills: pandas.core.series.Series = None
     ) -> 'SegmentationMajorityVote':
         """Args:
             data (DataFrame): Performers' segmentations
@@ -36,9 +37,9 @@ class SegmentationMajorityVote(BaseAggregator):
 
     def fit_predict(
         self,
-        data: DataFrame,
-        skills: Series = None
-    ) -> ndarray:
+        data: pandas.core.frame.DataFrame,
+        skills: pandas.core.series.Series = None
+    ) -> numpy.ndarray:
         """Args:
             data (DataFrame): Performers' segmentations
                 A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
@@ -52,4 +53,4 @@ class SegmentationMajorityVote(BaseAggregator):
         """
         ...
 
-    segmentations_: ndarray
+    segmentations_: numpy.ndarray
