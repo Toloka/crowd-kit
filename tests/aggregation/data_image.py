@@ -156,3 +156,23 @@ def simple_image_rasa_result():
         index=pd.Index([1, 2], name='task'),
         name='segmentation'
     )
+
+
+@pytest.fixture
+def simple_image_em_result():
+    return pd.Series(
+        [
+            np.array([
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+            ], dtype=bool),
+            np.array([
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 0],
+            ], dtype=bool),
+        ],
+        index=pd.Index([1, 2], name='task'),
+        name='segmentation'
+    )
