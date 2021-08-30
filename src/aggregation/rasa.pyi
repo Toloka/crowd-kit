@@ -1,9 +1,11 @@
 __all__ = [
     'RASA',
+    'TextRASA',
 ]
 import crowdkit.aggregation.base_embedding_aggregator
 import pandas.core.frame
 import pandas.core.series
+import typing
 
 
 class RASA(crowdkit.aggregation.base_embedding_aggregator.BaseEmbeddingAggregator):
@@ -75,3 +77,67 @@ class RASA(crowdkit.aggregation.base_embedding_aggregator.BaseEmbeddingAggregato
 
     n_iter: int
     alpha: float
+
+
+class TextRASA:
+    def __init__(
+        self,
+        encoder: typing.Callable,
+        n_iter: int = 100,
+        alpha: float = ...
+    ): ...
+
+    def fit(
+        self,
+        data: pandas.core.frame.DataFrame,
+        true_objects: pandas.core.series.Series = None
+    ) -> 'TextRASA':
+        """Args:
+            data (DataFrame): Performers' outputs
+                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            TextRASA: self
+        """
+        ...
+
+    def fit_predict_scores(
+        self,
+        data: pandas.core.frame.DataFrame,
+        true_objects: pandas.core.series.Series = None
+    ) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' outputs
+                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            DataFrame: Tasks' label scores
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
+        """
+        ...
+
+    def fit_predict(
+        self,
+        data: pandas.core.frame.DataFrame,
+        true_objects: pandas.core.series.Series = None
+    ) -> pandas.core.frame.DataFrame:
+        """Args:
+            data (DataFrame): Performers' outputs
+                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            DataFrame: Tasks' most likely true labels
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
+        """
+        ...

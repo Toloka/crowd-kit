@@ -1,18 +1,19 @@
 __all__ = [
-    'DawidSkene',
-    'MajorityVote',
-    'MMSR',
-    'Wawa',
-    'GoldMajorityVote',
-    'ZeroBasedSkill',
-    'HRRASA',
-    'RASA',
     'BradleyTerry',
+    'DawidSkene',
+    'GoldMajorityVote',
+    'HRRASA',
+    'MMSR',
+    'MajorityVote',
     'NoisyBradleyTerry',
-    'TextRASA',
-    'TextHRRASA',
+    'RASA',
+    'ROVER',
     'SegmentationMajorityVote',
     'SegmentationRASA',
+    'TextHRRASA',
+    'TextRASA',
+    'Wawa',
+    'ZeroBasedSkill',
 ]
 from crowdkit.aggregation.bradley_terry import BradleyTerry
 from crowdkit.aggregation.dawid_skene import DawidSkene
@@ -28,6 +29,7 @@ from crowdkit.aggregation.rasa import (
     RASA,
     TextRASA
 )
+from crowdkit.aggregation.rover import ROVER
 from crowdkit.aggregation.segmentation_majority_vote import SegmentationMajorityVote
 from crowdkit.aggregation.segmentation_rasa import SegmentationRASA
 from crowdkit.aggregation.wawa import Wawa

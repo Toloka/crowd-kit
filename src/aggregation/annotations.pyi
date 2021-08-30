@@ -1,10 +1,16 @@
+"""This module contains reusable annotations that encapsulate both typing
+and description for commonly used parameters. These annotations are
+used to automatically generate stub files with proper docstrings
+"""
+
 __all__ = [
     'Annotation',
     'manage_docstring',
-    'EMBEDDED_DATA',
     'DATA',
+    'EMBEDDED_DATA',
     'LABELED_DATA',
     'PAIRWISE_DATA',
+    'TEXT_DATA',
     'SEGMENTATION_DATA',
     'LABEL_PRIORS',
     'LABEL_SCORES',
@@ -18,18 +24,20 @@ __all__ = [
     'SEGMENTATION_ERRORS',
     'IMAGE_PIXEL_PROBAS',
     'TASKS_SEGMENTATIONS',
+    'TASKS_TEXTS',
     'BIASES',
     'SKILLS',
     'ERRORS',
     'WEIGHTED_DATA',
     'WEIGHTS',
-    'OPTIONAL_SCORES',
-    'OPTIONAL_SKILLS',
-    'OPTIONAL_PROBAS',
-    'OPTIONAL_PRIORS',
-    'OPTIONAL_LABELS',
     'OPTIONAL_ERRORS',
+    'OPTIONAL_PRIORS',
+    'OPTIONAL_PROBAS',
+    'OPTIONAL_SCORES',
+    'OPTIONAL_LABELS',
+    'OPTIONAL_SKILLS',
     'OPTIONAL_WEIGHTS',
+    'OPTIONAL_TEXTS',
 ]
 import typing
 
@@ -65,6 +73,8 @@ LABELED_DATA = ...
 
 PAIRWISE_DATA = ...
 
+TEXT_DATA = ...
+
 SEGMENTATION_DATA = ...
 
 LABEL_PRIORS = ...
@@ -91,6 +101,8 @@ IMAGE_PIXEL_PROBAS = ...
 
 TASKS_SEGMENTATIONS = ...
 
+TASKS_TEXTS = ...
+
 BIASES = ...
 
 SKILLS = ...
@@ -114,3 +126,5 @@ OPTIONAL_LABELS = ...
 OPTIONAL_ERRORS = ...
 
 OPTIONAL_WEIGHTS = ...
+
+OPTIONAL_TEXTS = ...

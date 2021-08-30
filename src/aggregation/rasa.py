@@ -1,4 +1,7 @@
-__all__ = ['RASA']
+__all__ = [
+    'RASA',
+    'TextRASA',
+]
 from functools import partial
 from typing import Callable
 

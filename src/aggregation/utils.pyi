@@ -74,7 +74,7 @@ def manage_data(
 def get_accuracy(
     data: pandas.core.frame.DataFrame,
     true_labels: pandas.core.series.Series,
-    by: str = None
+    by: typing.Optional[str] = None
 ) -> pandas.core.series.Series:
     """Args:
         data (DataFrame): Performers' labeling results

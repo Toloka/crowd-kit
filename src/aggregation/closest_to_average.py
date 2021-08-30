@@ -18,7 +18,7 @@ class ClosestToAverage(BaseAggregator):
     outputs_: annotations.TASKS_LABELS
     scores_: annotations.TASKS_LABEL_PROBAS
 
-    distance: Callable[[np.array, np.array], float] = attr.ib()
+    distance: Callable[[np.ndarray, np.ndarray], float] = attr.ib()
 
     @manage_docstring
     def fit(self, data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None,

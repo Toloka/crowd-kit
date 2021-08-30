@@ -79,7 +79,7 @@ def manage_data(data: annotations.LABELED_DATA, weights: Optional[pd.Series] = N
 
 
 @manage_docstring
-def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS, by: str = None) -> annotations.SKILLS:
+def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS, by: Optional[str] = None) -> annotations.SKILLS:
     if 'weight' in data.columns:
         data = data[['task', 'performer', 'label', 'weight']]
     else:
