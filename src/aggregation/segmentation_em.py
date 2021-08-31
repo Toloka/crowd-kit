@@ -92,7 +92,9 @@ class SegmentationEM(BaseAggregator):
     def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationEM', title='self'):
         data = data[['task', 'performer', 'segmentation']]
 
-        self.segmentations_ = data.groupby('task').segmentation.apply(self._aggregate_one)
+        self.segmentations_ = data.groupby('task').segmentation.apply(
+            lambda segmentations: self._aggregate_one(segmentations)  # using lambda for python 3.7 compatibility
+        )
         return self
 
     @manage_docstring

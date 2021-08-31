@@ -61,7 +61,8 @@ class ROVER(BaseAggregator):
 
             result[task] = text
 
-        result = pd.Series(result)
+        result = pd.Series(result, name='text')
+        result.index.name = 'task'
         self.results_ = result
         return self
 
@@ -99,8 +100,8 @@ class ROVER(BaseAggregator):
         """
 
         distance = np.zeros((len(hyp_edges) + 1, len(ref_edges_sets) + 1))
-        distance[0, :] = np.arange(len(hyp_edges) + 1)
-        distance[:, 0] = np.arange(len(ref_edges_sets) + 1)
+        distance[:, 0] = np.arange(len(hyp_edges) + 1)
+        distance[0, :] = np.arange(len(ref_edges_sets) + 1)
 
         memoization = [[None] * (len(ref_edges_sets) + 1) for _ in range(len(hyp_edges) + 1)]
         for i, hyp_edge in enumerate(hyp_edges, start=1):
