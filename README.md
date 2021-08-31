@@ -69,15 +69,15 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 |-|:-:|
 |[RASA](https://doi.org/10.18653/v1/D19-5904)|✅|
 |[HRRASA](https://doi.org/10.1145/3397271.3401239)|✅|
-|[ROVER](https://ieeexplore.ieee.org/document/659110)|🟡|
+|[ROVER](https://ieeexplore.ieee.org/document/659110)|✅|
 
 ### Image Segmentation
 
 |Method|Status|
 |-|:-:|
 |Segmentation MV|✅|
-|Segmentation RASA|🟡|
-|Segmentation EM|🟡|
+|Segmentation RASA|✅|
+|Segmentation EM|✅|
 
 ### Pairwise Comparisons
 
