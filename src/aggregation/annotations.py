@@ -1,10 +1,19 @@
+"""
+This module contains reusable annotations that encapsulate both typing
+and description for commonly used parameters. These annotations are
+used to automatically generate stub files with proper docstrings
+"""
 __all__ = [
     'Annotation',
     'manage_docstring',
+
+    'DATA',
     'EMBEDDED_DATA',
     'LABELED_DATA',
     'PAIRWISE_DATA',
+    'TEXT_DATA',
     'SEGMENTATION_DATA',
+
     'LABEL_PRIORS',
     'LABEL_SCORES',
     'TASKS_EMBEDDINGS',
@@ -17,24 +26,23 @@ __all__ = [
     'SEGMENTATION_ERRORS',
     'IMAGE_PIXEL_PROBAS',
     'TASKS_SEGMENTATIONS',
+    'TASKS_TEXTS',
+
     'BIASES',
     'SKILLS',
     'ERRORS',
     'WEIGHTED_DATA',
     'WEIGHTS',
-    'OPTIONAL_SCORES',
-    'OPTIONAL_SKILLS',
-    'OPTIONAL_PROBAS',
-    'OPTIONAL_PRIORS',
-    'OPTIONAL_LABELS',
+
     'OPTIONAL_ERRORS',
-    'OPTIONAL_WEIGHTS'
+    'OPTIONAL_PRIORS',
+    'OPTIONAL_PROBAS',
+    'OPTIONAL_SCORES',
+    'OPTIONAL_LABELS',
+    'OPTIONAL_SKILLS',
+    'OPTIONAL_WEIGHTS',
+    'OPTIONAL_TEXTS',
 ]
-"""
-This module contains reusable annotations that encapsulate both typing
-and description for commonly used parameters. These annotations are
-used to automatically generate stub files with proper docstrings
-"""
 
 import inspect
 import textwrap
@@ -106,6 +114,12 @@ EMBEDDED_DATA = Annotation(
     description='A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.'
 )
 
+DATA = Annotation(
+    type=pd.DataFrame,
+    title="Performers' outputs",
+    description='A pandas.DataFrame containing `task`, `performer` and `output` columns.'
+)
+
 LABELED_DATA = Annotation(
     type=pd.DataFrame,
     title="Performers' labeling results",
@@ -120,6 +134,12 @@ PAIRWISE_DATA = Annotation(
         A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
         For each row `label` must be equal to either `left` or `right`.
     ''')
+)
+
+TEXT_DATA = Annotation(
+    type=pd.DataFrame,
+    title="Performers' text outputs",
+    description='A pandas.DataFrame containing `task`, `performer` and `text` columns.'
 )
 
 
@@ -151,9 +171,9 @@ LABEL_SCORES = Annotation(
 )
 
 TASKS_EMBEDDINGS = Annotation(
-    type=pd.DataFrame,
+    type=pd.Series,
     title="Tasks' embeddings",
-    description=textwrap.dedent("A pandas.DataFrame indexed by `task` with a single column `embedding`."),
+    description=textwrap.dedent("A pandas.Series indexed by `task` and holding corresponding embeddings."),
 )
 
 TASKS_LABELS = Annotation(
@@ -234,6 +254,15 @@ TASKS_SEGMENTATIONS = Annotation(
     '''),
 )
 
+TASKS_TEXTS = Annotation(
+    type=pd.DataFrame,
+    title="Tasks' label scores",
+    description=textwrap.dedent('''
+        A pandas.DataFrame indexed by `task` such that `result.loc[task, text]`
+        is the task's text.
+    '''),
+)
+
 
 # Performers related annotations
 
@@ -287,3 +316,4 @@ OPTIONAL_PRIORS = _make_optional(LABEL_PRIORS)
 OPTIONAL_LABELS = _make_optional(TASKS_LABELS)
 OPTIONAL_ERRORS = _make_optional(ERRORS)
 OPTIONAL_WEIGHTS = _make_optional(WEIGHTS)
+OPTIONAL_TEXTS = _make_optional(TASKS_TEXTS)

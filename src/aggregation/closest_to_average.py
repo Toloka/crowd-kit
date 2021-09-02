@@ -18,7 +18,7 @@ class ClosestToAverage(BaseAggregator):
     outputs_: annotations.TASKS_LABELS
     scores_: annotations.TASKS_LABEL_PROBAS
 
-    distance: Callable[[np.array, np.array], float] = attr.ib()
+    distance: Callable[[np.ndarray, np.ndarray], float] = attr.ib()
 
     @manage_docstring
     def fit(self, data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None,
@@ -26,7 +26,9 @@ class ClosestToAverage(BaseAggregator):
 
         data = data[['task', 'performer', 'output', 'embedding']]
         if aggregated_embeddings is None:
-            avg_embeddings = data.groupby('task')['embedding'].avg()
+            group = data.groupby('task')
+            # we don't use .mean() because it does not work with np.array in older pandas versions
+            avg_embeddings = group.embedding.apply(np.sum) / group.performer.count()
             avg_embeddings.update(true_embeddings)
         else:
             avg_embeddings = aggregated_embeddings

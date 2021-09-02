@@ -1,6 +1,7 @@
 __all__ = [
     'glue_similarity',
-    'HRRASA'
+    'HRRASA',
+    'TextHRRASA',
 ]
 from typing import Any, Iterator, Tuple, Callable
 
@@ -21,7 +22,8 @@ from .annotations import (
     TASKS_LABEL_SCORES,
     TASKS_LABELS,
     WEIGHTS,
-    LABELED_DATA
+    DATA,
+    TASKS_TRUE_LABELS,
 )
 from .base_embedding_aggregator import BaseEmbeddingAggregator
 from .closest_to_average import ClosestToAverage
@@ -56,9 +58,9 @@ class HRRASA(BaseEmbeddingAggregator):
     def fit(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
                                                                                                title='self'):
         data = data[['task', 'performer', 'embedding', 'output']]
+        data, single_overlap_tasks = self._filter_single_overlap(data)
         data = self._get_local_skills(data)
 
-        # What we call reliabilities here is called skills in the paper
         prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
         skills = pd.Series(1.0, index=data.performer.unique())
         weights = self._calc_weights(data, skills)
@@ -76,6 +78,7 @@ class HRRASA(BaseEmbeddingAggregator):
         if self.calculate_ranks:
             self.ranks_ = self._rank_outputs(data, skills)
 
+        self._fill_single_overlap_tasks_info(single_overlap_tasks)
         return self
 
     @manage_docstring
@@ -116,6 +119,10 @@ class HRRASA(BaseEmbeddingAggregator):
     def _rank_outputs(self, data: EMBEDDED_DATA, skills: SKILLS) -> TASKS_LABEL_SCORES:
         """Returns ranking score for each record in `data` data frame.
         """
+
+        if not data.size:
+            return pd.DataFrame(columns=['task', 'output', 'rank'])
+
         data = self._distance_from_aggregated(data)
         data['norms_prod'] = data.apply(lambda row: np.sum(row['embedding'] ** 2) * np.sum(row['task_aggregate'] ** 2),
                                         axis=1)
@@ -165,6 +172,7 @@ class HRRASA(BaseEmbeddingAggregator):
 
     def _local_skills_on_task(self, task_answers: pd.DataFrame) -> Iterator[Tuple[Any, float]]:
         overlap = len(task_answers)
+
         for _, cur_row in task_answers.iterrows():
             performer = cur_row['performer']
             emb_sum = 0.0
@@ -190,31 +198,67 @@ class HRRASA(BaseEmbeddingAggregator):
 
             yield performer, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
 
+    @manage_docstring
+    def _filter_single_overlap(self, data: EMBEDDED_DATA):
+        """Filter skills, embeddings, weights and ranks for single overlap tasks that couldn't be processed by HRASSA
+        """
+
+        single_overlap_task_ids = []
+        for task, task_answers in data.groupby('task'):
+            if len(task_answers) == 1:
+                single_overlap_task_ids.append(task)
+        data = data.set_index('task')
+        return data.drop(single_overlap_task_ids).reset_index(), data.loc[single_overlap_task_ids].reset_index()
+
+    @manage_docstring
+    def _fill_single_overlap_tasks_info(self, single_overlap_tasks: EMBEDDED_DATA):
+        """Fill skills, embeddings, weights and ranks for single overlap tasks
+        """
+
+        performers_to_append = []
+        aggregated_embeddings_to_append = {}
+        weights_to_append = []
+        ranks_to_append = []
+        for row in single_overlap_tasks.itertuples():
+            if row.performer not in self.prior_skills_:
+                performers_to_append.append(row.performer)
+            if row.task not in self.aggregated_embeddings_:
+                aggregated_embeddings_to_append[row.task] = row.embedding
+                weights_to_append.append({'task': row.task, 'performer': row.performer, 'weight': np.nan})
+                ranks_to_append.append({'task': row.task, 'output': row.output, 'rank': np.nan})
+
+        self.prior_skills_ = self.prior_skills_.append(pd.Series(np.nan, index=performers_to_append))
+        self.skills_ = self.skills_.append(pd.Series(np.nan, index=performers_to_append))
+        self.aggregated_embeddings_ = self.aggregated_embeddings_.append(pd.Series(aggregated_embeddings_to_append))
+        self.weights_ = self.weights_.append(pd.DataFrame(weights_to_append))
+        if hasattr(self, 'ranks_'):
+            self.ranks_ = self.ranks_.append(pd.DataFrame(ranks_to_append))
+
+        return
+
 
 class TextHRRASA:
 
     def __init__(self, encoder: Callable, n_iter: int = 100, lambda_emb: float = 0.5, lambda_out: float = 0.5,
                  alpha: float = 0.05, calculate_ranks: bool = False, output_similarity: Callable = glue_similarity):
         self.encoder = encoder
-        self._rasa = HRRASA(n_iter, lambda_emb, lambda_out, alpha, calculate_ranks, output_similarity)
+        self._hrrasa = HRRASA(n_iter, lambda_emb, lambda_out, alpha, calculate_ranks, output_similarity)
 
     def __getattr__(self, name):
-        return getattr(self._rasa, name)
+        return getattr(self._hrrasa, name)
 
     @manage_docstring
-    def fit(self, data: EMBEDDED_DATA, true_objects=None) -> Annotation(type='TextHRRASA', title='self'):
-        self._rasa.fit(self._encode(data), true_objects)
-        return self
+    def fit_predict_scores(self, data: DATA, true_objects: TASKS_TRUE_LABELS = None) -> TASKS_LABEL_SCORES:
+        return self._hrrasa.fit_predict_scores(self._encode_data(data), self._encode_true_objects(true_objects))
 
     @manage_docstring
-    def fit_predict_scores(self, data: LABELED_DATA, skills: SKILLS = None) -> TASKS_LABEL_SCORES:
-        return self._rasa.fit_predict_scores(self._encode(data), skills)
+    def fit_predict(self, data: DATA, true_objects: TASKS_TRUE_LABELS = None) -> TASKS_LABELS:
+        return self._hrrasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))
 
-    @manage_docstring
-    def fit_predict(self, data: LABELED_DATA, skills: SKILLS = None) -> TASKS_LABELS:
-        return self._rasa.fit_predict(self._encode(data), skills)
-
-    def _encode(self, data):
+    def _encode_data(self, data):
         data = data[['task', 'performer', 'output']]
         data['embedding'] = data.output.apply(self.encoder)
         return data
+
+    def _encode_true_objects(self, true_objects):
+        return true_objects and true_objects.apply(self.endcoder)

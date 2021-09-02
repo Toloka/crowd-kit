@@ -1,26 +1,36 @@
-from numpy import ndarray
-from pandas.core.frame import DataFrame
-from pandas.core.series import Series
-from typing import (
-    Callable,
-    Optional,
-    Tuple,
-    Union
-)
-
-def evaluate_in(row: Series) -> int: ...
-
-
-def evaluate_equal(row: Series) -> int: ...
-
-
-def evaluate(df_true: DataFrame, df_pred: DataFrame, evaluate_func: Callable[Series, int] = ...) -> Union[str, float]: ...
+__all__ = [
+    'evaluate_in',
+    'evaluate_equal',
+    'evaluate',
+    'factorize',
+    'get_most_probable_labels',
+    'normalize_rows',
+    'manage_data',
+    'get_accuracy',
+]
+import numpy
+import pandas.core.frame
+import pandas.core.series
+import typing
 
 
-def factorize(data: ndarray) -> Tuple[ndarray, ndarray]: ...
+def evaluate_in(row: pandas.core.series.Series) -> int: ...
 
 
-def get_most_probable_labels(proba: DataFrame):
+def evaluate_equal(row: pandas.core.series.Series) -> int: ...
+
+
+def evaluate(
+    df_true: pandas.core.frame.DataFrame,
+    df_pred: pandas.core.frame.DataFrame,
+    evaluate_func: typing.Callable[[pandas.core.series.Series], int] = ...
+) -> typing.Union[str, float]: ...
+
+
+def factorize(data: numpy.ndarray) -> typing.Tuple[numpy.ndarray, numpy.ndarray]: ...
+
+
+def get_most_probable_labels(proba: pandas.core.frame.DataFrame):
     """Returns most probable labels
     Args:
         proba (DataFrame): Tasks' label probability distributions
@@ -31,7 +41,7 @@ def get_most_probable_labels(proba: DataFrame):
     ...
 
 
-def normalize_rows(scores: DataFrame) -> DataFrame:
+def normalize_rows(scores: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
     """Scales values so that every raw sums to 1
     Args:
         scores (DataFrame): Tasks' label scores
@@ -47,7 +57,11 @@ def normalize_rows(scores: DataFrame) -> DataFrame:
     ...
 
 
-def manage_data(data: DataFrame, weights: Optional[Series] = None, skills: Series = None) -> DataFrame:
+def manage_data(
+    data: pandas.core.frame.DataFrame,
+    weights: typing.Optional[pandas.core.series.Series] = None,
+    skills: pandas.core.series.Series = None
+) -> pandas.core.frame.DataFrame:
     """Args:
         data (DataFrame): Performers' labeling results
             A pandas.DataFrame containing `task`, `performer` and `label` columns.
@@ -57,7 +71,11 @@ def manage_data(data: DataFrame, weights: Optional[Series] = None, skills: Serie
     ...
 
 
-def get_accuracy(data: DataFrame, true_labels: Series, by: str = None) -> Series:
+def get_accuracy(
+    data: pandas.core.frame.DataFrame,
+    true_labels: pandas.core.series.Series,
+    by: typing.Optional[str] = None
+) -> pandas.core.series.Series:
     """Args:
         data (DataFrame): Performers' labeling results
             A pandas.DataFrame containing `task`, `performer` and `label` columns.

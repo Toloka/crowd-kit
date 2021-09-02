@@ -1,3 +1,4 @@
+__all__ = ['SegmentationRASA']
 import attr
 import numpy as np
 

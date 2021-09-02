@@ -1,9 +1,13 @@
-from crowdkit.aggregation.base_aggregator import BaseAggregator
-from numpy import ndarray
-from pandas.core.frame import DataFrame
-from pandas.core.series import Series
+__all__ = [
+    'SegmentationMajorityVote',
+]
+import crowdkit.aggregation.base_aggregator
+import numpy
+import pandas.core.frame
+import pandas.core.series
 
-class SegmentationMajorityVote(BaseAggregator):
+
+class SegmentationMajorityVote(crowdkit.aggregation.base_aggregator.BaseAggregator):
     """Majority Vote - chooses a pixel if more than half of performers voted
 
     Doris Jung-Lin Lee. 2018.
@@ -15,7 +19,11 @@ class SegmentationMajorityVote(BaseAggregator):
             is the tasks's aggregated segmentation.
     """
 
-    def fit(self, data: DataFrame, skills: Series = None) -> 'SegmentationMajorityVote':
+    def fit(
+        self,
+        data: pandas.core.frame.DataFrame,
+        skills: pandas.core.series.Series = None
+    ) -> 'SegmentationMajorityVote':
         """Args:
             data (DataFrame): Performers' segmentations
                 A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
@@ -27,16 +35,22 @@ class SegmentationMajorityVote(BaseAggregator):
         """
         ...
 
-    def fit_predict(self, data: DataFrame, skills: Series = None) -> ndarray:
+    def fit_predict(
+        self,
+        data: pandas.core.frame.DataFrame,
+        skills: pandas.core.series.Series = None
+    ) -> numpy.ndarray:
         """Args:
-            data (DataFrame): Performers' outputs with images
-                A pandas.DataFrame containing `performer`, `task`, `image` and `output` columns'.
-                For each row `image` must be ndarray.
+            data (DataFrame): Performers' segmentations
+                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+
+            skills (Series): Performers' skills
+                A pandas.Series index by performers and holding corresponding performer's skill
         Returns:
             ndarray: Tasks' segmentations
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                    is the tasks's aggregated segmentation
+                is the tasks's aggregated segmentation.
         """
         ...
 
-    segmentations_: ndarray
+    segmentations_: numpy.ndarray

@@ -6,10 +6,28 @@ from .m_msr import MMSR
 from .majority_vote import MajorityVote
 from .noisy_bt import NoisyBradleyTerry
 from .rasa import RASA, TextRASA
+from .rover import ROVER
+from .segmentation_em import SegmentationEM
 from .segmentation_majority_vote import SegmentationMajorityVote
 from .segmentation_rasa import SegmentationRASA
 from .wawa import Wawa
 from .zero_based_skill import ZeroBasedSkill
 
-__all__ = ['DawidSkene', 'MajorityVote', 'MMSR', 'Wawa', 'GoldMajorityVote', 'ZeroBasedSkill', 'HRRASA', 'RASA',
-           'BradleyTerry', 'NoisyBradleyTerry', 'TextRASA', 'TextHRRASA', 'SegmentationMajorityVote', 'SegmentationRASA']
+__all__ = [
+    'BradleyTerry',
+    'DawidSkene',
+    'GoldMajorityVote',
+    'HRRASA',
+    'MMSR',
+    'MajorityVote',
+    'NoisyBradleyTerry',
+    'RASA',
+    'ROVER',
+    'SegmentationEM',
+    'SegmentationMajorityVote',
+    'SegmentationRASA',
+    'TextHRRASA',
+    'TextRASA',
+    'Wawa',
+    'ZeroBasedSkill',
+]
