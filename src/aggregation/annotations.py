@@ -27,7 +27,8 @@ __all__ = [
     'IMAGE_PIXEL_PROBAS',
     'TASKS_SEGMENTATIONS',
     'TASKS_TEXTS',
-
+    'GLAD_ALPHAS',
+    'GLAD_BETAS',
     'BIASES',
     'SKILLS',
     'ERRORS',
@@ -263,9 +264,24 @@ TASKS_TEXTS = Annotation(
     '''),
 )
 
+GLAD_ALPHAS = Annotation(
+    type=pd.Series,
+    title="Performers' alpha parameters",
+    description=textwrap.dedent('''
+        A pandas.Series indexed by `performer` that containes estimated alpha parameters.
+    '''),
+)
+
+GLAD_BETAS = Annotation(
+    type=pd.Series,
+    title="Tasks' beta parameters",
+    description=textwrap.dedent('''
+        A pandas.Series indexed by `task` that containes estimated beta parameters.
+    '''),
+)
+
 
 # Performers related annotations
-
 
 BIASES = Annotation(
     type=pd.Series,
@@ -279,7 +295,6 @@ SKILLS = Annotation(
     description="A pandas.Series index by performers and holding corresponding performer's skill",
 )
 
-
 ERRORS = Annotation(
     type=pd.DataFrame,
     title="Performers' error matrices",
@@ -290,7 +305,6 @@ ERRORS = Annotation(
         true label is `true_label`
     '''),
 )
-
 
 WEIGHTED_DATA = Annotation(
     type=pd.DataFrame,

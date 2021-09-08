@@ -1,5 +1,6 @@
 from .bradley_terry import BradleyTerry
 from .dawid_skene import DawidSkene
+from .glad import GLAD
 from .gold_majority_vote import GoldMajorityVote
 from .hrrasa import HRRASA, TextHRRASA
 from .m_msr import MMSR
@@ -16,6 +17,7 @@ from .zero_based_skill import ZeroBasedSkill
 __all__ = [
     'BradleyTerry',
     'DawidSkene',
+    'GLAD',
     'GoldMajorityVote',
     'HRRASA',
     'MMSR',
