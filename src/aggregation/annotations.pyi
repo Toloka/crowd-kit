@@ -25,6 +25,8 @@ __all__ = [
     'IMAGE_PIXEL_PROBAS',
     'TASKS_SEGMENTATIONS',
     'TASKS_TEXTS',
+    'GLAD_ALPHAS',
+    'GLAD_BETAS',
     'BIASES',
     'SKILLS',
     'ERRORS',
@@ -102,6 +104,10 @@ IMAGE_PIXEL_PROBAS = ...
 TASKS_SEGMENTATIONS = ...
 
 TASKS_TEXTS = ...
+
+GLAD_ALPHAS = ...
+
+GLAD_BETAS = ...
 
 BIASES = ...
 

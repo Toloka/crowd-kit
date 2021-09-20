@@ -3,6 +3,8 @@
 [![GitHub Tests][github_tests_badge]][github_tests_link]
 [![Codecov][codecov_badge]][codecov_link]
 
+[**Documentation**](https://yandex.com/dev/toloka/crowd-kit/doc/)
+
 [github_tests_badge]: https://github.com/Toloka/crowdlib/workflows/Tests/badge.svg?branch=main
 [github_tests_link]: https://github.com/Toloka/crowdlib/actions?query=workflow:Tests
 [codecov_badge]: https://codecov.io/gh/Toloka/crowd-kit/branch/main/graph/badge.svg
@@ -48,6 +50,8 @@ Then you can aggregate the performer responses as easily as in scikit-learn:
 aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 ````
 
+[More usage examples](https://github.com/Toloka/crowd-kit/tree/main/examples)
+
 ## Implemented Aggregation Methods
 
 ### Categorical Responses
@@ -88,7 +92,8 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 
 ## Questions and Bug Reports
 
-For reporting bugs please use the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
+* For reporting bugs please use the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
+* Join our English-speaking [slack community](https://toloka.ai/community) for both tech and abstract questions.
 
 ## License
 

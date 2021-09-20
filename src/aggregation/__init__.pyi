@@ -1,6 +1,7 @@
 __all__ = [
     'BradleyTerry',
     'DawidSkene',
+    'GLAD',
     'GoldMajorityVote',
     'HRRASA',
     'MMSR',
@@ -17,6 +18,7 @@ __all__ = [
 ]
 from crowdkit.aggregation.bradley_terry import BradleyTerry
 from crowdkit.aggregation.dawid_skene import DawidSkene
+from crowdkit.aggregation.glad import GLAD
 from crowdkit.aggregation.gold_majority_vote import GoldMajorityVote
 from crowdkit.aggregation.hrrasa import (
     HRRASA,
