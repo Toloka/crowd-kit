@@ -39,7 +39,7 @@ def fetch_remote(url: str, checksum: str, path: str, data_dir: str) -> None:
         url: str
         checksum: str
         path: str, path to save a zip file
-        data_home: path to crowd-kit data directory
+        data_dir: path to crowd-kit data directory
     """
     urlretrieve(url, path)
     fetched_checksum = md5(open(path, 'rb').read()).hexdigest()

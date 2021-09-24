@@ -18,29 +18,111 @@ def _load_dataset(data_name, data_dir, data_url, data_md5):
 
 
 def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
-    DATA_NAME = 'relevance-2'
-    DATA_URL = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-2.zip'
-    DATA_MD5 = 'a39c3c30d9e946eeb80ca39954c96e95'
+    data_name = 'relevance-2'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-2.zip'
+    data_md5 = 'a39c3c30d9e946eeb80ca39954c96e95'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        return pd.read_csv(join(data_path, 'crowd_labels.csv')), \
-            pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
 
-    full_data_path = _load_dataset(DATA_NAME, data_dir, DATA_URL, DATA_MD5)
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
 
     return load_dataframes(full_data_path)
 
 
 def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
-    DATA_NAME = 'relevance-5'
-    DATA_URL = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-5.zip'
-    DATA_MD5 = '4520f973003c7e151051e888edcd1a03'
+    data_name = 'relevance-5'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-5.zip'
+    data_md5 = '4520f973003c7e151051e888edcd1a03'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        return pd.read_csv(join(data_path, 'crowd_labels.csv')), \
-            pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label'].rename('true_label')
 
-    full_data_path = _load_dataset(DATA_NAME, data_dir, DATA_URL, DATA_MD5)
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+
+    return load_dataframes(full_data_path)
+
+
+def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'mscoco'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco.zip'
+    data_md5 = 'e77224751f2ac1cb385c501c1ddd7393'
+
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+        labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
+        true_labels = pd.read_pickle(join(data_path, 'gt.pickle')).set_index('task')['true_segmentation']
+
+        return labels, true_labels
+
+    full_data_path = join(_load_dataset(data_name, get_data_dir(data_dir), data_url, data_md5), 'mscoco')
+
+    return load_dataframes(full_data_path)
+
+
+def load_crowdspeech_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+    labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'output': 'text'})
+    true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['output'].rename('true_label')
+
+    return labels, true_labels
+
+
+def load_crowdspeech_dev_clean(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'crowdspeech-dev-clean'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-clean.zip'
+    data_md5 = 'f1cfbabcc9b93fd3beb14a9bdc3c4011'
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    return load_crowdspeech_dataframes(full_data_path)
+
+
+def load_crowdspeech_dev_other(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'crowdspeech-dev-other'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-other.zip'
+    data_md5 = 'ceb3e45c0f73f9446be43bd5ce4f646a'
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    return load_crowdspeech_dataframes(full_data_path)
+
+
+def load_crowdspeech_test_clean(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'crowdspeech-test-clean'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-clean.zip'
+    data_md5 = 'd5db90c74c7b91a341d4669549b64ca9'
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    return load_crowdspeech_dataframes(full_data_path)
+
+
+def load_crowdspeech_test_other(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'crowdspeech-test-other'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-other.zip'
+    data_md5 = '256fd3940ca6e86f883a2d37f7a23f3a'
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    return load_crowdspeech_dataframes(full_data_path)
+
+
+def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'imdb_wiki'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.zip'
+    data_md5 = '164dd5b5a8e23df95fa04c76c9907c44'
+
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        labels.loc[labels['label'] == 'left', 'label'] = labels['left'].copy()
+        labels.loc[labels['label'] == 'right', 'label'] = labels['right'].copy()
+
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['score'].rename('true_label')
+
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
 
     return load_dataframes(full_data_path)
 
@@ -59,4 +141,45 @@ DATA_LOADERS = {
         ' in 2016 at Yandex. In this project, query-document pairs are labeled on a scale of 1 to 5. from least relevant'
         ' to most relevant.'
     },
+    'mscoco': {
+        'loader': load_mscoco,
+        'description': 'A sample of 2,000 images segmentations from MSCOCO dataset (https://cocodataset.org, licensed '
+        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka. For each image, '
+        'nine workers submitted segmentations.'
+    },
+    'crowdspeech-dev-clean': {
+        'loader': load_crowdspeech_dev_clean,
+        'description': 'This dataset is a publicly available large-scale dataset of crowdsourced audio transcriptions. '
+        'It contains annotations for more than 20 hours of English speech from more than 1,000 crowd workers. '
+        'This dataset corresponds to LibriSpeech (https://www.openslr.org/12,  licensed under CC BY 4.0) '
+        'dev-clean dataset'
+    },
+    'crowdspeech-test-clean': {
+        'loader': load_crowdspeech_test_clean,
+        'description': 'This dataset is a publicly available large-scale dataset of crowdsourced audio transcriptions. '
+        'It contains annotations for more than 20 hours of English speech from more than 1,000 crowd workers. '
+        'This dataset corresponds to LibriSpeech (https://www.openslr.org/12, licensed under CC BY 4.0) '
+        'test-clean dataset'
+    },
+    'crowdspeech-dev-other': {
+        'loader': load_crowdspeech_dev_other,
+        'description': 'This dataset is a publicly available large-scale dataset of crowdsourced audio transcriptions. '
+        'It contains annotations for more than 20 hours of English speech from more than 1,000 crowd workers. '
+        'This dataset corresponds to LibriSpeech (https://www.openslr.org/12, licensed under CC BY 4.0) '
+        'dev-clean dataset'
+    },
+    'crowdspeech-test-other': {
+        'loader': load_crowdspeech_test_other,
+        'description': 'This dataset is a publicly available large-scale dataset of crowdsourced audio transcriptions. '
+        'It contains annotations for more than 20 hours of English speech from more than 1,000 crowd workers. '
+        'This dataset corresponds to LibriSpeech (https://www.openslr.org/12, licensed under CC BY 4.0) '
+        'test-clean dataset'
+    },
+    'imdb-wiki-sbs': {
+        'loader': load_imdb_wiki_sbs,
+        'description': 'A sample of 2,497 images from the IMDB-WIKI dataset '
+        '(https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/) annotated on Toloka. This dataset contains images of '
+        'people with reliable ground-truth age assigned to every image. The annotation allowed us to obtain 84,543 '
+        'comparisons by 2,085 workers.'
+    }
 }
