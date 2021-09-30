@@ -198,7 +198,6 @@ def test_dawid_skene_on_empty_input(request, data):
     assert_series_equal(pd.Series(dtype=float), ds.labels_, atol=0.005)
 
 
-@pytest.mark.xfail
 @pytest.mark.parametrize('overlap', [3, 300, 30000])
 def test_dawid_skene_overlap(overlap):
     data = pd.DataFrame([

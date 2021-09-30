@@ -41,9 +41,12 @@ class DawidSkene(BaseAggregator):
         performer's errors probabilities matrix.
         """
         joined = data.join(probas, on='task')
+        joined.drop(columns=['task'], inplace=True)
+
         errors = joined.groupby(['performer', 'label'], sort=False).sum()
         errors.clip(lower=_EPS, inplace=True)
         errors /= errors.groupby('performer', sort=False).sum()
+
         return errors
 
     @staticmethod
