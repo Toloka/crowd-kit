@@ -54,6 +54,8 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 
 ## Implemented Aggregation Methods
 
+Below is the list of currently implemented methods, including the already available (✅) and in progress (🟡).
+
 ### Categorical Responses
 
 |Method|Status|
@@ -64,7 +66,7 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 |[M-MSR](https://proceedings.neurips.cc/paper/2020/hash/f86890095c957e9b949d11d15f0d0cd5-Abstract.html)|✅|
 |Wawa|✅|
 |Zero-Based Skill|✅|
-|[GLAD](https://papers.nips.cc/paper/3644-whose-vote-should-count-more-optimal-integration-of-labels-from-labelers-of-unknown-expertise.pdf)|🟡|
+|[GLAD](https://papers.nips.cc/paper/3644-whose-vote-should-count-more-optimal-integration-of-labels-from-labelers-of-unknown-expertise.pdf)|✅|
 |BCC|🟡|
 
 ### Textual Responses
