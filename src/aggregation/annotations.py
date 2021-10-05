@@ -133,7 +133,7 @@ PAIRWISE_DATA = Annotation(
     title="Performers' pairwise comparison results",
     description=textwrap.dedent('''
         A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
-        For each row `label` must be equal to either `left` or `right`.
+        For each row `label` must be equal to either `left` column or `right` column.
     ''')
 )
 

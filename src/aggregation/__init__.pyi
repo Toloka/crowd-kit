@@ -9,6 +9,7 @@ __all__ = [
     'NoisyBradleyTerry',
     'RASA',
     'ROVER',
+    'SegmentationEM',
     'SegmentationMajorityVote',
     'SegmentationRASA',
     'TextHRRASA',
@@ -32,6 +33,7 @@ from crowdkit.aggregation.rasa import (
     TextRASA
 )
 from crowdkit.aggregation.rover import ROVER
+from crowdkit.aggregation.segmentation_em import SegmentationEM
 from crowdkit.aggregation.segmentation_majority_vote import SegmentationMajorityVote
 from crowdkit.aggregation.segmentation_rasa import SegmentationRASA
 from crowdkit.aggregation.wawa import Wawa

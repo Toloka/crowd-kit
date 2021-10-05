@@ -202,8 +202,8 @@ def test_dawid_skene_on_empty_input(request, data):
 def test_dawid_skene_overlap(overlap):
     data = pd.DataFrame([
         {
-            'task': f't{task_id}',
-            'performer': f'p{perf_id}',
+            'task': task_id,
+            'performer': perf_id,
             'label': 'yes' if (perf_id - task_id) % 3 else 'no',
         }
         for perf_id in range(overlap)
@@ -212,8 +212,8 @@ def test_dawid_skene_overlap(overlap):
 
     ds = DawidSkene(20).fit(data)
 
-    expected_probas = _make_probas([[f't{task_id}', 1/3., 2/3] for task_id in range(3)])
-    expected_labels = _make_tasks_labels([[f't{task_id}', 'yes'] for task_id in range(3)])
+    expected_probas = _make_probas([[task_id, 1/3., 2/3] for task_id in range(3)])
+    expected_labels = _make_tasks_labels([[task_id, 'yes'] for task_id in range(3)])
 
     # TODO: check errors_
     assert_frame_equal(expected_probas, ds.probas_, check_like=True, atol=0.005)
