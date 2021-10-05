@@ -16,7 +16,7 @@ class ClosestToAverage(BaseAggregator):
     """Majority Vote - chooses the correct label for which more performers voted"""
 
     outputs_: annotations.TASKS_LABELS
-    scores_: annotations.TASKS_LABEL_PROBAS
+    scores_: annotations.TASKS_LABEL_SCORES
 
     distance: Callable[[np.ndarray, np.ndarray], float] = attr.ib()
 

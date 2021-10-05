@@ -25,7 +25,7 @@ class BradleyTerry(crowdkit.aggregation.base_aggregator.BaseAggregator):
         """Args:
             data (DataFrame): Performers' pairwise comparison results
                 A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
-                For each row `label` must be equal to either `left` or `right`.
+                For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:
             BradleyTerry: self
@@ -36,7 +36,7 @@ class BradleyTerry(crowdkit.aggregation.base_aggregator.BaseAggregator):
         """Args:
             data (DataFrame): Performers' pairwise comparison results
                 A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
-                For each row `label` must be equal to either `left` or `right`.
+                For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:
             Series: 'Labels' scores
