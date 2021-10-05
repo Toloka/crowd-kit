@@ -15,10 +15,9 @@ class ClosestToAverage(crowdkit.aggregation.base_aggregator.BaseAggregator):
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        scores_ (DataFrame): Tasks' label probability distributions
+        scores_ (DataFrame): Tasks' label scores
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-            is the probability of `task`'s true label to be equal to `label`. Each
-            probability is between 0 and 1, all task's probabilities should sum up to 1
+            is the score of `label` for `task`.
     """
 
     def fit(
