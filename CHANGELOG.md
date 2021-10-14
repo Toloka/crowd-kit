@@ -1,3 +1,10 @@
+0.0.8
+-------------------
+* Added GLAD aggregeation
+* Fixed https://github.com/Toloka/crowd-kit/issues/6
+* Fixed https://github.com/Toloka/crowd-kit/issues/3
+
+
 0.0.7
 -------------------
 * Added segmentation EM
