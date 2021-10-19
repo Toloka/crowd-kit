@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsa8="http://dita.oasis-open.org/architecture/2005/" id="_reference" title="Crowd Kit" rev="1.0" xml:lang="en" xsi:noNamespaceSchemaLocation="urn:yandex:names:tc:dita:xsd:yandexMap.xsd:1.3">
+    <topichead navtitle="Aggregations">
+        <topichead navtitle="BradleyTerry">
+            <topicref format="markdown" href="crowdkit.aggregation.bradley_terry.BradleyTerry.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.bradley_terry.BradleyTerry.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.bradley_terry.BradleyTerry.fit_predict.md"/>
+        </topichead>
+        <topichead navtitle="ClosestToAverage">
+            <topicref format="markdown" href="crowdkit.aggregation.closest_to_average.ClosestToAverage.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.closest_to_average.ClosestToAverage.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.closest_to_average.ClosestToAverage.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.closest_to_average.ClosestToAverage.fit_predict_scores.md"/>
+        </topichead>
+        <topichead navtitle="DawidSkene">
+            <topicref format="markdown" href="crowdkit.aggregation.dawid_skene.DawidSkene.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.dawid_skene.DawidSkene.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.dawid_skene.DawidSkene.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.dawid_skene.DawidSkene.fit_predict_proba.md"/>
+        </topichead>
+        <topichead navtitle="GLAD">
+            <topicref format="markdown" href="crowdkit.aggregation.glad.GLAD.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.glad.GLAD.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.glad.GLAD.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.glad.GLAD.fit_predict_proba.md"/>
+        </topichead>
+        <topichead navtitle="GoldMajorityVote">
+            <topicref format="markdown" href="crowdkit.aggregation.gold_majority_vote.GoldMajorityVote.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.gold_majority_vote.GoldMajorityVote.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.gold_majority_vote.GoldMajorityVote.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.gold_majority_vote.GoldMajorityVote.fit_predict_proba.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.gold_majority_vote.GoldMajorityVote.predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.gold_majority_vote.GoldMajorityVote.predict_proba.md"/>
+        </topichead>
+        <topichead navtitle="HRRASA">
+            <topicref format="markdown" href="crowdkit.aggregation.hrrasa.HRRASA.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.hrrasa.HRRASA.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.hrrasa.HRRASA.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.hrrasa.HRRASA.fit_predict_scores.md"/>
+        </topichead>
+        <topichead navtitle="TextHRRASA">
+            <topicref format="markdown" href="crowdkit.aggregation.hrrasa.TextHRRASA.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.hrrasa.TextHRRASA.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.hrrasa.TextHRRASA.fit_predict_scores.md"/>
+        </topichead>
+        <topichead navtitle="MMSR">
+            <topicref format="markdown" href="crowdkit.aggregation.m_msr.MMSR.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.m_msr.MMSR.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.m_msr.MMSR.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.m_msr.MMSR.fit_predict_score.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.m_msr.MMSR.predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.m_msr.MMSR.predict_score.md"/>
+        </topichead>
+        <topichead navtitle="MajorityVote">
+            <topicref format="markdown" href="crowdkit.aggregation.majority_vote.MajorityVote.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.majority_vote.MajorityVote.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.majority_vote.MajorityVote.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.majority_vote.MajorityVote.fit_predict_proba.md"/>
+        </topichead>
+        <topichead navtitle="NoisyBradleyTerry">
+            <topicref format="markdown" href="crowdkit.aggregation.noisy_bt.NoisyBradleyTerry.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.noisy_bt.NoisyBradleyTerry.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.noisy_bt.NoisyBradleyTerry.fit_predict.md"/>
+        </topichead>
+        <topichead navtitle="RASA">
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.RASA.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.RASA.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.RASA.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.RASA.fit_predict_scores.md"/>
+        </topichead>
+        <topichead navtitle="TextRASA">
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.TextRASA.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.TextRASA.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.TextRASA.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rasa.TextRASA.fit_predict_scores.md"/>
+        </topichead>
+        <topichead navtitle="ROVER">
+            <topicref format="markdown" href="crowdkit.aggregation.rover.ROVER.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rover.ROVER.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.rover.ROVER.fit_predict.md"/>
+        </topichead>
+        <topichead navtitle="SegmentationEM">
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_em.SegmentationEM.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_em.SegmentationEM.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_em.SegmentationEM.fit_predict.md"/>
+        </topichead>
+        <topichead navtitle="SegmentationMajorityVote">
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_majority_vote.SegmentationMajorityVote.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_majority_vote.SegmentationMajorityVote.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_majority_vote.SegmentationMajorityVote.fit_predict.md"/>
+        </topichead>
+        <topichead navtitle="SegmentationRASA">
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_rasa.SegmentationRASA.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_rasa.SegmentationRASA.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.segmentation_rasa.SegmentationRASA.fit_predict.md"/>
+        </topichead>
+        <topichead navtitle="Wawa">
+            <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.fit_predict_proba.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.predict_proba.md"/>
+        </topichead>
+        <topichead navtitle="ZeroBasedSkill">
+            <topicref format="markdown" href="crowdkit.aggregation.zero_based_skill.ZeroBasedSkill.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.zero_based_skill.ZeroBasedSkill.fit.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.zero_based_skill.ZeroBasedSkill.fit_predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.zero_based_skill.ZeroBasedSkill.fit_predict_proba.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.zero_based_skill.ZeroBasedSkill.predict.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.zero_based_skill.ZeroBasedSkill.predict_proba.md"/>
+        </topichead>
+        <topichead navtitle="utils">
+            <topicref format="markdown" href="crowdkit.aggregation.utils.get_accuracy.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.get_most_probable_labels.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.manage_data.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.normalize_rows.md"/>
+        </topichead>
+    </topichead>
+</map>

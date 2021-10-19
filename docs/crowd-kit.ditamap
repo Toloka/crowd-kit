@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" cascade="merge" id="id-desc" rev="1.0" title="Crowd-Kit" xml:lang="en" xsi:noNamespaceSchemaLocation="urn:yandex:names:tc:dita:xsd:yandexMap.xsd:1.3">
+   <topicmeta>
+      <prodinfo>
+         <prodname id="yandex-doc-id-product">Crowd-Kit</prodname>
+      </prodinfo>
+      <othermeta content="" name="og:image"/>
+      <othermeta name="out-dir" content="crowd-kit/doc"/>
+   </topicmeta>
+   <topicref format="markdown" href="README.md"/>
+   <topichead collapsed="no" navtitle="Reference">
+      <topicref format="ditamap" href="reference/_reference.ditamap"/>
+   </topichead>
+</map>
