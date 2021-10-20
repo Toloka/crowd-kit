@@ -127,6 +127,22 @@ def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd
     return load_dataframes(full_data_path)
 
 
+def load_nist_trec_relevance(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'nist-trec-relevance'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance.zip'
+    data_md5 = 'afc308986bb0cac865bf2434eb49a3f4'
+
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
+
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+
+    return load_dataframes(full_data_path)
+
+
 DATA_LOADERS = {
     'relevance-2': {
         'loader': load_relevance2,
@@ -181,5 +197,13 @@ DATA_LOADERS = {
         '(https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/) annotated on Toloka. This dataset contains images of '
         'people with reliable ground-truth age assigned to every image. The annotation allowed us to obtain 84,543 '
         'comparisons by 2,085 workers.'
+    },
+    'nist-trec-relevance': {
+        'loader': load_nist_trec_relevance,
+        'description': 'A dataset of English Web pages from the ClueWeb09 for English search queries which relevance '
+        'were judged using crowdsourcing. This dataset was collected during NIST TREC Relevance Feedback Track 2010 '
+        '(C.Buckley, M.Lease, and M.D.Smucker. Overview of the trec 2010 relevance feedback track (notebook). In The '
+        'Nineteenth TREC Notebook, 2010.). There are 20,232 total (topic, document) examples (noisily) judged by 766 '
+        'workers, who produced a total of 98,453 judgments. 3277 of the examples have prior "gold" labels by NIST.'
     }
 }
