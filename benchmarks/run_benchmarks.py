@@ -8,12 +8,6 @@ from glob import glob
 HOME = os.path.expanduser('~')
 
 
-def pull_crowdkit_from_repo(crowdkit_dir):
-    print('pull from crowd-kit repository')
-    subprocess.call(['git', 'checkout', 'main'], cwd=crowdkit_dir)
-    subprocess.call(['git', 'pull'], cwd=crowdkit_dir)
-
-
 def pull_results_from_repo(results_dir):
     print('pull from results repository')
     subprocess.call(['git', 'checkout', 'gh-pages'], cwd=results_dir)
@@ -62,7 +56,6 @@ def main(crowdkit_dir, results_dir):
     bench_dir = os.path.join(crowdkit_dir, 'benchmarks')
     asv_dir = os.path.join(bench_dir, '.asv')
 
-    pull_crowdkit_from_repo(crowdkit_dir)
     pull_results_from_repo(results_dir)
     load_results_from_repo(asv_dir, results_dir)
     recreate_machine_config(asv_dir)

@@ -1,5 +1,5 @@
 from crowdkit.datasets import load_dataset
-from crowdkit.aggregation import GoldMajorityVote, MajorityVote, DawidSkene, MMSR, Wawa, ZeroBasedSkill
+from crowdkit.aggregation import GoldMajorityVote, MajorityVote, DawidSkene, MMSR, Wawa, ZeroBasedSkill, GLAD
 from crowdkit.aggregation.utils import get_accuracy
 
 
@@ -25,6 +25,9 @@ class Relevance2:
     def time_zbs(self):
         ZeroBasedSkill(n_iter=5).fit_predict(self.crowd_labels)
 
+    def time_glad(self):
+        GLAD(max_iter=5).fit_predict(self.crowd_labels)
+
     ### peak memory
 
     def peakmem_gold_majority_vote(self):
@@ -44,6 +47,9 @@ class Relevance2:
 
     def peakmem_zbs(self):
         ZeroBasedSkill(n_iter=5).fit_predict(self.crowd_labels)
+
+    def peakmem_glad(self):
+        GLAD(max_iter=5).fit_predict(self.crowd_labels)
 
     ### accuracy
 
@@ -70,3 +76,6 @@ class Relevance2:
 
     def track_accuracy_zbs(self):
         return self._calc_accuracy(ZeroBasedSkill(n_iter=5).fit_predict(self.crowd_labels))
+
+    def track_accuracy_glad(self):
+        return self._calc_accuracy(GLAD(max_iter=5).fit_predict(self.crowd_labels))

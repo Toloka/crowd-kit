@@ -111,7 +111,7 @@ def load_crowdspeech_test_other(data_dir: Optional[str] = None) -> Tuple[pd.Data
 def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'imdb_wiki'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.zip'
-    data_md5 = '164dd5b5a8e23df95fa04c76c9907c44'
+    data_md5 = '750f22901743492b63262931449818cc'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
