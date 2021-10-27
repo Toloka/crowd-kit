@@ -33,3 +33,10 @@ __all__ = [
     'Wawa',
     'ZeroBasedSkill',
 ]
+
+# require `transformers` library
+try:
+    from .text_summarization import TextSummarization  # noqa: F401
+    __all__.append('TextSummarization')
+except ModuleNotFoundError:
+    pass

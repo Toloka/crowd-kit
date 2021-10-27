@@ -93,6 +93,10 @@
             <topicref format="markdown" href="crowdkit.aggregation.segmentation_rasa.SegmentationRASA.fit.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.segmentation_rasa.SegmentationRASA.fit_predict.md"/>
         </topichead>
+        <topichead navtitle="TextSummarization">
+            <topicref format="markdown" href="crowdkit.aggregation.text_summarization.TextSummarization.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.text_summarization.TextSummarization.fit_predict.md"/>
+        </topichead>
         <topichead navtitle="Wawa">
             <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.wawa.Wawa.fit.md"/>
