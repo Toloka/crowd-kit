@@ -65,6 +65,22 @@ def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series
     return load_dataframes(full_data_path)
 
 
+def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'mscoco_small'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco_small.zip'
+    data_md5 = '3705b8d3e96cab54af9a79cc35e354ab'
+
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+        labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
+        true_labels = pd.read_pickle(join(data_path, 'gt.zip'))
+
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+
+    return load_dataframes(full_data_path)
+
+
 def load_crowdspeech_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
     labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'output': 'text'})
     true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['output'].rename('true_label')
@@ -160,8 +176,14 @@ DATA_LOADERS = {
     'mscoco': {
         'loader': load_mscoco,
         'description': 'A sample of 2,000 images segmentations from MSCOCO dataset (https://cocodataset.org, licensed '
-        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka. For each image, '
-        'nine workers submitted segmentations.'
+        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 911 peformers. '
+        'For each image, 9 workers submitted segmentations.'
+    },
+    'mscoco_small': {
+        'loader': load_mscoco_small,
+        'description': 'A sample of 100 images segmentations from MSCOCO dataset (https://cocodataset.org, licensed '
+        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 96 performers. '
+        'For each image, 9 workers submitted segmentations.'
     },
     'crowdspeech-dev-clean': {
         'loader': load_crowdspeech_dev_clean,
