@@ -5,7 +5,7 @@ import pandas as pd
 from nltk.metrics.agreement import AnnotationTask
 from nltk.metrics.distance import binary_distance
 
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+from crowdkit.aggregation.base import BaseClassificationAggregator
 from crowdkit.aggregation import MajorityVote
 
 
@@ -29,7 +29,7 @@ def _task_consistency(row: pd.Series) -> float:
 
 def consistency(answers: pd.DataFrame,
                 performers_skills: Optional[pd.Series] = None,
-                aggregator: BaseAggregator = MajorityVote(),
+                aggregator: BaseClassificationAggregator = MajorityVote(),
                 by_task: bool = False) -> Union[float, pd.Series]:
     """
     Consistency metric: posterior probability of aggregated label given performers skills
@@ -38,7 +38,7 @@ def consistency(answers: pd.DataFrame,
         answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
         performers_skills (Optional[pandas.Series]): performers skills e.g. golden set skills. If not provided,
             uses aggregator's `performers_skills` attribute.
-        aggregator (aggregation.BaseAggregator): aggregation method, default: MajorityVote
+        aggregator (aggregation.base.BaseClassificationAggregator): aggregation method, default: MajorityVote
         by_task (bool): if set, returns consistencies for every task in provided data frame.
 
     Returns:

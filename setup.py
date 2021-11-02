@@ -27,10 +27,8 @@ setup(
         'tqdm',
         'scikit-learn',
         'nltk',
+        'transformers'
     ],
-    extras_require={
-        'transformers': ['transformers']
-    },
     include_package_data=True,
     project_urls={
         'Source': 'https://github.com/Toloka/crowd-kit',

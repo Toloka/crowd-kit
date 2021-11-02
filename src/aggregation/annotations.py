@@ -47,6 +47,7 @@ __all__ = [
 
 import inspect
 import textwrap
+from copy import deepcopy
 from io import StringIO
 from typing import Dict, Optional, Type
 
@@ -79,13 +80,24 @@ def manage_docstring(obj):
     attributes: Dict[str, Annotation] = {}
     new_annotations = {}
 
-    for key, value in getattr(obj, '__annotations__', {}).items():
-        if isinstance(value, Annotation):
-            attributes[key] = value
-            if value.type is not None:
-                new_annotations[key] = value.type
+    traverse_order = [obj]
+
+    if isinstance(obj, type):
+        traverse_order = list(obj.__mro__[::-1])
+
+    for cur_obj in traverse_order:
+
+        if cur_obj != obj:
+            annotations = getattr(cur_obj, '_orig_annotations', getattr(cur_obj, '__annotations__', {}))
         else:
-            new_annotations[key] = value
+            annotations = getattr(cur_obj, '__annotations__', {})
+        for key, value in annotations.items():
+            if isinstance(value, Annotation):
+                attributes[key] = value
+                if value.type is not None:
+                    new_annotations[key] = value.type
+            else:
+                new_annotations[key] = value
 
     return_section = attributes.pop('return', None)
 
@@ -100,6 +112,9 @@ def manage_docstring(obj):
     if return_section:
         sio.write('Returns:\n')
         sio.write(textwrap.indent(return_section.format_google_style_return(), ' ' * 4))
+
+    if isinstance(obj, type) and not hasattr(obj, '_orig_annotations'):
+        obj._orig_annotations = deepcopy(getattr(obj, '__annotations__', {}))
 
     obj.__annotations__ = new_annotations
     obj.__doc__ = sio.getvalue()
@@ -178,11 +193,20 @@ TASKS_EMBEDDINGS = Annotation(
 )
 
 TASKS_LABELS = Annotation(
-    type=pd.DataFrame,
-    title="Tasks' most likely true labels",
+    type=pd.Series,
+    title="Tasks' labels",
     description=textwrap.dedent('''
         A pandas.Series indexed by `task` such that `labels.loc[task]`
         is the tasks's most likely true label.
+    '''),
+)
+
+
+TASKS_EMBEDDINGS_AND_OUTPUTS = Annotation(
+    type=pd.DataFrame,
+    title="Tasks' embeddings and outputs",
+    description=textwrap.dedent('''
+        A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
     '''),
 )
 
@@ -247,7 +271,7 @@ IMAGE_PIXEL_PROBAS = Annotation(
 )
 
 TASKS_SEGMENTATIONS = Annotation(
-    type=np.ndarray,
+    type=pd.Series,
     title='Tasks\' segmentations',
     description=textwrap.dedent('''
         A pandas.Series indexed by `task` such that `labels.loc[task]`
@@ -256,10 +280,10 @@ TASKS_SEGMENTATIONS = Annotation(
 )
 
 TASKS_TEXTS = Annotation(
-    type=pd.DataFrame,
-    title="Tasks' label scores",
+    type=pd.Series,
+    title="Tasks' texts",
     description=textwrap.dedent('''
-        A pandas.DataFrame indexed by `task` such that `result.loc[task, text]`
+        A pandas.Series indexed by `task` such that `result.loc[task, text]`
         is the task's text.
     '''),
 )
