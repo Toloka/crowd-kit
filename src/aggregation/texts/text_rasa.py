@@ -31,7 +31,7 @@ class TextRASA(BaseTextsAggregator):
     @manage_docstring
     def fit_predict(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> annotations.TASKS_TEXTS:
         rasa_results = self._rasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))
-        self.texts_ = rasa_results[['task', 'output']].set_index('task')
+        self.texts_ = rasa_results.reset_index()[['task', 'output']].set_index('task')
         return self.texts_
 
     def _encode_data(self, data):

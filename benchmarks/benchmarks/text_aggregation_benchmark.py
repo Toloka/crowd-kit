@@ -22,24 +22,24 @@ class CrowdspeechTestClean:
 
     # time
 
-    def time_hrrasa(self):
+    def time_text_hrrasa(self):
         TextHRRASA(encoder=self.encoder, n_iter=5).fit_predict(self.crowd_texts.rename(columns={'text': 'output'}))
 
-    def time_rasa(self):
+    def time_text_rasa(self):
         TextRASA(encoder=self.encoder, n_iter=5).fit_predict(self.crowd_texts.rename(columns={'text': 'output'}))
 
-    def time_rover(self):
+    def time_text_rover(self):
         ROVER(tokenizer=self.tokenizer, detokenizer=self.detokenizer).fit_predict(self.crowd_texts)
 
     # peakmem
 
-    def peakmem_hrrasa(self):
+    def peakmem_text_hrrasa(self):
         TextHRRASA(encoder=self.encoder, n_iter=5).fit_predict(self.crowd_texts.rename(columns={'text': 'output'}))
 
-    def peakmem_rasa(self):
+    def peakmem_text_rasa(self):
         TextRASA(encoder=self.encoder, n_iter=5).fit_predict(self.crowd_texts.rename(columns={'text': 'output'}))
 
-    def peakmem_rover(self):
+    def peakmem_text_rover(self):
         ROVER(tokenizer=self.tokenizer, detokenizer=self.detokenizer).fit_predict(self.crowd_texts)
 
     # accuracy
@@ -51,7 +51,13 @@ class CrowdspeechTestClean:
             pred_list.append(predict.loc[task])
         return wer(gt_list, pred_list)
 
-    # TODO: add wer for hrrasa and rasa
+    def track_wer_text_rasa(self):
+        prediction = TextRASA(encoder=self.encoder, n_iter=5).fit_predict(self.crowd_texts.rename(columns={'text': 'output'}))
+        return self._calc_wer(prediction)
+
+    def track_wer_text_hrrasa(self):
+        prediction = TextHRRASA(encoder=self.encoder, n_iter=5).fit_predict(self.crowd_texts.rename(columns={'text': 'output'}))
+        return self._calc_wer(prediction)
 
     def track_wer_rover(self):
         prediction = ROVER(tokenizer=self.tokenizer, detokenizer=self.detokenizer).fit_predict(self.crowd_texts)

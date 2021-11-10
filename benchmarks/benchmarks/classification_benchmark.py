@@ -3,9 +3,9 @@ from crowdkit.aggregation import GoldMajorityVote, MajorityVote, DawidSkene, MMS
 from crowdkit.aggregation.utils import get_accuracy
 
 
-class Relevance2:
+class NistTrecRelevance:
     def setup(self):
-        self.crowd_labels, self.ground_truth = load_dataset('relevance-2')
+        self.crowd_labels, self.ground_truth = load_dataset('nist-trec-relevance')
 
     def time_gold_majority_vote(self):
         GoldMajorityVote().fit_predict(self.crowd_labels, self.ground_truth)

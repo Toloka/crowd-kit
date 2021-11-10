@@ -4,12 +4,12 @@ from crowdkit.datasets import load_dataset
 from crowdkit.aggregation import SegmentationEM, SegmentationRASA, SegmentationMajorityVote
 
 
-class MSCOCO:
+class MSCOCOSmall:
 
     timeout = 600
 
     def setup(self):
-        self.crowd_segmentations, self.ground_truth = load_dataset('mscoco')
+        self.crowd_segmentations, self.ground_truth = load_dataset('mscoco_small')
 
     def time_segmentation_em(self):
         SegmentationEM(n_iter=1).fit_predict(self.crowd_segmentations)
