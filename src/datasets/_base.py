@@ -1,6 +1,6 @@
 from hashlib import md5
-from os import environ, makedirs
-from os.path import exists, expanduser, join
+from os import environ, makedirs, listdir, rename
+from os.path import exists, expanduser, join, splitext, basename
 from shutil import unpack_archive
 from typing import Optional
 from urllib.request import urlretrieve
@@ -45,4 +45,9 @@ def fetch_remote(url: str, checksum: str, path: str, data_dir: str) -> None:
     fetched_checksum = md5(open(path, 'rb').read()).hexdigest()
     if checksum != fetched_checksum:
         raise IOError(f"{path} has an MD5 checksum ({fetched_checksum}) differing from expected ({checksum}), file may be corrupted.")
+    listed_data_dir = listdir(data_dir)
+    print(f'Unpacking {basename(path)}')
     unpack_archive(path, data_dir)
+    data_dir_diff = set(listdir(data_dir)) - set(listed_data_dir)
+    unpacked_folder_name = data_dir_diff.pop()
+    rename(join(data_dir, unpacked_folder_name), splitext(path)[0])

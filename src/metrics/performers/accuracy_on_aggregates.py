@@ -2,19 +2,19 @@ from typing import Optional, Union
 
 import pandas as pd
 from crowdkit.aggregation import MajorityVote
-from crowdkit.aggregation.base_aggregator import BaseAggregator
+from crowdkit.aggregation.base import BaseClassificationAggregator
 from crowdkit.aggregation.utils import get_accuracy
 
 
 def accuracy_on_aggregates(answers: pd.DataFrame,
-                           aggregator: Optional[BaseAggregator] = MajorityVote(),
+                           aggregator: Optional[BaseClassificationAggregator] = MajorityVote(),
                            aggregates: Optional[pd.Series] = None,
                            by: Optional[str] = None) -> Union[float, pd.Series]:
     """
     Accuracy on aggregates: a fraction of worker's answers that match the aggregated one.
     Args:
             answers (pandas.DataFrame): a data frame containing `task`, `performer` and `label` columns.
-            aggregator (aggregation.BaseAggregator): aggregation algorithm. default: MajorityVote
+            aggregator (aggregation.base.BaseClassificationAggregator): aggregation algorithm. default: MajorityVote
             aggregates (Optional[pandas.Series]): aggregated answers for provided tasks.
             by_performer (bool): if set, returns accuracies for every performer in provided data frame. Otherwise,
                 returns an average accuracy of all performers.

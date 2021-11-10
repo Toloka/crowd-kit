@@ -27,6 +27,7 @@ setup(
         'tqdm',
         'scikit-learn',
         'nltk',
+        'transformers'
     ],
     include_package_data=True,
     project_urls={

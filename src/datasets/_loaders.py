@@ -65,6 +65,22 @@ def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series
     return load_dataframes(full_data_path)
 
 
+def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'mscoco_small'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco_small.zip'
+    data_md5 = '3705b8d3e96cab54af9a79cc35e354ab'
+
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+        labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
+        true_labels = pd.read_pickle(join(data_path, 'gt.zip'))
+
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+
+    return load_dataframes(full_data_path)
+
+
 def load_crowdspeech_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
     labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'output': 'text'})
     true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['output'].rename('true_label')
@@ -111,7 +127,7 @@ def load_crowdspeech_test_other(data_dir: Optional[str] = None) -> Tuple[pd.Data
 def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'imdb_wiki'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.zip'
-    data_md5 = '164dd5b5a8e23df95fa04c76c9907c44'
+    data_md5 = '750f22901743492b63262931449818cc'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
@@ -119,6 +135,22 @@ def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd
         labels.loc[labels['label'] == 'right', 'label'] = labels['right'].copy()
 
         true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['score'].rename('true_label')
+
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+
+    return load_dataframes(full_data_path)
+
+
+def load_nist_trec_relevance(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+    data_name = 'nist-trec-relevance'
+    data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance.zip'
+    data_md5 = 'afc308986bb0cac865bf2434eb49a3f4'
+
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
 
         return labels, true_labels
 
@@ -144,8 +176,14 @@ DATA_LOADERS = {
     'mscoco': {
         'loader': load_mscoco,
         'description': 'A sample of 2,000 images segmentations from MSCOCO dataset (https://cocodataset.org, licensed '
-        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka. For each image, '
-        'nine workers submitted segmentations.'
+        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 911 peformers. '
+        'For each image, 9 workers submitted segmentations.'
+    },
+    'mscoco_small': {
+        'loader': load_mscoco_small,
+        'description': 'A sample of 100 images segmentations from MSCOCO dataset (https://cocodataset.org, licensed '
+        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 96 performers. '
+        'For each image, 9 workers submitted segmentations.'
     },
     'crowdspeech-dev-clean': {
         'loader': load_crowdspeech_dev_clean,
@@ -181,5 +219,13 @@ DATA_LOADERS = {
         '(https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/) annotated on Toloka. This dataset contains images of '
         'people with reliable ground-truth age assigned to every image. The annotation allowed us to obtain 84,543 '
         'comparisons by 2,085 workers.'
+    },
+    'nist-trec-relevance': {
+        'loader': load_nist_trec_relevance,
+        'description': 'A dataset of English Web pages from the ClueWeb09 for English search queries which relevance '
+        'were judged using crowdsourcing. This dataset was collected during NIST TREC Relevance Feedback Track 2010 '
+        '(C.Buckley, M.Lease, and M.D.Smucker. Overview of the trec 2010 relevance feedback track (notebook). In The '
+        'Nineteenth TREC Notebook, 2010.). There are 20,232 total (topic, document) examples (noisily) judged by 766 '
+        'workers, who produced a total of 98,453 judgments. 3277 of the examples have prior "gold" labels by NIST.'
     }
 }

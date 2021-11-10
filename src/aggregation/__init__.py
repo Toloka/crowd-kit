@@ -1,21 +1,38 @@
-from .bradley_terry import BradleyTerry
-from .dawid_skene import DawidSkene
-from .glad import GLAD
-from .gold_majority_vote import GoldMajorityVote
-from .hrrasa import HRRASA, TextHRRASA
-from .m_msr import MMSR
-from .majority_vote import MajorityVote
-from .noisy_bt import NoisyBradleyTerry
-from .rasa import RASA, TextRASA
-from .rover import ROVER
-from .segmentation_em import SegmentationEM
-from .segmentation_majority_vote import SegmentationMajorityVote
-from .segmentation_rasa import SegmentationRASA
-from .wawa import Wawa
-from .zero_based_skill import ZeroBasedSkill
+from . import base
+from .classification import (
+    DawidSkene,
+    GLAD,
+    GoldMajorityVote,
+    MMSR,
+    MajorityVote,
+    Wawa,
+    ZeroBasedSkill
+)
+from .embeddings import (
+    ClosestToAverage,
+    HRRASA,
+    RASA,
+)
+from .image_segmentation import (
+    SegmentationEM,
+    SegmentationRASA,
+    SegmentationMajorityVote
+)
+from .texts import (
+    TextRASA,
+    TextHRRASA,
+    ROVER
+)
+from .pairwise import (
+    BradleyTerry,
+    NoisyBradleyTerry
+)
 
 __all__ = [
+    'base',
+
     'BradleyTerry',
+    'ClosestToAverage',
     'DawidSkene',
     'GLAD',
     'GoldMajorityVote',
@@ -30,6 +47,19 @@ __all__ = [
     'SegmentationRASA',
     'TextHRRASA',
     'TextRASA',
+    'TextSummarization',
     'Wawa',
     'ZeroBasedSkill',
 ]
+
+
+def is_arcadia():
+    try:
+        import __res
+        return __res == __res
+    except ImportError:
+        return False
+
+
+if not is_arcadia():
+    from .texts.text_summarization import TextSummarization
