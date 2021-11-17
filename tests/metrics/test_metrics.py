@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import pytest
 from nltk.metrics.distance import masi_distance
 from pandas.testing import assert_series_equal
 
@@ -11,12 +13,190 @@ def test_consistency(toy_answers_df):
     assert consistency(toy_answers_df) == 0.9384615384615385
 
 
-def test_uncertainty(toy_answers_df):
-    performers_skills = pd.Series(
-        [0.6, 0.8, 1.0,  0.4, 0.8],
-        index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
-    )
-    assert uncertainty(toy_answers_df, performers_skills) == 0.12344835394606832
+class TestUncertaintyMetric:
+    def test_uncertainty_mean_per_task_skills(self, toy_answers_df):
+        performers_skills = pd.Series(
+            [0.6, 0.8, 1.0,  0.4, 0.8],
+            index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        )
+
+        assert uncertainty(toy_answers_df, performers_skills) == 0.6308666201949331
+
+    def test_uncertainty_raises_wrong_compte_by(self, toy_answers_df):
+        performers_skills = pd.Series(
+            [0.6, 0.8, 1.0,  0.4, 0.8],
+            index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        )
+        with pytest.raises(KeyError):
+            uncertainty(toy_answers_df, performers_skills, compute_by='invalid')
+
+    def test_uncertainty_docstring_examples(self):
+        assert uncertainty(
+            pd.DataFrame.from_records(
+                [
+                    {'task': 'X', 'performer': 'A', 'label': 'Yes'},
+                    {'task': 'X', 'performer': 'B', 'label': 'Yes'},
+                ]
+            )
+        ) == 0.0
+
+        assert uncertainty(
+            pd.DataFrame.from_records(
+                [
+                    {'task': 'X', 'performer': 'A', 'label': 'Yes'},
+                    {'task': 'X', 'performer': 'B', 'label': 'No'},
+                    {'task': 'X', 'performer': 'C', 'label': 'Maybe'},
+                ]
+            )
+        ) == 1.0986122886681096
+
+        np.testing.assert_allclose(
+            uncertainty(
+                pd.DataFrame.from_records(
+                    [
+                        {'task': 'X', 'performer': 'A', 'label': 'Yes'},
+                        {'task': 'X', 'performer': 'B', 'label': 'No'},
+                        {'task': 'Y', 'performer': 'A', 'label': 'Yes'},
+                        {'task': 'Y', 'performer': 'B', 'label': 'Yes'},
+                    ]
+                ),
+                compute_by="task",
+                aggregate=False
+            ), pd.Series([0.693147, 0.0], index=['X', 'Y'], name='task'), atol=1e-3
+        )
+
+        np.testing.assert_allclose(
+            uncertainty(
+                pd.DataFrame.from_records(
+                    [
+                        {'task': 'X', 'performer': 'A', 'label': 'Yes'},
+                        {'task': 'X', 'performer': 'B', 'label': 'No'},
+                        {'task': 'Y', 'performer': 'A', 'label': 'Yes'},
+                        {'task': 'Y', 'performer': 'B', 'label': 'Yes'},
+                    ]
+                ),
+                compute_by="performer",
+                aggregate=False
+            ), pd.Series([0.0, 0.693147], index=['A', 'B'], name='performer'), atol=1e-3
+        )
+
+    def test_uncertainty_raises_skills_not_found(self):
+        answers = pd.DataFrame.from_records(
+            [
+                {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
+                {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '1', 'performer': 'C', 'label': frozenset(['cat'])},
+            ]
+        )
+
+        performers_skills = pd.Series(
+            [1, 1],
+            index=pd.Index(['A', 'B'], name='performer'),
+        )
+
+        with pytest.raises(AssertionError):
+            uncertainty(answers, performers_skills)
+
+    def test_uncertainty_per_performer(self):
+        answers = pd.DataFrame.from_records(
+            [
+                {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
+                {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '1', 'performer': 'C', 'label': frozenset(['cat'])},
+                {'task': '2', 'performer': 'A', 'label': frozenset(['cat'])},
+                {'task': '2', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '2', 'performer': 'C', 'label': frozenset(['cat'])},
+                {'task': '3', 'performer': 'A', 'label': frozenset(['dog'])},
+                {'task': '3', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '3', 'performer': 'C', 'label': frozenset(['dog'])},
+                {'task': '4', 'performer': 'A', 'label': frozenset(['cat'])},
+                {'task': '4', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '4', 'performer': 'C', 'label': frozenset(['cat'])},
+            ]
+        )
+
+        performers_skills = pd.Series(
+            [1, 1, 1],
+            index=pd.Index(['A', 'B', 'C'], name='performer'),
+        )
+
+        entropies = uncertainty(
+            answers,
+            performers_skills,
+            compute_by='performer',
+            aggregate=False
+        )
+
+        assert isinstance(entropies, pd.Series)
+        assert sorted(np.unique(entropies.index).tolist()) == ['A', 'B', 'C']
+
+        # B always answers the same, entropy = 0
+        np.testing.assert_allclose(entropies['B'], 0, atol=1e-6)
+
+        # A answers uniformly, entropy = max possible
+        np.testing.assert_allclose(entropies['A'], 0.693147, atol=1e-6)
+
+        # C answers non-uniformly, entropy = between B and A
+        assert entropies['A'] > entropies['C'] > entropies['B']
+
+        assert entropies.mean() == uncertainty(
+            answers,
+            performers_skills,
+            compute_by='performer',
+            aggregate=True
+        )
+
+    def test_uncertainty_per_task(self):
+        answers = pd.DataFrame.from_records(
+            [
+                {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
+                {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '1', 'performer': 'C', 'label': frozenset(['cat'])},
+                {'task': '2', 'performer': 'A', 'label': frozenset(['cat'])},
+                {'task': '2', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '2', 'performer': 'C', 'label': frozenset(['cat'])},
+                {'task': '3', 'performer': 'A', 'label': frozenset(['dog'])},
+                {'task': '3', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '3', 'performer': 'C', 'label': frozenset(['dog'])},
+                {'task': '4', 'performer': 'A', 'label': frozenset(['cat'])},
+                {'task': '4', 'performer': 'B', 'label': frozenset(['cat'])},
+                {'task': '4', 'performer': 'C', 'label': frozenset(['cat'])},
+                {'task': '4', 'performer': 'A', 'label': frozenset(['cat'])},
+                {'task': '5', 'performer': 'A', 'label': frozenset(['cat'])},
+                {'task': '5', 'performer': 'B', 'label': frozenset(['dog'])},
+            ]
+        )
+
+        performers_skills = pd.Series(
+            [1, 1, 1],
+            index=pd.Index(['A', 'B', 'C'], name='performer'),
+        )
+
+        entropies = uncertainty(answers,
+                                performers_skills,
+                                compute_by='task',
+                                aggregate=False)
+
+        assert isinstance(entropies, pd.Series)
+        assert sorted(np.unique(entropies.index).tolist()) == ['1', '2', '3', '4', '5']
+
+        # Everybody answered same on tasks 2 and 4
+        np.testing.assert_allclose(entropies['2'], 0, atol=1e-6)
+        np.testing.assert_allclose(entropies['4'], 0, atol=1e-6)
+
+        # On tasks 1 and 3, 2 performers agreed and one answered differently
+        assert entropies['1'] > 0
+        np.testing.assert_allclose(entropies['1'], entropies['3'], atol=1e-6)
+
+        # Complete disagreement on task 5, max possible entropy
+        np.testing.assert_allclose(entropies['5'], 0.693147, atol=1e-6)
+
+        assert entropies.mean() == uncertainty(
+            answers,
+            performers_skills,
+            compute_by='task',
+            aggregate=True
+        )
 
 
 def test_golden_set_accuracy(toy_answers_df, toy_gold_df):
