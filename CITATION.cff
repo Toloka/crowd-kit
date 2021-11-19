@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: If you use this software, please cite the article from preferred-citation.
+authors:
+- family-names: "Ustalov"
+  given-names: "Dmitry"
+  orcid: "https://orcid.org/0000-0002-9979-2188"
+- family-names: "Pavlichenko"
+  given-names: "Nikita"
+  orcid: "https://orcid.org/0000-0002-7330-393X"
+- family-names: "Losev"
+  given-names: "Vladimir"
+- family-names: "Giliazev"
+  given-names: "Iulian"
+- family-names: "Tulin"
+  given-names: "Evgeny"
+title: Crowd-Kit
+license: Apache-2.0
+repository-artifact: https://pypi.org/project/crowd-kit/
+repository-code: https://github.com/Toloka/crowd-kit
+preferred-citation:
+  type: conference-paper
+  authors:
+  - family-names: "Ustalov"
+    given-names: "Dmitry"
+  - family-names: "Pavlichenko"
+    given-names: "Nikita"
+  - family-names: "Losev"
+    given-names: "Vladimir"
+  - family-names: "Giliazev"
+    given-names: "Iulian"
+  - family-names: "Tulin"
+    given-names: "Evgeny"
+  title: "A General-Purpose Crowdsourcing Computational Quality Control Toolkit for Python"
+  year: 2021
+  collection-title: "The Ninth AAAI Conference on Human Computation and Crowdsourcing: Works-in-Progress and Demonstration Track"
+  conference:
+    name: "The Ninth AAAI Conference on Human Computation and Crowdsourcing"
+    date-start: 2021-11-14
+    date-end: 2021-11-18
+  url: "https://www.humancomputation.com/assets/wips_demos/HCOMP_2021_paper_85.pdf"
+  identifiers:
+  - type: other
+    value: "arXiv:2109.08584"
+    description: The ArXiv preprint of the paper
