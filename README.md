@@ -94,7 +94,7 @@ Below is the list of currently implemented methods, including the already availa
 
 ## Citation
 
-* Ustalov D., Pavlichenko N., Losev V., Giliazev I., and Tulin E. [A General-Purpose Crowd- sourcing Computational Quality Control Toolkit for Python](https://www.humancomputation.com/assets/wips_demos/HCOMP_2021_paper_85.pdf). *The Ninth AAAI Conference on Human Computation and Crowdsourcing: Works-in-Progress and Demonstration Track.* HCOMP 2021. 2021. arXiv: [2109.08584 [cs.HC]](https://arxiv.org/abs/2109.08584).
+* Ustalov D., Pavlichenko N., Losev V., Giliazev I., and Tulin E. [A General-Purpose Crowdsourcing Computational Quality Control Toolkit for Python](https://www.humancomputation.com/assets/wips_demos/HCOMP_2021_paper_85.pdf). *The Ninth AAAI Conference on Human Computation and Crowdsourcing: Works-in-Progress and Demonstration Track.* HCOMP 2021. 2021. arXiv: [2109.08584 [cs.HC]](https://arxiv.org/abs/2109.08584).
 
 ```(bibtex)
 @inproceedings{HCOMP2021/CrowdKit,
