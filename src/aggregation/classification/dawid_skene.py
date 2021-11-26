@@ -8,7 +8,7 @@ from .. import annotations
 from ..annotations import manage_docstring, Annotation
 from ..base import BaseClassificationAggregator
 from .majority_vote import MajorityVote
-from ..utils import get_most_probable_labels
+from ..utils import get_most_probable_labels, named_series_attrib
 
 _EPS = np.float_power(10, -10)
 
@@ -28,7 +28,7 @@ class DawidSkene(BaseClassificationAggregator):
     n_iter: int = attr.ib()
 
     probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
-    priors_: annotations.OPTIONAL_PRIORS = attr.ib(init=False)
+    priors_: annotations.OPTIONAL_PRIORS = named_series_attrib(name='prior')
     # labels_
     errors_: annotations.OPTIONAL_ERRORS = attr.ib(init=False)
 

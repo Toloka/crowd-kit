@@ -118,6 +118,7 @@
             <topicref format="markdown" href="crowdkit.aggregation.utils.get_most_probable_labels.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.manage_data.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.normalize_rows.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.named_series_attrib.md" toc="no"/>
         </topichead>
     </topichead>
 </map>

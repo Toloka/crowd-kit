@@ -33,7 +33,7 @@ def _make_probas(data):
 
 def _make_tasks_labels(data):
     # TODO: should task be indexed?
-    return pd.DataFrame(data, columns=['task', 'label']).set_index('task').squeeze().rename()
+    return pd.DataFrame(data, columns=['task', 'label']).set_index('task').squeeze().rename('agg_label')
 
 
 def _make_errors(data):
@@ -94,7 +94,7 @@ def probas_iter_0():
 
 @pytest.fixture
 def priors_iter_0():
-    return pd.Series([0.46, 0.54], pd.Index(['no', 'yes'], name='label'))
+    return pd.Series([0.46, 0.54], pd.Index(['no', 'yes'], name='label'), name='prior')
 
 
 @pytest.fixture
@@ -142,7 +142,7 @@ def probas_iter_1():
 @pytest.fixture
 def priors_iter_1():
     # return pd.Series([0.49, 0.51], pd.Index(['no', 'yes'], name='label'))
-    return pd.Series([0.49, 0.51], pd.Index(['no', 'yes']))
+    return pd.Series([0.49, 0.51], pd.Index(['no', 'yes']), name='prior')
 
 
 @pytest.fixture
@@ -194,8 +194,8 @@ def test_dawid_skene_on_empty_input(request, data):
     ds = DawidSkene(10).fit(pd.DataFrame([], columns=['task', 'performer', 'label']))
     assert_frame_equal(pd.DataFrame(), ds.probas_, check_like=True, atol=0.005)
     assert_frame_equal(pd.DataFrame(), ds.errors_, check_like=True, atol=0.005)
-    assert_series_equal(pd.Series(dtype=float), ds.priors_, atol=0.005)
-    assert_series_equal(pd.Series(dtype=float), ds.labels_, atol=0.005)
+    assert_series_equal(pd.Series(dtype=float, name='prior'), ds.priors_, atol=0.005)
+    assert_series_equal(pd.Series(dtype=float, name='agg_label'), ds.labels_, atol=0.005)
 
 
 @pytest.mark.parametrize('overlap', [3, 300, 30000])
@@ -218,4 +218,4 @@ def test_dawid_skene_overlap(overlap):
     # TODO: check errors_
     assert_frame_equal(expected_probas, ds.probas_, check_like=True, atol=0.005)
     assert_series_equal(expected_labels, ds.labels_, atol=0.005)
-    assert_series_equal(pd.Series({'no': 1/3, 'yes': 2/3}), ds.priors_, atol=0.005)
+    assert_series_equal(pd.Series({'no': 1/3, 'yes': 2/3}, name='prior'), ds.priors_, atol=0.005)

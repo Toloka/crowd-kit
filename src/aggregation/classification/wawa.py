@@ -7,7 +7,7 @@ from .. import annotations
 from ..annotations import Annotation, manage_docstring
 from ..base import BaseClassificationAggregator
 from .majority_vote import MajorityVote
-from ..utils import get_accuracy
+from ..utils import get_accuracy, named_series_attrib
 
 
 @attr.s
@@ -22,7 +22,7 @@ class Wawa(BaseClassificationAggregator):
 
     """
 
-    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
+    skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
     probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
     # labels_
 

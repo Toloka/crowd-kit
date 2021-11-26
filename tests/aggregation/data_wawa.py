@@ -9,6 +9,7 @@ def toy_labels_result_wawa():
     return pd.Series(
         ['no', 'yes', 'no', 'yes', 'no'],
         pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
+        name='agg_label'
     )
 
 
@@ -16,7 +17,8 @@ def toy_labels_result_wawa():
 def toy_skills_result_wawa():
     return pd.Series(
         [0.6, 0.8, 1.0, 0.4, 0.8],
-        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer')
+        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        name='skill'
     )
 
 
@@ -54,7 +56,7 @@ def simple_skills_result_wawa():
         'b17c3301ad2ccbb798716fdd405d16e8': 1.0,
         'bde3b214b06c1efa6cb1bc6284dc72d2': 1.0,
         'e563e2fb32fce9f00123a65a1bc78c55': 2/3,
-    })
+    }, name='skill')
     skills.index.name = 'performer'
     return skills
 

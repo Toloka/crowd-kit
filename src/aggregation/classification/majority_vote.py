@@ -5,7 +5,7 @@ import attr
 from .. import annotations
 from ..annotations import Annotation, manage_docstring
 from ..base import BaseClassificationAggregator
-from ..utils import normalize_rows, get_most_probable_labels, get_accuracy
+from ..utils import normalize_rows, get_most_probable_labels, get_accuracy, named_series_attrib
 
 
 @attr.s
@@ -14,7 +14,7 @@ class MajorityVote(BaseClassificationAggregator):
     """Majority Vote - chooses the correct label for which more performers voted"""
 
     # TODO: remove skills_
-    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
+    skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
     probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
     # labels_
 

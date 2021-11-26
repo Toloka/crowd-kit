@@ -20,7 +20,7 @@ def data_toy():
 
 @pytest.fixture
 def rover_toy_result():
-    result = pd.Series(['b c d e'], index=['t1'], name='text')
+    result = pd.Series(['b c d e'], index=['t1'], name='agg_text')
     result.index.name = 'task'
     return result
 
@@ -42,7 +42,7 @@ def rover_single_overlap_data():
 
 @pytest.fixture
 def rover_single_overlap_result():
-    result = pd.Series(['a b c d'], index=['t1'], name='text')
+    result = pd.Series(['a b c d'], index=['t1'], name='agg_text')
     result.index.name = 'task'
     return result
 

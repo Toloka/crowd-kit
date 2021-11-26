@@ -7,6 +7,7 @@ __all__ = [
     'normalize_rows',
     'manage_data',
     'get_accuracy',
+    'named_series_attrib',
 ]
 import numpy
 import pandas.core.frame
@@ -86,5 +87,11 @@ def get_accuracy(
     Returns:
         Series: Performers' skills
             A pandas.Series index by performers and holding corresponding performer's skill
+    """
+    ...
+
+
+def named_series_attrib(name: str):
+    """Attrs attribute with converter and setter which preserves specified attribute name
     """
     ...

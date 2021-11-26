@@ -4,8 +4,8 @@ __all__ = [
 import crowdkit.aggregation.base
 import pandas.core.frame
 import pandas.core.series
+import transformers.modeling_utils
 import transformers.tokenization_utils
-import transformers.utils.dummy_pt_objects
 import typing
 
 
@@ -19,6 +19,16 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
     is not provided, the resulting aggregate is the most common output over permuted inputs.
 
     **To use pretrained model and tokenizer from `transformers`, you need to install [torch](https://pytorch.org/get-started/locally/#start-locally)**
+
+    M. Orzhenovskii,
+    "Fine-Tuning Pre-Trained Language Model for Crowdsourced Texts Aggregation,"
+    Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 8-14.
+    http://ceur-ws.org/Vol-2932/short1.pdf
+
+    S. Pletenev,
+    "Noisy Text Sequences Aggregation as a Summarization Subtask,"
+    Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 15-20.
+    http://ceur-ws.org/Vol-2932/short2.pdf
 
     Args:
         tokenizer: [Pre-trained tokenizer](https://huggingface.co/transformers/main_classes/tokenizer.html#pretrainedtokenizer).
@@ -44,16 +54,6 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
         >>> agg = TextSummarization(tokenizer, model, device=device)
         >>> result = agg.fit_predict(df)
         ...
-
-    M. Orzhenovskii,
-    "Fine-Tuning Pre-Trained Language Model for Crowdsourced Texts Aggregation,"
-    Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 8-14.
-    http://ceur-ws.org/Vol-2932/short1.pdf
-
-    S. Pletenev,
-    "Noisy Text Sequences Aggregation as a Summarization Subtask,"
-    Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 15-20.
-    http://ceur-ws.org/Vol-2932/short2.pdf
     Attributes:
         texts_ (Series): Tasks' texts
             A pandas.Series indexed by `task` such that `result.loc[task, text]`
@@ -74,7 +74,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
     def __init__(
         self,
         tokenizer: transformers.tokenization_utils.PreTrainedTokenizer,
-        model: transformers.utils.dummy_pt_objects.PreTrainedModel,
+        model: transformers.modeling_utils.PreTrainedModel,
         concat_token: str = ' | ',
         num_beams: int = 16,
         n_permutations: typing.Optional[int] = None,
@@ -87,7 +87,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
 
     texts_: pandas.core.series.Series
     tokenizer: transformers.tokenization_utils.PreTrainedTokenizer
-    model: transformers.utils.dummy_pt_objects.PreTrainedModel
+    model: transformers.modeling_utils.PreTrainedModel
     concat_token: str
     num_beams: int
     n_permutations: typing.Optional[int]

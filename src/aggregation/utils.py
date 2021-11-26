@@ -6,10 +6,12 @@ __all__ = [
     'get_most_probable_labels',
     'normalize_rows',
     'manage_data',
-    'get_accuracy'
+    'get_accuracy',
+    'named_series_attrib',
 ]
 from typing import Tuple, Union, Callable, Optional
 
+import attr
 import numpy as np
 import pandas as pd
 
@@ -101,3 +103,13 @@ def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_
         data = data.groupby(by)
 
     return data.score.sum() / data.weight.sum()
+
+
+def named_series_attrib(name: str):
+    """Attrs attribute with converter and setter which preserves specified attribute name"""
+
+    def converter(series: pd.Series) -> pd.Series:
+        series.name = name
+        return series
+
+    return attr.ib(init=False, converter=converter, on_setattr=attr.setters.convert)

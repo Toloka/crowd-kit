@@ -75,7 +75,7 @@ def asserts_compare_matrix_df(left_df, right_df):
         'ZBS predict probabilities on simple dataset',
     ],
 )
-def test_fit_predict_aggregations_methods(
+def test_fit_predict_classification_aggregations_methods(
     request, not_random,
     agg_class, fit_method, predict_method,
     dataset, results_dataset
@@ -122,3 +122,14 @@ def test_fit_predict_aggregations_methods(
         assert somethings_predict is aggregator.scores_
     else:
         assert somethings_predict is aggregator.labels_
+
+    # check result series names
+    for member_name in dir(aggregator):
+        member = getattr(aggregator, member_name)
+        if member_name.endswith('_') and isinstance(member, pd.Series):
+            if member_name == 'labels_':
+                assert member.name == 'agg_label'
+            else:
+                # current convention for available after fit series names is to strip trailing underscore and use
+                # variable name in singular form
+                assert member_name[:-2] == member.name

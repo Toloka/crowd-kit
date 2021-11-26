@@ -9,7 +9,7 @@ from scipy.special import expit
 from .. import annotations
 from ..annotations import Annotation, manage_docstring
 from ..base import BasePairwiseAggregator
-from ..utils import factorize
+from ..utils import factorize, named_series_attrib
 
 
 @attr.s
@@ -21,8 +21,8 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
     """
     n_iter: int = attr.ib(default=100)
     random_state: int = attr.ib(default=0)
-    skills_: annotations.SKILLS = attr.ib(init=False)
-    biases_: annotations.BIASES = attr.ib(init=False)
+    skills_: annotations.SKILLS = named_series_attrib(name='skill')
+    biases_: annotations.BIASES = named_series_attrib(name='bias')
     # scores_
 
     @manage_docstring

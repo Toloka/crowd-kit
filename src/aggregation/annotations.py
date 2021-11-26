@@ -292,7 +292,7 @@ GLAD_ALPHAS = Annotation(
     type=pd.Series,
     title="Performers' alpha parameters",
     description=textwrap.dedent('''
-        A pandas.Series indexed by `performer` that containes estimated alpha parameters.
+        A pandas.Series indexed by `performer` that contains estimated alpha parameters.
     '''),
 )
 
@@ -300,7 +300,7 @@ GLAD_BETAS = Annotation(
     type=pd.Series,
     title="Tasks' beta parameters",
     description=textwrap.dedent('''
-        A pandas.Series indexed by `task` that containes estimated beta parameters.
+        A pandas.Series indexed by `task` that contains estimated beta parameters.
     '''),
 )
 
