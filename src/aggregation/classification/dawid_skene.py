@@ -82,9 +82,9 @@ class DawidSkene(BaseClassificationAggregator):
         # Early exit
         if not data.size:
             self.probas_ = pd.DataFrame()
-            self.priors_ = pd.Series()
+            self.priors_ = pd.Series(dtype=float)
             self.errors_ = pd.DataFrame()
-            self.labels_ = pd.Series()
+            self.labels_ = pd.Series(dtype=float)
             return self
 
         # Initialization

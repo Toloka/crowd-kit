@@ -32,6 +32,7 @@ __all__ = [
     'ERRORS',
     'WEIGHTED_DATA',
     'WEIGHTS',
+    'ON_MISSING_SKILL',
     'OPTIONAL_ERRORS',
     'OPTIONAL_PRIORS',
     'OPTIONAL_PROBAS',
@@ -118,6 +119,8 @@ ERRORS = ...
 WEIGHTED_DATA = ...
 
 WEIGHTS = ...
+
+ON_MISSING_SKILL = ...
 
 OPTIONAL_SCORES = ...
 

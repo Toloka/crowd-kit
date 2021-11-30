@@ -7,6 +7,7 @@ __all__ = [
     'normalize_rows',
     'manage_data',
     'get_accuracy',
+    'add_skills_to_data',
     'named_series_attrib',
 ]
 import numpy
@@ -93,5 +94,24 @@ def get_accuracy(
 
 def named_series_attrib(name: str):
     """Attrs attribute with converter and setter which preserves specified attribute name
+    """
+    ...
+
+
+def add_skills_to_data(
+    data: pandas.core.frame.DataFrame,
+    skills: pandas.core.series.Series,
+    on_missing_skill: str,
+    default_skill: float
+) -> pandas.core.frame.DataFrame:
+    """Args:
+        skills (Series): Performers' skills
+            A pandas.Series index by performers and holding corresponding performer's skill
+        on_missing_skill (str): How to handle assignments done by workers with unknown skill
+            Possible values:
+                    * "error" — raise an exception if there is at least one assignment done by user with unknown skill;
+                    * "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no 
+                    assignments with known skill for any task;
+                    * value — default value will be used if skill is missing.
     """
     ...

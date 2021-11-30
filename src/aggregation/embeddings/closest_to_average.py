@@ -51,9 +51,15 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         return self
 
     @manage_docstring
-    def fit_predict_scores(self, data: annotations.EMBEDDED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABEL_PROBAS:
-        return self.fit(data, skills).scores_
+    def fit_predict_scores(
+        self,
+        data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None
+    ) -> annotations.TASKS_LABEL_PROBAS:
+        return self.fit(data, aggregated_embeddings).scores_
 
     @manage_docstring
-    def fit_predict(self, data: annotations.EMBEDDED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_EMBEDDINGS_AND_OUTPUTS:
-        return self.fit(data, skills).embeddings_and_outputs_
+    def fit_predict(
+        self,
+        data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None
+    ) -> annotations.TASKS_EMBEDDINGS_AND_OUTPUTS:
+        return self.fit(data, aggregated_embeddings).embeddings_and_outputs_

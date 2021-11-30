@@ -40,13 +40,13 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     def fit_predict_scores(
         self,
         data: pandas.core.frame.DataFrame,
-        skills: pandas.core.series.Series = None
+        aggregated_embeddings: pandas.core.series.Series = None
     ) -> pandas.core.frame.DataFrame:
         """Args:
             data (DataFrame): Performers' outputs with their embeddings
                 A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
-            skills (Series): Performers' skills
-                A pandas.Series index by performers and holding corresponding performer's skill
+            aggregated_embeddings (Series): Tasks' embeddings
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:
             DataFrame: Tasks' label probability distributions
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
@@ -58,13 +58,13 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     def fit_predict(
         self,
         data: pandas.core.frame.DataFrame,
-        skills: pandas.core.series.Series = None
+        aggregated_embeddings: pandas.core.series.Series = None
     ) -> pandas.core.frame.DataFrame:
         """Args:
             data (DataFrame): Performers' outputs with their embeddings
                 A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
-            skills (Series): Performers' skills
-                A pandas.Series index by performers and holding corresponding performer's skill
+            aggregated_embeddings (Series): Tasks' embeddings
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:
             DataFrame: Tasks' embeddings and outputs
                 A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
