@@ -126,7 +126,8 @@ def simple_image_mv_result():
                 [1, 1, 1, 1, 1, 1, 1, 0],
             ], dtype=bool),
         ],
-        index=pd.Index([1, 2], name='task')
+        index=pd.Index([1, 2], name='task'),
+        name='agg_segmentation'
     )
 
 
@@ -134,7 +135,8 @@ def simple_image_mv_result():
 def image_with_skills_mv_result():
     return pd.Series(
         [np.array([[0, 1, 1, 1, 0], [0, 0, 0, 0, 0]], dtype=bool)],
-        index=pd.Index([1], name='task')
+        index=pd.Index([1], name='task'),
+        name='agg_segmentation'
     )
 
 
@@ -154,7 +156,7 @@ def simple_image_rasa_result():
             ], dtype=bool),
         ],
         index=pd.Index([1, 2], name='task'),
-        name='segmentation'
+        name='agg_segmentation'
     )
 
 
@@ -174,5 +176,5 @@ def simple_image_em_result():
             ], dtype=bool),
         ],
         index=pd.Index([1, 2], name='task'),
-        name='segmentation'
+        name='agg_segmentation'
     )

@@ -8,7 +8,8 @@ import pytest
 def toy_labels_result_mmsr():
     return pd.Series(
         ['yes', 'no', 'no', 'yes', 'no'],
-        index=pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task')
+        index=pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
+        name='agg_label'
     )
 
 
@@ -17,6 +18,7 @@ def toy_skills_result_mmsr():
     return pd.Series(
         [-0.9486439852160969, 0.9764628672747041, 1.2428113335479982, 0.948643985216097, 0.9764628672747041],
         pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        name='skill'
     )
 
 
@@ -52,7 +54,7 @@ def simple_skills_result_mmsr():
         'b17c3301ad2ccbb798716fdd405d16e8': 2.0131458750666567,
         'bde3b214b06c1efa6cb1bc6284dc72d2': 2.0131458750666567,
         'e563e2fb32fce9f00123a65a1bc78c55': 1.8527467194291514,
-    })
+    }, name='skill')
     skills.index.name = 'performer'
     return skills
 

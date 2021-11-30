@@ -6,10 +6,13 @@ __all__ = [
     'get_most_probable_labels',
     'normalize_rows',
     'manage_data',
-    'get_accuracy'
+    'get_accuracy',
+    'add_skills_to_data',
+    'named_series_attrib',
 ]
 from typing import Tuple, Union, Callable, Optional
 
+import attr
 import numpy as np
 import pandas as pd
 
@@ -101,3 +104,53 @@ def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_
         data = data.groupby(by)
 
     return data.score.sum() / data.weight.sum()
+
+
+def named_series_attrib(name: str):
+    """Attrs attribute with converter and setter which preserves specified attribute name"""
+
+    def converter(series: pd.Series) -> pd.Series:
+        series.name = name
+        return series
+
+    return attr.ib(init=False, converter=converter, on_setattr=attr.setters.convert)
+
+
+@manage_docstring
+def add_skills_to_data(
+    data: pd.DataFrame,
+    skills: annotations.SKILLS,
+    on_missing_skill: annotations.ON_MISSING_SKILL,
+    default_skill: float
+) -> pd.DataFrame:
+
+    data = data.join(skills.rename('skill'), on='performer')
+
+    if on_missing_skill != 'value' and default_skill is not None:
+        raise ValueError('default_skill is used but on_missing_skill is not "value"')
+
+    if on_missing_skill == 'error':
+        missing_skills_count = data['skill'].isna().sum()
+        if missing_skills_count > 0:
+            raise ValueError(
+                f"Skill value is missing in {missing_skills_count} assignments. Specify skills for every"
+                f"used worker or use different 'on_unknown_skill' value."
+            )
+    elif on_missing_skill == 'ignore':
+        data.set_index('task', inplace=True)
+        index_before_drop = data.index
+        data.dropna(inplace=True)
+        dropped_tasks_count = len(index_before_drop.difference(data.index))
+        if dropped_tasks_count > 0:
+            raise ValueError(
+                f"{dropped_tasks_count} tasks has no workers with known skills. Provide at least one worker with known"
+                f"skill for every task or use different 'on_unknown_skill' value."
+            )
+        data.reset_index(inplace=True)
+    elif on_missing_skill == 'value':
+        if default_skill is None:
+            raise ValueError('Default skill value must be specified when using on_missing_skill="value"')
+        data.loc[data['skill'].isna(), 'skill'] = default_skill
+    else:
+        raise ValueError(f'Unknown option {on_missing_skill!r} of "on_missing_skill" argument.')
+    return data

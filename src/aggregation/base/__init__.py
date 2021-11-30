@@ -7,7 +7,9 @@ __all__ = [
 ]
 
 import attr
+
 from .. import annotations
+from ..utils import named_series_attrib
 
 
 @attr.s
@@ -15,7 +17,7 @@ from .. import annotations
 class BaseClassificationAggregator:
     """ This is a base class for all classification aggregators"""
 
-    labels_: annotations.OPTIONAL_LABELS = attr.ib(init=False)
+    labels_: annotations.OPTIONAL_LABELS = named_series_attrib(name='agg_label')
 
     @annotations.manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> annotations.Annotation(type='BaseClassificationAggregator',
@@ -32,7 +34,7 @@ class BaseClassificationAggregator:
 class BaseImageSegmentationAggregator:
     """This is a base class for all image segmentation aggregators"""
 
-    segmentations_: annotations.TASKS_SEGMENTATIONS = attr.ib(init=False)
+    segmentations_: annotations.TASKS_SEGMENTATIONS = named_series_attrib(name='agg_segmentation')
 
     @annotations.manage_docstring
     def fit(self, data: annotations.SEGMENTATION_DATA) -> annotations.Annotation(type='BaseImageSegmentationAggregator',
@@ -65,7 +67,7 @@ class BaseEmbeddingsAggregator:
 class BaseTextsAggregator:
     """ This is a base class for all texts aggregators"""
 
-    texts_: annotations.TASKS_TEXTS = attr.ib(init=False)
+    texts_: annotations.TASKS_TEXTS = named_series_attrib(name='agg_text')
 
     @annotations.manage_docstring
     def fit(self, data: annotations.TEXT_DATA) -> annotations.Annotation(type='BaseTextsAggregator', title='self'):
@@ -81,7 +83,7 @@ class BaseTextsAggregator:
 class BasePairwiseAggregator:
     """ This is a base class for all pairwise comparison aggregators"""
 
-    scores_: annotations.LABEL_SCORES = attr.ib(init=False)
+    scores_: annotations.LABEL_SCORES = named_series_attrib(name='agg_score')
 
     @annotations.manage_docstring
     def fit(self, data: annotations.PAIRWISE_DATA) -> annotations.Annotation(type='BasePairwiseAggregator', title='self'):

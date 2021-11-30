@@ -26,6 +26,7 @@ from ..annotations import (
     GLAD_BETAS,
 )
 from ..base import BaseClassificationAggregator
+from ..utils import named_series_attrib
 
 
 @attr.s
@@ -52,8 +53,8 @@ class GLAD(BaseClassificationAggregator):
     # Available after fit
     # labels_
     probas_: OPTIONAL_PROBAS = attr.ib(init=False)
-    alphas_: GLAD_ALPHAS = attr.ib(init=False)
-    betas_: GLAD_BETAS = attr.ib(init=False)
+    alphas_: GLAD_ALPHAS = named_series_attrib(name='alpha')
+    betas_: GLAD_BETAS = named_series_attrib(name='beta')
 
     @manage_docstring
     def _join_all(

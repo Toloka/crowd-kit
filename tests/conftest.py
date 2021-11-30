@@ -51,6 +51,7 @@ def toy_ground_truth_df():
     return pd.Series(
         ['yes', 'yes', 'no', 'yes', 'no'],
         pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
+        name='agg_label',
     )
 
 
@@ -122,7 +123,7 @@ def simple_ground_truth_df():
         '1231239876--5fac0d234ffb2f3b00893ee8': 'chicken',
         '1231239876--5fac0d234ffb2f3b00893efd': 'chicken',
         '1231239876--5fac0d234ffb2f3b00893ee4': 'chicken',
-    })
+    }, name='agg_label')
     ground_truth.index.name = 'task'
     return ground_truth
 

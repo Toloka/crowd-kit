@@ -7,7 +7,7 @@ from .. import annotations
 from ..annotations import manage_docstring, Annotation
 from ..base import BaseClassificationAggregator
 from .majority_vote import MajorityVote
-from ..utils import get_accuracy
+from ..utils import get_accuracy, named_series_attrib
 
 
 @attr.s
@@ -29,7 +29,7 @@ class GoldMajorityVote(BaseClassificationAggregator):
     """
 
     # Available after fit
-    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
+    skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
 
     # Available after predict or predict_proba
     # labels_

@@ -11,6 +11,7 @@ import scipy.stats as sps
 from .. import annotations
 from ..annotations import manage_docstring, Annotation
 from ..base import BaseClassificationAggregator
+from ..utils import named_series_attrib
 from .majority_vote import MajorityVote
 
 
@@ -38,7 +39,7 @@ class MMSR(BaseClassificationAggregator):
     _tasks_mapping: dict = attr.ib(factory=dict)
 
     # Available after fit
-    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
+    skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
 
     # Available after predict or predict_score
     # labels_

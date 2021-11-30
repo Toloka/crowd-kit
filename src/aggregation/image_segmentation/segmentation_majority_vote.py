@@ -1,10 +1,14 @@
 __all__ = ['SegmentationMajorityVote']
+
+from typing import Optional
+
 import attr
 import numpy as np
 
 from .. import annotations
 from ..annotations import Annotation, manage_docstring
 from ..base import BaseImageSegmentationAggregator
+from ..utils import add_skills_to_data
 
 
 @attr.s
@@ -21,6 +25,9 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
 
     # segmentations_
 
+    on_missing_skill: annotations.ON_MISSING_SKILL = attr.ib(default='error')
+    default_skill: Optional[float] = attr.ib(default=None)
+
     @manage_docstring
     def fit(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> Annotation(type='SegmentationMajorityVote', title='self'):
         data = data[['task', 'performer', 'segmentation']]
@@ -28,7 +35,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         if skills is None:
             data['skill'] = 1
         else:
-            data = data.join(skills.rename('skill'), on='performer')
+            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
 
         data['pixel_scores'] = data.segmentation * data.skill
         group = data.groupby('task')

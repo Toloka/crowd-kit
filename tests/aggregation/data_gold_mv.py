@@ -14,6 +14,7 @@ def toy_skills_result_gold():
     return pd.Series(
         [0.5, 1.0, 1.0, 0.5, 0.0],
         pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        name='skill'
     )
 
 
@@ -28,7 +29,7 @@ def toy_probas_result_gold():
             [0.166667, 0.833333],
         ],
         columns=['yes', 'no'],
-        index=['t1', 't2', 't3', 't4', 't5'],
+        index=['t1', 't2', 't3', 't4', 't5']
     )
     result_df.index.name = 'task'
     result_df.columns.name = 'label'
@@ -83,7 +84,7 @@ def simple_skills_result_gold():
         'b17c3301ad2ccbb798716fdd405d16e8': 1.0,
         'bde3b214b06c1efa6cb1bc6284dc72d2': 1.0,
         'e563e2fb32fce9f00123a65a1bc78c55': 0.5,
-    })
+    }, name='skill')
     skills.index.name = 'performer'
     return skills
 

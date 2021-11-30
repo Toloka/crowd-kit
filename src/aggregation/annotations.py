@@ -34,6 +34,7 @@ __all__ = [
     'ERRORS',
     'WEIGHTED_DATA',
     'WEIGHTS',
+    'ON_MISSING_SKILL',
 
     'OPTIONAL_ERRORS',
     'OPTIONAL_PRIORS',
@@ -292,7 +293,7 @@ GLAD_ALPHAS = Annotation(
     type=pd.Series,
     title="Performers' alpha parameters",
     description=textwrap.dedent('''
-        A pandas.Series indexed by `performer` that containes estimated alpha parameters.
+        A pandas.Series indexed by `performer` that contains estimated alpha parameters.
     '''),
 )
 
@@ -300,7 +301,7 @@ GLAD_BETAS = Annotation(
     type=pd.Series,
     title="Tasks' beta parameters",
     description=textwrap.dedent('''
-        A pandas.Series indexed by `task` that containes estimated beta parameters.
+        A pandas.Series indexed by `task` that contains estimated beta parameters.
     '''),
 )
 
@@ -340,6 +341,19 @@ WEIGHTS = Annotation(
     type=pd.DataFrame,
     title='Task weights',
     description='A pandas.DataFrame containing `task`, `performer` and `weight`'
+)
+
+
+# Common parameters
+
+ON_MISSING_SKILL = Annotation(
+    type=str,
+    title="How to handle assignments done by workers with unknown skill",
+    description="Possible values:\n"
+    '\t* "error" — raise an exception if there is at least one assignment done by user with unknown skill;\n'
+    '\t* "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no \n'
+    '\tassignments with known skill for any task;\n'
+    '\t* value — default value will be used if skill is missing.'
 )
 
 

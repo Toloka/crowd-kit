@@ -13,5 +13,5 @@ def simple_text_result_rover():
             "it's all nonsense ned cried chris for them to think that they're staying on account of us hello griggs were you listening"  # noqa
         ],
         index=pd.Index(['1255-74899-0020', '1651-136854-0030', '7601-101619-0003', '7601-175351-0021', '8254-84205-0005'], name='task'),
-        name='text'
+        name='agg_text'
     )

@@ -37,32 +37,32 @@ def data_equal():
 
 @pytest.fixture
 def result_empty():
-    return pd.Series([], dtype=np.float64)
+    return pd.Series([], dtype=np.float64, name='agg_score')
 
 
 @pytest.fixture
 def result_equal():
-    return pd.Series([1/3, 1/3, 1/3], index=['a', 'b', 'c'])
+    return pd.Series([1/3, 1/3, 1/3], index=['a', 'b', 'c'], name='agg_score')
 
 
 @pytest.fixture
 def noisy_bt_result():
-    return pd.Series([0.999993, 0.653991, 0.000025], index=pd.Index(['a', 'b', 'c'], name='label'), name='score')
+    return pd.Series([0.999993, 0.653991, 0.000025], index=pd.Index(['a', 'b', 'c'], name='label'), name='agg_score')
 
 
 @pytest.fixture
 def noisy_bt_result_equal():
-    return pd.Series([0.672879, 0.043679, 0.985681], index=pd.Index(['a', 'b', 'c'], name='label'), name='score')
+    return pd.Series([0.672879, 0.043679, 0.985681], index=pd.Index(['a', 'b', 'c'], name='label'), name='agg_score')
 
 
 @pytest.fixture
 def result_iter_0():
-    return pd.Series([1/3, 1/3, 1/3], index=['a', 'b', 'c'])
+    return pd.Series([1/3, 1/3, 1/3], index=['a', 'b', 'c'], name='agg_score')
 
 
 @pytest.fixture
 def result_iter_10():
-    return pd.Series([.934, .065, 0.], index=['a', 'b', 'c'])
+    return pd.Series([.934, .065, 0.], index=['a', 'b', 'c'], name='agg_score')
 
 
 def test_bradley_terry_empty(result_empty, data_empty):
@@ -85,6 +85,8 @@ def test_bradley_terry_step_by_step(request, data_abc, n_iter):
 def test_noisy_bradley_terry(data_abc, noisy_bt_result):
     noisy_bt = NoisyBradleyTerry().fit(data_abc)
     assert_series_equal(noisy_bt.scores_, noisy_bt_result, atol=0.005)
+    assert noisy_bt.skills_.name == 'skill'
+    assert noisy_bt.biases_.name == 'bias'
 
 
 def test_noisy_bradley_terry_equal(data_equal, noisy_bt_result_equal):

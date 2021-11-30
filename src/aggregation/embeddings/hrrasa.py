@@ -173,7 +173,7 @@ class HRRASA(BaseClassificationAggregator):
                     index.append((task, performer))
                     processed_pairs.add((task, performer))
         data = data.set_index(['task', 'performer'])
-        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'performer']))
+        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'performer']), dtype=float)
         data['local_skill'] = local_skills
         return data.reset_index()
 

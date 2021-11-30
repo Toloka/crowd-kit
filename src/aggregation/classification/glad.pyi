@@ -25,10 +25,10 @@ class GLAD(crowdkit.aggregation.base.BaseClassificationAggregator):
             probability is between 0 and 1, all task's probabilities should sum up to 1
 
         alphas_ (Series): Performers' alpha parameters
-            A pandas.Series indexed by `performer` that containes estimated alpha parameters.
+            A pandas.Series indexed by `performer` that contains estimated alpha parameters.
 
         betas_ (Series): Tasks' beta parameters
-            A pandas.Series indexed by `task` that containes estimated beta parameters.
+            A pandas.Series indexed by `task` that contains estimated beta parameters.
     """
 
     def fit(self, data: pandas.core.frame.DataFrame) -> 'GLAD':

@@ -184,8 +184,8 @@ def test_gold_mv_raise_in_predict(
 
 def test_gold_mv_empty():
     aggregator = GoldMajorityVote()
-    probas = aggregator.fit_predict_proba(pd.DataFrame({'task': [],
-                                                        'performer': [],
-                                                        'label': []}),
-                                          pd.Series())
+    probas = aggregator.fit_predict_proba(
+        pd.DataFrame({'task': [], 'performer': [], 'label': []}),
+        pd.Series(dtype=float)
+    )
     assert probas.empty
