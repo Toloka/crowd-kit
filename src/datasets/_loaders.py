@@ -52,15 +52,15 @@ def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
 def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'mscoco'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco.zip'
-    data_md5 = 'e77224751f2ac1cb385c501c1ddd7393'
+    data_md5 = '088012cfaeac6515a5fcbe9ddb6d3615'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
-        true_labels = pd.read_pickle(join(data_path, 'gt.pickle')).set_index('task')['true_segmentation']
+        true_labels = pd.read_pickle(join(data_path, 'gt.zip')).set_index('task')['true_segmentation']
 
         return labels, true_labels
 
-    full_data_path = join(_load_dataset(data_name, get_data_dir(data_dir), data_url, data_md5), 'mscoco')
+    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
 
     return load_dataframes(full_data_path)
 
@@ -68,7 +68,7 @@ def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series
 def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'mscoco_small'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco_small.zip'
-    data_md5 = '3705b8d3e96cab54af9a79cc35e354ab'
+    data_md5 = '63cd535c4f2b73bed91820ba1a17cdab'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
