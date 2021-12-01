@@ -121,3 +121,50 @@ def simple_probas_result_gold():
     result_df.index.name = 'task'
     result_df.columns.name = 'label'
     return result_df
+
+
+@pytest.fixture
+def multiple_gt_df():
+    return pd.DataFrame(
+        [
+            ['t1', 'w1', 'l1'],  # right
+            ['t2', 'w1', 'l1'],
+            ['t3', 'w1', 'l1'],  # wrong
+            ['t1', 'w2', 'l2'],  # right
+            ['t2', 'w2', 'l1'],
+            ['t3', 'w2', 'l2'],  # right
+            ['t1', 'w3', 'l3'],  # wrong
+            ['t3', 'w3', 'l3'],  # wrong
+        ],
+        columns=['task', 'performer', 'label']
+    )
+
+
+@pytest.fixture
+def multiple_gt_gt():
+    return pd.Series(
+        ['l1', 'l2', 'l2'],
+        index=['t1', 't1', 't3']
+    )
+
+
+@pytest.fixture
+def multiple_gt_aggregated():
+    aggregated = pd.Series(
+        ['l2', 'l1', 'l2'],
+        index=['t1', 't2', 't3']
+    )
+    aggregated.index.name = 'task'
+    aggregated.name = 'agg_label'
+    return aggregated
+
+
+@pytest.fixture
+def multiple_gt_skills():
+    skills = pd.Series(
+        [0.5, 1., 0.],
+        index=['w1', 'w2', 'w3'],
+    )
+    skills.index.name = 'performer'
+    skills.name = 'skill'
+    return skills

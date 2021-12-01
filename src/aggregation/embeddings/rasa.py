@@ -75,6 +75,11 @@ class RASA(BaseEmbeddingsAggregator):
     def fit(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):
         data = data[['task', 'performer', 'embedding']]
 
+        if true_embeddings is not None and not true_embeddings.index.is_unique:
+            raise ValueError(
+                'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
+            )
+
         # What we call skills here is called reliabilities in the paper
         prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
         skills = pd.Series(1.0, index=data.performer.unique())

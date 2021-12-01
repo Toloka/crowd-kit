@@ -24,6 +24,11 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     def fit(self, data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None,
             true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='ClosestToAverage', title='self'):
 
+        if true_embeddings is not None and not true_embeddings.index.is_unique:
+            raise ValueError(
+                'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
+            )
+
         data = data[['task', 'performer', 'output', 'embedding']]
         if aggregated_embeddings is None:
             group = data.groupby('task')

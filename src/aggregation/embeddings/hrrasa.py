@@ -55,6 +55,11 @@ class HRRASA(BaseClassificationAggregator):
     @manage_docstring
     def fit(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
                                                                                                title='self'):
+        if true_embeddings is not None and not true_embeddings.index.is_unique:
+            raise ValueError(
+                'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
+            )
+
         data = data[['task', 'performer', 'embedding', 'output']]
         data, single_overlap_tasks = self._filter_single_overlap(data)
         data = self._get_local_skills(data)
