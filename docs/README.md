@@ -48,37 +48,37 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 
 | Method | Status |
 | ------------- | :-------------: |
-| [Majority Vote](reference/crowdkit.aggregation.majority_vote.MajorityVote.md) | ✅ |
-| [Dawid-Skene](reference/crowdkit.aggregation.dawid_skene.DawidSkene.md) | ✅ |
-| [Gold Majority Vote](reference/crowdkit.aggregation.gold_majority_vote.GoldMajorityVote.md) | ✅ |
-| [M-MSR](reference/crowdkit.aggregation.m_msr.MMSR.md) | ✅ |
-| [Wawa](reference/crowdkit.aggregation.wawa.Wawa.md) | ✅ |
-| [Zero-Based Skill](reference/crowdkit.aggregation.zero_based_skill.ZeroBasedSkill.md) | ✅ |
-| [GLAD](reference/crowdkit.aggregation.glad.GLAD.md) | ✅ |
+| [Majority Vote](reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.md) | ✅ |
+| [Dawid-Skene](reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.md) | ✅ |
+| [Gold Majority Vote](reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.md) | ✅ |
+| [M-MSR](reference/crowdkit.aggregation.classification.m_msr.MMSR.md) | ✅ |
+| [Wawa](reference/crowdkit.aggregation.classification.wawa.Wawa.md) | ✅ |
+| [Zero-Based Skill](reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.md) | ✅ |
+| [GLAD](reference/crowdkit.aggregation.classification.glad.GLAD.md) | ✅ |
 | BCC | 🟡 |
 
 ### Textual Responses
 
 | Method | Status |
 | ------------- | :-------------: |
-| [RASA](reference/crowdkit.aggregation.rasa.RASA.md) | ✅ |
-| [HRRASA](reference/crowdkit.aggregation.hrrasa.HRRASA.md) | ✅ |
-| [ROVER](reference/crowdkit.aggregation.rover.ROVER.md) | ✅ |
+| [RASA](reference/crowdkit.aggregation.embeddings.rasa.RASA.md) | ✅ |
+| [HRRASA](reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA.md) | ✅ |
+| [ROVER](reference/crowdkit.aggregation.texts.rover.ROVER.md) | ✅ |
 
 ### Image Segmentation
 
 | Method | Status |
 | ------------------ | :------------------: |
-| [Segmentation MV](reference/crowdkit.aggregation.segmentation_majority_vote.SegmentationMajorityVote.md)  | ✅ |
-| [Segmentation RASA](reference/crowdkit.aggregation.segmentation_rasa.SegmentationRASA.md) | ✅ |
-| [Segmentation EM](reference/crowdkit.aggregation.segmentation_em.SegmentationEM.md) | ✅ |
+| [Segmentation MV](reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.md)  | ✅ |
+| [Segmentation RASA](reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.md) | ✅ |
+| [Segmentation EM](reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.md) | ✅ |
 
 ### Pairwise Comparisons
 
 | Method | Status |
 | -------------- | :---------------------: |
-| [Bradley-Terry](reference/crowdkit.aggregation.bradley_terry.BradleyTerry.md) | ✅            |
-| [Noisy  Bradley-Terry](reference/crowdkit.aggregation.noisy_bt.NoisyBradleyTerry.md)  | ✅ |
+| [Bradley-Terry](reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md) | ✅            |
+| [Noisy  Bradley-Terry](reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.md)  | ✅ |
 
 ## Questions and Bug Reports
 
