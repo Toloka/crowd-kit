@@ -37,7 +37,7 @@ def recreate_machine_config(asv_dir):
 def run_asv(bench_dir):
     print('running asv')
     subprocess.call(['asv', 'run', 'NEW'], cwd=bench_dir)
-    subprocess.call(['asv', 'publish'])
+    subprocess.call(['asv', 'publish'], cwd=bench_dir)
 
 
 def update_results_repo(asv_dir, results_dir):
