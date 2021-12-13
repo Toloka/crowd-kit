@@ -10,8 +10,7 @@ with open('README.md') as f:
 
 setup(
     name='crowd-kit',
-    package_dir={PREFIX: 'src'},
-    packages=[f'{PREFIX}.{package}' for package in find_packages('src')],
+    packages=[f'{PREFIX}.{package}' for package in find_packages('crowdkit')],
     version='0.0.9',
     description='Python libraries for crowdsourcing',
     long_description=readme,
