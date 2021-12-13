@@ -32,13 +32,60 @@ from ..utils import named_series_attrib
 @attr.s
 @manage_docstring
 class GLAD(BaseClassificationAggregator):
-    """
-    Generative model of Labels, Abilities, and Difficulties
-    J. Whitehill, P. Ruvolo, T. Wu, J. Bergsma, and J. Movellan
+    r"""
+    Generative model of Labels, Abilities, and Difficulties.
+
+    A probabilistic model that parametrizes performers' abilities and tasks' dificulties.
+    Let's consider a case of $K$ class classification. Let $p$ be a vector of prior class probabilities,
+    $\alpha_i \in (-\infty, +\infty)$ be a performer's ability parameter, $\beta_j \in (0, +\infty)$ be
+    an inverse task's difficulty, $z_j$ be a latent variable representing the true task's label, and $y^i_j$
+    be a performer's response that we observe. The relationships between this variables and parameters according
+    to GLAD are represented by the following latent label model:
+
+    ![GLAD latent label model](http://tlk.s3.yandex.net/crowd-kit/docs/glad_llm.png)
+
+
+    The prior probability of $z_j$ being equal to $c$ is
+    $$
+    \operatorname{Pr}(z_j = c) = p[c],
+    $$
+    the probability distribution of the performer's responses conditioned by the true label value $c$ follows the
+    single coin Dawid-Skene model where the true label probability is a sigmoid function of the product of
+    performer's ability and inverse task's difficulty:
+    $$
+    \operatorname{Pr}(y^i_j = k | z_j = c) = \begin{cases}a(i, j), & k = c \\ \frac{1 - a(i,j)}{K-1}, & k \neq c\end{cases},
+    $$
+    where
+    $$
+    a(i,j) = \frac{1}{1 + \exp(-\alpha_i\beta_j)}.
+    $$
+
+    Parameters $p$, $\alpha$, $\beta$ and latent variables $z$ are optimized through the Expectation-Minimization algorithm.
+
+
+    J. Whitehill, P. Ruvolo, T. Wu, J. Bergsma, and J. Movellan.
     Whose Vote Should Count More: Optimal Integration of Labels from Labelers of Unknown Expertise.
-    Proceedings of the 22nd International Conference on Neural Information Processing Systems, 2009
+    *Proceedings of the 22nd International Conference on Neural Information Processing Systems*, 2009
 
     https://proceedings.neurips.cc/paper/2009/file/f899139df5e1059396431415e770c6dd-Paper.pdf
+
+
+    Args:
+        max_iter: Maximum number of EM iterations.
+        eps: Threshold for convergence criterion.
+        silent: If false, show progress bar.
+        labels_priors: Prior label probabilities.
+        alphas_priors_mean: Prior mean value of alpha parameters.
+        betas_priors_mean: Prior mean value of beta parameters.
+        m_step_max_iter: Maximum number of iterations of conjugate gradient method in M-step.
+        m_step_tol: Tol parameter of conjugate gradient method in M-step.
+
+    Examples:
+        >>> from crowdkit.aggregation import GLAD
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> glad = GLAD()
+        >>> result = glad.fit_predict(df)
     """
 
     max_iter: int = attr.ib(default=100)
@@ -231,6 +278,10 @@ class GLAD(BaseClassificationAggregator):
 
     @manage_docstring
     def fit(self, data: LABELED_DATA) -> Annotation(type='GLAD', title='self'):
+        """
+        Fit the model through the EM-algorithm.
+        """
+
         # Initialization
         data = data.filter(['task', 'performer', 'label'])
         self._init(data)
@@ -259,8 +310,16 @@ class GLAD(BaseClassificationAggregator):
 
     @manage_docstring
     def fit_predict_proba(self, data: LABELED_DATA) -> TASKS_LABEL_PROBAS:
+        """
+        Fit the model and return probability distributions on labels for each task.
+        """
+
         return self.fit(data).probas_
 
     @manage_docstring
     def fit_predict(self, data: LABELED_DATA) -> TASKS_LABELS:
+        """
+        Fit the model and return aggregated results.
+        """
+
         return self.fit(data).labels_

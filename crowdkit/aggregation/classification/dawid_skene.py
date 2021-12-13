@@ -16,13 +16,45 @@ _EPS = np.float_power(10, -10)
 @attr.s
 @manage_docstring
 class DawidSkene(BaseClassificationAggregator):
-    """
-    Dawid-Skene aggregation model
-    A. Philip Dawid and Allan M. Skene. 1979.
-    Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm.
-    Journal of the Royal Statistical Society. Series C (Applied Statistics), Vol. 28, 1 (1979), 20–28.
+    r"""
+    Dawid-Skene aggregation model.
+
+
+    Probabilistic model that parametrizes performers' level of expertise through confusion matrices.
+
+    Let $e^w$ be a performer's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
+    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a performer's
+    answer for the task $j$. The relationships between these parameters are represented by the following latent
+    label model.
+
+    ![Dawid-Skene latent label model](http://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
+
+    Here the prior true label probability is
+    $$
+    \operatorname{Pr}(z_j = c) = p[c],
+    $$
+    and the distribution on the performer's responses given the true label $c$ is represented by the
+    corresponding column of the error matrix:
+    $$
+    \operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c].
+    $$
+
+    Parameters $p$ and $e^w$ and latent variables $z$ are optimized through the Expectation-Maximization algorithm.
+
+    A. Philip Dawid and Allan M. Skene. Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm.
+    *Journal of the Royal Statistical Society. Series C (Applied Statistics), Vol. 28*, 1 (1979), 20–28.
 
     https://doi.org/10.2307/2346806
+
+    Args:
+        n_iter: The number of EM iterations.
+
+    Examples:
+        >>> from crowdkit.aggregation import DawidSkene
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> ds = DawidSkene(100)
+        >>> result = ds.fit_predict(df)
     """
 
     n_iter: int = attr.ib()
@@ -76,6 +108,9 @@ class DawidSkene(BaseClassificationAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):
+        """
+        Fit the model through the EM-algorithm.
+        """
 
         data = data[['task', 'performer', 'label']]
 
@@ -108,8 +143,16 @@ class DawidSkene(BaseClassificationAggregator):
 
     @manage_docstring
     def fit_predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
+        """
+        Fit the model and return probability distributions on labels for each task.
+        """
+
         return self.fit(data).probas_
 
     @manage_docstring
     def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        """
+        Fit the model and return aggregated results.
+        """
+
         return self.fit(data).labels_

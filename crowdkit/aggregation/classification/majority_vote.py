@@ -13,7 +13,45 @@ from ..utils import normalize_rows, get_most_probable_labels, get_accuracy, add_
 @attr.s
 @manage_docstring
 class MajorityVote(BaseClassificationAggregator):
-    """Majority Vote - chooses the correct label for which more performers voted"""
+    """
+    Majority Vote aggregation algorithm.
+
+    Majority vote is a straightforward approach for categorical aggregation: for each task,
+    it outputs a label which has the largest number of responses. Additionaly, the majority vote
+    can be used when different weights assigned for performers' votes. In this case, the
+    resulting label will be the one with the largest sum of weights.
+
+
+    **Note:** in case when two or more labels have the largest number of votes, the resulting
+    label will be the same for all tasks which have the same set of labels with equal count of votes.
+
+    Args:
+        default_skill: Defualt performer's weight value.
+
+    Examples:
+        Basic majority voting:
+        >>> from crowdkit.aggregation import MajorityVote
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> result = MajorityVote().fit_predict(df)
+
+        Weighted majority vote:
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import MajorityVote
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', 0],
+        >>>         ['t1', 'p2', 0],
+        >>>         ['t1', 'p3', 1],
+        >>>         ['t2', 'p1', 1],
+        >>>         ['t2', 'p2', 0],
+        >>>         ['t2', 'p3', 1],
+        >>>     ],
+        >>>     columns=['task', 'performer', 'label']
+        >>> )
+        >>> skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
+        >>> result = MajorityVote.fit_predict(df, skills)
+    """
 
     # TODO: remove skills_
     skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
@@ -24,6 +62,10 @@ class MajorityVote(BaseClassificationAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> Annotation(type='MajorityVote', title='self'):
+        """
+        Fit the model.
+        """
+
         data = data[['task', 'performer', 'label']]
 
         if skills is None:
@@ -40,8 +82,16 @@ class MajorityVote(BaseClassificationAggregator):
 
     @manage_docstring
     def fit_predict_proba(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABEL_PROBAS:
+        """
+        Fit the model and return probability distributions on labels for each task.
+        """
+
         return self.fit(data, skills).probas_
 
     @manage_docstring
     def fit_predict(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABELS:
+        """
+        Fit the model and return aggregated results.
+        """
+
         return self.fit(data, skills).labels_

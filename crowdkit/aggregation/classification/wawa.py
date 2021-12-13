@@ -14,12 +14,18 @@ from ..utils import get_accuracy, named_series_attrib
 @manage_docstring
 class Wawa(BaseClassificationAggregator):
     """
-    Worker Agreement with Aggregate
+    Worker Agreement with Aggregate.
 
-    Calculates the considers the likelihood of coincidence of the performers opinion with the majority
-    Based on this, for each task, calculates the sum of the agreement of each label
-    The correct label is the one where the sum of the agreements is greater
+    This algorithm does three steps:
+    1. Calculate the majority vote label
+    2. Estimate performers' skills as a fraction of responses that are equal to the majority vote
+    3. Calculate the weigthed majority vote based on skills from the previous step
 
+    Examples:
+        >>> from crowdkit.aggregation import Wawa
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> result = Wawa().fit_predict(df)
     """
 
     skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
@@ -36,6 +42,10 @@ class Wawa(BaseClassificationAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> Annotation('Wawa', 'self'):
+        """
+        Fit the model.
+        """
+
         # TODO: support weights?
         data = data[['task', 'performer', 'label']]
         mv = MajorityVote().fit(data)
@@ -44,16 +54,32 @@ class Wawa(BaseClassificationAggregator):
 
     @manage_docstring
     def predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        """
+        Infer the true labels when the model is fitted.
+        """
+
         return self._apply(data).labels_
 
     @manage_docstring
     def predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
+        """
+        Return probability distributions on labels for each task when the model is fitted.
+        """
+
         return self._apply(data).probas_
 
     @manage_docstring
     def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        """
+        Fit the model and return aggregated results.
+        """
+
         return self.fit(data).predict(data)
 
     @manage_docstring
     def fit_predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
+        """
+        Fit the model and return probability distributions on labels for each task.
+        """
+
         return self.fit(data).predict_proba(data)

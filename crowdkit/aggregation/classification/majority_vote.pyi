@@ -2,21 +2,57 @@ __all__ = [
     'MajorityVote',
 ]
 import crowdkit.aggregation.base
-import pandas.core.frame
+import pandas
 import pandas.core.series
 import typing
 
 
 class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
-    """Majority Vote - chooses the correct label for which more performers voted
+    """Majority Vote aggregation algorithm.
+
+    Majority vote is a straightforward approach for categorical aggregation: for each task,
+    it outputs a label which has the largest number of responses. Additionaly, the majority vote
+    can be used when different weights assigned for performers' votes. In this case, the
+    resulting label will be the one with the largest sum of weights.
+
+
+    **Note:** in case when two or more labels have the largest number of votes, the resulting
+    label will be the same for all tasks which have the same set of labels with equal count of votes.
+
+    Args:
+        default_skill: Defualt performer's weight value.
+
+    Examples:
+        Basic majority voting:
+        >>> from crowdkit.aggregation import MajorityVote
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> result = MajorityVote().fit_predict(df)
+
+        Weighted majority vote:
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import MajorityVote
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', 0],
+        >>>         ['t1', 'p2', 0],
+        >>>         ['t1', 'p3', 1],
+        >>>         ['t2', 'p1', 1],
+        >>>         ['t2', 'p2', 0],
+        >>>         ['t2', 'p3', 1],
+        >>>     ],
+        >>>     columns=['task', 'performer', 'label']
+        >>> )
+        >>> skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
+        >>> result = MajorityVote.fit_predict(df, skills)
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels
+        labels_ (typing.Union[pandas.core.series.Series, NoneType]): Tasks' labels
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        skills_ (typing.Optional[pandas.core.series.Series]): Performers' skills
+        skills_ (typing.Union[pandas.core.series.Series, NoneType]): Performers' skills
             A pandas.Series index by performers and holding corresponding performer's skill
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions
+        probas_ (typing.Union[pandas.core.frame.DataFrame, NoneType]): Tasks' label probability distributions
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the probability of `task`'s true label to be equal to `label`. Each
             probability is between 0 and 1, all task's probabilities should sum up to 1
@@ -31,10 +67,11 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
 
     def fit(
         self,
-        data: pandas.core.frame.DataFrame,
+        data: pandas.DataFrame,
         skills: pandas.core.series.Series = None
     ) -> 'MajorityVote':
-        """Args:
+        """Fit the model.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
             skills (Series): Performers' skills
@@ -46,10 +83,11 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
 
     def fit_predict_proba(
         self,
-        data: pandas.core.frame.DataFrame,
+        data: pandas.DataFrame,
         skills: pandas.core.series.Series = None
-    ) -> pandas.core.frame.DataFrame:
-        """Args:
+    ) -> pandas.DataFrame:
+        """Fit the model and return probability distributions on labels for each task.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
             skills (Series): Performers' skills
@@ -64,10 +102,11 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
 
     def fit_predict(
         self,
-        data: pandas.core.frame.DataFrame,
+        data: pandas.DataFrame,
         skills: pandas.core.series.Series = None
     ) -> pandas.core.series.Series:
-        """Args:
+        """Fit the model and return aggregated results.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
             skills (Series): Performers' skills
@@ -90,6 +129,6 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
 
     labels_: typing.Optional[pandas.core.series.Series]
     skills_: typing.Optional[pandas.core.series.Series]
-    probas_: typing.Optional[pandas.core.frame.DataFrame]
+    probas_: typing.Optional[pandas.DataFrame]
     on_missing_skill: str
     default_skill: typing.Optional[float]

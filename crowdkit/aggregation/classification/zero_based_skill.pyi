@@ -2,24 +2,41 @@ __all__ = [
     'ZeroBasedSkill',
 ]
 import crowdkit.aggregation.base
-import pandas.core.frame
+import pandas
 import pandas.core.series
 import typing
 
 
 class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
-    """The Zero-Based Skill aggregation model
+    """The Zero-Based Skill aggregation model.
 
     Performs weighted majority voting on tasks. After processing a pool of tasks,
-    re-estimates performers' skills according to the correctness of their answers.
+    re-estimates performers' skills through a gradient descend step of optimization
+    of the mean squared error of current skills and the fraction of responses that
+    are equal to the aggregated labels.
+
     Repeats this process until labels do not change or the number of iterations exceeds.
 
     It's necessary that all performers in a dataset that send to 'predict' existed in answers
     the dataset that was sent to 'fit'.
+
+    Args:
+        n_iter: A number of iterations to perform.
+        lr_init: A starting learning rate.
+        lr_steps_to_reduce: A number of steps necessary to decrease the learning rate.
+        lr_reduce_factor: A factor that the learning rate will be multiplied by every `lr_steps_to_reduce` steps.
+        eps: A convergence threshold.
+
+    Examples:
+        >>> from crowdkit.aggregation import ZeroBasedSkill
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> result = ZeroBasedSkill().fit_predict(df)
     """
 
-    def fit(self, data: pandas.core.frame.DataFrame) -> 'ZeroBasedSkill':
-        """Args:
+    def fit(self, data: pandas.DataFrame) -> 'ZeroBasedSkill':
+        """Fit the model.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -27,8 +44,9 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
-        """Args:
+    def predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+        """Infer the true labels when the model is fitted.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -38,8 +56,9 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def predict_proba(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
-        """Args:
+    def predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
+        """Return probability distributions on labels for each task when the model is fitted.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -50,8 +69,9 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def fit_predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
-        """Args:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+        """Fit the model and return aggregated results.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -61,8 +81,9 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def fit_predict_proba(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
-        """Args:
+    def fit_predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
+        """Fit the model and return probability distributions on labels for each task.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:

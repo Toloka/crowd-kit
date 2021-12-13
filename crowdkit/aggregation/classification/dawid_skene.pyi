@@ -2,42 +2,75 @@ __all__ = [
     'DawidSkene',
 ]
 import crowdkit.aggregation.base
-import pandas.core.frame
+import pandas
 import pandas.core.series
 import typing
 
 
 class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
-    """Dawid-Skene aggregation model
-    A. Philip Dawid and Allan M. Skene. 1979.
-    Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm.
-    Journal of the Royal Statistical Society. Series C (Applied Statistics), Vol. 28, 1 (1979), 20–28.
+    """Dawid-Skene aggregation model.
+
+
+    Probabilistic model that parametrizes performers' level of expertise through confusion matrices.
+
+    Let $e^w$ be a performer's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
+    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a performer's
+    answer for the task $j$. The relationships between these parameters are represented by the following latent
+    label model.
+
+    ![Dawid-Skene latent label model](http://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
+
+    Here the prior true label probability is
+    $$
+    \operatorname{Pr}(z_j = c) = p[c],
+    $$
+    and the distribution on the performer's responses given the true label $c$ is represented by the
+    corresponding column of the error matrix:
+    $$
+    \operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c].
+    $$
+
+    Parameters $p$ and $e^w$ and latent variables $z$ are optimized through the Expectation-Maximization algorithm.
+
+    A. Philip Dawid and Allan M. Skene. Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm.
+    *Journal of the Royal Statistical Society. Series C (Applied Statistics), Vol. 28*, 1 (1979), 20–28.
 
     https://doi.org/10.2307/2346806
+
+    Args:
+        n_iter: The number of EM iterations.
+
+    Examples:
+        >>> from crowdkit.aggregation import DawidSkene
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> ds = DawidSkene(100)
+        >>> result = ds.fit_predict(df)
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels
+        labels_ (typing.Union[pandas.core.series.Series, NoneType]): Tasks' labels
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions
+        probas_ (typing.Union[pandas.core.frame.DataFrame, NoneType]): Tasks' label probability distributions
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the probability of `task`'s true label to be equal to `label`. Each
             probability is between 0 and 1, all task's probabilities should sum up to 1
 
-        priors_ (typing.Optional[pandas.core.series.Series]): A prior label distribution
+        priors_ (typing.Union[pandas.core.series.Series, NoneType]): A prior label distribution
             A pandas.Series indexed by labels and holding corresponding label's
             probability of occurrence. Each probability is between 0 and 1,
             all probabilities should sum up to 1
 
-        errors_ (typing.Optional[pandas.core.frame.DataFrame]): Performers' error matrices
+        errors_ (typing.Union[pandas.core.frame.DataFrame, NoneType]): Performers' error matrices
             A pandas.DataFrame indexed by `performer` and `label` with a column for every
             label_id found in `data` such that `result.loc[performer, observed_label, true_label]`
             is the probability of `performer` producing an `observed_label` given that a task's
             true label is `true_label`
     """
 
-    def fit(self, data: pandas.core.frame.DataFrame) -> 'DawidSkene':
-        """Args:
+    def fit(self, data: pandas.DataFrame) -> 'DawidSkene':
+        """Fit the model through the EM-algorithm.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -45,8 +78,9 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def fit_predict_proba(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
-        """Args:
+    def fit_predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
+        """Fit the model and return probability distributions on labels for each task.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -57,8 +91,9 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def fit_predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
-        """Args:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+        """Fit the model and return aggregated results.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -75,6 +110,6 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
 
     labels_: typing.Optional[pandas.core.series.Series]
     n_iter: int
-    probas_: typing.Optional[pandas.core.frame.DataFrame]
+    probas_: typing.Optional[pandas.DataFrame]
     priors_: typing.Optional[pandas.core.series.Series]
-    errors_: typing.Optional[pandas.core.frame.DataFrame]
+    errors_: typing.Optional[pandas.DataFrame]

@@ -3,31 +3,64 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import numpy
-import pandas.core.frame
+import pandas
 import pandas.core.series
 import typing
 
 
 class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
-    """Matrix Mean-Subsequence-Reduced Algorithm
-    Qianqian Ma and Alex Olshevsky. 2020.
-    Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion
-    34th Conference on Neural Information Processing Systems (NeurIPS 2020)
+    """Matrix Mean-Subsequence-Reduced Algorithm.
+
+    The M-MSR assumes that performers have different level of expertise and associated
+    with a vector of "skills" $\boldsymbol{s}$ which entries $s_i$ show the probability
+    of the performer $i$ to answer correctly to the given task. Having that, we can show that
+    $$
+    \mathbb{E}\left[\frac{M}{M-1}\widetilde{C}-\frac{1}{M-1}\boldsymbol{1}\boldsymbol{1}^T\right]
+     = \boldsymbol{s}\boldsymbol{s}^T,
+    $$
+    where $M$ is the total number of classes, $\widetilde{C}$ is a covariation matrix between
+    performers, and $\boldsymbol{1}\boldsymbol{1}^T$ is the all-ones matrix which has the same
+    size as $\widetilde{C}$.
+
+
+    So, the problem of recovering the skills vector $\boldsymbol{s}$ becomes equivalent to the
+    rank-one matrix completion problem. The M-MSR algorithm is an iterative algorithm for *rubust*
+    rank-one matrix completion, so its result is an estimator of the vector $\boldsymbol{s}$.
+    Then, the aggregation is the weighted majority vote with weights equal to
+    $\log \frac{(M-1)s_i}{1-s_i}$.
+
+    Matrix Mean-Subsequence-Reduced Algorithm. Qianqian Ma and Alex Olshevsky.
+    Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion.
+    *34th Conference on Neural Information Processing Systems (NeurIPS 2020)*
+
     https://arxiv.org/abs/2010.12181
+
+    Args:
+        n_iter: The maximum number of iterations of the M-MSR algorithm.
+        eps: Convergence threshold.
+        random_state: Seed number for the random initialization.
+
+    Examples:
+        >>> from crowdkit.aggregation import MMSR
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> mmsr = MMSR()
+        >>> result = mmsr.fit_predict(df)
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels
+        labels_ (typing.Union[pandas.core.series.Series, NoneType]): Tasks' labels
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        skills_ (typing.Optional[pandas.core.series.Series]): Performers' skills
+        skills_ (typing.Union[pandas.core.series.Series, NoneType]): Performers' skills
             A pandas.Series index by performers and holding corresponding performer's skill
-        scores_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label scores
+        scores_ (typing.Union[pandas.core.frame.DataFrame, NoneType]): Tasks' label scores
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the score of `label` for `task`.
     """
 
-    def fit(self, data: pandas.core.frame.DataFrame) -> 'MMSR':
-        """Args:
+    def fit(self, data: pandas.DataFrame) -> 'MMSR':
+        """Estimate the performers' skills.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -35,8 +68,9 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
-        """Args:
+    def predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+        """Infer the true labels when the model is fitted.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -46,8 +80,9 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def predict_score(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
-        """Args:
+    def predict_score(self, data: pandas.DataFrame) -> pandas.DataFrame:
+        """Return total sum of weights for each label when the model is fitted.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -57,8 +92,9 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def fit_predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
-        """Args:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+        """Fit the model and return aggregated results.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -68,8 +104,9 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def fit_predict_score(self, data: pandas.core.frame.DataFrame) -> pandas.core.frame.DataFrame:
-        """Args:
+    def fit_predict_score(self, data: pandas.DataFrame) -> pandas.DataFrame:
+        """Fit the model and return the total sum of weights for each label.
+        Args:
             data (DataFrame): Performers' labeling results
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
@@ -112,4 +149,4 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
     _performers_mapping: dict
     _tasks_mapping: dict
     skills_: typing.Optional[pandas.core.series.Series]
-    scores_: typing.Optional[pandas.core.frame.DataFrame]
+    scores_: typing.Optional[pandas.DataFrame]

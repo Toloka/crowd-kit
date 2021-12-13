@@ -18,12 +18,44 @@ from .majority_vote import MajorityVote
 @attr.s
 @manage_docstring
 class MMSR(BaseClassificationAggregator):
-    """
-    Matrix Mean-Subsequence-Reduced Algorithm
-    Qianqian Ma and Alex Olshevsky. 2020.
-    Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion
-    34th Conference on Neural Information Processing Systems (NeurIPS 2020)
+    r"""
+    Matrix Mean-Subsequence-Reduced Algorithm.
+
+    The M-MSR assumes that performers have different level of expertise and associated
+    with a vector of "skills" $\boldsymbol{s}$ which entries $s_i$ show the probability
+    of the performer $i$ to answer correctly to the given task. Having that, we can show that
+    $$
+    \mathbb{E}\left[\frac{M}{M-1}\widetilde{C}-\frac{1}{M-1}\boldsymbol{1}\boldsymbol{1}^T\right]
+     = \boldsymbol{s}\boldsymbol{s}^T,
+    $$
+    where $M$ is the total number of classes, $\widetilde{C}$ is a covariation matrix between
+    performers, and $\boldsymbol{1}\boldsymbol{1}^T$ is the all-ones matrix which has the same
+    size as $\widetilde{C}$.
+
+
+    So, the problem of recovering the skills vector $\boldsymbol{s}$ becomes equivalent to the
+    rank-one matrix completion problem. The M-MSR algorithm is an iterative algorithm for *rubust*
+    rank-one matrix completion, so its result is an estimator of the vector $\boldsymbol{s}$.
+    Then, the aggregation is the weighted majority vote with weights equal to
+    $\log \frac{(M-1)s_i}{1-s_i}$.
+
+    Matrix Mean-Subsequence-Reduced Algorithm. Qianqian Ma and Alex Olshevsky.
+    Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion.
+    *34th Conference on Neural Information Processing Systems (NeurIPS 2020)*
+
     https://arxiv.org/abs/2010.12181
+
+    Args:
+        n_iter: The maximum number of iterations of the M-MSR algorithm.
+        eps: Convergence threshold.
+        random_state: Seed number for the random initialization.
+
+    Examples:
+        >>> from crowdkit.aggregation import MMSR
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> mmsr = MMSR()
+        >>> result = mmsr.fit_predict(df)
     """
     n_iter: int = attr.ib(default=10000)
     eps: float = attr.ib(default=1e-10)
@@ -54,6 +86,10 @@ class MMSR(BaseClassificationAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):
+        """
+        Estimate the performers' skills.
+        """
+
         data = data[['task', 'performer', 'label']]
         self._construnct_covariation_matrix(data)
         self._m_msr()
@@ -61,18 +97,34 @@ class MMSR(BaseClassificationAggregator):
 
     @manage_docstring
     def predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        """
+        Infer the true labels when the model is fitted.
+        """
+
         return self._apply(data).labels_
 
     @manage_docstring
     def predict_score(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_SCORES:
+        """
+        Return total sum of weights for each label when the model is fitted.
+        """
+
         return self._apply(data).scores_
 
     @manage_docstring
     def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+        """
+        Fit the model and return aggregated results.
+        """
+
         return self.fit(data).predict(data)
 
     @manage_docstring
     def fit_predict_score(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_SCORES:
+        """
+        Fit the model and return the total sum of weights for each label.
+        """
+
         return self.fit(data).predict_score(data)
 
     def _m_msr(self) -> None:
