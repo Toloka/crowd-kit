@@ -2,43 +2,64 @@ __all__ = [
     'SegmentationRASA',
 ]
 import crowdkit.aggregation.base
-import pandas.core.frame
+import pandas
 import pandas.core.series
 
 
 class SegmentationRASA(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
     """Segmentation RASA - chooses a pixel if sum of weighted votes of each performers' more than 0.5.
-    Algorithm works iteratively, at each step, the performers are reweighted in proportion to their distances
-    to the current answer estimation. The distance is considered as 1-iou. Modification of the RASA method for texts.
 
-    Jiyi Li. 2019.
+    Algorithm works iteratively, at each step, the performers are reweighted in proportion to their distances
+    to the current answer estimation. The distance is considered as $1 - IOU$. Modification of the RASA method
+    for texts.
+
+    Jiyi Li.
     A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
-    Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP,
+    *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
     pages 24–28 Hong Kong, China, November 3, 2019.
     http://doi.org/10.18653/v1/D19-5904
+
+    Args:
+        n_iter: A number of iterations.
+
+    Examples:
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import SegmentationRASA
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', np.array([[1, 0], [1, 1]])],
+        >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
+        >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
+        >>>     ],
+        >>>     columns=['task', 'performer', 'segmentation']
+        >>> )
+        >>> result = SegmentationRASA().fit_predict(df)
     Attributes:
-        segmentations_ (Series): Tasks' segmentations
+        segmentations_ (Series): Tasks' segmentations.
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's aggregated segmentation.
     """
 
-    def fit(self, data: pandas.core.frame.DataFrame) -> 'SegmentationRASA':
-        """Args:
-            data (DataFrame): Performers' segmentations
+    def fit(self, data: pandas.DataFrame) -> 'SegmentationRASA':
+        """Fit the model.
+        Args:
+            data (DataFrame): Performers' segmentations.
                 A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
 
         Returns:
-            SegmentationRASA: self
+            SegmentationRASA: self.
         """
         ...
 
-    def fit_predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
-        """Args:
-            data (DataFrame): Performers' segmentations
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+        """Fit the model and return the aggregated segmentations.
+        Args:
+            data (DataFrame): Performers' segmentations.
                 A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
 
         Returns:
-            Series: Tasks' segmentations
+            Series: Tasks' segmentations.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's aggregated segmentation.
         """

@@ -72,6 +72,10 @@ class TextSummarization(BaseTextsAggregator):
 
     @manage_docstring
     def fit_predict(self, data: TEXT_DATA) -> TASKS_TEXTS:
+        """
+        Run the aggregation and return the aggregated texts.
+        """
+
         data = data[['task', 'performer', 'text']]
 
         self.model = self.model.to(self.device)

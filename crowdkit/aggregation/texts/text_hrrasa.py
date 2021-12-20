@@ -13,6 +13,31 @@ from ..embeddings.hrrasa import HRRASA, glue_similarity
 
 
 class TextHRRASA(BaseTextsAggregator):
+    """
+    HRRASA on text embeddings.
+
+    Given a sentence encoder, encodes texts provided by performers and runs the HRRASA algorithm for embedding
+    aggregation.
+
+    Args:
+        encoder: A callable that takes a text and returns a NumPy array containing the corresponding embedding.
+        n_iter: A number of HRRASA iterations.
+        lambda_emb: A weight of reliability calculated on embeddigs.
+        lambda_out: A weight of reliability calculated on outputs.
+        alpha: Confidence level of chi-squared distribution quantiles in beta parameter formula.
+        calculate_ranks: If true, calculate additional attribute `ranks_`.
+
+    Examples:
+        We suggest to use sentence encoders provided by [Sentence Transformers](https://www.sbert.net).
+        >>> from crowdkit.datasets import load_dataset
+        >>> from crowdkit.aggregation import TextHRRASA
+        >>> from sentence_transformers import SentenceTransformer
+        >>> encoder = SentenceTransformer('all-mpnet-base-v2')
+        >>> hrrasa = TextHRRASA(encoder=encoder.encode)
+        >>> df, gt = load_dataset('crowdspeech-test-clean')
+        >>> df['text'] = df['text'].apply(lambda s: s.lower())
+        >>> result = hrrasa.fit_predict(df)
+    """
 
     # texts_
 
@@ -27,10 +52,18 @@ class TextHRRASA(BaseTextsAggregator):
 
     @manage_docstring
     def fit_predict_scores(self, data: DATA, true_objects: TASKS_TRUE_LABELS = None) -> TASKS_LABEL_SCORES:
+        """
+        Fit the model and return scores.
+        """
+
         return self._hrrasa.fit_predict_scores(self._encode_data(data), self._encode_true_objects(true_objects))
 
     @manage_docstring
     def fit_predict(self, data: DATA, true_objects: TASKS_TRUE_LABELS = None) -> TASKS_TEXTS:
+        """
+        Fit the model and return aggregated texts.
+        """
+
         hrrasa_results = self._hrrasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))
         self.texts_ = hrrasa_results.reset_index()[['task', 'output']].set_index('task')
         return self.texts_

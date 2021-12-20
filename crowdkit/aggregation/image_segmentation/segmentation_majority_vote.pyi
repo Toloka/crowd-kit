@@ -2,23 +2,47 @@ __all__ = [
     'SegmentationMajorityVote',
 ]
 import crowdkit.aggregation.base
-import pandas.core.frame
+import pandas
 import pandas.core.series
 import typing
 
 
 class SegmentationMajorityVote(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
-    """Majority Vote - chooses a pixel if more than half of performers voted
+    """Segmentation Majority Vote - chooses a pixel if more than half of performers voted.
+
+    This method implements a straightforward approach to the image segmentations aggregation:
+    it assumes that if pixel is not inside in the performer's segmentation, this vote counts
+    as 0, otherwise, as 1. Next, the `SegmentationEM` aggregates these categorical values
+    for each pixel by the Majority Vote.
+
+    The method also supports weighted majority voting if `skills` were provided to `fit` method.
 
     Doris Jung-Lin Lee. 2018.
     Quality Evaluation Methods for Crowdsourced Image Segmentation
     http://ilpubs.stanford.edu:8090/1161/1/main.pdf
+
+    Args:
+        default_skill: A default skill value for missing skills.
+
+    Examples:
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import SegmentationMajorityVote
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', np.array([[1, 0], [1, 1]])],
+        >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
+        >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
+        >>>     ],
+        >>>     columns=['task', 'performer', 'segmentation']
+        >>> )
+        >>> result = SegmentationMajorityVote().fit_predict(df)
     Attributes:
-        segmentations_ (Series): Tasks' segmentations
+        segmentations_ (Series): Tasks' segmentations.
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's aggregated segmentation.
 
-        on_missing_skill (str): How to handle assignments done by workers with unknown skill
+        on_missing_skill (str): How to handle assignments done by workers with unknown skill.
             Possible values:
                     * "error" — raise an exception if there is at least one assignment done by user with unknown skill;
                     * "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no 
@@ -28,33 +52,35 @@ class SegmentationMajorityVote(crowdkit.aggregation.base.BaseImageSegmentationAg
 
     def fit(
         self,
-        data: pandas.core.frame.DataFrame,
+        data: pandas.DataFrame,
         skills: pandas.core.series.Series = None
     ) -> 'SegmentationMajorityVote':
-        """Args:
-            data (DataFrame): Performers' segmentations
+        """Fit the model.
+        Args:
+            data (DataFrame): Performers' segmentations.
                 A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
 
-            skills (Series): Performers' skills
+            skills (Series): Performers' skills.
                 A pandas.Series index by performers and holding corresponding performer's skill
         Returns:
-            SegmentationMajorityVote: self
+            SegmentationMajorityVote: self.
         """
         ...
 
     def fit_predict(
         self,
-        data: pandas.core.frame.DataFrame,
+        data: pandas.DataFrame,
         skills: pandas.core.series.Series = None
     ) -> pandas.core.series.Series:
-        """Args:
-            data (DataFrame): Performers' segmentations
+        """Fit the model and return the aggregated segmentations.
+        Args:
+            data (DataFrame): Performers' segmentations.
                 A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
 
-            skills (Series): Performers' skills
+            skills (Series): Performers' skills.
                 A pandas.Series index by performers and holding corresponding performer's skill
         Returns:
-            Series: Tasks' segmentations
+            Series: Tasks' segmentations.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's aggregated segmentation.
         """

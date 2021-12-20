@@ -2,7 +2,7 @@ __all__ = [
     'NoisyBradleyTerry',
 ]
 import crowdkit.aggregation.base
-import pandas.core.frame
+import pandas
 import pandas.core.series
 
 
@@ -10,33 +10,33 @@ class NoisyBradleyTerry(crowdkit.aggregation.base.BasePairwiseAggregator):
     """A modification of Bradley-Terry with parameters for performers' skills and
     their biases.
     Attributes:
-        scores_ (Series): 'Labels' scores
+        scores_ (Series): 'Labels' scores.
             A pandas.Series index by labels and holding corresponding label's scores
-        skills_ (Series): Performers' skills
+        skills_ (Series): Performers' skills.
             A pandas.Series index by performers and holding corresponding performer's skill
-        biases_ (Series): Predicted biases for each performer. Indicates the probability of a performer to choose the left item.
+        biases_ (Series): Predicted biases for each performer. Indicates the probability of a performer to choose the left item..
             A series of performers' biases indexed by performers
     """
 
-    def fit(self, data: pandas.core.frame.DataFrame) -> 'NoisyBradleyTerry':
+    def fit(self, data: pandas.DataFrame) -> 'NoisyBradleyTerry':
         """Args:
-            data (DataFrame): Performers' pairwise comparison results
+            data (DataFrame): Performers' pairwise comparison results.
                 A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:
-            NoisyBradleyTerry: self
+            NoisyBradleyTerry: self.
         """
         ...
 
-    def fit_predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
         """Args:
-            data (DataFrame): Performers' pairwise comparison results
+            data (DataFrame): Performers' pairwise comparison results.
                 A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:
-            Series: 'Labels' scores
+            Series: 'Labels' scores.
                 A pandas.Series index by labels and holding corresponding label's scores
         """
         ...

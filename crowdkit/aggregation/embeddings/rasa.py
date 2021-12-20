@@ -21,13 +21,44 @@ _EPS = 1e-5
 @attr.s
 @manage_docstring
 class RASA(BaseEmbeddingsAggregator):
-    """
-    Reliability Aware Sequence Aggregation
-    Jiyi Li. 2019.
+    r"""
+    Reliability Aware Sequence Aggregation.
+
+    RASA estimates *global* performers' reliabilities $\beta$ that are initialized by ones.
+
+    Next, the algorithm iteratively performs two steps:
+    1. For each task, estimate the aggregated embedding: $\hat{e}_i = \frac{\sum_k
+    \beta_k e_i^k}{\sum_k \beta_k}$
+    2. For each performer, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
+    |\mathcal{V}_k|)}}{\sum_i\left(\|e_i^k - \hat{e}_i\|^2\right)}$, where $\mathcal{V}_k$
+    is a set of tasks completed by the performer $k$
+
+    Finally, the aggregated result is the output which embedding is
+    the closest one to the $\hat{e}_i$.
+
+    Jiyi Li.
     A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
-    Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP,
+    *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
     pages 24–28 Hong Kong, China, November 3, 2019.
     http://doi.org/10.18653/v1/D19-5904
+
+    Args:
+        n_iter: A number of iterations.
+        alpha: Confidence level of chi-squared distribution quantiles in beta parameter formula.
+
+    Examples:
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import RASA
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', 'a', np.array([1.0, 0.0])],
+        >>>         ['t1', 'p2', 'a', np.array([1.0, 0.0])],
+        >>>         ['t1', 'p3', 'b', np.array([0.0, 1.0])]
+        >>>     ],
+        >>>     columns=['task', 'performer', 'output', 'embedding']
+        >>> )
+        >>> result = RASA().fit_predict(df)
     """
 
     n_iter: int = attr.ib(default=100)
@@ -73,6 +104,10 @@ class RASA(BaseEmbeddingsAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):
+        """
+        Fit the model.
+        """
+
         data = data[['task', 'performer', 'embedding']]
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
@@ -95,8 +130,16 @@ class RASA(BaseEmbeddingsAggregator):
 
     @manage_docstring
     def fit_predict_scores(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_LABEL_SCORES:
+        """
+        Fit the model and return scores.
+        """
+
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
     @manage_docstring
     def fit_predict(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_EMBEDDINGS_AND_OUTPUTS:
+        """
+        Fit the model and return aggregated outputs.
+        """
+
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_

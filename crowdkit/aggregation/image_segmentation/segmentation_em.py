@@ -13,10 +13,35 @@ from ..base import BaseImageSegmentationAggregator
 class SegmentationEM(BaseImageSegmentationAggregator):
     """
     The EM algorithm for the image segmentation task.
-    For each task, EM algorithm is performed to classify the image pixels.
+
+    This method performs a categorical aggregation task for each pixel: should
+    it be included to the resulting aggregate or no. This task is solved by
+    the single coin Dawid-Skene algorithm. Each performer has a latent parameter
+    "skill" that shows the probability of this performer to answer correctly.
+    Skills and true pixels' labels are optimized by the Expectation-Maximization
+    algorithm.
+
+
     Doris Jung-Lin Lee. 2018.
     Quality Evaluation Methods for Crowdsourced Image Segmentation
     http://ilpubs.stanford.edu:8090/1161/1/main.pdf
+
+    Args:
+        n_iter: A number of EM iterations.
+
+    Examples:
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import SegmentationEM
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', np.array([[1, 0], [1, 1]])],
+        >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
+        >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
+        >>>     ],
+        >>>     columns=['task', 'performer', 'segmentation']
+        >>> )
+        >>> result = SegmentationEM().fit_predict(df)
     """
 
     n_iter: int = attr.ib(default=10)
@@ -89,6 +114,10 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationEM', title='self'):
+        """
+        Fit the model.
+        """
+
         data = data[['task', 'performer', 'segmentation']]
 
         self.segmentations_ = data.groupby('task').segmentation.apply(
@@ -98,4 +127,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     @manage_docstring
     def fit_predict(self, data: annotations.SEGMENTATION_DATA) -> annotations.TASKS_SEGMENTATIONS:
+        """
+        Fit the model and return the aggregated segmentations.
+        """
         return self.fit(data).segmentations_

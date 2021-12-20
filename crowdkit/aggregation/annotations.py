@@ -65,13 +65,13 @@ class Annotation:
 
     def format_google_style_attribute(self, name: str) -> str:
         type_str = f' ({getattr(self.type, "__name__", str(self.type))})' if self.type else ''
-        title = f' {self.title}\n' if self.title else '\n'
+        title = f' {self.title}.\n' if self.title else '\n'
         description_str = textwrap.indent(f'{self.description}\n', ' ' * 4).lstrip('\n') if self.description else ''
         return f'{name}{type_str}:{title}{description_str}'
 
     def format_google_style_return(self):
         type_str = f'{getattr(self.type, "__name__", str(self.type))}' if self.type else ''
-        title = f' {self.title}\n' if self.title else '\n'
+        title = f' {self.title}.\n' if self.title else '\n'
         description_str = textwrap.indent(f'{self.description}\n', ' ' * 4).lstrip('\n') if self.description else ''
         return f'{type_str}:{title}{description_str}'
 

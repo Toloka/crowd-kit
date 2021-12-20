@@ -13,7 +13,18 @@ from ..base import BaseEmbeddingsAggregator
 @attr.s
 @manage_docstring
 class ClosestToAverage(BaseEmbeddingsAggregator):
-    """Closest to Average - chooses the output with the embedding closest to the average embedding"""
+    """
+    Closest to Average - chooses the output with the embedding closest to the average embedding.
+
+    This method takes a `DataFrame` containing four columns: `task`, `performer`, `output`, and `embedding`.
+    Here the `embedding` is a vector containing a representation of the `output`. The `output` might be any
+    type of data such as text, images, NumPy arrays, etc. As the result, the method returns the output which
+    embedding is the closest one to the average embedding of the task's responses.
+
+    Args:
+        distance: A callable that takes two NumPy arrays and returns a single `float` number — the distance
+            between these two vectors.
+    """
 
     # embeddings_and_outputs_
     scores_: annotations.TASKS_LABEL_SCORES
@@ -23,6 +34,9 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     @manage_docstring
     def fit(self, data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None,
             true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='ClosestToAverage', title='self'):
+        """
+        Fits the model.
+        """
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
             raise ValueError(
@@ -60,6 +74,10 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         self,
         data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None
     ) -> annotations.TASKS_LABEL_PROBAS:
+        """
+        Fit the model and return the estimated scores.
+        """
+
         return self.fit(data, aggregated_embeddings).scores_
 
     @manage_docstring
@@ -67,4 +85,8 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         self,
         data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None
     ) -> annotations.TASKS_EMBEDDINGS_AND_OUTPUTS:
+        """
+        Fit the model and return the aggregated results.
+        """
+
         return self.fit(data, aggregated_embeddings).embeddings_and_outputs_

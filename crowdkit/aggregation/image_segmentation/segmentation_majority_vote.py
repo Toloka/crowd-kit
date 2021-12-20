@@ -15,12 +15,35 @@ from ..utils import add_skills_to_data
 @manage_docstring
 class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     """
-    Majority Vote - chooses a pixel if more than half of performers voted
+    Segmentation Majority Vote - chooses a pixel if more than half of performers voted.
+
+    This method implements a straightforward approach to the image segmentations aggregation:
+    it assumes that if pixel is not inside in the performer's segmentation, this vote counts
+    as 0, otherwise, as 1. Next, the `SegmentationEM` aggregates these categorical values
+    for each pixel by the Majority Vote.
+
+    The method also supports weighted majority voting if `skills` were provided to `fit` method.
 
     Doris Jung-Lin Lee. 2018.
     Quality Evaluation Methods for Crowdsourced Image Segmentation
     http://ilpubs.stanford.edu:8090/1161/1/main.pdf
 
+    Args:
+        default_skill: A default skill value for missing skills.
+
+    Examples:
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import SegmentationMajorityVote
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', np.array([[1, 0], [1, 1]])],
+        >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
+        >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
+        >>>     ],
+        >>>     columns=['task', 'performer', 'segmentation']
+        >>> )
+        >>> result = SegmentationMajorityVote().fit_predict(df)
     """
 
     # segmentations_
@@ -30,6 +53,10 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> Annotation(type='SegmentationMajorityVote', title='self'):
+        """
+        Fit the model.
+        """
+
         data = data[['task', 'performer', 'segmentation']]
 
         if skills is None:
@@ -45,4 +72,8 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
 
     @manage_docstring
     def fit_predict(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_SEGMENTATIONS:
+        """
+        Fit the model and return the aggregated segmentations.
+        """
+
         return self.fit(data, skills).segmentations_

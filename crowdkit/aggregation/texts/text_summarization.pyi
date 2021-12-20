@@ -2,7 +2,7 @@ __all__ = [
     'TextSummarization',
 ]
 import crowdkit.aggregation.base
-import pandas.core.frame
+import pandas
 import pandas.core.series
 import transformers.modeling_utils
 import transformers.tokenization_utils
@@ -55,17 +55,18 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
         >>> result = agg.fit_predict(df)
         ...
     Attributes:
-        texts_ (Series): Tasks' texts
+        texts_ (Series): Tasks' texts.
             A pandas.Series indexed by `task` such that `result.loc[task, text]`
             is the task's text.
     """
 
-    def fit_predict(self, data: pandas.core.frame.DataFrame) -> pandas.core.series.Series:
-        """Args:
-            data (DataFrame): Performers' text outputs
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+        """Run the aggregation and return the aggregated texts.
+        Args:
+            data (DataFrame): Performers' text outputs.
                 A pandas.DataFrame containing `task`, `performer` and `text` columns.
         Returns:
-            Series: Tasks' texts
+            Series: Tasks' texts.
                 A pandas.Series indexed by `task` such that `result.loc[task, text]`
                 is the task's text.
         """

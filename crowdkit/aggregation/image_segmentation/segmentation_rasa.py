@@ -15,14 +15,33 @@ _EPS = 1e-5
 class SegmentationRASA(BaseImageSegmentationAggregator):
     """
     Segmentation RASA - chooses a pixel if sum of weighted votes of each performers' more than 0.5.
-    Algorithm works iteratively, at each step, the performers are reweighted in proportion to their distances
-    to the current answer estimation. The distance is considered as 1-iou. Modification of the RASA method for texts.
 
-    Jiyi Li. 2019.
+    Algorithm works iteratively, at each step, the performers are reweighted in proportion to their distances
+    to the current answer estimation. The distance is considered as $1 - IOU$. Modification of the RASA method
+    for texts.
+
+    Jiyi Li.
     A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
-    Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP,
+    *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
     pages 24–28 Hong Kong, China, November 3, 2019.
     http://doi.org/10.18653/v1/D19-5904
+
+    Args:
+        n_iter: A number of iterations.
+
+    Examples:
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import SegmentationRASA
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['t1', 'p1', np.array([[1, 0], [1, 1]])],
+        >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
+        >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
+        >>>     ],
+        >>>     columns=['task', 'performer', 'segmentation']
+        >>> )
+        >>> result = SegmentationRASA().fit_predict(df)
     """
 
     n_iter: int = attr.ib(default=10)
@@ -69,6 +88,10 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationRASA', title='self'):
+        """
+        Fit the model.
+        """
+
         data = data[['task', 'performer', 'segmentation']]
 
         # The latest pandas version installable under Python3.7 is pandas 1.1.5.
@@ -81,4 +104,8 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
     @manage_docstring
     def fit_predict(self, data: annotations.SEGMENTATION_DATA) -> annotations.TASKS_SEGMENTATIONS:
+        """
+        Fit the model and return the aggregated segmentations.
+        """
+
         return self.fit(data).segmentations_

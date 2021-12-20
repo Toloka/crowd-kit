@@ -17,16 +17,50 @@ _EPS = np.float_power(10, -10)
 @attr.s
 @manage_docstring
 class BradleyTerry(BasePairwiseAggregator):
-    """
+    r"""
     Bradley-Terry, the classic algorithm for aggregating pairwise comparisons.
 
-    David R. Hunter. 2004.
-    MM algorithms for generalized Bradley-Terry models
-    Ann. Statist., Vol. 32, 1 (2004): 384–406.
+    This algorithm constructs an items' ranking based on pairwise comparisons. Given
+    a pair of two items $i$ and $j$, the probability of $i$ to be ranked higher is,
+    according to the Bradley-Terry's probabilitstic model,
+    $$
+    P(i > j) = \frac{p_i}{p_i + p_j}.
+    $$
+    Here $\boldsymbol{p}$ is a vector of positive real-valued parameters that the algorithm optimizes. These
+    optimization process maximizes the log-likelihood of observed comparisons outcomes by the MM-algorithm:
+    $$
+    L(\boldsymbol{p}) = \sum_{i=1}^n\sum_{j=1}^n[w_{ij}\ln p_i - w_{ij}\ln (p_i + p_j)],
+    $$
+    where $w_{ij}$ denotes the number of comparisons of $i$ and $j$ "won" by $i$.
 
-    Bradley, R. A. and Terry, M. E. 1952.
+    **Note:** the Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+
+    David R. Hunter.
+    MM algorithms for generalized Bradley-Terry models
+    *Ann. Statist.*, Vol. 32, 1 (2004): 384–406.
+
+    Bradley, R. A. and Terry, M. E.
     Rank analysis of incomplete block designs. I. The method of paired comparisons.
-    Biometrika, Vol. 39 (1952): 324–345.
+    *Biometrika*, Vol. 39 (1952): 324–345.
+
+    Args:
+        n_iter: A number of optimization iterations.
+
+    Examples:
+        The Bradley-Terry model needs the data to be a `DataFrame` containing columns
+        `left`, `right`, and `label`. `left` and `right` contain identifiers of left and
+        right items respectfuly, `label` contains identifiers of items that won these
+        comparisons.
+
+        >>> import pandas as pd
+        >>> from crowdkit.aggregation import BradleyTerry
+        >>> df = pd.DataFrame(
+        >>>     [
+        >>>         ['item1', 'item2', 'item1'],
+        >>>         ['item2', 'item3', 'item2']
+        >>>     ],
+        >>>     columns=['left', 'right', 'label']
+        >>> )
     """
 
     n_iter: int = attr.ib()
