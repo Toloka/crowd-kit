@@ -36,6 +36,7 @@
             <topicref format="markdown" href="crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit_predict.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit_predict_scores.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.embeddings.hrrasa.glue_similarity.md" toc="no"/>
         </topichead>
         <topichead navtitle="TextHRRASA">
             <topicref format="markdown" href="crowdkit.aggregation.texts.text_hrrasa.TextHRRASA.md"/>
@@ -119,6 +120,34 @@
             <topicref format="markdown" href="crowdkit.aggregation.utils.manage_data.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.normalize_rows.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.named_series_attrib.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.evaluate.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.evaluate_equal.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.evaluate_in.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.factorize.md" toc="no"/>
+
+        </topichead>
+        <topichead navtitle="annotations" toc="no">
+            <topicref format="markdown" href="crowdkit.aggregation.annotations.Annotation.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.annotations.Annotation.format_google_style_attribute.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.annotations.Annotation.format_google_style_return.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.annotations.manage_docstring.md" toc="no"/>
+        </topichead>
+        <topichead navtitle="base" toc="no">
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseClassificationAggregator.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseClassificationAggregator.fit.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseClassificationAggregator.fit_predict.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseEmbeddingsAggregator.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseEmbeddingsAggregator.fit.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseEmbeddingsAggregator.fit_predict.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseImageSegmentationAggregator.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit_predict.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BasePairwiseAggregator.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BasePairwiseAggregator.fit.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BasePairwiseAggregator.fit_predict.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseTextsAggregator.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseTextsAggregator.fit.md" toc="no"/>
+            <topicref format="markdown" href="crowdkit.aggregation.base.BaseTextsAggregator.fit_predict.md" toc="no"/>
         </topichead>
     </topichead>
 </map>
