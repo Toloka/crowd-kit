@@ -9,11 +9,11 @@ fit(self, data: DataFrame)
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; text outputs A pandas.DataFrame containing `task`, `performer` and `text` columns.</p>
+`data`|**DataFrame**|<p>Performers&#x27; text outputs. A pandas.DataFrame containing `task`, `performer` and `text` columns.</p>
 
 * **Returns:**
 
-  self
+  self.
 
 * **Return type:**
 

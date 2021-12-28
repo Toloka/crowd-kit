@@ -9,16 +9,18 @@ fit_predict_scores(
 )
 ```
 
+Fit the model and return the estimated scores.
+
 ## Parameters Description
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; outputs with their embeddings A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.</p>
-`aggregated_embeddings`|**Series**|<p>Tasks&#x27; embeddings A pandas.Series indexed by `task` and holding corresponding embeddings.</p>
+`data`|**DataFrame**|<p>Performers&#x27; outputs with their embeddings. A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.</p>
+`aggregated_embeddings`|**Series**|<p>Tasks&#x27; embeddings. A pandas.Series indexed by `task` and holding corresponding embeddings.</p>
 
 * **Returns:**
 
-  Tasks' label probability distributions
+  Tasks' label probability distributions.
 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
 is the probability of `task`'s true label to be equal to `label`. Each
 probability is between 0 and 1, all task's probabilities should sum up to 1

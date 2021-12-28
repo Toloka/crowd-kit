@@ -11,7 +11,7 @@ This is a base class for all image segmentation aggregators
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`segmentations_`|**Series**|<p>Tasks&#x27; segmentations A pandas.Series indexed by `task` such that `labels.loc[task]` is the tasks&#x27;s aggregated segmentation.</p>
+`segmentations_`|**Series**|<p>Tasks&#x27; segmentations. A pandas.Series indexed by `task` such that `labels.loc[task]` is the tasks&#x27;s aggregated segmentation.</p>
 ## Methods summary
 
 | Method | Description |

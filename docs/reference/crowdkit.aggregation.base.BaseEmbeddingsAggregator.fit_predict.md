@@ -9,11 +9,11 @@ fit_predict(self, data: DataFrame)
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; outputs with their embeddings A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.</p>
+`data`|**DataFrame**|<p>Performers&#x27; outputs with their embeddings. A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.</p>
 
 * **Returns:**
 
-  Tasks' embeddings and outputs
+  Tasks' embeddings and outputs.
 A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
 
 * **Return type:**

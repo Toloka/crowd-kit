@@ -5,7 +5,7 @@
 evaluate(
     df_true: DataFrame,
     df_pred: DataFrame,
-    evaluate_func: Callable[[Series], int] = ...
+    evaluate_func: Callable[[Series], int] = evaluate_in
 )
 ```
 

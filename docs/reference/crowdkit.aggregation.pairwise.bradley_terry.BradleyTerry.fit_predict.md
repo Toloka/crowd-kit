@@ -9,11 +9,11 @@ fit_predict(self, data: DataFrame)
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; pairwise comparison results A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns&#x27;. For each row `label` must be equal to either `left` column or `right` column.</p>
+`data`|**DataFrame**|<p>Performers&#x27; pairwise comparison results. A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns&#x27;. For each row `label` must be equal to either `left` column or `right` column.</p>
 
 * **Returns:**
 
-  'Labels' scores
+  'Labels' scores.
 A pandas.Series index by labels and holding corresponding label's scores
 
 * **Return type:**

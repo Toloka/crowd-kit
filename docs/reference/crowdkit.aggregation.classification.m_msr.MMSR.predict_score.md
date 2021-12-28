@@ -5,15 +5,17 @@
 predict_score(self, data: DataFrame)
 ```
 
+Return total sum of weights for each label when the model is fitted.
+
 ## Parameters Description
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; labeling results A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
+`data`|**DataFrame**|<p>Performers&#x27; labeling results. A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
 
 * **Returns:**
 
-  Tasks' label scores
+  Tasks' label scores.
 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
 is the score of `label` for `task`.
 

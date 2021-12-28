@@ -119,6 +119,7 @@
             <topicref format="markdown" href="crowdkit.aggregation.utils.get_most_probable_labels.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.manage_data.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.normalize_rows.md"/>
+            <topicref format="markdown" href="crowdkit.aggregation.utils.add_skills_to_data.md"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.named_series_attrib.md" toc="no"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.evaluate.md" toc="no"/>
             <topicref format="markdown" href="crowdkit.aggregation.utils.evaluate_equal.md" toc="no"/>

@@ -46,7 +46,7 @@ http://ceur-ws.org/Vol-2932/short2.pdf
 `n_permutations`|**Optional\[int\]**|<p>Number of input permutations to use. If `None`, use a single permutation according to the input&#x27;s order. </p><p>Default value: `None`.</p>
 `permutation_aggregator`|**Optional\[BaseTextsAggregator\]**|<p>Text aggregation method to use for aggregating outputs of multiple input permutations if `use_permutations` flag is set. </p><p>Default value: `None`.</p>
 `device`|**str**|<p>Device to use such as `cpu` or `cuda`. </p><p>Default value: `cpu`.</p>
-`texts_`|**Series**|<p>Tasks&#x27; texts A pandas.Series indexed by `task` such that `result.loc[task, text]` is the task&#x27;s text.</p>
+`texts_`|**Series**|<p>Tasks&#x27; texts. A pandas.Series indexed by `task` such that `result.loc[task, text]` is the task&#x27;s text.</p>
 
 **Examples:**
 
@@ -65,4 +65,4 @@ result = agg.fit_predict(df)
 
 | Method | Description |
 | :------| :-----------|
-[fit_predict](crowdkit.aggregation.texts.text_summarization.TextSummarization.fit_predict.md)| None
+[fit_predict](crowdkit.aggregation.texts.text_summarization.TextSummarization.fit_predict.md)| Run the aggregation and return the aggregated texts.
