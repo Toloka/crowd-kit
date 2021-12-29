@@ -2,7 +2,11 @@
 `crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry`
 
 ```
-BradleyTerry(self, n_iter: int)
+BradleyTerry(
+    self,
+    n_iter: int,
+    tol: float = 1e-05
+)
 ```
 
 Bradley-Terry, the classic algorithm for aggregating pairwise comparisons.

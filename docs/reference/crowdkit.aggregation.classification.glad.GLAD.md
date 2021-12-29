@@ -4,14 +4,14 @@
 ```
 GLAD(
     self,
-    max_iter: int = 100,
-    eps: float = ...,
+    n_iter: int = 100,
+    tol: float = 1e-05,
     silent: bool = True,
     labels_priors: Optional[Series] = None,
     alphas_priors_mean: Optional[Series] = None,
     betas_priors_mean: Optional[Series] = None,
     m_step_max_iter: int = 25,
-    m_step_tol: float = ...
+    m_step_tol: float = 0.01
 )
 ```
 
@@ -56,8 +56,8 @@ https://proceedings.neurips.cc/paper/2009/file/f899139df5e1059396431415e770c6dd-
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`max_iter`|**int**|<p>Maximum number of EM iterations.</p>
-`eps`|**float**|<p>Threshold for convergence criterion.</p>
+`max_iter`|**-**|<p>Maximum number of EM iterations.</p>
+`eps`|**-**|<p>Threshold for convergence criterion.</p>
 `silent`|**bool**|<p>If false, show progress bar.</p>
 `labels_priors`|**Optional\[Series\]**|<p>Prior label probabilities.</p>
 `alphas_priors_mean`|**Optional\[Series\]**|<p>Prior mean value of alpha parameters.</p>

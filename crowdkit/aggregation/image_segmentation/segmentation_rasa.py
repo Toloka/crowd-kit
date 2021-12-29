@@ -1,4 +1,7 @@
 __all__ = ['SegmentationRASA']
+
+import typing
+
 import attr
 import numpy as np
 
@@ -45,11 +48,13 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     """
 
     n_iter: int = attr.ib(default=10)
+    tol: float = attr.ib(default=1e-5)
     # segmentations_
+    loss_history_: typing.List[float] = attr.ib(init=False)
 
     @staticmethod
     @manage_docstring
-    def _segmentation_weighted_majority_vote(segmentations: annotations.SEGMENTATIONS, weights: annotations.SEGMENTATION_ERRORS) -> annotations.SEGMENTATION:
+    def _segmentation_weighted(segmentations: annotations.SEGMENTATIONS, weights: annotations.SEGMENTATION_ERRORS) -> annotations.SEGMENTATION:
         """
         Performs weighted majority vote algorithm.
 
@@ -57,7 +62,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         weighted majority vote for the inclusion of each pixel in the answer.
         """
         weighted_segmentations = (weights * segmentations.T).T
-        return weighted_segmentations.sum(axis=0) >= 0.5
+        return weighted_segmentations.sum(axis=0)
 
     @staticmethod
     @manage_docstring
@@ -81,9 +86,21 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         size = len(segmentations)
         segmentations = np.stack(segmentations.values)
         weights = np.full(size, 1 / size)
+        mv = self._segmentation_weighted(segmentations, weights)
+
+        last_aggregated = None
+        self.loss_history_ = []
         for _ in range(self.n_iter):
-            mv = self._segmentation_weighted_majority_vote(segmentations, weights)
+            weighted = self._segmentation_weighted(segmentations, weights)
+            mv = weighted >= 0.5
             weights = self._calculate_weights(segmentations, mv)
+            if last_aggregated is not None:
+                delta = weighted - last_aggregated
+                loss = (delta * delta).sum().sum() / (weighted * weighted).sum().sum()
+                self.loss_history_.append(loss)
+                if loss < self.tol:
+                    break
+            last_aggregated = weighted
         return mv
 
     @manage_docstring

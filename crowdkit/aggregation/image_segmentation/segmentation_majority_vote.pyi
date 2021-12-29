@@ -3,7 +3,6 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -53,7 +52,7 @@ class SegmentationMajorityVote(crowdkit.aggregation.base.BaseImageSegmentationAg
     def fit(
         self,
         data: pandas.DataFrame,
-        skills: pandas.core.series.Series = None
+        skills: pandas.Series = None
     ) -> 'SegmentationMajorityVote':
         """Fit the model.
         Args:
@@ -70,8 +69,8 @@ class SegmentationMajorityVote(crowdkit.aggregation.base.BaseImageSegmentationAg
     def fit_predict(
         self,
         data: pandas.DataFrame,
-        skills: pandas.core.series.Series = None
-    ) -> pandas.core.series.Series:
+        skills: pandas.Series = None
+    ) -> pandas.Series:
         """Fit the model and return the aggregated segmentations.
         Args:
             data (DataFrame): Performers' segmentations.
@@ -95,6 +94,6 @@ class SegmentationMajorityVote(crowdkit.aggregation.base.BaseImageSegmentationAg
         """
         ...
 
-    segmentations_: pandas.core.series.Series
+    segmentations_: pandas.Series
     on_missing_skill: str
     default_skill: typing.Optional[float]

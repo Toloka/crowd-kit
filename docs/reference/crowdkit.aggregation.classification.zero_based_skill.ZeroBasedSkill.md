@@ -5,10 +5,10 @@
 ZeroBasedSkill(
     self,
     n_iter: int = 100,
-    lr_init: float = ...,
+    lr_init: float = 1.0,
     lr_steps_to_reduce: int = 20,
-    lr_reduce_factor: float = ...,
-    eps: float = ...
+    lr_reduce_factor: float = 0.5,
+    eps: float = 1e-05
 )
 ```
 

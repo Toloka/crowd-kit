@@ -20,6 +20,7 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
     their biases.
     """
     n_iter: int = attr.ib(default=100)
+    tol: float = attr.ib(default=1e-5)
     random_state: int = attr.ib(default=0)
     skills_: annotations.SKILLS = named_series_attrib(name='skill')
     biases_: annotations.BIASES = named_series_attrib(name='bias')
@@ -34,7 +35,7 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
 
         x = minimize(self._compute_log_likelihood, x_0, jac=self._compute_gradient,
                      args=(np_data, np_performers, unique_labels.size, unique_performers.size),
-                     method='L-BFGS-B', options={'maxiter': self.n_iter})
+                     method='L-BFGS-B', options={'maxiter': self.n_iter, 'ftol': self.tol})
 
         biases_begin = unique_labels.size
         performers_begin = biases_begin + unique_performers.size

@@ -4,7 +4,6 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -82,7 +81,7 @@ class HRRASA(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit(
         self,
         data: pandas.DataFrame,
-        true_embeddings: pandas.core.series.Series = None
+        true_embeddings: pandas.Series = None
     ) -> 'HRRASA':
         """Fit the model.
         Args:
@@ -98,7 +97,7 @@ class HRRASA(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict_scores(
         self,
         data: pandas.DataFrame,
-        true_embeddings: pandas.core.series.Series = None
+        true_embeddings: pandas.Series = None
     ) -> pandas.DataFrame:
         """Fit the model and return scores.
         Args:
@@ -116,7 +115,7 @@ class HRRASA(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict(
         self,
         data: pandas.DataFrame,
-        true_embeddings: pandas.core.series.Series = None
+        true_embeddings: pandas.Series = None
     ) -> pandas.DataFrame:
         """Fit the model and return aggregated outputs.
         Args:
@@ -133,9 +132,10 @@ class HRRASA(crowdkit.aggregation.base.BaseClassificationAggregator):
     def __init__(
         self,
         n_iter: int = 100,
-        lambda_emb: float = ...,
-        lambda_out: float = ...,
-        alpha: float = ...,
+        tol: float = 1e-09,
+        lambda_emb: float = 0.5,
+        lambda_out: float = 0.5,
+        alpha: float = 0.05,
         calculate_ranks: bool = False,
         output_similarity=glue_similarity
     ) -> None:
@@ -143,9 +143,11 @@ class HRRASA(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    labels_: typing.Optional[pandas.core.series.Series]
+    labels_: typing.Optional[pandas.Series]
     n_iter: int
+    tol: float
     lambda_emb: float
     lambda_out: float
     alpha: float
     calculate_ranks: bool
+    loss_history_: typing.List[float]

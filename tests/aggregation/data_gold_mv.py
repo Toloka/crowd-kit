@@ -71,8 +71,8 @@ def toy_answers_on_gold_df_cannot_predict():
 # Gold Majority vote on simple
 
 @pytest.fixture
-def simple_labels_result_gold(simple_ground_truth_df):
-    return simple_ground_truth_df
+def simple_labels_result_gold(simple_ground_truth):
+    return simple_ground_truth
 
 
 @pytest.fixture

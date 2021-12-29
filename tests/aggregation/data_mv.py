@@ -43,8 +43,8 @@ def toy_probas_result_mv():
 # Majority vote on simple
 
 @pytest.fixture
-def simple_labels_result_mv(simple_ground_truth_df):
-    return simple_ground_truth_df
+def simple_labels_result_mv(simple_ground_truth):
+    return simple_ground_truth
 
 
 @pytest.fixture

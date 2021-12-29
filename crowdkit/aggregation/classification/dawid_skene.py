@@ -1,5 +1,7 @@
 __all__ = ['DawidSkene']
 
+from typing import List
+
 import attr
 import numpy as np
 import pandas as pd
@@ -57,12 +59,14 @@ class DawidSkene(BaseClassificationAggregator):
         >>> result = ds.fit_predict(df)
     """
 
-    n_iter: int = attr.ib()
+    n_iter: int = attr.ib(default=100)
+    tol: float = attr.ib(default=1e-5)
 
     probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
     priors_: annotations.OPTIONAL_PRIORS = named_series_attrib(name='prior')
     # labels_
     errors_: annotations.OPTIONAL_ERRORS = attr.ib(init=False)
+    loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
     @manage_docstring
@@ -92,7 +96,7 @@ class DawidSkene(BaseClassificationAggregator):
         """
 
         # We have to multiply lots of probabilities and such products are known to converge
-        # to zero exponentialy fast. To avoid floating-point precision problems we work with
+        # to zero exponentially fast. To avoid floating-point precision problems we work with
         # logs of original values
         joined = data.join(np.log2(errors), on=['performer', 'label'])
         joined.drop(columns=['performer', 'label'], inplace=True)
@@ -105,6 +109,26 @@ class DawidSkene(BaseClassificationAggregator):
         # does not affect the result of E-step
         scaled_likelihoods = np.exp2(log_likelihoods.sub(log_likelihoods.max(axis=1), axis=0))
         return scaled_likelihoods.div(scaled_likelihoods.sum(axis=1), axis=0)
+
+    def _evidence_lower_bound(
+        self,
+        data: annotations.LABELED_DATA, probas: annotations.TASKS_LABEL_PROBAS,
+        priors: annotations.LABEL_PRIORS, errors: annotations.ERRORS
+    ):
+        # calculate joint probability log-likelihood expectation over probas
+        joined = data.join(np.log(errors), on=['performer', 'label'])
+
+        # escape boolean index/column names to prevent confusion between indexing by boolean array and iterable of names
+        joined = joined.rename(columns={True: 'True', False: 'False'}, copy=False)
+        priors = priors.rename(index={True: 'True', False: 'False'}, copy=False)
+
+        joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))
+
+        joined.set_index(['task', 'performer'], inplace=True)
+        joint_expectation = (probas * joined).sum().sum()
+
+        entropy = -(np.log(probas) * probas).sum().sum()
+        return joint_expectation + entropy
 
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):
@@ -126,12 +150,20 @@ class DawidSkene(BaseClassificationAggregator):
         probas = MajorityVote().fit_predict_proba(data)
         priors = probas.mean()
         errors = self._m_step(data, probas)
+        loss = -np.inf
+        self.loss_history_ = []
 
         # Updating proba and errors n_iter times
         for _ in range(self.n_iter):
             probas = self._e_step(data, priors, errors)
             priors = probas.mean()
             errors = self._m_step(data, probas)
+            new_loss = self._evidence_lower_bound(data, probas, priors, errors) / len(data)
+            self.loss_history_.append(new_loss)
+
+            if new_loss - loss < self.tol:
+                break
+            loss = new_loss
 
         # Saving results
         self.probas_ = probas

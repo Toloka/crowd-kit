@@ -6,7 +6,8 @@ TextRASA(
     self,
     encoder: Callable,
     n_iter: int = 100,
-    alpha: float = ...
+    tol: float = 1e-05,
+    alpha: float = 0.05
 )
 ```
 

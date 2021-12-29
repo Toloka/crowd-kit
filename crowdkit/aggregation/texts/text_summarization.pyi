@@ -3,7 +3,6 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import pandas.core.series
 import transformers.modeling_utils
 import transformers.tokenization_utils
 import typing
@@ -60,7 +59,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
             is the task's text.
     """
 
-    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Run the aggregation and return the aggregated texts.
         Args:
             data (DataFrame): Performers' text outputs.
@@ -86,7 +85,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
         """
         ...
 
-    texts_: pandas.core.series.Series
+    texts_: pandas.Series
     tokenizer: transformers.tokenization_utils.PreTrainedTokenizer
     model: transformers.modeling_utils.PreTrainedModel
     concat_token: str

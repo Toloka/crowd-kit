@@ -5,7 +5,8 @@
 RASA(
     self,
     n_iter: int = 100,
-    alpha: float = ...
+    tol: float = 1e-09,
+    alpha: float = 0.05
 )
 ```
 

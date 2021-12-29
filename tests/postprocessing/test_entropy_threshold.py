@@ -88,14 +88,14 @@ class TestEntropyThreshold:
         assert 'D' not in filtered_answers.performer.values
         assert 'C' not in filtered_answers.performer.values
 
-    def test_entropy_threshold_simple_answers(self, simple_answers_df, simple_ground_truth_df):
+    def test_entropy_threshold_simple_answers(self, simple_answers_df, simple_ground_truth):
         aggregated = MajorityVote().fit_predict(simple_answers_df)
-        base_accuracy = sum(aggregated[simple_ground_truth_df.index] == simple_ground_truth_df)/len(simple_ground_truth_df)
+        base_accuracy = sum(aggregated[simple_ground_truth.index] == simple_ground_truth)/len(simple_ground_truth)
 
         filtered_answers = entropy_threshold(simple_answers_df, percentile=20)
         assert 'e563e2fb32fce9f00123a65a1bc78c55' not in filtered_answers.performer.values
         assert '0c3eb7d5fcc414db137c4180a654c06e' not in filtered_answers.performer.values
         aggregated = MajorityVote().fit_predict(filtered_answers)
-        filtered_accuracy = sum(aggregated[simple_ground_truth_df.index] == simple_ground_truth_df)/len(simple_ground_truth_df)
+        filtered_accuracy = sum(aggregated[simple_ground_truth.index] == simple_ground_truth)/len(simple_ground_truth)
 
         assert filtered_accuracy >= base_accuracy

@@ -4,7 +4,6 @@ __all__ = [
 import crowdkit.aggregation.base
 import crowdkit.aggregation.embeddings.hrrasa
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -38,9 +37,10 @@ class TextHRRASA(crowdkit.aggregation.base.BaseTextsAggregator):
         self,
         encoder: typing.Callable,
         n_iter: int = 100,
-        lambda_emb: float = ...,
-        lambda_out: float = ...,
-        alpha: float = ...,
+        tol: float = 1e-05,
+        lambda_emb: float = 0.5,
+        lambda_out: float = 0.5,
+        alpha: float = 0.05,
         calculate_ranks: bool = False,
         output_similarity: typing.Callable = crowdkit.aggregation.embeddings.hrrasa.glue_similarity
     ): ...
@@ -48,7 +48,7 @@ class TextHRRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     def fit_predict_scores(
         self,
         data: pandas.DataFrame,
-        true_objects: pandas.core.series.Series = None
+        true_objects: pandas.Series = None
     ) -> pandas.DataFrame:
         """Fit the model and return scores.
         Args:
@@ -68,8 +68,8 @@ class TextHRRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     def fit_predict(
         self,
         data: pandas.DataFrame,
-        true_objects: pandas.core.series.Series = None
-    ) -> pandas.core.series.Series:
+        true_objects: pandas.Series = None
+    ) -> pandas.Series:
         """Fit the model and return aggregated texts.
         Args:
             data (DataFrame): Performers' outputs.
@@ -85,4 +85,4 @@ class TextHRRASA(crowdkit.aggregation.base.BaseTextsAggregator):
         """
         ...
 
-    texts_: pandas.core.series.Series
+    texts_: pandas.Series

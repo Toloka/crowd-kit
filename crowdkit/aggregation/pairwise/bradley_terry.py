@@ -1,7 +1,7 @@
 __all__ = ['BradleyTerry']
 
 
-from typing import Tuple
+from typing import Tuple, List
 
 import attr
 import numpy as np
@@ -64,7 +64,9 @@ class BradleyTerry(BasePairwiseAggregator):
     """
 
     n_iter: int = attr.ib()
+    tol: float = attr.ib(default=1e-5)
     # scores_
+    loss_history_: List[float] = attr.ib(init=False)
 
     @manage_docstring
     def fit(self, data: annotations.PAIRWISE_DATA) -> Annotation(type='BradleyTerry', title='self'):
@@ -84,6 +86,8 @@ class BradleyTerry(BasePairwiseAggregator):
         p = np.ones(M.shape[0])
         p_new = p.copy() / p.sum()
 
+        p_old = None
+        self.loss_history_ = []
         for _ in range(self.n_iter):
             P = np.broadcast_to(p, M.shape)
 
@@ -92,8 +96,13 @@ class BradleyTerry(BasePairwiseAggregator):
             p_new[:] = w
             p_new /= Z.sum(axis=0)
             p_new /= p_new.sum()
-
             p[:] = p_new
+
+            if p_old is not None:
+                loss = np.abs(p_new - p_old).sum()
+                if loss < self.tol:
+                    break
+            p_old = p_new
 
         self.scores_ = pd.Series(p_new, index=unique_labels)
 

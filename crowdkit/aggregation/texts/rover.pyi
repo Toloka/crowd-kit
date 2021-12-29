@@ -3,7 +3,6 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -49,7 +48,7 @@ class ROVER(crowdkit.aggregation.base.BaseTextsAggregator):
         """
         ...
 
-    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return the aggregated texts.
         Args:
             data (DataFrame): Performers' text outputs.
@@ -71,7 +70,7 @@ class ROVER(crowdkit.aggregation.base.BaseTextsAggregator):
         """
         ...
 
-    texts_: pandas.core.series.Series
+    texts_: pandas.Series
     tokenizer: typing.Callable[[str], typing.List[str]]
     detokenizer: typing.Callable[[typing.List[str]], str]
     silent: bool

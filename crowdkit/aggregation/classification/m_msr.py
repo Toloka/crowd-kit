@@ -1,6 +1,6 @@
 __all__ = ['MMSR']
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import attr
 import numpy as np
@@ -58,7 +58,7 @@ class MMSR(BaseClassificationAggregator):
         >>> result = mmsr.fit_predict(df)
     """
     n_iter: int = attr.ib(default=10000)
-    eps: float = attr.ib(default=1e-10)
+    tol: float = attr.ib(default=1e-10)
     random_state: Optional[int] = attr.ib(default=0)
     _observation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
     _covariation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
@@ -76,6 +76,8 @@ class MMSR(BaseClassificationAggregator):
     # Available after predict or predict_score
     # labels_
     scores_: annotations.OPTIONAL_SCORES = attr.ib(init=False)
+
+    loss_history_: List[float] = attr.ib(init=False)
 
     @manage_docstring
     def _apply(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):
@@ -134,7 +136,7 @@ class MMSR(BaseClassificationAggregator):
         v = sps.uniform.rvs(size=(m, 1), random_state=self.random_state)
         observed_entries = np.abs(np.sign(self._n_common_tasks)) == 1
         X = np.abs(self._covariation_matrix)
-
+        self.loss_history_ = []
         for _ in range(self.n_iter):
             v_prev = np.copy(v)
             u_prev = np.copy(u)
@@ -157,7 +159,9 @@ class MMSR(BaseClassificationAggregator):
                 else:
                     u[i][0] = y.mean()
 
-            if np.linalg.norm(u @ v.T - u_prev @ v_prev.T, ord='fro') < self.eps:
+            loss = np.linalg.norm(u @ v.T - u_prev @ v_prev.T, ord='fro')
+            self.loss_history_.append(loss)
+            if loss < self.tol:
                 break
 
         k = np.sqrt(np.linalg.norm(u) / np.linalg.norm(v))

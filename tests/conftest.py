@@ -111,7 +111,7 @@ def simple_answers_df():
 
 
 @pytest.fixture
-def simple_ground_truth_df():
+def simple_ground_truth():
     ground_truth = pd.Series({
         '1231239876--5fac0d234ffb2f3b00893eec': 'goose',
         '1231239876--5fac0d234ffb2f3b00893f03': 'goose',
@@ -209,4 +209,28 @@ def simple_text_true_embeddings():
     return pd.Series(
         [np.array([0.8619265, 0.3983395]), np.array([10.686009, 17.633106])],
         index=pd.Index(['1255-74899-0020', '7601-175351-0021'], name='task')
+    )
+
+
+@pytest.fixture
+def data_with_bool_labels():
+    return pd.DataFrame(
+        [
+            ['w1', 't1', True],
+            ['w1', 't2', True],
+            ['w2', 't1', True],
+            ['w2', 't2', True],
+            ['w3', 't1', False],
+            ['w3', 't2', False],
+        ],
+        columns=['performer', 'task', 'label']
+    )
+
+
+@pytest.fixture
+def bool_labels_ground_truth():
+    return pd.Series(
+        [True, True],
+        index=pd.Index(['t1', 't2'], name='task'),
+        name='agg_label'
     )

@@ -2,7 +2,11 @@
 `crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM`
 
 ```
-SegmentationEM(self, n_iter: int = 10)
+SegmentationEM(
+    self,
+    n_iter: int = 10,
+    tol: float = 1e-05
+)
 ```
 
 The EM algorithm for the image segmentation task.

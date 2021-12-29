@@ -3,7 +3,6 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -21,13 +20,13 @@ class Wawa(crowdkit.aggregation.base.BaseClassificationAggregator):
         >>> df, gt = load_dataset('relevance-2')
         >>> result = Wawa().fit_predict(df)
     Attributes:
-        labels_ (typing.Union[pandas.core.series.Series, NoneType]): Tasks' labels
+        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        skills_ (typing.Union[pandas.core.series.Series, NoneType]): Performers' skills
+        skills_ (typing.Optional[pandas.core.series.Series]): Performers' skills.
             A pandas.Series index by performers and holding corresponding performer's skill
-        probas_ (typing.Union[pandas.core.frame.DataFrame, NoneType]): Tasks' label probability distributions
+        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the probability of `task`'s true label to be equal to `label`. Each
             probability is between 0 and 1, all task's probabilities should sum up to 1
@@ -36,20 +35,20 @@ class Wawa(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit(self, data: pandas.DataFrame) -> 'Wawa':
         """Fit the model.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            Wawa: self
+            Wawa: self.
         """
         ...
 
-    def predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+    def predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Infer the true labels when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            Series: Tasks' labels
+            Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's most likely true label.
         """
@@ -58,23 +57,23 @@ class Wawa(crowdkit.aggregation.base.BaseClassificationAggregator):
     def predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Return probability distributions on labels for each task when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            DataFrame: Tasks' label probability distributions
+            DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
                 is the probability of `task`'s true label to be equal to `label`. Each
                 probability is between 0 and 1, all task's probabilities should sum up to 1
         """
         ...
 
-    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return aggregated results.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            Series: Tasks' labels
+            Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's most likely true label.
         """
@@ -83,10 +82,10 @@ class Wawa(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Fit the model and return probability distributions on labels for each task.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            DataFrame: Tasks' label probability distributions
+            DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
                 is the probability of `task`'s true label to be equal to `label`. Each
                 probability is between 0 and 1, all task's probabilities should sum up to 1
@@ -98,6 +97,6 @@ class Wawa(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    labels_: typing.Optional[pandas.core.series.Series]
-    skills_: typing.Optional[pandas.core.series.Series]
+    labels_: typing.Optional[pandas.Series]
+    skills_: typing.Optional[pandas.Series]
     probas_: typing.Optional[pandas.DataFrame]

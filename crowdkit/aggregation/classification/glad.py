@@ -7,7 +7,7 @@ import scipy
 import scipy.stats
 from scipy.optimize import minimize
 from tqdm.auto import tqdm
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 # logsumexp was moved to scipy.special in 0.19.0rc1 version of scipy
 try:
@@ -88,8 +88,8 @@ class GLAD(BaseClassificationAggregator):
         >>> result = glad.fit_predict(df)
     """
 
-    max_iter: int = attr.ib(default=100)
-    eps: float = attr.ib(default=1e-5)
+    n_iter: int = attr.ib(default=100)
+    tol: float = attr.ib(default=1e-5)
     silent: bool = attr.ib(default=True)
     labels_priors: Optional[pd.Series] = attr.ib(default=None)
     alphas_priors_mean: Optional[pd.Series] = attr.ib(default=None)
@@ -102,6 +102,7 @@ class GLAD(BaseClassificationAggregator):
     probas_: OPTIONAL_PROBAS = attr.ib(init=False)
     alphas_: GLAD_ALPHAS = named_series_attrib(name='alpha')
     betas_: GLAD_BETAS = named_series_attrib(name='beta')
+    loss_history_: List[float] = attr.ib(init=False)
 
     @manage_docstring
     def _join_all(
@@ -289,7 +290,8 @@ class GLAD(BaseClassificationAggregator):
         data = self._e_step(data)
         Q = self._compute_Q(data)
 
-        iterations_range = tqdm(range(self.max_iter)) if not self.silent else range(self.max_iter)
+        self.loss_history_ = []
+        iterations_range = tqdm(range(self.n_iter)) if not self.silent else range(self.n_iter)
         for _ in iterations_range:
             last_Q = Q
             if not self.silent:
@@ -301,8 +303,10 @@ class GLAD(BaseClassificationAggregator):
             # M-step
             data = self._m_step(data)
 
-            Q = self._compute_Q(data)
-            if np.abs((Q - last_Q) / last_Q) < self.eps:
+            Q = self._compute_Q(data) / len(data)
+
+            self.loss_history_.append(Q)
+            if Q - last_Q < self.tol:
                 break
 
         self.labels_ = self.probas_.idxmax(axis=1)

@@ -3,6 +3,8 @@ __all__ = ['SegmentationEM']
 import attr
 import numpy as np
 
+from typing import List
+
 from .. import annotations
 from ..annotations import Annotation, manage_docstring
 from ..base import BaseImageSegmentationAggregator
@@ -45,7 +47,10 @@ class SegmentationEM(BaseImageSegmentationAggregator):
     """
 
     n_iter: int = attr.ib(default=10)
+    tol: float = attr.ib(default=1e-5)
+    eps: float = 1e-15
     # segmentations_
+    loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
     @manage_docstring
@@ -69,15 +74,15 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
             with np.errstate(invalid='ignore'):
                 # division by the denominator in the Bayes formula
-                priors = np.nan_to_num(np.exp(pos_log_prob) / (np.exp(pos_log_prob) + np.exp(neg_log_prob)), nan=0)
+                posteriors = np.nan_to_num(np.exp(pos_log_prob) / (np.exp(pos_log_prob) + np.exp(neg_log_prob)), nan=0)
 
-        return priors
+        return posteriors
 
     @staticmethod
     @manage_docstring
     def _m_step(
         segmentations: annotations.SEGMENTATIONS,
-        priors: annotations.IMAGE_PIXEL_PROBAS,
+        posteriors: annotations.IMAGE_PIXEL_PROBAS,
         segmentation_region_size: int,
         segmentations_sizes: np.ndarray
     ) -> annotations.SEGMENTATION_ERRORS:
@@ -87,11 +92,29 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         it estimates performer's errors probabilities vector.
         """
 
-        mean_errors_expectation = (segmentations_sizes + priors.sum() -
-                                   2 * (segmentations * priors).sum(axis=(1, 2))) / segmentation_region_size
+        mean_errors_expectation = (segmentations_sizes + posteriors.sum() -
+                                   2 * (segmentations * posteriors).sum(axis=(1, 2))) / segmentation_region_size
 
         # return probability of worker marking pixel correctly
         return 1 - mean_errors_expectation
+
+    def _evidence_lower_bound(
+        self,
+        segmentations: annotations.SEGMENTATIONS,
+        priors: annotations.IMAGE_PIXEL_PROBAS,
+        posteriors: annotations.IMAGE_PIXEL_PROBAS,
+        errors: annotations.SEGMENTATION_ERRORS
+    ):
+        weighted_seg = (np.multiply(errors, segmentations.T.astype(float)).T +
+                        np.multiply((1 - errors), (1 - segmentations).T.astype(float)).T)
+
+        # we handle log(0) * 0 == 0 case with nan_to_num so warnings are irrelevant here
+        with np.errstate(divide='ignore', invalid='ignore'):
+            log_likelihood_expectation = \
+                np.nan_to_num((np.log(weighted_seg) + np.log(priors)[None, ...]) * posteriors, nan=0).sum() +\
+                np.nan_to_num((np.log(1 - weighted_seg) + np.log(1 - priors)[None, ...]) * (1 - posteriors), nan=0).sum()
+
+            return log_likelihood_expectation - np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum()
 
     @manage_docstring
     def _aggregate_one(self, segmentations: annotations.SEGMENTATIONS) -> annotations.SEGMENTATION:
@@ -107,9 +130,19 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         segmentations_sizes = segmentations.sum(axis=(1, 2))
         # initialize with errors assuming that ground truth segmentation is majority vote
         errors = self._m_step(segmentations, np.round(priors), segmentation_region_size, segmentations_sizes)
+        loss = -np.inf
+        self.loss_history_ = []
         for _ in range(self.n_iter):
-            priors = self._e_step(segmentations, errors, priors)
-            errors = self._m_step(segmentations, priors, segmentation_region_size, segmentations_sizes)
+            posteriors = self._e_step(segmentations, errors, priors)
+            posteriors[posteriors < self.eps] = 0
+            errors = self._m_step(segmentations, posteriors, segmentation_region_size, segmentations_sizes)
+            new_loss = self._evidence_lower_bound(segmentations, priors, posteriors, errors) / (len(segmentations) * segmentations[0].size)
+            priors = posteriors
+            self.loss_history_.append(new_loss)
+            if new_loss - loss < self.tol:
+                break
+            loss = new_loss
+
         return priors > 0.5
 
     @manage_docstring

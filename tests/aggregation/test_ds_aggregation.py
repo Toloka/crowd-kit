@@ -9,19 +9,25 @@ from crowdkit.aggregation import DawidSkene
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 
-def test_aggregate_ds_on_toy_ysda(toy_answers_df, toy_ground_truth_df):
+@pytest.mark.parametrize(
+    'n_iter, tol', [(10, 0), (100500, 1e-5)]
+)
+def test_aggregate_ds_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth_df):
     np.random.seed(42)
     assert_series_equal(
-        DawidSkene(10).fit(toy_answers_df).labels_.sort_index(),
+        DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df).labels_.sort_index(),
         toy_ground_truth_df.sort_index(),
     )
 
 
-def test_aggregate_ds_on_simple(simple_answers_df, simple_ground_truth_df):
+@pytest.mark.parametrize(
+    'n_iter, tol', [(10, 0), (100500, 1e-5)]
+)
+def test_aggregate_ds_on_simple(n_iter, tol, simple_answers_df, simple_ground_truth):
     np.random.seed(42)
     assert_series_equal(
-        DawidSkene(10).fit(simple_answers_df).labels_.sort_index(),
-        simple_ground_truth_df.sort_index(),
+        DawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),
+        simple_ground_truth.sort_index(),
     )
 
 
@@ -219,3 +225,8 @@ def test_dawid_skene_overlap(overlap):
     assert_frame_equal(expected_probas, ds.probas_, check_like=True, atol=0.005)
     assert_series_equal(expected_labels, ds.labels_, atol=0.005)
     assert_series_equal(pd.Series({'no': 1/3, 'yes': 2/3}, name='prior'), ds.priors_, atol=0.005)
+
+
+def test_on_bool_labels(data_with_bool_labels, bool_labels_ground_truth):
+    ds = DawidSkene(20).fit(data_with_bool_labels)
+    assert_series_equal(bool_labels_ground_truth, ds.labels_, atol=0.005)

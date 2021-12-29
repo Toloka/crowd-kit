@@ -5,7 +5,7 @@
 MMSR(
     self,
     n_iter: int = 10000,
-    eps: float = ...,
+    tol: float = 1e-10,
     random_state: Optional[int] = 0,
     observation_matrix: ndarray = ...,
     covariation_matrix: ndarray = ...,
@@ -51,7 +51,7 @@ https://arxiv.org/abs/2010.12181
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
 `n_iter`|**int**|<p>The maximum number of iterations of the M-MSR algorithm.</p>
-`eps`|**float**|<p>Convergence threshold.</p>
+`eps`|**-**|<p>Convergence threshold.</p>
 `random_state`|**Optional\[int\]**|<p>Seed number for the random initialization.</p>
 `labels_`|**Optional\[Series\]**|<p>Tasks&#x27; labels. A pandas.Series indexed by `task` such that `labels.loc[task]` is the tasks&#x27;s most likely true label.</p>
 `skills_`|**Optional\[Series\]**|<p>Performers&#x27; skills. A pandas.Series index by performers and holding corresponding performer&#x27;s skill</p>

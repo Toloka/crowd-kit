@@ -4,7 +4,6 @@ __all__ = [
 import crowdkit.aggregation.base
 import numpy
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -47,13 +46,13 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
         >>> mmsr = MMSR()
         >>> result = mmsr.fit_predict(df)
     Attributes:
-        labels_ (typing.Union[pandas.core.series.Series, NoneType]): Tasks' labels
+        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        skills_ (typing.Union[pandas.core.series.Series, NoneType]): Performers' skills
+        skills_ (typing.Optional[pandas.core.series.Series]): Performers' skills.
             A pandas.Series index by performers and holding corresponding performer's skill
-        scores_ (typing.Union[pandas.core.frame.DataFrame, NoneType]): Tasks' label scores
+        scores_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label scores.
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the score of `label` for `task`.
     """
@@ -61,20 +60,20 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit(self, data: pandas.DataFrame) -> 'MMSR':
         """Estimate the performers' skills.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            MMSR: self
+            MMSR: self.
         """
         ...
 
-    def predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+    def predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Infer the true labels when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            Series: Tasks' labels
+            Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's most likely true label.
         """
@@ -83,22 +82,22 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
     def predict_score(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Return total sum of weights for each label when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            DataFrame: Tasks' label scores
+            DataFrame: Tasks' label scores.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
                 is the score of `label` for `task`.
         """
         ...
 
-    def fit_predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+    def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return aggregated results.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            Series: Tasks' labels
+            Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's most likely true label.
         """
@@ -107,10 +106,10 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict_score(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Fit the model and return the total sum of weights for each label.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            DataFrame: Tasks' label scores
+            DataFrame: Tasks' label scores.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
                 is the score of `label` for `task`.
         """
@@ -119,7 +118,7 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
     def __init__(
         self,
         n_iter: int = 10000,
-        eps: float = ...,
+        tol: float = 1e-10,
         random_state: typing.Optional[int] = 0,
         observation_matrix: numpy.ndarray = ...,
         covariation_matrix: numpy.ndarray = ...,
@@ -135,9 +134,9 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    labels_: typing.Optional[pandas.core.series.Series]
+    labels_: typing.Optional[pandas.Series]
     n_iter: int
-    eps: float
+    tol: float
     random_state: typing.Optional[int]
     _observation_matrix: numpy.ndarray
     _covariation_matrix: numpy.ndarray
@@ -148,5 +147,6 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
     _labels_mapping: dict
     _performers_mapping: dict
     _tasks_mapping: dict
-    skills_: typing.Optional[pandas.core.series.Series]
+    skills_: typing.Optional[pandas.Series]
     scores_: typing.Optional[pandas.DataFrame]
+    loss_history_: typing.List[float]

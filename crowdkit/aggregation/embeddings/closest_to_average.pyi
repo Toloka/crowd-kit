@@ -4,7 +4,6 @@ __all__ = [
 import crowdkit.aggregation.base
 import numpy
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -31,8 +30,8 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     def fit(
         self,
         data: pandas.DataFrame,
-        aggregated_embeddings: pandas.core.series.Series = None,
-        true_embeddings: pandas.core.series.Series = None
+        aggregated_embeddings: pandas.Series = None,
+        true_embeddings: pandas.Series = None
     ) -> 'ClosestToAverage':
         """Fits the model.
         Args:
@@ -50,7 +49,7 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     def fit_predict_scores(
         self,
         data: pandas.DataFrame,
-        aggregated_embeddings: pandas.core.series.Series = None
+        aggregated_embeddings: pandas.Series = None
     ) -> pandas.DataFrame:
         """Fit the model and return the estimated scores.
         Args:
@@ -69,7 +68,7 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     def fit_predict(
         self,
         data: pandas.DataFrame,
-        aggregated_embeddings: pandas.core.series.Series = None
+        aggregated_embeddings: pandas.Series = None
     ) -> pandas.DataFrame:
         """Fit the model and return the aggregated results.
         Args:

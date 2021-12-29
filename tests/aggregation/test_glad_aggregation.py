@@ -10,9 +10,12 @@ from crowdkit.aggregation import GLAD
 from crowdkit.aggregation.utils import evaluate, evaluate_equal
 
 
-def test_aggregate_glad_on_toy_ysda(toy_answers_df, toy_ground_truth_df):
+@pytest.mark.parametrize(
+    'n_iter, tol', [(100, 0), (100500, 1e-5)]
+)
+def test_aggregate_glad_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth_df):
     np.random.seed(42)
-    predict_df = GLAD().fit_predict(toy_answers_df)
+    predict_df = GLAD(n_iter=n_iter, tol=tol).fit_predict(toy_answers_df)
     accuracy = evaluate(
         toy_ground_truth_df.to_frame('label'),
         predict_df.to_frame('label'),
@@ -21,11 +24,14 @@ def test_aggregate_glad_on_toy_ysda(toy_answers_df, toy_ground_truth_df):
     assert accuracy == 1.0
 
 
-def test_aggregate_glad_on_simple(simple_answers_df, simple_ground_truth_df):
+@pytest.mark.parametrize(
+    'n_iter, tol', [(100, 0), (100500, 1e-5)]
+)
+def test_aggregate_glad_on_simple(n_iter, tol, simple_answers_df, simple_ground_truth):
     np.random.seed(42)
-    predict_df = GLAD().fit_predict(simple_answers_df)
+    predict_df = GLAD(n_iter=n_iter, tol=tol).fit_predict(simple_answers_df)
     accuracy = evaluate(
-        simple_ground_truth_df.to_frame('label'),
+        simple_ground_truth.to_frame('label'),
         predict_df.to_frame('label'),
         evaluate_func=evaluate_equal
     )

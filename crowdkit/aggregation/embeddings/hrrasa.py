@@ -2,7 +2,7 @@ __all__ = [
     'glue_similarity',
     'HRRASA',
 ]
-from typing import Any, Iterator, Tuple
+from typing import Any, Iterator, Tuple, List
 
 from functools import partial
 import nltk.translate.gleu_score as gleu
@@ -103,12 +103,14 @@ class HRRASA(BaseClassificationAggregator):
     """
 
     n_iter: int = attr.ib(default=100)
+    tol: float = attr.ib(default=1e-9)
     lambda_emb: float = attr.ib(default=0.5)
     lambda_out: float = attr.ib(default=0.5)
     alpha: float = attr.ib(default=0.05)
     calculate_ranks: bool = attr.ib(default=False)
     _output_similarity = attr.ib(default=glue_similarity)
     # embeddings_and_outputs_
+    loss_history_: List[float] = attr.ib(init=False)
 
     @manage_docstring
     def fit(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
@@ -129,12 +131,23 @@ class HRRASA(BaseClassificationAggregator):
         prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
         skills = pd.Series(1.0, index=data.performer.unique())
         weights = self._calc_weights(data, skills)
-        aggregated_embeddings = None
+        aggregated_embeddings = self._aggregate_embeddings(data, weights, true_embeddings)
+        self.loss_history_ = []
+        last_aggregated = None
 
-        for _ in range(self.n_iter):
-            aggregated_embeddings = self._aggregate_embeddings(data, weights, true_embeddings)
-            skills = self._update_skills(data, aggregated_embeddings, prior_skills)
-            weights = self._calc_weights(data, skills)
+        if len(data) > 0:
+            for _ in range(self.n_iter):
+                aggregated_embeddings = self._aggregate_embeddings(data, weights, true_embeddings)
+                skills = self._update_skills(data, aggregated_embeddings, prior_skills)
+                weights = self._calc_weights(data, skills)
+
+                if last_aggregated is not None:
+                    delta = aggregated_embeddings - last_aggregated
+                    loss = (delta * delta).sum().sum() / (aggregated_embeddings * aggregated_embeddings).sum().sum()
+                    self.loss_history_.append(loss)
+                    if loss < self.tol:
+                        break
+                last_aggregated = aggregated_embeddings
 
         self.prior_skills_ = prior_skills
         self.skills_ = skills
@@ -143,7 +156,8 @@ class HRRASA(BaseClassificationAggregator):
         if self.calculate_ranks:
             self.ranks_ = self._rank_outputs(data, skills)
 
-        self._fill_single_overlap_tasks_info(single_overlap_tasks)
+        if len(single_overlap_tasks) > 0:
+            self._fill_single_overlap_tasks_info(single_overlap_tasks)
         return self
 
     @manage_docstring

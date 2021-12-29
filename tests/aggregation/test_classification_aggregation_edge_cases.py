@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 # from sklearn.exceptions import NotFittedError
-from crowdkit.aggregation import MajorityVote, Wawa, GoldMajorityVote, ZeroBasedSkill, MMSR
+from crowdkit.aggregation import MajorityVote, Wawa, GoldMajorityVote, ZeroBasedSkill, MMSR, DawidSkene, GLAD
 from .data_gold_mv import *  # noqa: F401, F403
 
 # less field in all crowd datasets
@@ -189,3 +189,13 @@ def test_gold_mv_empty():
         pd.Series(dtype=float)
     )
     assert probas.empty
+
+
+@pytest.mark.parametrize(
+    'agg_class',
+    [MMSR, ZeroBasedSkill, DawidSkene, GLAD]
+)
+def test_zero_iter(agg_class, simple_answers_df, simple_ground_truth):
+    aggregator = agg_class(n_iter=0)
+    answers = aggregator.fit_predict(simple_answers_df)
+    assert len(answers.index.difference(simple_ground_truth.index)) == 0

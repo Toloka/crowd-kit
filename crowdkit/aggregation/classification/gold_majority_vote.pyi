@@ -3,7 +3,6 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -40,13 +39,13 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
         >>> gold_mv = GoldMajorityVote()
         >>> result = gold_mv.fit_predict(df, true_labels)
     Attributes:
-        labels_ (typing.Union[pandas.core.series.Series, NoneType]): Tasks' labels
+        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        skills_ (typing.Union[pandas.core.series.Series, NoneType]): Performers' skills
+        skills_ (typing.Optional[pandas.core.series.Series]): Performers' skills.
             A pandas.Series index by performers and holding corresponding performer's skill
-        probas_ (typing.Union[pandas.core.frame.DataFrame, NoneType]): Tasks' label probability distributions
+        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the probability of `task`'s true label to be equal to `label`. Each
             probability is between 0 and 1, all task's probabilities should sum up to 1
@@ -55,28 +54,28 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit(
         self,
         data: pandas.DataFrame,
-        true_labels: pandas.core.series.Series
+        true_labels: pandas.Series
     ) -> 'GoldMajorityVote':
         """Estimate the performers' skills.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
-            true_labels (Series): Tasks' ground truth labels
+            true_labels (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
 
         Returns:
-            GoldMajorityVote: self
+            GoldMajorityVote: self.
         """
         ...
 
-    def predict(self, data: pandas.DataFrame) -> pandas.core.series.Series:
+    def predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Infer the true labels when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            Series: Tasks' labels
+            Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's most likely true label.
         """
@@ -85,10 +84,10 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     def predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Return probability distributions on labels for each task when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
         Returns:
-            DataFrame: Tasks' label probability distributions
+            DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
                 is the probability of `task`'s true label to be equal to `label`. Each
                 probability is between 0 and 1, all task's probabilities should sum up to 1
@@ -98,18 +97,18 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict(
         self,
         data: pandas.DataFrame,
-        true_labels: pandas.core.series.Series
-    ) -> pandas.core.series.Series:
+        true_labels: pandas.Series
+    ) -> pandas.Series:
         """Fit the model and return aggregated results.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
-            true_labels (Series): Tasks' ground truth labels
+            true_labels (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
 
         Returns:
-            Series: Tasks' labels
+            Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's most likely true label.
         """
@@ -118,18 +117,18 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict_proba(
         self,
         data: pandas.DataFrame,
-        true_labels: pandas.core.series.Series
+        true_labels: pandas.Series
     ) -> pandas.DataFrame:
         """Fit the model and return probability distributions on labels for each task.
         Args:
-            data (DataFrame): Performers' labeling results
+            data (DataFrame): Performers' labeling results.
                 A pandas.DataFrame containing `task`, `performer` and `label` columns.
-            true_labels (Series): Tasks' ground truth labels
+            true_labels (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
 
         Returns:
-            DataFrame: Tasks' label probability distributions
+            DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
                 is the probability of `task`'s true label to be equal to `label`. Each
                 probability is between 0 and 1, all task's probabilities should sum up to 1
@@ -141,6 +140,6 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    labels_: typing.Optional[pandas.core.series.Series]
-    skills_: typing.Optional[pandas.core.series.Series]
+    labels_: typing.Optional[pandas.Series]
+    skills_: typing.Optional[pandas.Series]
     probas_: typing.Optional[pandas.DataFrame]

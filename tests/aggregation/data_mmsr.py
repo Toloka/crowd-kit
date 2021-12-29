@@ -41,8 +41,8 @@ def toy_scores_result_mmsr():
 
 
 @pytest.fixture
-def simple_labels_result_mmsr(simple_ground_truth_df):
-    return simple_ground_truth_df
+def simple_labels_result_mmsr(simple_ground_truth):
+    return simple_ground_truth
 
 
 @pytest.fixture

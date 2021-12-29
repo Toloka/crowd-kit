@@ -3,7 +3,6 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import pandas.core.series
 import typing
 
 
@@ -34,13 +33,14 @@ class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
         self,
         encoder: typing.Callable,
         n_iter: int = 100,
-        alpha: float = ...
+        tol: float = 1e-05,
+        alpha: float = 0.05
     ): ...
 
     def fit(
         self,
         data: pandas.DataFrame,
-        true_objects: pandas.core.series.Series = None
+        true_objects: pandas.Series = None
     ) -> 'TextRASA':
         """Fit the model.
         Args:
@@ -58,7 +58,7 @@ class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     def fit_predict_scores(
         self,
         data: pandas.DataFrame,
-        true_objects: pandas.core.series.Series = None
+        true_objects: pandas.Series = None
     ) -> pandas.DataFrame:
         """Fit the model and return scores.
         Args:
@@ -78,8 +78,8 @@ class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     def fit_predict(
         self,
         data: pandas.DataFrame,
-        true_objects: pandas.core.series.Series = None
-    ) -> pandas.core.series.Series:
+        true_objects: pandas.Series = None
+    ) -> pandas.Series:
         """Fit the model and return aggregated texts.
         Args:
             data (DataFrame): Performers' outputs.
@@ -95,4 +95,4 @@ class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
         """
         ...
 
-    texts_: pandas.core.series.Series
+    texts_: pandas.Series

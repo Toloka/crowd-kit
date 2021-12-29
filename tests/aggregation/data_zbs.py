@@ -41,8 +41,8 @@ def toy_probas_result_zbs():
 
 
 @pytest.fixture
-def simple_labels_result_zbs(simple_ground_truth_df):
-    return simple_ground_truth_df
+def simple_labels_result_zbs(simple_ground_truth):
+    return simple_ground_truth
 
 
 @pytest.fixture

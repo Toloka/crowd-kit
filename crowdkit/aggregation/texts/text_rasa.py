@@ -33,10 +33,14 @@ class TextRASA(BaseTextsAggregator):
 
     # texts_
 
-    def __init__(self, encoder: Callable, n_iter: int = 100, alpha: float = 0.05):
+    @property
+    def loss_history_(self):
+        return self._hrrasa.loss_history_
+
+    def __init__(self, encoder: Callable, n_iter: int = 100, tol: float = 1e-5, alpha: float = 0.05):
         super().__init__()
         self.encoder = encoder
-        self._rasa = RASA(n_iter, alpha)
+        self._rasa = RASA(n_iter, tol, alpha)
 
     def __getattr__(self, name):
         return getattr(self._rasa, name)

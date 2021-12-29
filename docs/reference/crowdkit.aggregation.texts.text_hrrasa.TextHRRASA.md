@@ -6,9 +6,10 @@ TextHRRASA(
     self,
     encoder: Callable,
     n_iter: int = 100,
-    lambda_emb: float = ...,
-    lambda_out: float = ...,
-    alpha: float = ...,
+    tol: float = 1e-05,
+    lambda_emb: float = 0.5,
+    lambda_out: float = 0.5,
+    alpha: float = 0.05,
     calculate_ranks: bool = False,
     output_similarity: Callable = glue_similarity
 )

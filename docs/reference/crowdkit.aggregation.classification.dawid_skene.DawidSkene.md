@@ -2,7 +2,11 @@
 `crowdkit.aggregation.classification.dawid_skene.DawidSkene`
 
 ```
-DawidSkene(self, n_iter: int)
+DawidSkene(
+    self,
+    n_iter: int = 100,
+    tol: float = 1e-05
+)
 ```
 
 Dawid-Skene aggregation model.

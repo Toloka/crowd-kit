@@ -41,11 +41,18 @@ class TextHRRASA(BaseTextsAggregator):
 
     # texts_
 
-    def __init__(self, encoder: Callable, n_iter: int = 100, lambda_emb: float = 0.5, lambda_out: float = 0.5,
-                 alpha: float = 0.05, calculate_ranks: bool = False, output_similarity: Callable = glue_similarity):
+    @property
+    def loss_history_(self):
+        return self._hrrasa.loss_history_
+
+    def __init__(
+        self,
+        encoder: Callable, n_iter: int = 100, tol: float = 1e-5, lambda_emb: float = 0.5, lambda_out: float = 0.5,
+        alpha: float = 0.05, calculate_ranks: bool = False, output_similarity: Callable = glue_similarity
+    ):
         super().__init__()
         self.encoder = encoder
-        self._hrrasa = HRRASA(n_iter, lambda_emb, lambda_out, alpha, calculate_ranks, output_similarity)
+        self._hrrasa = HRRASA(n_iter, tol, lambda_emb, lambda_out, alpha, calculate_ranks, output_similarity)
 
     def __getattr__(self, name):
         return getattr(self._hrrasa, name)

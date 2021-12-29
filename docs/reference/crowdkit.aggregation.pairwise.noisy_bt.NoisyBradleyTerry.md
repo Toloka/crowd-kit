@@ -5,6 +5,7 @@
 NoisyBradleyTerry(
     self,
     n_iter: int = 100,
+    tol: float = 1e-05,
     random_state: int = 0
 )
 ```

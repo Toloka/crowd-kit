@@ -70,20 +70,26 @@ def test_bradley_terry_empty(result_empty, data_empty):
     assert_series_equal(result_empty, bt.scores_)
 
 
-def test_bradley_terry_equal(result_equal, data_equal):
-    bt = BradleyTerry(n_iter=10).fit(data_equal)
+@pytest.mark.parametrize(
+    'n_iter, tol', [(10, 0), (100500, 1e-5)]
+)
+def test_bradley_terry_equal(n_iter, tol, result_equal, data_equal):
+    bt = BradleyTerry(n_iter=n_iter, tol=tol).fit(data_equal)
     assert_series_equal(result_equal, bt.scores_, atol=0.005)
 
 
 @pytest.mark.parametrize('n_iter', [0, 10])
 def test_bradley_terry_step_by_step(request, data_abc, n_iter):
     result = request.getfixturevalue(f'result_iter_{n_iter}')
-    bt = BradleyTerry(n_iter=n_iter).fit(data_abc)
+    bt = BradleyTerry(n_iter=n_iter, tol=0).fit(data_abc)
     assert_series_equal(result, bt.scores_, atol=0.005)
 
 
-def test_noisy_bradley_terry(data_abc, noisy_bt_result):
-    noisy_bt = NoisyBradleyTerry().fit(data_abc)
+@pytest.mark.parametrize(
+    'n_iter, tol', [(10, 0), (100500, 1e-5)]
+)
+def test_noisy_bradley_terry(n_iter, tol, data_abc, noisy_bt_result):
+    noisy_bt = NoisyBradleyTerry(n_iter=n_iter, tol=tol).fit(data_abc)
     assert_series_equal(noisy_bt.scores_, noisy_bt_result, atol=0.005)
     assert noisy_bt.skills_.name == 'skill'
     assert noisy_bt.biases_.name == 'bias'
@@ -92,3 +98,10 @@ def test_noisy_bradley_terry(data_abc, noisy_bt_result):
 def test_noisy_bradley_terry_equal(data_equal, noisy_bt_result_equal):
     noisy_bt = NoisyBradleyTerry().fit(data_equal)
     assert_series_equal(noisy_bt.scores_, noisy_bt_result_equal, atol=0.005)
+
+
+@pytest.mark.parametrize('agg_class', [BradleyTerry, NoisyBradleyTerry])
+def test_zero_iter(agg_class, data_equal, result_equal):
+    aggregator = agg_class(n_iter=0)
+    answers = aggregator.fit_predict(data_equal)
+    assert len(answers.index.difference(result_equal.index)) == 0

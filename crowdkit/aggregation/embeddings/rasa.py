@@ -1,6 +1,8 @@
 __all__ = [
     'RASA',
 ]
+
+import typing
 from functools import partial
 
 import attr
@@ -62,8 +64,10 @@ class RASA(BaseEmbeddingsAggregator):
     """
 
     n_iter: int = attr.ib(default=100)
+    tol: float = attr.ib(default=1e-9)
     alpha: float = attr.ib(default=0.05)
     # embeddings_and_outputs_
+    loss_history_: typing.List[float] = attr.ib(init=False)
 
     @staticmethod
     @manage_docstring
@@ -119,9 +123,18 @@ class RASA(BaseEmbeddingsAggregator):
         prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
         skills = pd.Series(1.0, index=data.performer.unique())
         aggregated_embeddings = None
+        last_aggregated = None
+
         for _ in range(self.n_iter):
             aggregated_embeddings = self._aggregate_embeddings(data, skills, true_embeddings)
             skills = self._update_skills(data, aggregated_embeddings, prior_skills)
+
+            if last_aggregated is not None:
+                delta = aggregated_embeddings - last_aggregated
+                loss = (delta * delta).sum().sum() / (aggregated_embeddings * aggregated_embeddings).sum().sum()
+                if loss < self.tol:
+                    break
+            last_aggregated = aggregated_embeddings
 
         self.prior_skills_ = prior_skills
         self.skills_ = skills

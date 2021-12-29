@@ -2,7 +2,11 @@
 `crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA`
 
 ```
-SegmentationRASA(self, n_iter: int = 10)
+SegmentationRASA(
+    self,
+    n_iter: int = 10,
+    tol: float = 1e-05
+)
 ```
 
 Segmentation RASA - chooses a pixel if sum of weighted votes of each performers' more than 0.5.
