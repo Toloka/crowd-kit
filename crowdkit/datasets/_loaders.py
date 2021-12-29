@@ -6,13 +6,13 @@ from os.path import exists, join
 from typing import Optional, Tuple
 
 
-def _load_dataset(data_name, data_dir, data_url, data_md5):
+def _load_dataset(data_name, data_dir, data_url, checksum_url):
     data_dir = get_data_dir(data_dir)
     full_data_path = join(data_dir, data_name)
 
     if not exists(full_data_path):
         print(f'Downloading {data_name} from remote')
-        fetch_remote(data_url, data_md5, full_data_path + '.zip', data_dir)
+        fetch_remote(data_url, checksum_url, full_data_path + '.zip', data_dir)
 
     return full_data_path
 
@@ -20,7 +20,7 @@ def _load_dataset(data_name, data_dir, data_url, data_md5):
 def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'relevance-2'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-2.zip'
-    data_md5 = 'a39c3c30d9e946eeb80ca39954c96e95'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-2.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
@@ -28,7 +28,7 @@ def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
 
         return labels, true_labels
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
 
     return load_dataframes(full_data_path)
 
@@ -36,7 +36,7 @@ def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
 def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'relevance-5'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-5.zip'
-    data_md5 = '4520f973003c7e151051e888edcd1a03'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-5.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
@@ -44,7 +44,7 @@ def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
 
         return labels, true_labels
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
 
     return load_dataframes(full_data_path)
 
@@ -52,7 +52,7 @@ def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
 def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'mscoco'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco.zip'
-    data_md5 = '088012cfaeac6515a5fcbe9ddb6d3615'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
@@ -60,7 +60,7 @@ def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series
 
         return labels, true_labels
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
 
     return load_dataframes(full_data_path)
 
@@ -68,7 +68,7 @@ def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series
 def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'mscoco_small'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco_small.zip'
-    data_md5 = '63cd535c4f2b73bed91820ba1a17cdab'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco_small.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
@@ -76,7 +76,7 @@ def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.
 
         return labels, true_labels
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
 
     return load_dataframes(full_data_path)
 
@@ -91,54 +91,54 @@ def load_crowdspeech_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series
 def load_crowdspeech_dev_clean(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'crowdspeech-dev-clean'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-clean.zip'
-    data_md5 = 'f1cfbabcc9b93fd3beb14a9bdc3c4011'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-clean.md5'
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
     return load_crowdspeech_dataframes(full_data_path)
 
 
 def load_crowdspeech_dev_other(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'crowdspeech-dev-other'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-other.zip'
-    data_md5 = 'ceb3e45c0f73f9446be43bd5ce4f646a'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-other.md5'
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
     return load_crowdspeech_dataframes(full_data_path)
 
 
 def load_crowdspeech_test_clean(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'crowdspeech-test-clean'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-clean.zip'
-    data_md5 = 'd5db90c74c7b91a341d4669549b64ca9'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-clean.md5'
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
     return load_crowdspeech_dataframes(full_data_path)
 
 
 def load_crowdspeech_test_other(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'crowdspeech-test-other'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-other.zip'
-    data_md5 = '256fd3940ca6e86f883a2d37f7a23f3a'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-other.md5'
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
     return load_crowdspeech_dataframes(full_data_path)
 
 
 def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
-    data_name = 'imdb_wiki'
+    data_name = 'imdb-wiki-sbs'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.zip'
-    data_md5 = '750f22901743492b63262931449818cc'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
         labels.loc[labels['label'] == 'left', 'label'] = labels['left'].copy()
         labels.loc[labels['label'] == 'right', 'label'] = labels['right'].copy()
 
-        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['score'].rename('true_label')
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('label')['score'].rename('true_label')
 
         return labels, true_labels
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
 
     return load_dataframes(full_data_path)
 
@@ -146,7 +146,7 @@ def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd
 def load_nist_trec_relevance(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
     data_name = 'nist-trec-relevance'
     data_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance.zip'
-    data_md5 = 'afc308986bb0cac865bf2434eb49a3f4'
+    checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
@@ -154,7 +154,7 @@ def load_nist_trec_relevance(data_dir: Optional[str] = None) -> Tuple[pd.DataFra
 
         return labels, true_labels
 
-    full_data_path = _load_dataset(data_name, data_dir, data_url, data_md5)
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
 
     return load_dataframes(full_data_path)
 

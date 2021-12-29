@@ -1,8 +1,10 @@
+import os.path
 from hashlib import md5
 from os import environ, makedirs, listdir, rename
 from os.path import exists, expanduser, join, splitext, basename
 from shutil import unpack_archive
 from typing import Optional
+import tempfile
 from urllib.request import urlretrieve
 
 
@@ -30,7 +32,7 @@ def get_data_dir(data_dir: Optional[str] = None) -> str:
     return data_dir
 
 
-def fetch_remote(url: str, checksum: str, path: str, data_dir: str) -> None:
+def fetch_remote(url: str, checksum_url: str, path: str, data_dir: str) -> None:
     """Helper function to download a remote dataset into path
     Fetch a dataset pointed by remote's url, save into path using remote's
     filename and ensure its integrity based on the MD5 Checksum of the
@@ -43,6 +45,11 @@ def fetch_remote(url: str, checksum: str, path: str, data_dir: str) -> None:
     """
     urlretrieve(url, path)
     fetched_checksum = md5(open(path, 'rb').read()).hexdigest()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        checksum_path = os.path.join(tmpdir, 'checksum.md5')
+        urlretrieve(checksum_url, checksum_path)
+        with open(checksum_path) as f:
+            checksum = f.read().strip()
     if checksum != fetched_checksum:
         raise IOError(f"{path} has an MD5 checksum ({fetched_checksum}) differing from expected ({checksum}), file may be corrupted.")
     listed_data_dir = listdir(data_dir)
