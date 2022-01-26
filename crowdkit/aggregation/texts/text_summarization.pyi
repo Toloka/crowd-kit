@@ -3,8 +3,8 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
-import transformers.modeling_utils
 import transformers.tokenization_utils
+import transformers.utils.dummy_pt_objects
 import typing
 
 
@@ -74,7 +74,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
     def __init__(
         self,
         tokenizer: transformers.tokenization_utils.PreTrainedTokenizer,
-        model: transformers.modeling_utils.PreTrainedModel,
+        model: transformers.utils.dummy_pt_objects.PreTrainedModel,
         concat_token: str = ' | ',
         num_beams: int = 16,
         n_permutations: typing.Optional[int] = None,
@@ -87,7 +87,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
 
     texts_: pandas.Series
     tokenizer: transformers.tokenization_utils.PreTrainedTokenizer
-    model: transformers.modeling_utils.PreTrainedModel
+    model: transformers.utils.dummy_pt_objects.PreTrainedModel
     concat_token: str
     num_beams: int
     n_permutations: typing.Optional[int]
