@@ -1,7 +1,7 @@
 # Annotation
 `crowdkit.aggregation.annotations.Annotation`
 
-```
+```python
 Annotation(
     self,
     type: Optional[Type] = None,

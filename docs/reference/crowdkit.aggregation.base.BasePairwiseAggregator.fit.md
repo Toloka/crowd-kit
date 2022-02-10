@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.base.BasePairwiseAggregator.fit`
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 

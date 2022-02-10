@@ -29,12 +29,12 @@ class TextSummarization(BaseTextsAggregator):
     M. Orzhenovskii,
     "Fine-Tuning Pre-Trained Language Model for Crowdsourced Texts Aggregation,"
     Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 8-14.
-    http://ceur-ws.org/Vol-2932/short1.pdf
+    <http://ceur-ws.org/Vol-2932/short1.pdf>
 
     S. Pletenev,
     "Noisy Text Sequences Aggregation as a Summarization Subtask,"
     Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 15-20.
-    http://ceur-ws.org/Vol-2932/short2.pdf
+    <http://ceur-ws.org/Vol-2932/short2.pdf>
 
     Args:
         tokenizer: [Pre-trained tokenizer](https://huggingface.co/transformers/main_classes/tokenizer.html#pretrainedtokenizer).

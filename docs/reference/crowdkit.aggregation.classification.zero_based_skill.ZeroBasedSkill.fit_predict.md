@@ -1,7 +1,7 @@
 # fit_predict
 `crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.fit_predict`
 
-```
+```python
 fit_predict(self, data: DataFrame)
 ```
 

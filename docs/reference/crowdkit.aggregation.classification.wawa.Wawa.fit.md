@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.classification.wawa.Wawa.fit`
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 

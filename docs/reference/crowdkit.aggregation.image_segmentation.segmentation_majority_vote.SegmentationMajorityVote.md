@@ -1,7 +1,7 @@
 # SegmentationMajorityVote
 `crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote`
 
-```
+```python
 SegmentationMajorityVote(
     self,
     on_missing_skill: str = 'error',
@@ -21,7 +21,7 @@ The method also supports weighted majority voting if `skills` were provided to `
 
 Doris Jung-Lin Lee. 2018.
 Quality Evaluation Methods for Crowdsourced Image Segmentation
-http://ilpubs.stanford.edu:8090/1161/1/main.pdf
+<http://ilpubs.stanford.edu:8090/1161/1/main.pdf>
 
 ## Parameters Description
 

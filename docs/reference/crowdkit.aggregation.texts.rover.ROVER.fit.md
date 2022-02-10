@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.texts.rover.ROVER.fit`
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 

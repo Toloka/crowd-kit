@@ -1,7 +1,7 @@
 # BasePairwiseAggregator
 `crowdkit.aggregation.base.BasePairwiseAggregator`
 
-```
+```python
 BasePairwiseAggregator(self)
 ```
 

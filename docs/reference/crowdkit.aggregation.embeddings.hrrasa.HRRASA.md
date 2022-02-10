@@ -1,7 +1,7 @@
 # HRRASA
 `crowdkit.aggregation.embeddings.hrrasa.HRRASA`
 
-```
+```python
 HRRASA(
     self,
     n_iter: int = 100,

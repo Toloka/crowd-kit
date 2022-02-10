@@ -1,7 +1,7 @@
 # TextRASA
 `crowdkit.aggregation.texts.text_rasa.TextRASA`
 
-```
+```python
 TextRASA(
     self,
     encoder: Callable,

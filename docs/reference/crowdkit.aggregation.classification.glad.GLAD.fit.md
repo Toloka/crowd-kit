@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.classification.glad.GLAD.fit`
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 

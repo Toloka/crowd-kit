@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.base.BaseClassificationAggregator.fit`
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 

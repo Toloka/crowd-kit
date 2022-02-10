@@ -1,7 +1,7 @@
 # SegmentationEM
 `crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM`
 
-```
+```python
 SegmentationEM(
     self,
     n_iter: int = 10,
@@ -22,7 +22,7 @@ algorithm.
 
 Doris Jung-Lin Lee. 2018.
 Quality Evaluation Methods for Crowdsourced Image Segmentation
-http://ilpubs.stanford.edu:8090/1161/1/main.pdf
+<http://ilpubs.stanford.edu:8090/1161/1/main.pdf>
 
 ## Parameters Description
 

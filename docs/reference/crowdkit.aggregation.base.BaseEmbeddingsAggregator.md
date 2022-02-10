@@ -1,7 +1,7 @@
 # BaseEmbeddingsAggregator
 `crowdkit.aggregation.base.BaseEmbeddingsAggregator`
 
-```
+```python
 BaseEmbeddingsAggregator(self)
 ```
 

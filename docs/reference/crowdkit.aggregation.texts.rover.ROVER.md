@@ -1,7 +1,7 @@
 # ROVER
 `crowdkit.aggregation.texts.rover.ROVER`
 
-```
+```python
 ROVER(
     self,
     tokenizer: Callable[[str], List[str]],

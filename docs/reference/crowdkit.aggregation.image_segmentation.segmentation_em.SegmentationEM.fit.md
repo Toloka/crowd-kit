@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.fit`
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 

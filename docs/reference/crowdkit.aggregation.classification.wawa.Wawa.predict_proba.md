@@ -1,7 +1,7 @@
 # predict_proba
 `crowdkit.aggregation.classification.wawa.Wawa.predict_proba`
 
-```
+```python
 predict_proba(self, data: DataFrame)
 ```
 

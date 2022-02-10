@@ -1,7 +1,7 @@
 # DawidSkene
 `crowdkit.aggregation.classification.dawid_skene.DawidSkene`
 
-```
+```python
 DawidSkene(
     self,
     n_iter: int = 100,

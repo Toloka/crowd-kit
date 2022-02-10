@@ -1,7 +1,7 @@
 # predict_score
 `crowdkit.aggregation.classification.m_msr.MMSR.predict_score`
 
-```
+```python
 predict_score(self, data: DataFrame)
 ```
 

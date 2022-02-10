@@ -1,7 +1,7 @@
 # get_accuracy
 `crowdkit.aggregation.utils.get_accuracy`
 
-```
+```python
 get_accuracy(
     data: DataFrame,
     true_labels: Series,

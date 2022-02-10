@@ -1,7 +1,7 @@
 # NoisyBradleyTerry
 `crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry`
 
-```
+```python
 NoisyBradleyTerry(
     self,
     n_iter: int = 100,

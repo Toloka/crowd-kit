@@ -1,7 +1,7 @@
 # manage_data
 `crowdkit.aggregation.utils.manage_data`
 
-```
+```python
 manage_data(
     data: DataFrame,
     weights: Optional[Series] = None,

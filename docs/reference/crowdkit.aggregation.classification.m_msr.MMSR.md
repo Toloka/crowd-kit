@@ -1,7 +1,7 @@
 # MMSR
 `crowdkit.aggregation.classification.m_msr.MMSR`
 
-```
+```python
 MMSR(
     self,
     n_iter: int = 10000,

@@ -1,7 +1,7 @@
 # fit_predict_proba
 `crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.fit_predict_proba`
 
-```
+```python
 fit_predict_proba(self, data: DataFrame)
 ```
 

@@ -1,7 +1,7 @@
 # fit_predict
 `crowdkit.aggregation.classification.majority_vote.MajorityVote.fit_predict`
 
-```
+```python
 fit_predict(
     self,
     data: DataFrame,

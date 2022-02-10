@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit`
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 

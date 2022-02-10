@@ -1,7 +1,7 @@
 # BaseTextsAggregator
 `crowdkit.aggregation.base.BaseTextsAggregator`
 
-```
+```python
 BaseTextsAggregator(self)
 ```
 

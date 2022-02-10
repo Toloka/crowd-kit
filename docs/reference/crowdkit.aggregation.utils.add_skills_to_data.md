@@ -1,7 +1,7 @@
 # add_skills_to_data
 `crowdkit.aggregation.utils.add_skills_to_data`
 
-```
+```python
 add_skills_to_data(
     data: DataFrame,
     skills: Series,

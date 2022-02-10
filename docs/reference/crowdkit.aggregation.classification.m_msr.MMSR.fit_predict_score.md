@@ -1,7 +1,7 @@
 # fit_predict_score
 `crowdkit.aggregation.classification.m_msr.MMSR.fit_predict_score`
 
-```
+```python
 fit_predict_score(self, data: DataFrame)
 ```
 

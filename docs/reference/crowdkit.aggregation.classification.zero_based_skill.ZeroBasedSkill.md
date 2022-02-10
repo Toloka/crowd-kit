@@ -1,7 +1,7 @@
 # ZeroBasedSkill
 `crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill`
 
-```
+```python
 ZeroBasedSkill(
     self,
     n_iter: int = 100,

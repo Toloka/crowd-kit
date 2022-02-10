@@ -1,7 +1,7 @@
 # normalize_rows
 `crowdkit.aggregation.utils.normalize_rows`
 
-```
+```python
 normalize_rows(scores: DataFrame)
 ```
 

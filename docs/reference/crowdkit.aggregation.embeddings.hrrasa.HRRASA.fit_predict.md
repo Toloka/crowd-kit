@@ -1,7 +1,7 @@
 # fit_predict
 `crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit_predict`
 
-```
+```python
 fit_predict(
     self,
     data: DataFrame,

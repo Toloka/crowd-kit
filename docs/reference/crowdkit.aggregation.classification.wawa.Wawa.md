@@ -1,7 +1,7 @@
 # Wawa
 `crowdkit.aggregation.classification.wawa.Wawa`
 
-```
+```python
 Wawa(self)
 ```
 

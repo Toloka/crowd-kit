@@ -1,7 +1,7 @@
 # BradleyTerry
 `crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry`
 
-```
+```python
 BradleyTerry(
     self,
     n_iter: int,

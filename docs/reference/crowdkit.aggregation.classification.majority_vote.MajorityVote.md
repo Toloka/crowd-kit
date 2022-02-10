@@ -1,7 +1,7 @@
 # MajorityVote
 `crowdkit.aggregation.classification.majority_vote.MajorityVote`
 
-```
+```python
 MajorityVote(
     self,
     on_missing_skill: str = 'error',

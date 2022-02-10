@@ -1,7 +1,7 @@
 # evaluate
 `crowdkit.aggregation.utils.evaluate`
 
-```
+```python
 evaluate(
     df_true: DataFrame,
     df_pred: DataFrame,

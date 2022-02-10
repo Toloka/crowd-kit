@@ -1,7 +1,7 @@
 # predict
 `crowdkit.aggregation.classification.m_msr.MMSR.predict`
 
-```
+```python
 predict(self, data: DataFrame)
 ```
 

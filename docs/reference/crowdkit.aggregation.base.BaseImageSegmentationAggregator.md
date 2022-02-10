@@ -1,7 +1,7 @@
 # BaseImageSegmentationAggregator
 `crowdkit.aggregation.base.BaseImageSegmentationAggregator`
 
-```
+```python
 BaseImageSegmentationAggregator(self)
 ```
 

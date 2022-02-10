@@ -1,7 +1,7 @@
 # GLAD
 `crowdkit.aggregation.classification.glad.GLAD`
 
-```
+```python
 GLAD(
     self,
     n_iter: int = 100,

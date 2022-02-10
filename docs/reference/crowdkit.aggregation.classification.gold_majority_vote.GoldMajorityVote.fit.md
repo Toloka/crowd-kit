@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.fit`
 
-```
+```python
 fit(
     self,
     data: DataFrame,

@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit`
 
-```
+```python
 fit(
     self,
     data: DataFrame,

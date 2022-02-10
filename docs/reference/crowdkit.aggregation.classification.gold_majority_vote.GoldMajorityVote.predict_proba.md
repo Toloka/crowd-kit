@@ -1,7 +1,7 @@
 # predict_proba
 `crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.predict_proba`
 
-```
+```python
 predict_proba(self, data: DataFrame)
 ```
 

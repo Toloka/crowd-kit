@@ -1,7 +1,7 @@
 # BaseClassificationAggregator
 `crowdkit.aggregation.base.BaseClassificationAggregator`
 
-```
+```python
 BaseClassificationAggregator(self)
 ```
 

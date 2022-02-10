@@ -1,7 +1,7 @@
 # fit
 `crowdkit.aggregation.embeddings.rasa.RASA.fit`
 
-```
+```python
 fit(
     self,
     data: DataFrame,

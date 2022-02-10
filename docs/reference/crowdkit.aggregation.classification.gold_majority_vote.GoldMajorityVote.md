@@ -1,7 +1,7 @@
 # GoldMajorityVote
 `crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote`
 
-```
+```python
 GoldMajorityVote(self)
 ```
 

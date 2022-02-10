@@ -1,7 +1,7 @@
 # ClosestToAverage
 `crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage`
 
-```
+```python
 ClosestToAverage(self, distance: Callable[[ndarray, ndarray], float])
 ```
 

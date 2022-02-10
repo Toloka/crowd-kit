@@ -1,7 +1,7 @@
 # fit_predict
 `crowdkit.aggregation.texts.text_rasa.TextRASA.fit_predict`
 
-```
+```python
 fit_predict(
     self,
     data: DataFrame,

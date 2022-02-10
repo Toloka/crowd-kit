@@ -1,7 +1,7 @@
 # fit_predict_scores
 `crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage.fit_predict_scores`
 
-```
+```python
 fit_predict_scores(
     self,
     data: DataFrame,
