@@ -1,7 +1,7 @@
 # fit
-`crowdkit.aggregation.base.BaseClassificationAggregator.fit`
+`crowdkit.aggregation.base.BaseClassificationAggregator.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L21)
 
-```
+```python
 fit(self, data: DataFrame)
 ```
 
@@ -9,12 +9,12 @@ fit(self, data: DataFrame)
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; labeling results A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
+`data`|**DataFrame**|<p>Workers&#x27; labeling results. A pandas.DataFrame containing `task`, `worker` and `label` columns.</p>
 
 * **Returns:**
 
-  self
+  self.
 
 * **Return type:**
 
-  'BaseClassificationAggregator'
+  [BaseClassificationAggregator](crowdkit.aggregation.base.BaseClassificationAggregator.md)

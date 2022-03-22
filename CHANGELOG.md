@@ -1,3 +1,14 @@
+1.0.0
+-------------------
+**Not a backward-compatible change**:
+* **Replaced all mentions of "performer" with "worker". This change is not backward compatible because parameters names and DataFrame/Series columns are also affected.**
+
+Improvements:
+* `GoldMajorityVote` `true_labels` argument now supports multiple ground truth values for a single task.
+* Added `tol` optimization parameter as a tolerance stopping criteria for iterative methods with a variable number of steps.
+* Python 3.10 support added.
+* Enhanced aggregation methods descriptions.
+
 0.0.9
 -------------------
 * Added TextSummarization aggregation

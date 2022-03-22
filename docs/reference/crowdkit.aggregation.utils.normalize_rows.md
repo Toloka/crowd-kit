@@ -1,7 +1,7 @@
 # normalize_rows
-`crowdkit.aggregation.utils.normalize_rows`
+`crowdkit.aggregation.utils.normalize_rows` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/utils.py#L60)
 
-```
+```python
 normalize_rows(scores: DataFrame)
 ```
 
@@ -11,11 +11,11 @@ Scales values so that every raw sums to 1
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`scores`|**DataFrame**|<p>Tasks&#x27; label scores A pandas.DataFrame indexed by `task` such that `result.loc[task, label]` is the score of `label` for `task`.</p>
+`scores`|**DataFrame**|<p>Tasks&#x27; label scores. A pandas.DataFrame indexed by `task` such that `result.loc[task, label]` is the score of `label` for `task`.</p>
 
 * **Returns:**
 
-  Tasks' label probability distributions
+  Tasks' label probability distributions.
 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
 is the probability of `task`'s true label to be equal to `label`. Each
 probability is between 0 and 1, all task's probabilities should sum up to 1

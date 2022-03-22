@@ -1,9 +1,10 @@
 import pytest
 import pandas as pd
 from pandas.testing import assert_series_equal
-from crowdkit.aggregation import MajorityVote, SegmentationMajorityVote
+from crowdkit.aggregation import MajorityVote, SegmentationMajorityVote, GoldMajorityVote
 
 from .data_mv import simple_skills_result_mv  # noqa F401
+from .data_gold_mv import multiple_gt_gt, multiple_gt_df, multiple_gt_skills, multiple_gt_aggregated  # noqa F401
 from .data_image import image_with_skills_df, image_with_skills_mv_result  # noqa F401
 
 
@@ -18,7 +19,7 @@ def test_majority_vote_with_missing_skills_value(simple_answers_df, simple_skill
     simple_skills_result_mv = simple_skills_result_mv.drop('0c3eb7d5fcc414db137c4180a654c06e')
     mv.fit_predict(simple_answers_df, skills=simple_skills_result_mv)
 
-    frauded_tasks = simple_answers_df[simple_answers_df['performer'] == '0c3eb7d5fcc414db137c4180a654c06e']['task']
+    frauded_tasks = simple_answers_df[simple_answers_df['worker'] == '0c3eb7d5fcc414db137c4180a654c06e']['task']
     for task in frauded_tasks:
         assert mv.labels_[task] == 'parrot'
 
@@ -71,3 +72,11 @@ def test_segmentation_majority_vote_with_missing_skills_ignore_all(image_with_sk
     mv = SegmentationMajorityVote(on_missing_skill='ignore')
     with pytest.raises(ValueError):
         mv.fit_predict(answers_df, skills=pd.Series([], dtype=float))
+
+
+def test_gold_mv_multiple_gt(multiple_gt_df, multiple_gt_gt, multiple_gt_skills, multiple_gt_aggregated):  # noqa F811
+    gmv = GoldMajorityVote()
+    aggregated = gmv.fit_predict(multiple_gt_df, true_labels=multiple_gt_gt)
+    skills = gmv.skills_
+    assert_series_equal(skills, multiple_gt_skills)
+    assert_series_equal(aggregated, multiple_gt_aggregated)

@@ -1,0 +1,15 @@
+service: "!!!! Insert your ABC service slug. See https://docs.yandex-team.ru/ci/basics !!!!"
+title: "!!!! Insert your ABC service description. See https://docs.yandex-team.ru/ci/basics !!!!"
+arcanum:
+  review:
+    auto_assign: true
+    groups:
+    - name: "reviewers_group_1"
+      roles:
+      - "!!!!!! insert abc role code for logins: losev, sinosov, tulinev, vlad-mois, alexdrydew !!!!!!"
+    override_policy: "override"
+    rules:
+    - reviewers:
+      - name: "reviewers_group_1"
+        ship: 1
+        assign: 1

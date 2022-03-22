@@ -6,7 +6,7 @@ from pandas.testing import assert_series_equal
 
 from crowdkit.aggregation.utils import get_accuracy
 from crowdkit.metrics.data import alpha_krippendorff, consistency, uncertainty
-from crowdkit.metrics.performers import accuracy_on_aggregates
+from crowdkit.metrics.workers import accuracy_on_aggregates
 
 
 def test_consistency(toy_answers_df):
@@ -15,27 +15,27 @@ def test_consistency(toy_answers_df):
 
 class TestUncertaintyMetric:
     def test_uncertainty_mean_per_task_skills(self, toy_answers_df):
-        performers_skills = pd.Series(
+        workers_skills = pd.Series(
             [0.6, 0.8, 1.0,  0.4, 0.8],
-            index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+            index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
         )
 
-        assert uncertainty(toy_answers_df, performers_skills) == 0.6308666201949331
+        assert uncertainty(toy_answers_df, workers_skills) == 0.6308666201949331
 
     def test_uncertainty_raises_wrong_compte_by(self, toy_answers_df):
-        performers_skills = pd.Series(
+        workers_skills = pd.Series(
             [0.6, 0.8, 1.0,  0.4, 0.8],
-            index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+            index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
         )
         with pytest.raises(KeyError):
-            uncertainty(toy_answers_df, performers_skills, compute_by='invalid')
+            uncertainty(toy_answers_df, workers_skills, compute_by='invalid')
 
     def test_uncertainty_docstring_examples(self):
         assert uncertainty(
             pd.DataFrame.from_records(
                 [
-                    {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-                    {'task': 'X', 'performer': 'B', 'label': 'Yes'},
+                    {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+                    {'task': 'X', 'worker': 'B', 'label': 'Yes'},
                 ]
             )
         ) == 0.0
@@ -43,9 +43,9 @@ class TestUncertaintyMetric:
         assert uncertainty(
             pd.DataFrame.from_records(
                 [
-                    {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-                    {'task': 'X', 'performer': 'B', 'label': 'No'},
-                    {'task': 'X', 'performer': 'C', 'label': 'Maybe'},
+                    {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+                    {'task': 'X', 'worker': 'B', 'label': 'No'},
+                    {'task': 'X', 'worker': 'C', 'label': 'Maybe'},
                 ]
             )
         ) == 1.0986122886681096
@@ -54,10 +54,10 @@ class TestUncertaintyMetric:
             uncertainty(
                 pd.DataFrame.from_records(
                     [
-                        {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-                        {'task': 'X', 'performer': 'B', 'label': 'No'},
-                        {'task': 'Y', 'performer': 'A', 'label': 'Yes'},
-                        {'task': 'Y', 'performer': 'B', 'label': 'Yes'},
+                        {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+                        {'task': 'X', 'worker': 'B', 'label': 'No'},
+                        {'task': 'Y', 'worker': 'A', 'label': 'Yes'},
+                        {'task': 'Y', 'worker': 'B', 'label': 'Yes'},
                     ]
                 ),
                 compute_by="task",
@@ -69,61 +69,61 @@ class TestUncertaintyMetric:
             uncertainty(
                 pd.DataFrame.from_records(
                     [
-                        {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-                        {'task': 'X', 'performer': 'B', 'label': 'No'},
-                        {'task': 'Y', 'performer': 'A', 'label': 'Yes'},
-                        {'task': 'Y', 'performer': 'B', 'label': 'Yes'},
+                        {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+                        {'task': 'X', 'worker': 'B', 'label': 'No'},
+                        {'task': 'Y', 'worker': 'A', 'label': 'Yes'},
+                        {'task': 'Y', 'worker': 'B', 'label': 'Yes'},
                     ]
                 ),
-                compute_by="performer",
+                compute_by="worker",
                 aggregate=False
-            ), pd.Series([0.0, 0.693147], index=['A', 'B'], name='performer'), atol=1e-3
+            ), pd.Series([0.0, 0.693147], index=['A', 'B'], name='worker'), atol=1e-3
         )
 
     def test_uncertainty_raises_skills_not_found(self):
         answers = pd.DataFrame.from_records(
             [
-                {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
-                {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '1', 'performer': 'C', 'label': frozenset(['cat'])},
+                {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
+                {'task': '1', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '1', 'worker': 'C', 'label': frozenset(['cat'])},
             ]
         )
 
-        performers_skills = pd.Series(
+        workers_skills = pd.Series(
             [1, 1],
-            index=pd.Index(['A', 'B'], name='performer'),
+            index=pd.Index(['A', 'B'], name='worker'),
         )
 
         with pytest.raises(AssertionError):
-            uncertainty(answers, performers_skills)
+            uncertainty(answers, workers_skills)
 
-    def test_uncertainty_per_performer(self):
+    def test_uncertainty_per_worker(self):
         answers = pd.DataFrame.from_records(
             [
-                {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
-                {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '1', 'performer': 'C', 'label': frozenset(['cat'])},
-                {'task': '2', 'performer': 'A', 'label': frozenset(['cat'])},
-                {'task': '2', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '2', 'performer': 'C', 'label': frozenset(['cat'])},
-                {'task': '3', 'performer': 'A', 'label': frozenset(['dog'])},
-                {'task': '3', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '3', 'performer': 'C', 'label': frozenset(['dog'])},
-                {'task': '4', 'performer': 'A', 'label': frozenset(['cat'])},
-                {'task': '4', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '4', 'performer': 'C', 'label': frozenset(['cat'])},
+                {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
+                {'task': '1', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '1', 'worker': 'C', 'label': frozenset(['cat'])},
+                {'task': '2', 'worker': 'A', 'label': frozenset(['cat'])},
+                {'task': '2', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '2', 'worker': 'C', 'label': frozenset(['cat'])},
+                {'task': '3', 'worker': 'A', 'label': frozenset(['dog'])},
+                {'task': '3', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '3', 'worker': 'C', 'label': frozenset(['dog'])},
+                {'task': '4', 'worker': 'A', 'label': frozenset(['cat'])},
+                {'task': '4', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '4', 'worker': 'C', 'label': frozenset(['cat'])},
             ]
         )
 
-        performers_skills = pd.Series(
+        workers_skills = pd.Series(
             [1, 1, 1],
-            index=pd.Index(['A', 'B', 'C'], name='performer'),
+            index=pd.Index(['A', 'B', 'C'], name='worker'),
         )
 
         entropies = uncertainty(
             answers,
-            performers_skills,
-            compute_by='performer',
+            workers_skills,
+            compute_by='worker',
             aggregate=False
         )
 
@@ -141,39 +141,39 @@ class TestUncertaintyMetric:
 
         assert entropies.mean() == uncertainty(
             answers,
-            performers_skills,
-            compute_by='performer',
+            workers_skills,
+            compute_by='worker',
             aggregate=True
         )
 
     def test_uncertainty_per_task(self):
         answers = pd.DataFrame.from_records(
             [
-                {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
-                {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '1', 'performer': 'C', 'label': frozenset(['cat'])},
-                {'task': '2', 'performer': 'A', 'label': frozenset(['cat'])},
-                {'task': '2', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '2', 'performer': 'C', 'label': frozenset(['cat'])},
-                {'task': '3', 'performer': 'A', 'label': frozenset(['dog'])},
-                {'task': '3', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '3', 'performer': 'C', 'label': frozenset(['dog'])},
-                {'task': '4', 'performer': 'A', 'label': frozenset(['cat'])},
-                {'task': '4', 'performer': 'B', 'label': frozenset(['cat'])},
-                {'task': '4', 'performer': 'C', 'label': frozenset(['cat'])},
-                {'task': '4', 'performer': 'A', 'label': frozenset(['cat'])},
-                {'task': '5', 'performer': 'A', 'label': frozenset(['cat'])},
-                {'task': '5', 'performer': 'B', 'label': frozenset(['dog'])},
+                {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
+                {'task': '1', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '1', 'worker': 'C', 'label': frozenset(['cat'])},
+                {'task': '2', 'worker': 'A', 'label': frozenset(['cat'])},
+                {'task': '2', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '2', 'worker': 'C', 'label': frozenset(['cat'])},
+                {'task': '3', 'worker': 'A', 'label': frozenset(['dog'])},
+                {'task': '3', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '3', 'worker': 'C', 'label': frozenset(['dog'])},
+                {'task': '4', 'worker': 'A', 'label': frozenset(['cat'])},
+                {'task': '4', 'worker': 'B', 'label': frozenset(['cat'])},
+                {'task': '4', 'worker': 'C', 'label': frozenset(['cat'])},
+                {'task': '4', 'worker': 'A', 'label': frozenset(['cat'])},
+                {'task': '5', 'worker': 'A', 'label': frozenset(['cat'])},
+                {'task': '5', 'worker': 'B', 'label': frozenset(['dog'])},
             ]
         )
 
-        performers_skills = pd.Series(
+        workers_skills = pd.Series(
             [1, 1, 1],
-            index=pd.Index(['A', 'B', 'C'], name='performer'),
+            index=pd.Index(['A', 'B', 'C'], name='worker'),
         )
 
         entropies = uncertainty(answers,
-                                performers_skills,
+                                workers_skills,
                                 compute_by='task',
                                 aggregate=False)
 
@@ -184,7 +184,7 @@ class TestUncertaintyMetric:
         np.testing.assert_allclose(entropies['2'], 0, atol=1e-6)
         np.testing.assert_allclose(entropies['4'], 0, atol=1e-6)
 
-        # On tasks 1 and 3, 2 performers agreed and one answered differently
+        # On tasks 1 and 3, 2 workers agreed and one answered differently
         assert entropies['1'] > 0
         np.testing.assert_allclose(entropies['1'], entropies['3'], atol=1e-6)
 
@@ -193,7 +193,7 @@ class TestUncertaintyMetric:
 
         assert entropies.mean() == uncertainty(
             answers,
-            performers_skills,
+            workers_skills,
             compute_by='task',
             aggregate=True
         )
@@ -201,36 +201,36 @@ class TestUncertaintyMetric:
 
 def test_golden_set_accuracy(toy_answers_df, toy_gold_df):
     assert get_accuracy(toy_answers_df, toy_gold_df) == 5 / 9
-    assert get_accuracy(toy_answers_df, toy_gold_df, by='performer').equals(pd.Series(
+    assert get_accuracy(toy_answers_df, toy_gold_df, by='worker').equals(pd.Series(
         [0.5, 1.0, 1.0, 0.5, 0.0],
         index=['w1', 'w2', 'w3', 'w4', 'w5'],
     ))
 
 
 def test_accuracy_on_aggregates(toy_answers_df):
-    expected_performers_accuracy = pd.Series(
+    expected_workers_accuracy = pd.Series(
         [0.6, 0.8, 1.0,  0.4, 0.8],
-        index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
     )
-    assert_series_equal(accuracy_on_aggregates(toy_answers_df, by='performer'), expected_performers_accuracy)
+    assert_series_equal(accuracy_on_aggregates(toy_answers_df, by='worker'), expected_workers_accuracy)
     assert accuracy_on_aggregates(toy_answers_df) == 0.7083333333333334
 
 
 def test_alpha_krippendorff(toy_answers_df):
     assert alpha_krippendorff(pd.DataFrame.from_records([
-        {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        {'task': 'X', 'performer': 'B', 'label': 'Yes'},
-        {'task': 'Y', 'performer': 'A', 'label': 'No'},
-        {'task': 'Y', 'performer': 'B', 'label': 'No'},
+        {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        {'task': 'X', 'worker': 'B', 'label': 'Yes'},
+        {'task': 'Y', 'worker': 'A', 'label': 'No'},
+        {'task': 'Y', 'worker': 'B', 'label': 'No'},
     ])) == 1.0
 
     assert alpha_krippendorff(pd.DataFrame.from_records([
-        {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        {'task': 'X', 'performer': 'B', 'label': 'Yes'},
-        {'task': 'Y', 'performer': 'A', 'label': 'No'},
-        {'task': 'Y', 'performer': 'B', 'label': 'No'},
-        {'task': 'Z', 'performer': 'A', 'label': 'Yes'},
-        {'task': 'Z', 'performer': 'B', 'label': 'No'},
+        {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        {'task': 'X', 'worker': 'B', 'label': 'Yes'},
+        {'task': 'Y', 'worker': 'A', 'label': 'No'},
+        {'task': 'Y', 'worker': 'B', 'label': 'No'},
+        {'task': 'Z', 'worker': 'A', 'label': 'Yes'},
+        {'task': 'Z', 'worker': 'B', 'label': 'No'},
     ])) == 0.4444444444444444
 
     assert alpha_krippendorff(toy_answers_df) == 0.14219114219114215
@@ -238,12 +238,12 @@ def test_alpha_krippendorff(toy_answers_df):
 
 def test_alpha_krippendorff_with_distance():
     whos_on_the_picture = pd.DataFrame.from_records([
-        {'task': 'X', 'performer': 'A', 'label': frozenset(['dog'])},
-        {'task': 'X', 'performer': 'B', 'label': frozenset(['dog'])},
-        {'task': 'Y', 'performer': 'A', 'label': frozenset(['cat'])},
-        {'task': 'Y', 'performer': 'B', 'label': frozenset(['cat'])},
-        {'task': 'Z', 'performer': 'A', 'label': frozenset(['cat'])},
-        {'task': 'Z', 'performer': 'B', 'label': frozenset(['cat', 'mouse'])},
+        {'task': 'X', 'worker': 'A', 'label': frozenset(['dog'])},
+        {'task': 'X', 'worker': 'B', 'label': frozenset(['dog'])},
+        {'task': 'Y', 'worker': 'A', 'label': frozenset(['cat'])},
+        {'task': 'Y', 'worker': 'B', 'label': frozenset(['cat'])},
+        {'task': 'Z', 'worker': 'A', 'label': frozenset(['cat'])},
+        {'task': 'Z', 'worker': 'B', 'label': frozenset(['cat', 'mouse'])},
     ])
 
     assert alpha_krippendorff(whos_on_the_picture) == 0.5454545454545454

@@ -17,7 +17,7 @@ def toy_labels_result_mmsr():
 def toy_skills_result_mmsr():
     return pd.Series(
         [-0.9486439852160969, 0.9764628672747041, 1.2428113335479982, 0.948643985216097, 0.9764628672747041],
-        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
         name='skill'
     )
 
@@ -41,8 +41,8 @@ def toy_scores_result_mmsr():
 
 
 @pytest.fixture
-def simple_labels_result_mmsr(simple_ground_truth_df):
-    return simple_ground_truth_df
+def simple_labels_result_mmsr(simple_ground_truth):
+    return simple_ground_truth
 
 
 @pytest.fixture
@@ -55,7 +55,7 @@ def simple_skills_result_mmsr():
         'bde3b214b06c1efa6cb1bc6284dc72d2': 2.0131458750666567,
         'e563e2fb32fce9f00123a65a1bc78c55': 1.8527467194291514,
     }, name='skill')
-    skills.index.name = 'performer'
+    skills.index.name = 'worker'
     return skills
 
 

@@ -42,7 +42,7 @@ def toy_answers_df():
             ['w5', 't4', 'yes'],
             ['w5', 't5', 'no'],
         ],
-        columns=['performer', 'task', 'label']
+        columns=['worker', 'task', 'label']
     )
 
 
@@ -69,7 +69,7 @@ def toy_gold_df():
 def simple_answers_df():
     return pd.DataFrame(
         [
-            # good performers
+            # good workers
             ['bde3b214b06c1efa6cb1bc6284dc72d2', '1231239876--5fac0d234ffb2f3b00893eec', 'goose'],
             ['bde3b214b06c1efa6cb1bc6284dc72d2', '1231239876--5fac0d234ffb2f3b00893efb', 'parrot'],
             ['bde3b214b06c1efa6cb1bc6284dc72d2', '1231239876--5fac0d234ffb2f3b00893f03', 'goose'],
@@ -106,12 +106,12 @@ def simple_answers_df():
             ['e563e2fb32fce9f00123a65a1bc78c55', '1231239876--5fac0d234ffb2f3b00893f07', 'parrot'],
             ['e563e2fb32fce9f00123a65a1bc78c55', '1231239876--5fac0d234ffb2f3b00893efd', 'goose'],  # 'chicken'
         ],
-        columns=['performer', 'task', 'label']
+        columns=['worker', 'task', 'label']
     )
 
 
 @pytest.fixture
-def simple_ground_truth_df():
+def simple_ground_truth():
     ground_truth = pd.Series({
         '1231239876--5fac0d234ffb2f3b00893eec': 'goose',
         '1231239876--5fac0d234ffb2f3b00893f03': 'goose',
@@ -200,7 +200,7 @@ def simple_text_df():
             ['7601-101619-0003', 'natures discovers as confusion to us painters hold that the same motions and grimaces of the face that serve for weeping serve for laughter to and indeed before the one or the other be finished do but observe the painters manner of handling and you will be in doubt to which of the two the design tends and the extreme of laughter does it last bring tears', '27dfec580d349e20166b56be480336ea', np.nan, np.array([0.79025686, 2.0123045]), np.nan],  # noqa
             ['7601-101619-0003', 'nature discovers his confusion to us painters hold the same emotions and grimaces of the face that serve for gripping serve for laughter too and indeed before the one or the other be finished do but observe the painter\'s manner of handling and you will be in doubt to which of the two the design tends and the extreme of laughter doesn\'t last to bring tears', 'caf701c07a3374bdc98ae6bf230d4d56', np.nan, np.array([0.77356094, 2.0207922]), np.nan],  # noqa
         ],
-        columns=['task', 'output', 'performer', 'golden', 'embedding', 'golden_embedding']
+        columns=['task', 'output', 'worker', 'golden', 'embedding', 'golden_embedding']
     )
 
 
@@ -209,4 +209,28 @@ def simple_text_true_embeddings():
     return pd.Series(
         [np.array([0.8619265, 0.3983395]), np.array([10.686009, 17.633106])],
         index=pd.Index(['1255-74899-0020', '7601-175351-0021'], name='task')
+    )
+
+
+@pytest.fixture
+def data_with_bool_labels():
+    return pd.DataFrame(
+        [
+            ['w1', 't1', True],
+            ['w1', 't2', True],
+            ['w2', 't1', True],
+            ['w2', 't2', True],
+            ['w3', 't1', False],
+            ['w3', 't2', False],
+        ],
+        columns=['worker', 'task', 'label']
+    )
+
+
+@pytest.fixture
+def bool_labels_ground_truth():
+    return pd.Series(
+        [True, True],
+        index=pd.Index(['t1', 't2'], name='task'),
+        name='agg_label'
     )
