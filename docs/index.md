@@ -8,8 +8,6 @@ Currently, Crowd-Kit contains:
 * metrics of uncertainty, consistency, and agreement with aggregate
 * loaders for popular crowdsourced datasets
 
-*The library is currently in a heavy development state, and interfaces are subject to change.*
-
 ## Installing
 
 Installing Crowd-Kit is as easy as `pip install crowd-kit`
@@ -43,6 +41,8 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 [More usage examples](https://github.com/Toloka/crowd-kit/tree/main/examples)
 
 ## Implemented Aggregation Methods
+
+Below is the list of currently implemented methods, including the already available (✅) and in progress (🟡).
 
 ### Categorical Responses
 

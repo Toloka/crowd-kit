@@ -18,8 +18,6 @@ Currently, Crowd-Kit contains:
 * metrics of uncertainty, consistency, and agreement with aggregate
 * loaders for popular crowdsourced datasets
 
-*The library is currently in a heavy development state, and interfaces are subject to change.*
-
 ## Installing
 
 Installing Crowd-Kit is as easy as `pip install crowd-kit`
@@ -118,4 +116,4 @@ Below is the list of currently implemented methods, including the already availa
 
 ## License
 
-© YANDEX LLC, 2020-2021. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
+© YANDEX LLC, 2020-2022. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.

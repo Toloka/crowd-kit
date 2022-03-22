@@ -11,7 +11,7 @@ with open('README.md') as f:
 setup(
     name='crowd-kit',
     packages=[f'{PREFIX}.{package}' for package in find_packages('crowdkit')],
-    version='0.0.9',
+    version='1.0.0',
     description='Python libraries for crowdsourcing',
     long_description=readme,
     long_description_content_type='text/markdown',
@@ -33,7 +33,7 @@ setup(
         'Source': 'https://github.com/Toloka/crowd-kit',
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
