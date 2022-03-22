@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.base.BaseEmbeddingsAggregator.fit_predict`
+`crowdkit.aggregation.base.BaseEmbeddingsAggregator.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L59)
 
 ```python
 fit_predict(self, data: DataFrame)
@@ -9,7 +9,7 @@ fit_predict(self, data: DataFrame)
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; outputs with their embeddings. A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.</p>
+`data`|**DataFrame**|<p>Workers&#x27; outputs with their embeddings. A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.</p>
 
 * **Returns:**
 

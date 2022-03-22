@@ -38,8 +38,8 @@ class HRRASA(BaseClassificationAggregator):
     Hybrid Reliability and Representation Aware Sequence Aggregation.
 
 
-    At the first step, the HRRASA estimates *local* performers reliabilities that represent how good is a
-    performer's answer to *one particular task*. The local reliability of the performer $k$ on the task $i$ is
+    At the first step, the HRRASA estimates *local* workers reliabilities that represent how good is a
+    worker's answer to *one particular task*. The local reliability of the worker $k$ on the task $i$ is
     denoted by $\gamma_i^k$ and is calculated as a sum of two terms:
     $$
     \gamma_i^k = \lambda_{emb}\gamma_{i,emb}^k + \lambda_{out}\gamma_{i,out}^k, \; \lambda_{emb} + \lambda_{out} = 1.
@@ -52,24 +52,24 @@ class HRRASA(BaseClassificationAggregator):
     \gamma_{i,emb}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}
     \exp\left(\frac{\|e_i^k-e_i^{k'}\|^2}{\|e_i^k\|^2\|e_i^{k'}\|^2}\right),
     $$
-    where $\mathcal{U_i}$ is a set of performers' responses on task $i$. The $\gamma_{i,out}^k$ makes use
+    where $\mathcal{U_i}$ is a set of workers' responses on task $i$. The $\gamma_{i,out}^k$ makes use
     of some similarity measure $sim$ on the `output` data, e.g. GLUE similarity on texts:
     $$
     \gamma_{i,out}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}sim(a_i^k, a_i^{k'}).
     $$
 
-    The HRRASA also estimates *global* performers' reliabilities $\beta$ that are initialized by ones.
+    The HRRASA also estimates *global* workers' reliabilities $\beta$ that are initialized by ones.
 
     Next, the algorithm iteratively performs two steps:
     1. For each task, estimate the aggregated embedding: $\hat{e}_i = \frac{\sum_k \gamma_i^k
     \beta_k e_i^k}{\sum_k \gamma_i^k \beta_k}$
-    2. For each performer, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
+    2. For each worker, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
     |\mathcal{V}_k|)}}{\sum_i\left(\|e_i^k - \hat{e}_i\|^2/\gamma_i^k\right)}$, where $\mathcal{V}_k$
-    is a set of tasks completed by the performer $k$
+    is a set of tasks completed by the worker $k$
 
     Finally, the aggregated result is the output which embedding is
     the closest one to the $\hat{e}_i$. If `calculate_ranks` is true, the method also calculates ranks for
-    each performers' response as
+    each workers' response as
     $$
     s_i^k = \beta_k \exp\left(-\frac{\|e_i^k - \hat{e}_i\|^2}{\|e_i^k\|^2\|\hat{e}_i\|^2}\right) + \gamma_i^k.
     $$
@@ -97,7 +97,7 @@ class HRRASA(BaseClassificationAggregator):
         >>>         ['t1', 'p2', 'a', np.array([1.0, 0.0])],
         >>>         ['t1', 'p3', 'b', np.array([0.0, 1.0])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'output', 'embedding']
+        >>>     columns=['task', 'worker', 'output', 'embedding']
         >>> )
         >>> result = HRRASA().fit_predict(df)
     """
@@ -124,12 +124,12 @@ class HRRASA(BaseClassificationAggregator):
                 'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
             )
 
-        data = data[['task', 'performer', 'embedding', 'output']]
+        data = data[['task', 'worker', 'embedding', 'output']]
         data, single_overlap_tasks = self._filter_single_overlap(data)
         data = self._get_local_skills(data)
 
-        prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
-        skills = pd.Series(1.0, index=data.performer.unique())
+        prior_skills = data.worker.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
+        skills = pd.Series(1.0, index=data.worker.unique())
         weights = self._calc_weights(data, skills)
         aggregated_embeddings = self._aggregate_embeddings(data, weights, true_embeddings)
         self.loss_history_ = []
@@ -196,7 +196,7 @@ class HRRASA(BaseClassificationAggregator):
     def _aggregate_embeddings(data: EMBEDDED_DATA, weights: WEIGHTS,
                               true_embeddings: TASKS_EMBEDDINGS = None) -> TASKS_EMBEDDINGS:
         """Calculates weighted average of embeddings for each task."""
-        data = data.join(weights, on=['task', 'performer'])
+        data = data.join(weights, on=['task', 'worker'])
         data['weighted_embedding'] = data.weight * data.embedding
         group = data.groupby('task')
         aggregated_embeddings = (group.weighted_embedding.apply(np.sum) / group.weight.sum())
@@ -227,14 +227,14 @@ class HRRASA(BaseClassificationAggregator):
 
     @staticmethod
     @manage_docstring
-    def _calc_weights(data: EMBEDDED_DATA, performer_skills: SKILLS) -> WEIGHTS:
+    def _calc_weights(data: EMBEDDED_DATA, worker_skills: SKILLS) -> WEIGHTS:
         """Calculates the weight for every embedding according to its local and global skills.
         """
-        data = data.set_index('performer')
-        data['performer_skill'] = performer_skills
+        data = data.set_index('worker')
+        data['worker_skill'] = worker_skills
         data = data.reset_index()
-        data['weight'] = data['performer_skill'] * data['local_skill']
-        return data[['task', 'performer', 'weight']].set_index(['task', 'performer'])
+        data['weight'] = data['worker_skill'] * data['local_skill']
+        return data[['task', 'worker', 'weight']].set_index(['task', 'worker'])
 
     @staticmethod
     @manage_docstring
@@ -244,7 +244,7 @@ class HRRASA(BaseClassificationAggregator):
         data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
         data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
         data['distance'] = data['distance'] / data['local_skill']
-        total_distances = data.groupby('performer').distance.apply(np.sum)
+        total_distances = data.groupby('worker').distance.apply(np.sum)
         total_distances.clip(lower=_EPS, inplace=True)
         return prior_skills / total_distances
 
@@ -256,13 +256,13 @@ class HRRASA(BaseClassificationAggregator):
         local_skills = []
         processed_pairs = set()
         for task, task_answers in data.groupby('task'):
-            for performer, skill in self._local_skills_on_task(task_answers):
-                if (task, performer) not in processed_pairs:
+            for worker, skill in self._local_skills_on_task(task_answers):
+                if (task, worker) not in processed_pairs:
                     local_skills.append(skill)
-                    index.append((task, performer))
-                    processed_pairs.add((task, performer))
-        data = data.set_index(['task', 'performer'])
-        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'performer']), dtype=float)
+                    index.append((task, worker))
+                    processed_pairs.add((task, worker))
+        data = data.set_index(['task', 'worker'])
+        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'worker']), dtype=float)
         data['local_skill'] = local_skills
         return data.reset_index()
 
@@ -270,14 +270,14 @@ class HRRASA(BaseClassificationAggregator):
         overlap = len(task_answers)
 
         for _, cur_row in task_answers.iterrows():
-            performer = cur_row['performer']
+            worker = cur_row['worker']
             emb_sum = 0.0
             seq_sum = 0.0
             emb = cur_row['embedding']
             seq = cur_row['output']
             emb_norm = np.sum(emb ** 2)
             for __, other_row in task_answers.iterrows():
-                if other_row['performer'] == performer:
+                if other_row['worker'] == worker:
                     continue
                 other_emb = other_row['embedding']
                 other_seq = other_row['output']
@@ -292,7 +292,7 @@ class HRRASA(BaseClassificationAggregator):
             emb_sum /= (overlap - 1)
             seq_sum /= (overlap - 1)
 
-            yield performer, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
+            yield worker, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
 
     @manage_docstring
     def _filter_single_overlap(self, data: EMBEDDED_DATA):
@@ -311,20 +311,20 @@ class HRRASA(BaseClassificationAggregator):
         """Fill skills, embeddings, weights and ranks for single overlap tasks
         """
 
-        performers_to_append = []
+        workers_to_append = []
         aggregated_embeddings_to_append = {}
         weights_to_append = []
         ranks_to_append = []
         for row in single_overlap_tasks.itertuples():
-            if row.performer not in self.prior_skills_:
-                performers_to_append.append(row.performer)
+            if row.worker not in self.prior_skills_:
+                workers_to_append.append(row.worker)
             if row.task not in self.aggregated_embeddings_:
                 aggregated_embeddings_to_append[row.task] = row.embedding
-                weights_to_append.append({'task': row.task, 'performer': row.performer, 'weight': np.nan})
+                weights_to_append.append({'task': row.task, 'worker': row.worker, 'weight': np.nan})
                 ranks_to_append.append({'task': row.task, 'output': row.output, 'rank': np.nan})
 
-        self.prior_skills_ = self.prior_skills_.append(pd.Series(np.nan, index=performers_to_append))
-        self.skills_ = self.skills_.append(pd.Series(np.nan, index=performers_to_append))
+        self.prior_skills_ = self.prior_skills_.append(pd.Series(np.nan, index=workers_to_append))
+        self.skills_ = self.skills_.append(pd.Series(np.nan, index=workers_to_append))
         self.aggregated_embeddings_ = self.aggregated_embeddings_.append(pd.Series(aggregated_embeddings_to_append))
         self.weights_ = self.weights_.append(pd.DataFrame(weights_to_append))
         if hasattr(self, 'ranks_'):

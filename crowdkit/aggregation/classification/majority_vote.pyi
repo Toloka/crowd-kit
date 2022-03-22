@@ -11,7 +11,7 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
 
     Majority vote is a straightforward approach for categorical aggregation: for each task,
     it outputs a label which has the largest number of responses. Additionaly, the majority vote
-    can be used when different weights assigned for performers' votes. In this case, the
+    can be used when different weights assigned for workers' votes. In this case, the
     resulting label will be the one with the largest sum of weights.
 
 
@@ -19,7 +19,7 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     label will be the same for all tasks which have the same set of labels with equal count of votes.
 
     Args:
-        default_skill: Defualt performer's weight value.
+        default_skill: Defualt worker's weight value.
 
     Examples:
         Basic majority voting:
@@ -40,7 +40,7 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
         >>>         ['t2', 'p2', 0],
         >>>         ['t2', 'p3', 1],
         >>>     ],
-        >>>     columns=['task', 'performer', 'label']
+        >>>     columns=['task', 'worker', 'label']
         >>> )
         >>> skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
         >>> result = MajorityVote.fit_predict(df, skills)
@@ -49,8 +49,8 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        skills_ (typing.Optional[pandas.core.series.Series]): Performers' skills.
-            A pandas.Series index by performers and holding corresponding performer's skill
+        skills_ (typing.Optional[pandas.core.series.Series]): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
         probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the probability of `task`'s true label to be equal to `label`. Each
@@ -71,10 +71,10 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     ) -> 'MajorityVote':
         """Fit the model.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-            skills (Series): Performers' skills.
-                A pandas.Series index by performers and holding corresponding performer's skill
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            skills (Series): workers' skills.
+                A pandas.Series index by workers and holding corresponding worker's skill
         Returns:
             MajorityVote: self.
         """
@@ -87,10 +87,10 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return probability distributions on labels for each task.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-            skills (Series): Performers' skills.
-                A pandas.Series index by performers and holding corresponding performer's skill
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            skills (Series): workers' skills.
+                A pandas.Series index by workers and holding corresponding worker's skill
         Returns:
             DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
@@ -106,10 +106,10 @@ class MajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     ) -> pandas.Series:
         """Fit the model and return aggregated results.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
-            skills (Series): Performers' skills.
-                A pandas.Series index by performers and holding corresponding performer's skill
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            skills (Series): workers' skills.
+                A pandas.Series index by workers and holding corresponding worker's skill
         Returns:
             Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`

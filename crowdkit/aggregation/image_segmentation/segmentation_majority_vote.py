@@ -15,10 +15,10 @@ from ..utils import add_skills_to_data
 @manage_docstring
 class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     """
-    Segmentation Majority Vote - chooses a pixel if more than half of performers voted.
+    Segmentation Majority Vote - chooses a pixel if more than half of workers voted.
 
     This method implements a straightforward approach to the image segmentations aggregation:
-    it assumes that if pixel is not inside in the performer's segmentation, this vote counts
+    it assumes that if pixel is not inside in the worker's segmentation, this vote counts
     as 0, otherwise, as 1. Next, the `SegmentationEM` aggregates these categorical values
     for each pixel by the Majority Vote.
 
@@ -41,7 +41,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
         >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'segmentation']
+        >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationMajorityVote().fit_predict(df)
     """
@@ -57,7 +57,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         Fit the model.
         """
 
-        data = data[['task', 'performer', 'segmentation']]
+        data = data[['task', 'worker', 'segmentation']]
 
         if skills is None:
             data['skill'] = 1

@@ -41,8 +41,8 @@ class ROVER(crowdkit.aggregation.base.BaseTextsAggregator):
     def fit(self, data: pandas.DataFrame) -> 'ROVER':
         """Fits the model. The aggregated results are saved to the `texts_` attribute.
         Args:
-            data (DataFrame): Performers' text outputs.
-                A pandas.DataFrame containing `task`, `performer` and `text` columns.
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
         Returns:
             ROVER: self.
         """
@@ -51,8 +51,8 @@ class ROVER(crowdkit.aggregation.base.BaseTextsAggregator):
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return the aggregated texts.
         Args:
-            data (DataFrame): Performers' text outputs.
-                A pandas.DataFrame containing `task`, `performer` and `text` columns.
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
         Returns:
             Series: Tasks' texts.
                 A pandas.Series indexed by `task` such that `result.loc[task, text]`

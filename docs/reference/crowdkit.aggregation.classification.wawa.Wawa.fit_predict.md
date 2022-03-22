@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.classification.wawa.Wawa.fit_predict`
+`crowdkit.aggregation.classification.wawa.Wawa.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/wawa.py#L70)
 
 ```python
 fit_predict(self, data: DataFrame)
@@ -11,7 +11,7 @@ Fit the model and return aggregated results.
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; labeling results. A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
+`data`|**DataFrame**|<p>Workers&#x27; labeling results. A pandas.DataFrame containing `task`, `worker` and `label` columns.</p>
 
 * **Returns:**
 

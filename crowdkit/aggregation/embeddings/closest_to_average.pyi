@@ -10,7 +10,7 @@ import typing
 class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     """Closest to Average - chooses the output with the embedding closest to the average embedding.
 
-    This method takes a `DataFrame` containing four columns: `task`, `performer`, `output`, and `embedding`.
+    This method takes a `DataFrame` containing four columns: `task`, `worker`, `output`, and `embedding`.
     Here the `embedding` is a vector containing a representation of the `output`. The `output` might be any
     type of data such as text, images, NumPy arrays, etc. As the result, the method returns the output which
     embedding is the closest one to the average embedding of the task's responses.
@@ -35,8 +35,8 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     ) -> 'ClosestToAverage':
         """Fits the model.
         Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
             aggregated_embeddings (Series): Tasks' embeddings.
                 A pandas.Series indexed by `task` and holding corresponding embeddings.
             true_embeddings (Series): Tasks' embeddings.
@@ -53,8 +53,8 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return the estimated scores.
         Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
             aggregated_embeddings (Series): Tasks' embeddings.
                 A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:
@@ -72,8 +72,8 @@ class ClosestToAverage(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return the aggregated results.
         Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
             aggregated_embeddings (Series): Tasks' embeddings.
                 A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:

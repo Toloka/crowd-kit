@@ -18,8 +18,8 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     This method performs a categorical aggregation task for each pixel: should
     it be included to the resulting aggregate or no. This task is solved by
-    the single coin Dawid-Skene algorithm. Each performer has a latent parameter
-    "skill" that shows the probability of this performer to answer correctly.
+    the single coin Dawid-Skene algorithm. Each worker has a latent parameter
+    "skill" that shows the probability of this worker to answer correctly.
     Skills and true pixels' labels are optimized by the Expectation-Maximization
     algorithm.
 
@@ -41,7 +41,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
         >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'segmentation']
+        >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationEM().fit_predict(df)
     """
@@ -61,7 +61,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
     ) -> annotations.IMAGE_PIXEL_PROBAS:
         """
         Perform E-step of algorithm.
-        Given performers' segmentations and error vector and priors
+        Given workers' segmentations and error vector and priors
         for each pixel calculates posteriori probabilities.
         """
 
@@ -88,8 +88,8 @@ class SegmentationEM(BaseImageSegmentationAggregator):
     ) -> annotations.SEGMENTATION_ERRORS:
         """
         Perform M-step of algorithm.
-        Given a priori probabilities for each pixel and the segmentation of the performers,
-        it estimates performer's errors probabilities vector.
+        Given a priori probabilities for each pixel and the segmentation of the workers,
+        it estimates worker's errors probabilities vector.
         """
 
         mean_errors_expectation = (segmentations_sizes + posteriors.sum() -
@@ -151,7 +151,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         Fit the model.
         """
 
-        data = data[['task', 'performer', 'segmentation']]
+        data = data[['task', 'worker', 'segmentation']]
 
         self.segmentations_ = data.groupby('task').segmentation.apply(
             lambda segmentations: self._aggregate_one(segmentations)  # using lambda for python 3.7 compatibility

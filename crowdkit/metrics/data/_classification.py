@@ -1,3 +1,9 @@
+__all__ = [
+    'consistency',
+    'uncertainty',
+    'alpha_krippendorff',
+]
+
 from typing import Any, Callable, Hashable, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
@@ -6,6 +12,7 @@ from scipy.stats import entropy
 from nltk.metrics.agreement import AnnotationTask
 from nltk.metrics.distance import binary_distance
 
+from crowdkit.aggregation.annotations import manage_docstring
 from crowdkit.aggregation.base import BaseClassificationAggregator
 from crowdkit.aggregation import MajorityVote
 from crowdkit.aggregation import annotations
@@ -15,7 +22,7 @@ def _check_answers(answers: pd.DataFrame) -> None:
     if not isinstance(answers, pd.DataFrame):
         raise TypeError('Working only with pandas DataFrame')
     assert 'task' in answers, 'There is no "task" column in answers'
-    assert 'performer' in answers, 'There is no "performer" column in answers'
+    assert 'worker' in answers, 'There is no "worker" column in answers'
     assert 'label' in answers, 'There is no "label" column in answers'
 
 
@@ -29,17 +36,19 @@ def _task_consistency(row: pd.Series) -> float:
     return row[row['aggregated_label']] / row['denominator'] if row['denominator'] != 0 else 0.0
 
 
-def consistency(answers: pd.DataFrame,
-                performers_skills: Optional[pd.Series] = None,
-                aggregator: BaseClassificationAggregator = MajorityVote(),
-                by_task: bool = False) -> Union[float, pd.Series]:
+def consistency(
+    answers: pd.DataFrame,
+    workers_skills: Optional[pd.Series] = None,
+    aggregator: BaseClassificationAggregator = MajorityVote(),
+    by_task: bool = False
+) -> Union[float, pd.Series]:
     """
-    Consistency metric: posterior probability of aggregated label given performers skills
+    Consistency metric: posterior probability of aggregated label given workers skills
     calculated using standard Dawid-Skene model.
     Args:
-        answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
-        performers_skills (Optional[pandas.Series]): performers skills e.g. golden set skills. If not provided,
-            uses aggregator's `performers_skills` attribute.
+        answers (pandas.DataFrame): A data frame containing `task`, `worker` and `label` columns.
+        workers_skills (Optional[pandas.Series]): workers skills e.g. golden set skills. If not provided,
+            uses aggregator's `workers_skills` attribute.
         aggregator (aggregation.base.BaseClassificationAggregator): aggregation method, default: MajorityVote
         by_task (bool): if set, returns consistencies for every task in provided data frame.
 
@@ -48,16 +57,16 @@ def consistency(answers: pd.DataFrame,
     """
     _check_answers(answers)
     aggregated = aggregator.fit_predict(answers)
-    if performers_skills is None:
+    if workers_skills is None:
         if hasattr(aggregator, 'skills_'):
-            performers_skills = aggregator.skills_
+            workers_skills = aggregator.skills_
         else:
-            raise AssertionError('This aggregator is not supported. Please, provide performers skills.')
+            raise AssertionError('This aggregator is not supported. Please, provide workers skills.')
 
     answers = answers.copy(deep=False)
     answers.set_index('task', inplace=True)
-    answers = answers.reset_index().set_index('performer')
-    answers['skill'] = performers_skills
+    answers = answers.reset_index().set_index('worker')
+    answers['skill'] = workers_skills
     answers.reset_index(inplace=True)
     labels = pd.unique(answers.label)
     for label in labels:
@@ -83,25 +92,28 @@ def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
     return -np.sum(softmax * log_softmax)
 
 
-def uncertainty(answers: annotations.LABELED_DATA,
-                performers_skills: annotations.OPTIONAL_SKILLS = None,
-                aggregator: Optional[BaseClassificationAggregator] = None,
-                compute_by: str = 'task',
-                aggregate: bool = True) -> Union[float, pd.Series]:
+@manage_docstring
+def uncertainty(
+    answers: annotations.LABELED_DATA,
+    workers_skills: annotations.OPTIONAL_SKILLS = None,
+    aggregator: Optional[BaseClassificationAggregator] = None,
+    compute_by: str = 'task',
+    aggregate: bool = True
+) -> Union[float, pd.Series]:
     r"""
     Label uncertainty metric: entropy of labels probability distribution.
-    Computed as Shannon's Entropy with label probabilities computed either for tasks or performers:
+    Computed as Shannon's Entropy with label probabilities computed either for tasks or workers:
     .. math:: H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))
     Args:
-        answers (pandas.DataFrame): A data frame containing `task`, `performer` and `label` columns.
-        performers_skills (Optional[pandas.Series]): performers skills e.g. golden set skills. If not provided,
-            but aggregator provided, uses aggregator's `performers_skills` attribute.
-            Otherwise assumes equal skills for performers.
-        aggregator (Optional[aggregation.base.BaseClassificationAggregator]): aggregation method to obtain
-            performer skills if not provided.
-        compute_by str: what to compute uncertainty for. If 'task', compute uncertainty of answers per task.
-            If 'performer', compute uncertainty for each performer.
-        aggregate bool: If true, return the mean uncertainty, otherwise return uncertainties for each task or performer.
+        answers: A data frame containing `task`, `worker` and `label` columns.
+        workers_skills: workers skills e.g. golden set skills. If not provided,
+            but aggregator provided, uses aggregator's `workers_skills` attribute.
+            Otherwise assumes equal skills for workers.
+        aggregator: aggregation method to obtain
+            worker skills if not provided.
+        compute_by: what to compute uncertainty for. If 'task', compute uncertainty of answers per task.
+            If 'worker', compute uncertainty for each worker.
+        aggregate: If true, return the mean uncertainty, otherwise return uncertainties for each task or worker.
 
     Returns:
         Union[float, pd.Series]
@@ -110,66 +122,66 @@ def uncertainty(answers: annotations.LABELED_DATA,
         Mean task uncertainty minimal, as all answers to task are same.
 
         >>> uncertainty(pd.DataFrame.from_records([
-        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'X', 'performer': 'B', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'B', 'label': 'Yes'},
         >>> ]))
         0.0
 
         Mean task uncertainty maximal, as all answers to task are different.
 
         >>> uncertainty(pd.DataFrame.from_records([
-        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'X', 'performer': 'B', 'label': 'No'},
-        >>>     {'task': 'X', 'performer': 'C', 'label': 'Maybe'},
+        >>>     {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'B', 'label': 'No'},
+        >>>     {'task': 'X', 'worker': 'C', 'label': 'Maybe'},
         >>> ]))
         1.0986122886681096
 
         Uncertainty by task without averaging.
 
         >>> uncertainty(pd.DataFrame.from_records([
-        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'X', 'performer': 'B', 'label': 'No'},
-        >>>     {'task': 'Y', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'Y', 'performer': 'B', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'B', 'label': 'No'},
+        >>>     {'task': 'Y', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'Y', 'worker': 'B', 'label': 'Yes'},
         >>> ]),
-        >>> performers_skills=pd.Series([1, 1], index=['A', 'B']),
+        >>> workers_skills=pd.Series([1, 1], index=['A', 'B']),
         >>> compute_by="task", aggregate=False)
         task
         X    0.693147
         Y    0.000000
         dtype: float64
 
-        Uncertainty by performer
+        Uncertainty by worker
 
         >>> uncertainty(pd.DataFrame.from_records([
-        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'X', 'performer': 'B', 'label': 'No'},
-        >>>     {'task': 'Y', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'Y', 'performer': 'B', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'B', 'label': 'No'},
+        >>>     {'task': 'Y', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'Y', 'worker': 'B', 'label': 'Yes'},
         >>> ]),
-        >>> performers_skills=pd.Series([1, 1], index=['A', 'B']),
-        >>> compute_by="performer", aggregate=False)
-        performer
+        >>> workers_skills=pd.Series([1, 1], index=['A', 'B']),
+        >>> compute_by="worker", aggregate=False)
+        worker
         A    0.000000
         B    0.693147
         dtype: float64
     """
     _check_answers(answers)
 
-    if performers_skills is None and aggregator is not None:
+    if workers_skills is None and aggregator is not None:
         aggregator.fit(answers)
         if hasattr(aggregator, 'skills_'):
-            performers_skills = aggregator.skills_
+            workers_skills = aggregator.skills_
         else:
-            raise AssertionError('This aggregator is not supported. Please, provide performers skills.')
+            raise AssertionError('This aggregator is not supported. Please, provide workers skills.')
 
     answers = answers.copy(deep=False)
-    answers = answers.set_index('performer')
-    answers['skill'] = performers_skills if performers_skills is not None else 1
+    answers = answers.set_index('worker')
+    answers['skill'] = workers_skills if workers_skills is not None else 1
     if answers['skill'].isnull().any():
-        missing_performers = set(answers[answers.skill.isnull()].index.tolist())
-        raise AssertionError(f'Did not provide skills for performers: {missing_performers}.'
-                             f'Please provide performers skills.')
+        missing_workers = set(answers[answers.skill.isnull()].index.tolist())
+        raise AssertionError(f'Did not provide skills for workers: {missing_workers}.'
+                             f'Please provide workers skills.')
     answers.reset_index(inplace=True)
     labels = pd.unique(answers.label)
     for label in labels:
@@ -182,8 +194,9 @@ def uncertainty(answers: annotations.LABELED_DATA,
     return uncertainties
 
 
-def alpha_krippendorff(answers: pd.DataFrame,
-                       distance: Callable[[Hashable, Hashable], float] = binary_distance) -> float:
+def alpha_krippendorff(
+    answers: pd.DataFrame, distance: Callable[[Hashable, Hashable], float] = binary_distance
+) -> float:
     """Inter-annotator agreement coefficient (Krippendorff 1980).
 
     Amount that annotators agreed on label assignments beyond what is expected by chance.
@@ -193,7 +206,7 @@ def alpha_krippendorff(answers: pd.DataFrame,
         while the lower values suggest the unreliable annotation.
 
     Args:
-        answers: A data frame containing `task`, `performer` and `label` columns.
+        answers: A data frame containing `task`, `worker` and `label` columns.
         distance: Distance metric, that takes two arguments,
             and returns a value between 0.0 and 1.0
             By default: binary_distance (0.0 for equal labels 1.0 otherwise).
@@ -205,25 +218,25 @@ def alpha_krippendorff(answers: pd.DataFrame,
         Consistent answers.
 
         >>> alpha_krippendorff(pd.DataFrame.from_records([
-        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'X', 'performer': 'B', 'label': 'Yes'},
-        >>>     {'task': 'Y', 'performer': 'A', 'label': 'No'},
-        >>>     {'task': 'Y', 'performer': 'B', 'label': 'No'},
+        >>>     {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'B', 'label': 'Yes'},
+        >>>     {'task': 'Y', 'worker': 'A', 'label': 'No'},
+        >>>     {'task': 'Y', 'worker': 'B', 'label': 'No'},
         >>> ]))
         1.0
 
         Partially inconsistent answers.
 
         >>> alpha_krippendorff(pd.DataFrame.from_records([
-        >>>     {'task': 'X', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'X', 'performer': 'B', 'label': 'Yes'},
-        >>>     {'task': 'Y', 'performer': 'A', 'label': 'No'},
-        >>>     {'task': 'Y', 'performer': 'B', 'label': 'No'},
-        >>>     {'task': 'Z', 'performer': 'A', 'label': 'Yes'},
-        >>>     {'task': 'Z', 'performer': 'B', 'label': 'No'},
+        >>>     {'task': 'X', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'X', 'worker': 'B', 'label': 'Yes'},
+        >>>     {'task': 'Y', 'worker': 'A', 'label': 'No'},
+        >>>     {'task': 'Y', 'worker': 'B', 'label': 'No'},
+        >>>     {'task': 'Z', 'worker': 'A', 'label': 'Yes'},
+        >>>     {'task': 'Z', 'worker': 'B', 'label': 'No'},
         >>> ]))
         0.4444444444444444
     """
     _check_answers(answers)
-    data: List[Tuple[Any, Hashable, Hashable]] = answers[['performer', 'task', 'label']].values.tolist()
+    data: List[Tuple[Any, Hashable, Hashable]] = answers[['worker', 'task', 'label']].values.tolist()
     return AnnotationTask(data, distance).alpha()

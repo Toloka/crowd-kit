@@ -1,5 +1,5 @@
 # ROVER
-`crowdkit.aggregation.texts.rover.ROVER`
+`crowdkit.aggregation.texts.rover.ROVER` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/texts/rover.py#L31)
 
 ```python
 ROVER(

@@ -1,5 +1,5 @@
 # BaseEmbeddingsAggregator
-`crowdkit.aggregation.base.BaseEmbeddingsAggregator`
+`crowdkit.aggregation.base.BaseEmbeddingsAggregator` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L48)
 
 ```python
 BaseEmbeddingsAggregator(self)

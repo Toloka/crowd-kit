@@ -9,14 +9,14 @@ import typing
 class RASA(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     """Reliability Aware Sequence Aggregation.
 
-    RASA estimates *global* performers' reliabilities $\beta$ that are initialized by ones.
+    RASA estimates *global* workers' reliabilities $\beta$ that are initialized by ones.
 
     Next, the algorithm iteratively performs two steps:
     1. For each task, estimate the aggregated embedding: $\hat{e}_i = \frac{\sum_k
     \beta_k e_i^k}{\sum_k \beta_k}$
-    2. For each performer, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
+    2. For each worker, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
     |\mathcal{V}_k|)}}{\sum_i\left(\|e_i^k - \hat{e}_i\|^2\right)}$, where $\mathcal{V}_k$
-    is a set of tasks completed by the performer $k$
+    is a set of tasks completed by the worker $k$
 
     Finally, the aggregated result is the output which embedding is
     the closest one to the $\hat{e}_i$.
@@ -41,7 +41,7 @@ class RASA(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
         >>>         ['t1', 'p2', 'a', np.array([1.0, 0.0])],
         >>>         ['t1', 'p3', 'b', np.array([0.0, 1.0])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'output', 'embedding']
+        >>>     columns=['task', 'worker', 'output', 'embedding']
         >>> )
         >>> result = RASA().fit_predict(df)
     Attributes:
@@ -56,8 +56,8 @@ class RASA(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     ) -> 'RASA':
         """Fit the model.
         Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
             true_embeddings (Series): Tasks' embeddings.
                 A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:
@@ -72,8 +72,8 @@ class RASA(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return scores.
         Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
             true_embeddings (Series): Tasks' embeddings.
                 A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:
@@ -90,8 +90,8 @@ class RASA(crowdkit.aggregation.base.BaseEmbeddingsAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return aggregated outputs.
         Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
             true_embeddings (Series): Tasks' embeddings.
                 A pandas.Series indexed by `task` and holding corresponding embeddings.
         Returns:

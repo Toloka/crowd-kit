@@ -18,7 +18,7 @@ class Wawa(BaseClassificationAggregator):
 
     This algorithm does three steps:
     1. Calculate the majority vote label
-    2. Estimate performers' skills as a fraction of responses that are equal to the majority vote
+    2. Estimate workers' skills as a fraction of responses that are equal to the majority vote
     3. Calculate the weigthed majority vote based on skills from the previous step
 
     Examples:
@@ -47,9 +47,9 @@ class Wawa(BaseClassificationAggregator):
         """
 
         # TODO: support weights?
-        data = data[['task', 'performer', 'label']]
+        data = data[['task', 'worker', 'label']]
         mv = MajorityVote().fit(data)
-        self.skills_ = get_accuracy(data, true_labels=mv.labels_, by='performer')
+        self.skills_ = get_accuracy(data, true_labels=mv.labels_, by='worker')
         return self
 
     @manage_docstring

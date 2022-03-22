@@ -1,5 +1,5 @@
 # predict_proba
-`crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.predict_proba`
+`crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.predict_proba` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/gold_majority_vote.py#L81)
 
 ```python
 predict_proba(self, data: DataFrame)
@@ -11,7 +11,7 @@ Return probability distributions on labels for each task when the model is fitte
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; labeling results. A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
+`data`|**DataFrame**|<p>Workers&#x27; labeling results. A pandas.DataFrame containing `task`, `worker` and `label` columns.</p>
 
 * **Returns:**
 

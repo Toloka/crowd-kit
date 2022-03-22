@@ -10,13 +10,13 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
     """The Zero-Based Skill aggregation model.
 
     Performs weighted majority voting on tasks. After processing a pool of tasks,
-    re-estimates performers' skills through a gradient descend step of optimization
+    re-estimates workers' skills through a gradient descend step of optimization
     of the mean squared error of current skills and the fraction of responses that
     are equal to the aggregated labels.
 
     Repeats this process until labels do not change or the number of iterations exceeds.
 
-    It's necessary that all performers in a dataset that send to 'predict' existed in answers
+    It's necessary that all workers in a dataset that send to 'predict' existed in answers
     the dataset that was sent to 'fit'.
 
     Args:
@@ -36,8 +36,8 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit(self, data: pandas.DataFrame) -> 'ZeroBasedSkill':
         """Fit the model.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             ZeroBasedSkill: self.
         """
@@ -46,8 +46,8 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
     def predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Infer the true labels when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
@@ -58,8 +58,8 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
     def predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Return probability distributions on labels for each task when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
@@ -71,8 +71,8 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return aggregated results.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
@@ -83,8 +83,8 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Fit the model and return probability distributions on labels for each task.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`

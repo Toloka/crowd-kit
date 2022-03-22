@@ -11,7 +11,7 @@ class TextRASA(BaseTextsAggregator):
     """
     RASA on text embeddings.
 
-    Given a sentence encoder, encodes texts provided by performers and runs the RASA algorithm for embedding
+    Given a sentence encoder, encodes texts provided by workers and runs the RASA algorithm for embedding
     aggregation.
 
     Args:
@@ -73,7 +73,7 @@ class TextRASA(BaseTextsAggregator):
         return self.texts_
 
     def _encode_data(self, data):
-        data = data[['task', 'performer', 'output']]
+        data = data[['task', 'worker', 'output']]
         data['embedding'] = data.output.apply(self.encoder)
         return data
 

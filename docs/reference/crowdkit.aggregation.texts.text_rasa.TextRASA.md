@@ -1,5 +1,5 @@
 # TextRASA
-`crowdkit.aggregation.texts.text_rasa.TextRASA`
+`crowdkit.aggregation.texts.text_rasa.TextRASA` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/texts/text_rasa.py#L9)
 
 ```python
 TextRASA(
@@ -14,7 +14,7 @@ TextRASA(
 RASA on text embeddings.
 
 
-Given a sentence encoder, encodes texts provided by performers and runs the RASA algorithm for embedding
+Given a sentence encoder, encodes texts provided by workers and runs the RASA algorithm for embedding
 aggregation.
 
 ## Parameters Description

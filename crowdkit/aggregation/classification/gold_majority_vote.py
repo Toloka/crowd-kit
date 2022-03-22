@@ -15,17 +15,17 @@ from ..utils import get_accuracy, named_series_attrib
 class GoldMajorityVote(BaseClassificationAggregator):
     """Majority Vote when exist golden dataset (ground truth) for some tasks.
 
-    Calculates the probability of a correct label for each performer based on the golden set.
+    Calculates the probability of a correct label for each worker based on the golden set.
     Based on this, for each task, calculates the sum of the probabilities of each label.
     The correct label is the one where the sum of the probabilities is greater.
 
-    For Example: You have 10k tasks completed by 3k different performers. And you have 100 tasks where you already
-    know ground truth labels. First you can call `fit` to calc percents of correct labels for each performers.
+    For Example: You have 10k tasks completed by 3k different workers. And you have 100 tasks where you already
+    know ground truth labels. First you can call `fit` to calc percents of correct labels for each workers.
     And then call `predict` to calculate labels for you 10k tasks.
 
     It's necessary that:
-    1. All performers must done at least one task from golden dataset.
-    2. All performers in dataset that send to `predict`, existed in answers dataset that was sent to `fit`.
+    1. All workers must done at least one task from golden dataset.
+    2. All workers in dataset that send to `predict`, existed in answers dataset that was sent to `fit`.
 
     Examples:
         >>> import pandas as pd
@@ -39,7 +39,7 @@ class GoldMajorityVote(BaseClassificationAggregator):
         >>>         ['t2', 'p2', 0],
         >>>         ['t2', 'p3', 1],
         >>>     ],
-        >>>     columns=['task', 'performer', 'label']
+        >>>     columns=['task', 'worker', 'label']
         >>> )
         >>> true_labels = pd.Series({'t1': 0})
         >>> gold_mv = GoldMajorityVote()
@@ -64,11 +64,11 @@ class GoldMajorityVote(BaseClassificationAggregator):
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS) -> Annotation('GoldMajorityVote', 'self'):
         """
-        Estimate the performers' skills.
+        Estimate the workers' skills.
         """
 
-        data = data[['task', 'performer', 'label']]
-        self.skills_ = get_accuracy(data, true_labels=true_labels, by='performer')
+        data = data[['task', 'worker', 'label']]
+        self.skills_ = get_accuracy(data, true_labels=true_labels, by='worker')
         return self
 
     @manage_docstring

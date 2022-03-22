@@ -9,17 +9,17 @@ import typing
 class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     """Majority Vote when exist golden dataset (ground truth) for some tasks.
 
-    Calculates the probability of a correct label for each performer based on the golden set.
+    Calculates the probability of a correct label for each worker based on the golden set.
     Based on this, for each task, calculates the sum of the probabilities of each label.
     The correct label is the one where the sum of the probabilities is greater.
 
-    For Example: You have 10k tasks completed by 3k different performers. And you have 100 tasks where you already
-    know ground truth labels. First you can call `fit` to calc percents of correct labels for each performers.
+    For Example: You have 10k tasks completed by 3k different workers. And you have 100 tasks where you already
+    know ground truth labels. First you can call `fit` to calc percents of correct labels for each workers.
     And then call `predict` to calculate labels for you 10k tasks.
 
     It's necessary that:
-    1. All performers must done at least one task from golden dataset.
-    2. All performers in dataset that send to `predict`, existed in answers dataset that was sent to `fit`.
+    1. All workers must done at least one task from golden dataset.
+    2. All workers in dataset that send to `predict`, existed in answers dataset that was sent to `fit`.
 
     Examples:
         >>> import pandas as pd
@@ -33,7 +33,7 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
         >>>         ['t2', 'p2', 0],
         >>>         ['t2', 'p3', 1],
         >>>     ],
-        >>>     columns=['task', 'performer', 'label']
+        >>>     columns=['task', 'worker', 'label']
         >>> )
         >>> true_labels = pd.Series({'t1': 0})
         >>> gold_mv = GoldMajorityVote()
@@ -43,8 +43,8 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's most likely true label.
 
-        skills_ (typing.Optional[pandas.core.series.Series]): Performers' skills.
-            A pandas.Series index by performers and holding corresponding performer's skill
+        skills_ (typing.Optional[pandas.core.series.Series]): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
         probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
             A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
             is the probability of `task`'s true label to be equal to `label`. Each
@@ -56,10 +56,10 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
         data: pandas.DataFrame,
         true_labels: pandas.Series
     ) -> 'GoldMajorityVote':
-        """Estimate the performers' skills.
+        """Estimate the workers' skills.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
             true_labels (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
@@ -72,8 +72,8 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     def predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Infer the true labels when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
@@ -84,8 +84,8 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     def predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Return probability distributions on labels for each task when the model is fitted.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
@@ -101,8 +101,8 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     ) -> pandas.Series:
         """Fit the model and return aggregated results.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
             true_labels (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
@@ -121,8 +121,8 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return probability distributions on labels for each task.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
             true_labels (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.

@@ -1,5 +1,5 @@
 # ZeroBasedSkill
-`crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill`
+`crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/zero_based_skill.py#L13)
 
 ```python
 ZeroBasedSkill(
@@ -16,13 +16,13 @@ The Zero-Based Skill aggregation model.
 
 
 Performs weighted majority voting on tasks. After processing a pool of tasks,
-re-estimates performers' skills through a gradient descend step of optimization
+re-estimates workers' skills through a gradient descend step of optimization
 of the mean squared error of current skills and the fraction of responses that
 are equal to the aggregated labels.
 
 Repeats this process until labels do not change or the number of iterations exceeds.
 
-It's necessary that all performers in a dataset that send to 'predict' existed in answers
+It's necessary that all workers in a dataset that send to 'predict' existed in answers
 the dataset that was sent to 'fit'.
 
 ## Parameters Description

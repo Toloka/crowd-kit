@@ -1,5 +1,5 @@
 # BasePairwiseAggregator
-`crowdkit.aggregation.base.BasePairwiseAggregator`
+`crowdkit.aggregation.base.BasePairwiseAggregator` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L80)
 
 ```python
 BasePairwiseAggregator(self)

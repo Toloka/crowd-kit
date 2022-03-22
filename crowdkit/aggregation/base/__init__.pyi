@@ -19,8 +19,8 @@ class BaseClassificationAggregator:
 
     def fit(self, data: pandas.DataFrame) -> 'BaseClassificationAggregator':
         """Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             BaseClassificationAggregator: self.
         """
@@ -28,8 +28,8 @@ class BaseClassificationAggregator:
 
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
@@ -55,8 +55,8 @@ class BaseImageSegmentationAggregator:
 
     def fit(self, data: pandas.DataFrame) -> 'BaseImageSegmentationAggregator':
         """Args:
-            data (DataFrame): Performers' segmentations.
-                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
 
         Returns:
             BaseImageSegmentationAggregator: self.
@@ -65,8 +65,8 @@ class BaseImageSegmentationAggregator:
 
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Args:
-            data (DataFrame): Performers' segmentations.
-                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
 
         Returns:
             Series: Tasks' segmentations.
@@ -92,8 +92,8 @@ class BaseEmbeddingsAggregator:
 
     def fit(self, data: pandas.DataFrame) -> 'BaseEmbeddingsAggregator':
         """Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
         Returns:
             BaseEmbeddingsAggregator: self.
         """
@@ -101,8 +101,8 @@ class BaseEmbeddingsAggregator:
 
     def fit_predict(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Args:
-            data (DataFrame): Performers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
         Returns:
             DataFrame: Tasks' embeddings and outputs.
                 A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
@@ -127,8 +127,8 @@ class BaseTextsAggregator:
 
     def fit(self, data: pandas.DataFrame) -> 'BaseTextsAggregator':
         """Args:
-            data (DataFrame): Performers' text outputs.
-                A pandas.DataFrame containing `task`, `performer` and `text` columns.
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
         Returns:
             BaseTextsAggregator: self.
         """
@@ -136,8 +136,8 @@ class BaseTextsAggregator:
 
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Args:
-            data (DataFrame): Performers' text outputs.
-                A pandas.DataFrame containing `task`, `performer` and `text` columns.
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
         Returns:
             Series: Tasks' texts.
                 A pandas.Series indexed by `task` such that `result.loc[task, text]`
@@ -162,8 +162,8 @@ class BasePairwiseAggregator:
 
     def fit(self, data: pandas.DataFrame) -> 'BasePairwiseAggregator':
         """Args:
-            data (DataFrame): Performers' pairwise comparison results.
-                A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:
@@ -173,8 +173,8 @@ class BasePairwiseAggregator:
 
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Args:
-            data (DataFrame): Performers' pairwise comparison results.
-                A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:

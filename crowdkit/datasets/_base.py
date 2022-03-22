@@ -10,6 +10,7 @@ from urllib.request import urlretrieve
 
 def get_data_dir(data_dir: Optional[str] = None) -> str:
     """Return the path of the crowd-kit data dir.
+
     This folder is used by some large dataset loaders to avoid downloading the
     data several times.
     By default the data dir is set to a folder named 'crowdkit_data' in the

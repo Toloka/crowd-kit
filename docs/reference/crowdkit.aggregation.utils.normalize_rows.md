@@ -1,5 +1,5 @@
 # normalize_rows
-`crowdkit.aggregation.utils.normalize_rows`
+`crowdkit.aggregation.utils.normalize_rows` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/utils.py#L60)
 
 ```python
 normalize_rows(scores: DataFrame)

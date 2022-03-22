@@ -45,8 +45,8 @@ def _make_tasks_labels(data):
 def _make_errors(data):
     return pd.DataFrame(
         data,
-        columns=['performer', 'label', 'no', 'yes'],
-    ).set_index(['performer', 'label'])
+        columns=['worker', 'label', 'no', 'yes'],
+    ).set_index(['worker', 'label'])
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ def data():
             ['t5', 'w4', 'no'],
             ['t5', 'w5', 'no'],
         ],
-        columns=['task', 'performer', 'label']
+        columns=['task', 'worker', 'label']
     )
 
 
@@ -197,7 +197,7 @@ def test_dawid_skene_step_by_step(request, data, n_iter):
 
 
 def test_dawid_skene_on_empty_input(request, data):
-    ds = DawidSkene(10).fit(pd.DataFrame([], columns=['task', 'performer', 'label']))
+    ds = DawidSkene(10).fit(pd.DataFrame([], columns=['task', 'worker', 'label']))
     assert_frame_equal(pd.DataFrame(), ds.probas_, check_like=True, atol=0.005)
     assert_frame_equal(pd.DataFrame(), ds.errors_, check_like=True, atol=0.005)
     assert_series_equal(pd.Series(dtype=float, name='prior'), ds.priors_, atol=0.005)
@@ -209,7 +209,7 @@ def test_dawid_skene_overlap(overlap):
     data = pd.DataFrame([
         {
             'task': task_id,
-            'performer': perf_id,
+            'worker': perf_id,
             'label': 'yes' if (perf_id - task_id) % 3 else 'no',
         }
         for perf_id in range(overlap)

@@ -9,7 +9,7 @@ import typing
 class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     """RASA on text embeddings.
 
-    Given a sentence encoder, encodes texts provided by performers and runs the RASA algorithm for embedding
+    Given a sentence encoder, encodes texts provided by workers and runs the RASA algorithm for embedding
     aggregation.
 
     Args:
@@ -44,8 +44,8 @@ class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     ) -> 'TextRASA':
         """Fit the model.
         Args:
-            data (DataFrame): Performers' outputs.
-                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
             true_objects (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
@@ -62,8 +62,8 @@ class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return scores.
         Args:
-            data (DataFrame): Performers' outputs.
-                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
             true_objects (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
@@ -82,8 +82,8 @@ class TextRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     ) -> pandas.Series:
         """Fit the model and return aggregated texts.
         Args:
-            data (DataFrame): Performers' outputs.
-                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
             true_objects (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.

@@ -1,11 +1,11 @@
 # fit
-`crowdkit.aggregation.embeddings.rasa.RASA.fit`
+`crowdkit.aggregation.embeddings.rasa.RASA.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/embeddings/rasa.py#L108)
 
 ```python
 fit(
     self,
     data: DataFrame,
-    true_embeddings: Series = None
+    true_embeddings: Optional[Series] = None
 )
 ```
 
@@ -15,8 +15,8 @@ Fit the model.
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; outputs with their embeddings. A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.</p>
-`true_embeddings`|**Series**|<p>Tasks&#x27; embeddings. A pandas.Series indexed by `task` and holding corresponding embeddings.</p>
+`data`|**DataFrame**|<p>Workers&#x27; outputs with their embeddings. A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.</p>
+`true_embeddings`|**Optional\[Series\]**|<p>Tasks&#x27; embeddings. A pandas.Series indexed by `task` and holding corresponding embeddings.</p>
 
 * **Returns:**
 
@@ -24,4 +24,4 @@ Fit the model.
 
 * **Return type:**
 
-  'RASA'
+  [RASA](crowdkit.aggregation.embeddings.rasa.RASA.md)

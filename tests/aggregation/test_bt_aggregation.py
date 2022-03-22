@@ -8,7 +8,7 @@ from crowdkit.aggregation import BradleyTerry, NoisyBradleyTerry
 
 @pytest.fixture
 def data_empty():
-    return pd.DataFrame([], columns=['performer', 'task', 'left', 'right', 'label'])
+    return pd.DataFrame([], columns=['worker', 'task', 'left', 'right', 'label'])
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def data_abc():
             ['w1', 't2', 'b', 'c', 'b'],
             ['w1', 't3', 'c', 'a', 'a'],
         ],
-        columns=['performer', 'task', 'left', 'right', 'label']
+        columns=['worker', 'task', 'left', 'right', 'label']
     )
 
 
@@ -31,7 +31,7 @@ def data_equal():
             ['w1', 't2', 'b', 'c', 'b'],
             ['w1', 't3', 'c', 'a', 'c'],
         ],
-        columns=['performer', 'task', 'left', 'right', 'label']
+        columns=['worker', 'task', 'left', 'right', 'label']
     )
 
 

@@ -67,7 +67,7 @@ def normalize_rows(scores: annotations.TASKS_LABEL_SCORES) -> annotations.TASKS_
 @manage_docstring
 def manage_data(data: annotations.LABELED_DATA, weights: Optional[pd.Series] = None,
                 skills: annotations.SKILLS = None) -> pd.DataFrame:
-    data = data[['task', 'performer', 'label']]
+    data = data[['task', 'worker', 'label']]
 
     if weights is None:
         data['weight'] = 1
@@ -86,9 +86,9 @@ def manage_data(data: annotations.LABELED_DATA, weights: Optional[pd.Series] = N
 def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS,
                  by: Optional[str] = None) -> annotations.SKILLS:
     if 'weight' in data.columns:
-        data = data[['task', 'performer', 'label', 'weight']]
+        data = data[['task', 'worker', 'label', 'weight']]
     else:
-        data = data[['task', 'performer', 'label']]
+        data = data[['task', 'worker', 'label']]
 
     if data.empty:
         data['true_label'] = []
@@ -101,7 +101,7 @@ def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_
         data['weight'] = 1
     data.eval('score = weight * (label == true_label)', inplace=True)
 
-    data = data.sort_values('score').drop_duplicates(['task', 'performer', 'label'], keep='last')
+    data = data.sort_values('score').drop_duplicates(['task', 'worker', 'label'], keep='last')
 
     if by is not None:
         data = data.groupby(by)
@@ -127,7 +127,7 @@ def add_skills_to_data(
     default_skill: float
 ) -> pd.DataFrame:
 
-    data = data.join(skills.rename('skill'), on='performer')
+    data = data.join(skills.rename('skill'), on='worker')
 
     if on_missing_skill != 'value' and default_skill is not None:
         raise ValueError('default_skill is used but on_missing_skill is not "value"')

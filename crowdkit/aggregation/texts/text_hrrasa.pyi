@@ -10,7 +10,7 @@ import typing
 class TextHRRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     """HRRASA on text embeddings.
 
-    Given a sentence encoder, encodes texts provided by performers and runs the HRRASA algorithm for embedding
+    Given a sentence encoder, encodes texts provided by workers and runs the HRRASA algorithm for embedding
     aggregation.
 
     Args:
@@ -52,8 +52,8 @@ class TextHRRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     ) -> pandas.DataFrame:
         """Fit the model and return scores.
         Args:
-            data (DataFrame): Performers' outputs.
-                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
             true_objects (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.
@@ -72,8 +72,8 @@ class TextHRRASA(crowdkit.aggregation.base.BaseTextsAggregator):
     ) -> pandas.Series:
         """Fit the model and return aggregated texts.
         Args:
-            data (DataFrame): Performers' outputs.
-                A pandas.DataFrame containing `task`, `performer` and `output` columns.
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
             true_objects (Series): Tasks' ground truth labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is the tasks's ground truth label.

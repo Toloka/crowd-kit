@@ -13,7 +13,7 @@ def toy_labels_result_gold(toy_ground_truth_df):
 def toy_skills_result_gold():
     return pd.Series(
         [0.5, 1.0, 1.0, 0.5, 0.0],
-        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
         name='skill'
     )
 
@@ -38,8 +38,8 @@ def toy_probas_result_gold():
 
 @pytest.fixture
 def toy_answers_on_gold_df_cannot_fit():
-    # When we have this dataset and 'toy_gold_df' we are trying to calculate the skills of the performers,
-    # and we cannot do it for some performers
+    # When we have this dataset and 'toy_gold_df' we are trying to calculate the skills of the workers,
+    # and we cannot do it for some workers
     return pd.DataFrame(
         [
             ['w1', 't1', 'no'],
@@ -48,14 +48,14 @@ def toy_answers_on_gold_df_cannot_fit():
             ['w4', 't2', 'yes'],
             ['w5', 't5', 'yes'],  # 'w5' answer, but 't5' not in 'toy_gold_df'
         ],
-        columns=['performer', 'task', 'label']
+        columns=['worker', 'task', 'label']
     )
 
 
 @pytest.fixture
 def toy_answers_on_gold_df_cannot_predict():
     # When we have this dataset in 'fit', and standart 'toy_answers_df' in predict and we cannot predict
-    # labels or probas, because this dataset doesn't contain all performers from 'toy_answers_df'
+    # labels or probas, because this dataset doesn't contain all workers from 'toy_answers_df'
     return pd.DataFrame(
         [
             ['w1', 't1', 'no'],
@@ -64,7 +64,7 @@ def toy_answers_on_gold_df_cannot_predict():
             ['w4', 't2', 'yes'],
             # ['w5', 't5', 'yes'],  # 'w5' missing here, but exists 'toy_answers_df'
         ],
-        columns=['performer', 'task', 'label']
+        columns=['worker', 'task', 'label']
     )
 
 
@@ -85,7 +85,7 @@ def simple_skills_result_gold():
         'bde3b214b06c1efa6cb1bc6284dc72d2': 1.0,
         'e563e2fb32fce9f00123a65a1bc78c55': 0.5,
     }, name='skill')
-    skills.index.name = 'performer'
+    skills.index.name = 'worker'
     return skills
 
 
@@ -136,7 +136,7 @@ def multiple_gt_df():
             ['t1', 'w3', 'l3'],  # wrong
             ['t3', 'w3', 'l3'],  # wrong
         ],
-        columns=['task', 'performer', 'label']
+        columns=['task', 'worker', 'label']
     )
 
 
@@ -165,6 +165,6 @@ def multiple_gt_skills():
         [0.5, 1., 0.],
         index=['w1', 'w2', 'w3'],
     )
-    skills.index.name = 'performer'
+    skills.index.name = 'worker'
     skills.name = 'skill'
     return skills

@@ -1,5 +1,5 @@
 # get_most_probable_labels
-`crowdkit.aggregation.utils.get_most_probable_labels`
+`crowdkit.aggregation.utils.get_most_probable_labels` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/utils.py#L51)
 
 ```python
 get_most_probable_labels(proba: DataFrame)

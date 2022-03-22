@@ -64,10 +64,10 @@ def manage_data(
     skills: pandas.Series = None
 ) -> pandas.DataFrame:
     """Args:
-        data (DataFrame): Performers' labeling results.
-            A pandas.DataFrame containing `task`, `performer` and `label` columns.
-        skills (Series): Performers' skills.
-            A pandas.Series index by performers and holding corresponding performer's skill
+        data (DataFrame): Workers' labeling results.
+            A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        skills (Series): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
     """
     ...
 
@@ -78,15 +78,15 @@ def get_accuracy(
     by: typing.Optional[str] = None
 ) -> pandas.Series:
     """Args:
-        data (DataFrame): Performers' labeling results.
-            A pandas.DataFrame containing `task`, `performer` and `label` columns.
+        data (DataFrame): Workers' labeling results.
+            A pandas.DataFrame containing `task`, `worker` and `label` columns.
         true_labels (Series): Tasks' ground truth labels.
             A pandas.Series indexed by `task` such that `labels.loc[task]`
             is the tasks's ground truth label.
 
     Returns:
-        Series: Performers' skills.
-            A pandas.Series index by performers and holding corresponding performer's skill
+        Series: workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
     """
     ...
 
@@ -104,8 +104,8 @@ def add_skills_to_data(
     default_skill: float
 ) -> pandas.DataFrame:
     """Args:
-        skills (Series): Performers' skills.
-            A pandas.Series index by performers and holding corresponding performer's skill
+        skills (Series): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
         on_missing_skill (str): How to handle assignments done by workers with unknown skill.
             Possible values:
                     * "error" — raise an exception if there is at least one assignment done by user with unknown skill;

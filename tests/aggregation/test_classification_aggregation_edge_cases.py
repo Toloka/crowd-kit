@@ -14,16 +14,16 @@ from .data_gold_mv import *  # noqa: F401, F403
 
 @pytest.fixture
 def answers_no_task():
-    return pd.DataFrame({'performer': ['w1'], 'label': ['no']})
+    return pd.DataFrame({'worker': ['w1'], 'label': ['no']})
 
 
 @pytest.fixture
 def answers_no_label():
-    return pd.DataFrame({'performer': ['w1'], 'task': ['t1']})
+    return pd.DataFrame({'worker': ['w1'], 'task': ['t1']})
 
 
 @pytest.fixture
-def answers_no_performer():
+def answers_no_worker():
     return pd.DataFrame({'task': ['t1'], 'label': ['no']})
 
 
@@ -42,54 +42,54 @@ def gold_no_label():
     [
         (MajorityVote, 'fit_predict',       KeyError, 'answers_no_task'),
         (MajorityVote, 'fit_predict',       KeyError, 'answers_no_label'),
-        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_performer'),
+        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_worker'),
         (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_task'),
         (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_label'),
-        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_performer'),
+        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_worker'),
         (MMSR, 'fit_predict',       KeyError, 'answers_no_task'),
         (MMSR, 'fit_predict',       KeyError, 'answers_no_label'),
-        (MMSR, 'fit_predict',       KeyError, 'answers_no_performer'),
+        (MMSR, 'fit_predict',       KeyError, 'answers_no_worker'),
         (MMSR, 'fit_predict_score', KeyError, 'answers_no_task'),
         (MMSR, 'fit_predict_score', KeyError, 'answers_no_label'),
-        (MMSR, 'fit_predict_score', KeyError, 'answers_no_performer'),
+        (MMSR, 'fit_predict_score', KeyError, 'answers_no_worker'),
         (Wawa,         'fit_predict',       KeyError, 'answers_no_task'),
         (Wawa,         'fit_predict',       KeyError, 'answers_no_label'),
-        (Wawa,         'fit_predict',       KeyError, 'answers_no_performer'),
+        (Wawa,         'fit_predict',       KeyError, 'answers_no_worker'),
         (Wawa,         'fit_predict_proba', KeyError, 'answers_no_task'),
         (Wawa,         'fit_predict_proba', KeyError, 'answers_no_label'),
-        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_performer'),
+        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_worker'),
         (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_task'),
         (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_label'),
-        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_performer'),
+        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_worker'),
         (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_task'),
         (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_label'),
-        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_performer'),
+        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_worker'),
     ],
     ids=[
         'Majority Vote predict raises on no "task"',
         'Majority Vote predict raises on no "label"',
-        'Majority Vote predict raises on no "performer"',
+        'Majority Vote predict raises on no "worker"',
         'Majority Vote predict_proba raises on no "task"',
         'Majority Vote predict_proba raises on no "label"',
-        'Majority Vote predict_proba raises on no "performer"',
+        'Majority Vote predict_proba raises on no "worker"',
         'MMSR predict raises on no "task"',
         'MMSR predict raises on no "label"',
-        'MMSR predict raises on no "performer"',
+        'MMSR predict raises on no "worker"',
         'MMSR predict_score raises on no "task"',
         'MMSR predict_score raises on no "label"',
-        'MMSR predict_score raises on no "performer"',
+        'MMSR predict_score raises on no "worker"',
         'Wawa predict raises on no "task"',
         'Wawa predict raises on no "label"',
-        'Wawa predict raises on no "performer"',
+        'Wawa predict raises on no "worker"',
         'Wawa predict_proba raises on no "task"',
         'Wawa predict_proba raises on no "label"',
-        'Wawa predict_proba raises on no "performer"',
+        'Wawa predict_proba raises on no "worker"',
         'ZBS predict raises on no "task"',
         'ZBS predict raises on no "label"',
-        'ZBS predict raises on no "performer"',
+        'ZBS predict raises on no "worker"',
         'ZBS predict_proba raises on no "task"',
         'ZBS predict_proba raises on no "label"',
-        'ZBS predict_proba raises on no "performer"',
+        'ZBS predict_proba raises on no "worker"',
     ],
 )
 def test_agg_raise_on_less_columns(request, agg_class, predict_method, exception, answers_dataset):
@@ -108,7 +108,7 @@ def test_agg_raise_on_less_columns(request, agg_class, predict_method, exception
         # test raises in fit
         (KeyError, 'answers_no_task'),
         (KeyError, 'answers_no_label'),
-        (KeyError, 'answers_no_performer'),
+        (KeyError, 'answers_no_worker'),
         (KeyError, 'gold_no_task'),
         (KeyError, 'gold_no_label'),
         # raises on mismatch datasets
@@ -119,11 +119,11 @@ def test_agg_raise_on_less_columns(request, agg_class, predict_method, exception
         # test raises in fit
         'no "task" in answers_on_gold',
         'no "label" in answers_on_gold',
-        'no "performer" in answers_on_gold',
+        'no "worker" in answers_on_gold',
         'no "task" in gold_df',
         'no "label" in gold_df',
         # raises on mismatch datasets
-        # 'cannot compute performers skills',
+        # 'cannot compute workers skills',
     ],
 )
 def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answers_on_gold_dataset):
@@ -143,11 +143,11 @@ def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answe
         # test raises in predict
         ('predict', KeyError, 'toy_answers_df', 'answers_no_task'),
         ('predict', KeyError, 'toy_answers_df', 'answers_no_label'),
-        ('predict', KeyError, 'toy_answers_df', 'answers_no_performer'),
+        ('predict', KeyError, 'toy_answers_df', 'answers_no_worker'),
         # test raises in predict_proba
         ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_task'),
         ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_label'),
-        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_performer'),
+        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_worker'),
         # raises on mismatch datasets
         # ('predict', NotFittedError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
         # ('predict_proba', NotFittedError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
@@ -156,11 +156,11 @@ def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answe
         # test raises in predict
         'raise in predict on no "task" in answers_on_gold',
         'raise in predict on no "label" in answers_on_gold',
-        'raise in predict on no "performer" in answers_on_gold',
+        'raise in predict on no "worker" in answers_on_gold',
         # test raises in predict_proba
         'raise in predict_proba on no "task" in answers_on_gold',
         'raise in predict_proba on no "label" in answers_on_gold',
-        'raise in predict_proba on no "performer" in answers_on_gold',
+        'raise in predict_proba on no "worker" in answers_on_gold',
         # raises on mismatch datasets
         # 'raise in predict - cannot compute labels',
         # 'raise in predict_proba - cannot compute probas',
@@ -185,7 +185,7 @@ def test_gold_mv_raise_in_predict(
 def test_gold_mv_empty():
     aggregator = GoldMajorityVote()
     probas = aggregator.fit_predict_proba(
-        pd.DataFrame({'task': [], 'performer': [], 'label': []}),
+        pd.DataFrame({'task': [], 'worker': [], 'label': []}),
         pd.Series(dtype=float)
     )
     assert probas.empty

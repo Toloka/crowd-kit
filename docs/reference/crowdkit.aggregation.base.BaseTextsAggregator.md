@@ -1,5 +1,5 @@
 # BaseTextsAggregator
-`crowdkit.aggregation.base.BaseTextsAggregator`
+`crowdkit.aggregation.base.BaseTextsAggregator` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L64)
 
 ```python
 BaseTextsAggregator(self)

@@ -23,7 +23,7 @@ def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
     checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-2.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'performer': 'worker'})
         true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
 
         return labels, true_labels
@@ -39,7 +39,7 @@ def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
     checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-5.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'performer': 'worker'})
         true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label'].rename('true_label')
 
         return labels, true_labels
@@ -55,7 +55,7 @@ def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series
     checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
+        labels = pd.read_pickle(join(data_path, 'crowd_labels.zip')).rename(columns={'performer': 'worker'})
         true_labels = pd.read_pickle(join(data_path, 'gt.zip')).set_index('task')['true_segmentation']
 
         return labels, true_labels
@@ -71,7 +71,7 @@ def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.
     checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/mscoco_small.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        labels = pd.read_pickle(join(data_path, 'crowd_labels.zip'))
+        labels = pd.read_pickle(join(data_path, 'crowd_labels.zip')).rename(columns={'performer': 'worker'})
         true_labels = pd.read_pickle(join(data_path, 'gt.zip'))
 
         return labels, true_labels
@@ -130,7 +130,7 @@ def load_imdb_wiki_sbs(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd
     checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'performer': 'worker'})
         labels.loc[labels['label'] == 'left', 'label'] = labels['left'].copy()
         labels.loc[labels['label'] == 'right', 'label'] = labels['right'].copy()
 
@@ -149,7 +149,7 @@ def load_nist_trec_relevance(data_dir: Optional[str] = None) -> Tuple[pd.DataFra
     checksum_url = 'https://tlk.s3.yandex.net/dataset/crowd-kit/relevance.md5'
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-        labels = pd.read_csv(join(data_path, 'crowd_labels.csv'))
+        labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'performer': 'worker'})
         true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
 
         return labels, true_labels
@@ -182,7 +182,7 @@ DATA_LOADERS = {
     'mscoco_small': {
         'loader': load_mscoco_small,
         'description': 'A sample of 100 images segmentations from MSCOCO dataset (https://cocodataset.org, licensed '
-        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 96 performers. '
+        'under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 96 workers. '
         'For each image, 9 workers submitted segmentations.'
     },
     'crowdspeech-dev-clean': {

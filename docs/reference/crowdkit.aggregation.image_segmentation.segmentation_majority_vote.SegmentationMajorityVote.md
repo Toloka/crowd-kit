@@ -1,5 +1,5 @@
 # SegmentationMajorityVote
-`crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote`
+`crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/image_segmentation/segmentation_majority_vote.py#L13)
 
 ```python
 SegmentationMajorityVote(
@@ -9,11 +9,11 @@ SegmentationMajorityVote(
 )
 ```
 
-Segmentation Majority Vote - chooses a pixel if more than half of performers voted.
+Segmentation Majority Vote - chooses a pixel if more than half of workers voted.
 
 
 This method implements a straightforward approach to the image segmentations aggregation:
-it assumes that if pixel is not inside in the performer's segmentation, this vote counts
+it assumes that if pixel is not inside in the worker's segmentation, this vote counts
 as 0, otherwise, as 1. Next, the `SegmentationEM` aggregates these categorical values
 for each pixel by the Majority Vote.
 
@@ -43,7 +43,7 @@ df = pd.DataFrame(
         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
     ],
-    columns=['task', 'performer', 'segmentation']
+    columns=['task', 'worker', 'segmentation']
 )
 result = SegmentationMajorityVote().fit_predict(df)
 ```

@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.base.BaseClassificationAggregator.fit_predict`
+`crowdkit.aggregation.base.BaseClassificationAggregator.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L26)
 
 ```python
 fit_predict(self, data: DataFrame)
@@ -9,7 +9,7 @@ fit_predict(self, data: DataFrame)
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; labeling results. A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
+`data`|**DataFrame**|<p>Workers&#x27; labeling results. A pandas.DataFrame containing `task`, `worker` and `label` columns.</p>
 
 * **Returns:**
 

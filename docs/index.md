@@ -69,7 +69,7 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 
 | Method | Status |
 | ------------------ | :------------------: |
-| [Segmentation MV](reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.md)  | ✅ |
+| [Segmentation MV](reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.md) | ✅ |
 | [Segmentation RASA](reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.md) | ✅ |
 | [Segmentation EM](reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.md) | ✅ |
 
@@ -77,14 +77,22 @@ aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
 
 | Method | Status |
 | -------------- | :---------------------: |
-| [Bradley-Terry](reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md) | ✅            |
-| [Noisy  Bradley-Terry](reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.md)  | ✅ |
+| [Bradley-Terry](reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md) | ✅ |
+| [Noisy Bradley-Terry](reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.md) | ✅ |
 
 ## Questions and Bug Reports
 
 * For reporting bugs please use the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
 * Join our English-speaking [slack community](https://toloka.ai/community) for both tech and abstract questions.
 
+## Source Code
+
+* [Crowd-Kit on GitHub](https://github.com/Toloka/crowd-kit)
+
+## Toloka Global Community
+
+Stay informed about updates to the platform and open-source libraries — connect with the Toloka team in our [Global Community](https://join.slack.com/t/tolokacommunity/shared_invite/zt-sxr745fr-dvfZffzvQTwNXOE0gEqysg) for announcements, discussions, and invites to events.
+
 ## License
 
-© YANDEX LLC, 2020-2021. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
+© YANDEX LLC, 2020-2022. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.

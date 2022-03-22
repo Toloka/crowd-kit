@@ -1,5 +1,5 @@
 # fit_predict_proba
-`crowdkit.aggregation.classification.wawa.Wawa.fit_predict_proba`
+`crowdkit.aggregation.classification.wawa.Wawa.fit_predict_proba` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/wawa.py#L78)
 
 ```python
 fit_predict_proba(self, data: DataFrame)
@@ -11,7 +11,7 @@ Fit the model and return probability distributions on labels for each task.
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; labeling results. A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
+`data`|**DataFrame**|<p>Workers&#x27; labeling results. A pandas.DataFrame containing `task`, `worker` and `label` columns.</p>
 
 * **Returns:**
 

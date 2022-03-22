@@ -14,7 +14,7 @@ def data_toy():
             ['w2', 't1', 'b z d e'],
             ['w3', 't1', 'b c d e f'],
         ],
-        columns=['performer', 'task', 'text']
+        columns=['worker', 'task', 'text']
     )
 
 
@@ -36,7 +36,7 @@ def rover_single_overlap_data():
         [
             ['w1', 't1', 'a b c d'],
         ],
-        columns=['performer', 'task', 'text']
+        columns=['worker', 'task', 'text']
     )
 
 

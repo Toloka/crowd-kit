@@ -61,7 +61,7 @@ def test_get_accuracy():
             ['t2', 'p4', 'b', 1],
             ['t2', 'p3', 'c', 1],
         ],
-        columns=['task', 'performer', 'label', 'weight']
+        columns=['task', 'worker', 'label', 'weight']
     )
 
     # With weights
@@ -70,22 +70,22 @@ def test_get_accuracy():
     skills = pd.Series([3/5, 3/4], index=pd.Index(['t1', 't2'], name='task'))
     assert_series_equal(get_accuracy(data, true_labels, by='task'), skills)
 
-    skills = pd.Series([2/3, 0, 3/4, 1], index=pd.Index(['p1', 'p2', 'p3', 'p4'], name='performer'))
-    assert_series_equal(get_accuracy(data, true_labels, by='performer'), skills)
+    skills = pd.Series([2/3, 0, 3/4, 1], index=pd.Index(['p1', 'p2', 'p3', 'p4'], name='worker'))
+    assert_series_equal(get_accuracy(data, true_labels, by='worker'), skills)
 
     skills = pd.Series([3/4, 3/5], index=pd.Index(['b', 'c'], name='true_label'))
     assert_series_equal(get_accuracy(data, true_labels, by='true_label'), skills)
 
     # Without weights
-    data = data[['task', 'performer', 'label']]
+    data = data[['task', 'worker', 'label']]
 
     assert get_accuracy(data, true_labels) == 1 / 2
 
     skills = pd.Series([1/3, 2/3], index=pd.Index(['t1', 't2'], name='task'))
     assert_series_equal(get_accuracy(data, true_labels, by='task'), skills)
 
-    skills = pd.Series([1/2, 0, 1/2, 1], index=pd.Index(['p1', 'p2', 'p3', 'p4'], name='performer'))
-    assert_series_equal(get_accuracy(data, true_labels, by='performer'), skills)
+    skills = pd.Series([1/2, 0, 1/2, 1], index=pd.Index(['p1', 'p2', 'p3', 'p4'], name='worker'))
+    assert_series_equal(get_accuracy(data, true_labels, by='worker'), skills)
 
     skills = pd.Series([2/3, 1/3], index=pd.Index(['b', 'c'], name='true_label'))
     assert_series_equal(get_accuracy(data, true_labels, by='true_label'), skills)

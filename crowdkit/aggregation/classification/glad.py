@@ -35,11 +35,11 @@ class GLAD(BaseClassificationAggregator):
     r"""
     Generative model of Labels, Abilities, and Difficulties.
 
-    A probabilistic model that parametrizes performers' abilities and tasks' dificulties.
+    A probabilistic model that parametrizes workers' abilities and tasks' dificulties.
     Let's consider a case of $K$ class classification. Let $p$ be a vector of prior class probabilities,
-    $\alpha_i \in (-\infty, +\infty)$ be a performer's ability parameter, $\beta_j \in (0, +\infty)$ be
+    $\alpha_i \in (-\infty, +\infty)$ be a worker's ability parameter, $\beta_j \in (0, +\infty)$ be
     an inverse task's difficulty, $z_j$ be a latent variable representing the true task's label, and $y^i_j$
-    be a performer's response that we observe. The relationships between this variables and parameters according
+    be a worker's response that we observe. The relationships between this variables and parameters according
     to GLAD are represented by the following latent label model:
 
     ![GLAD latent label model](http://tlk.s3.yandex.net/crowd-kit/docs/glad_llm.png)
@@ -49,9 +49,9 @@ class GLAD(BaseClassificationAggregator):
     $$
     \operatorname{Pr}(z_j = c) = p[c],
     $$
-    the probability distribution of the performer's responses conditioned by the true label value $c$ follows the
+    the probability distribution of the worker's responses conditioned by the true label value $c$ follows the
     single coin Dawid-Skene model where the true label probability is a sigmoid function of the product of
-    performer's ability and inverse task's difficulty:
+    worker's ability and inverse task's difficulty:
     $$
     \operatorname{Pr}(y^i_j = k | z_j = c) = \begin{cases}a(i, j), & k = c \\ \frac{1 - a(i,j)}{K-1}, & k \neq c\end{cases},
     $$
@@ -112,18 +112,18 @@ class GLAD(BaseClassificationAggregator):
         betas: GLAD_BETAS,
         priors: pd.Series
     ) -> pd.DataFrame:
-        """Make a data frame with format `(task, performer, label, variable) -> (alpha, beta, posterior, delta)`
+        """Make a data frame with format `(task, worker, label, variable) -> (alpha, beta, posterior, delta)`
         """
         labels = list(priors.index)
         data.set_index('task', inplace=True)
         data[labels] = 0
         data.reset_index(inplace=True)
-        data = data.melt(id_vars=['task', 'performer', 'label'], value_vars=labels, value_name='posterior')
+        data = data.melt(id_vars=['task', 'worker', 'label'], value_vars=labels, value_name='posterior')
         data = data.set_index('variable')
         data.reset_index(inplace=True)
         data.set_index('task', inplace=True)
         data['beta'] = betas
-        data = data.reset_index().set_index('performer')
+        data = data.reset_index().set_index('worker')
         data['alpha'] = alphas
         data.reset_index(inplace=True)
         data['delta'] = data['label'] == data['variable']
@@ -134,7 +134,7 @@ class GLAD(BaseClassificationAggregator):
         """
         Perform E-step of GLAD algorithm.
 
-        Given performer's alphas, labels' prior probabilities and task's beta parameters.
+        Given worker's alphas, labels' prior probabilities and task's beta parameters.
         """
         alpha_beta = data['alpha'] * np.exp(data['beta'])
         log_sigma = -self._softplus(-alpha_beta)
@@ -167,7 +167,7 @@ class GLAD(BaseClassificationAggregator):
         dQbeta -= (self.betas_ - self.betas_priors_mean_)
 
         data['dQa'] = data['posterior'] * (data['delta'] - sigma) * np.exp(data['beta'])
-        dQalpha = data.groupby('performer').sum()['dQa']
+        dQalpha = data.groupby('worker').sum()['dQa']
         # gradient of priors on alphas
         dQalpha -= (self.alphas_ - self.alphas_priors_mean_)
         return dQalpha, dQbeta
@@ -209,15 +209,15 @@ class GLAD(BaseClassificationAggregator):
         dQalpha, dQbeta = self._gradient_Q(self._current_data)
 
         minus_grad = np.zeros_like(x)
-        minus_grad[:len(self.performers_)] = -dQalpha[self.performers_].values
-        minus_grad[len(self.performers_):] = -dQbeta[self.tasks_].values
+        minus_grad[:len(self.workers_)] = -dQalpha[self.workers_].values
+        minus_grad[len(self.workers_):] = -dQbeta[self.tasks_].values
         return minus_grad
 
     @manage_docstring
     def _update_alphas_betas(self, alphas: GLAD_ALPHAS, betas: GLAD_BETAS):
         self.alphas_ = alphas
         self.betas_ = betas
-        self._current_data.set_index('performer', inplace=True)
+        self._current_data.set_index('worker', inplace=True)
         self._current_data['alpha'] = alphas
         self._current_data.reset_index(inplace=True)
         self._current_data.set_index('task', inplace=True)
@@ -226,9 +226,9 @@ class GLAD(BaseClassificationAggregator):
 
     @manage_docstring
     def _get_alphas_betas_by_point(self, x: np.ndarray) -> Tuple[pd.Series, pd.Series]:
-        alphas = pd.Series(x[:len(self.performers_)], index=self.performers_, name='alpha')
-        alphas.index.name = 'performer'
-        betas = pd.Series(x[len(self.performers_):], index=self.tasks_, name='beta')
+        alphas = pd.Series(x[:len(self.workers_)], index=self.workers_, name='alpha')
+        alphas.index.name = 'worker'
+        betas = pd.Series(x[len(self.workers_):], index=self.tasks_, name='beta')
         betas.index.name = 'task'
         return alphas, betas
 
@@ -246,10 +246,10 @@ class GLAD(BaseClassificationAggregator):
 
     @manage_docstring
     def _init(self, data: LABELED_DATA) -> None:
-        self.alphas_ = pd.Series(1.0, index=pd.unique(data.performer))
+        self.alphas_ = pd.Series(1.0, index=pd.unique(data.worker))
         self.betas_ = pd.Series(1.0, index=pd.unique(data.task))
         self.tasks_ = pd.unique(data['task'])
-        self.performers_ = pd.unique(data['performer'])
+        self.workers_ = pd.unique(data['worker'])
         self.priors_ = self.labels_priors
         if self.priors_ is None:
             self.prior_labels_ = pd.unique(data['label'])
@@ -284,7 +284,7 @@ class GLAD(BaseClassificationAggregator):
         """
 
         # Initialization
-        data = data.filter(['task', 'performer', 'label'])
+        data = data.filter(['task', 'worker', 'label'])
         self._init(data)
         data = self._join_all(data, self.alphas_, self.betas_, self.priors_)
         data = self._e_step(data)

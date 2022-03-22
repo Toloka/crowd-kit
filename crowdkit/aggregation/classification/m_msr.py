@@ -21,15 +21,15 @@ class MMSR(BaseClassificationAggregator):
     r"""
     Matrix Mean-Subsequence-Reduced Algorithm.
 
-    The M-MSR assumes that performers have different level of expertise and associated
+    The M-MSR assumes that workers have different level of expertise and associated
     with a vector of "skills" $\boldsymbol{s}$ which entries $s_i$ show the probability
-    of the performer $i$ to answer correctly to the given task. Having that, we can show that
+    of the worker $i$ to answer correctly to the given task. Having that, we can show that
     $$
     \mathbb{E}\left[\frac{M}{M-1}\widetilde{C}-\frac{1}{M-1}\boldsymbol{1}\boldsymbol{1}^T\right]
      = \boldsymbol{s}\boldsymbol{s}^T,
     $$
     where $M$ is the total number of classes, $\widetilde{C}$ is a covariation matrix between
-    performers, and $\boldsymbol{1}\boldsymbol{1}^T$ is the all-ones matrix which has the same
+    workers, and $\boldsymbol{1}\boldsymbol{1}^T$ is the all-ones matrix which has the same
     size as $\widetilde{C}$.
 
 
@@ -63,11 +63,11 @@ class MMSR(BaseClassificationAggregator):
     _observation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
     _covariation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
     _n_common_tasks: np.ndarray = attr.ib(factory=lambda: np.array([]))
-    _n_performers: int = attr.ib(default=0)
+    _n_workers: int = attr.ib(default=0)
     _n_tasks: int = attr.ib(default=0)
     _n_labels: int = attr.ib(default=0)
     _labels_mapping: dict = attr.ib(factory=dict)
-    _performers_mapping: dict = attr.ib(factory=dict)
+    _workers_mapping: dict = attr.ib(factory=dict)
     _tasks_mapping: dict = attr.ib(factory=dict)
 
     # Available after fit
@@ -89,10 +89,10 @@ class MMSR(BaseClassificationAggregator):
     @manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):
         """
-        Estimate the performers' skills.
+        Estimate the workers' skills.
         """
 
-        data = data[['task', 'performer', 'label']]
+        data = data[['task', 'worker', 'label']]
         self._construnct_covariation_matrix(data)
         self._m_msr()
         return self
@@ -170,17 +170,17 @@ class MMSR(BaseClassificationAggregator):
         x_track_3 = np.minimum(x_track_2, 1 - 1. / np.sqrt(self._n_tasks))
         x_MSR = np.maximum(x_track_3, -1 / (self._n_labels - 1) + 1. / np.sqrt(self._n_tasks))
 
-        performers_probas = x_MSR * (self._n_labels - 1) / (self._n_labels) + 1 / self._n_labels
-        performers_probas = performers_probas.ravel()
-        skills = np.log(performers_probas * (self._n_labels - 1) / (1 - performers_probas))
+        workers_probas = x_MSR * (self._n_labels - 1) / (self._n_labels) + 1 / self._n_labels
+        workers_probas = workers_probas.ravel()
+        skills = np.log(workers_probas * (self._n_labels - 1) / (1 - workers_probas))
 
         self.skills_ = self._get_skills_from_array(skills)
 
     @manage_docstring
     def _get_skills_from_array(self, array: np.ndarray) -> annotations.SKILLS:
-        inverse_performers_mapping = {ind: performer for performer, ind in self._performers_mapping.items()}
-        index = [inverse_performers_mapping[i] for i in range(len(array))]
-        return pd.Series(array, index=pd.Index(index, name='performer'))
+        inverse_workers_mapping = {ind: worker for worker, ind in self._workers_mapping.items()}
+        index = [inverse_workers_mapping[i] for i in range(len(array))]
+        return pd.Series(array, index=pd.Index(index, name='worker'))
 
     @staticmethod
     def _sign_determination_valid(C: np.ndarray, s_abs: np.ndarray) -> np.ndarray:
@@ -230,17 +230,17 @@ class MMSR(BaseClassificationAggregator):
         self._n_labels = len(labels)
         self._labels_mapping = {labels[idx]: idx + 1 for idx in range(self._n_labels)}
 
-        performers = pd.unique(answers.performer)
-        self._n_performers = len(performers)
-        self._performers_mapping = {performers[idx]: idx for idx in range(self._n_performers)}
+        workers = pd.unique(answers.worker)
+        self._n_workers = len(workers)
+        self._workers_mapping = {workers[idx]: idx for idx in range(self._n_workers)}
 
         tasks = pd.unique(answers.task)
         self._n_tasks = len(tasks)
         self._tasks_mapping = {tasks[idx]: idx for idx in range(self._n_tasks)}
 
-        self._observation_matrix = np.zeros(shape=(self._n_performers, self._n_tasks))
+        self._observation_matrix = np.zeros(shape=(self._n_workers, self._n_tasks))
         for i, row in answers.iterrows():
-            self._observation_matrix[self._performers_mapping[row['performer']]][self._tasks_mapping[row['task']]] = \
+            self._observation_matrix[self._workers_mapping[row['worker']]][self._tasks_mapping[row['task']]] = \
             self._labels_mapping[row['label']]
 
         self._n_common_tasks = np.sign(self._observation_matrix) @ np.sign(self._observation_matrix).T
@@ -248,12 +248,12 @@ class MMSR(BaseClassificationAggregator):
         self._sparsity = np.min(np.sign(self._n_common_tasks).sum(axis=0))
 
         # Can we rewrite it in matrix operations?
-        self._covariation_matrix = np.zeros(shape=(self._n_performers, self._n_performers))
-        for i in range(self._n_performers):
-            for j in range(self._n_performers):
+        self._covariation_matrix = np.zeros(shape=(self._n_workers, self._n_workers))
+        for i in range(self._n_workers):
+            for j in range(self._n_workers):
                 if self._n_common_tasks[i][j]:
                     valid_idx = np.sign(self._observation_matrix[i]) * np.sign(self._observation_matrix[j])
                     self._covariation_matrix[i][j] = np.sum((self._observation_matrix[i] == self._observation_matrix[j]) * valid_idx) / self._n_common_tasks[i][j]
 
         self._covariation_matrix *= self._n_labels / (self._n_labels - 1)
-        self._covariation_matrix -= np.ones(shape=(self._n_performers, self._n_performers)) / (self._n_labels - 1)
+        self._covariation_matrix -= np.ones(shape=(self._n_workers, self._n_workers)) / (self._n_labels - 1)

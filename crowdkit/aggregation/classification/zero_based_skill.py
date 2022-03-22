@@ -16,13 +16,13 @@ class ZeroBasedSkill(BaseClassificationAggregator):
     """The Zero-Based Skill aggregation model.
 
     Performs weighted majority voting on tasks. After processing a pool of tasks,
-    re-estimates performers' skills through a gradient descend step of optimization
+    re-estimates workers' skills through a gradient descend step of optimization
     of the mean squared error of current skills and the fraction of responses that
     are equal to the aggregated labels.
 
     Repeats this process until labels do not change or the number of iterations exceeds.
 
-    It's necessary that all performers in a dataset that send to 'predict' existed in answers
+    It's necessary that all workers in a dataset that send to 'predict' existed in answers
     the dataset that was sent to 'fit'.
 
     Args:
@@ -54,7 +54,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
 
     def _init_skills(self, data: annotations.LABELED_DATA) -> annotations.SKILLS:
         skill_value = 1 / data.label.unique().size + self.eps
-        skill_index = pd.Index(data.performer.unique(), name='performer')
+        skill_index = pd.Index(data.worker.unique(), name='worker')
         return pd.Series(skill_value, index=skill_index)
 
     @manage_docstring
@@ -72,7 +72,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         """
 
         # Initialization
-        data = data[['task', 'performer', 'label']]
+        data = data[['task', 'worker', 'label']]
         skills = self._init_skills(data)
         mv = MajorityVote()
 
@@ -82,7 +82,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
             if iteration % self.lr_steps_to_reduce == 0:
                 learning_rate *= self.lr_reduce_factor
             mv.fit(data, skills=skills)
-            skills = skills + learning_rate * (get_accuracy(data, mv.labels_, by='performer') - skills)
+            skills = skills + learning_rate * (get_accuracy(data, mv.labels_, by='worker') - skills)
 
         # Saving results
         self.skills_ = skills

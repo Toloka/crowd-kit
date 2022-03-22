@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit_predict`
+`crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L43)
 
 ```python
 fit_predict(self, data: DataFrame)
@@ -9,7 +9,7 @@ fit_predict(self, data: DataFrame)
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; segmentations. A pandas.DataFrame containing `performer`, `task` and `segmentation` columns&#x27;.</p>
+`data`|**DataFrame**|<p>Workers&#x27; segmentations. A pandas.DataFrame containing `worker`, `task` and `segmentation` columns&#x27;.</p>
 
 * **Returns:**
 

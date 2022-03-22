@@ -6,21 +6,21 @@ import pandas
 
 
 class NoisyBradleyTerry(crowdkit.aggregation.base.BasePairwiseAggregator):
-    """A modification of Bradley-Terry with parameters for performers' skills and
+    """A modification of Bradley-Terry with parameters for workers' skills and
     their biases.
     Attributes:
         scores_ (Series): 'Labels' scores.
             A pandas.Series index by labels and holding corresponding label's scores
-        skills_ (Series): Performers' skills.
-            A pandas.Series index by performers and holding corresponding performer's skill
-        biases_ (Series): Predicted biases for each performer. Indicates the probability of a performer to choose the left item..
-            A series of performers' biases indexed by performers
+        skills_ (Series): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
+        biases_ (Series): Predicted biases for each worker. Indicates the probability of a worker to choose the left item..
+            A series of workers' biases indexed by workers
     """
 
     def fit(self, data: pandas.DataFrame) -> 'NoisyBradleyTerry':
         """Args:
-            data (DataFrame): Performers' pairwise comparison results.
-                A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:
@@ -30,8 +30,8 @@ class NoisyBradleyTerry(crowdkit.aggregation.base.BasePairwiseAggregator):
 
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Args:
-            data (DataFrame): Performers' pairwise comparison results.
-                A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:

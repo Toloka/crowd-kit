@@ -26,14 +26,14 @@ class RASA(BaseEmbeddingsAggregator):
     r"""
     Reliability Aware Sequence Aggregation.
 
-    RASA estimates *global* performers' reliabilities $\beta$ that are initialized by ones.
+    RASA estimates *global* workers' reliabilities $\beta$ that are initialized by ones.
 
     Next, the algorithm iteratively performs two steps:
     1. For each task, estimate the aggregated embedding: $\hat{e}_i = \frac{\sum_k
     \beta_k e_i^k}{\sum_k \beta_k}$
-    2. For each performer, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
+    2. For each worker, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
     |\mathcal{V}_k|)}}{\sum_i\left(\|e_i^k - \hat{e}_i\|^2\right)}$, where $\mathcal{V}_k$
-    is a set of tasks completed by the performer $k$
+    is a set of tasks completed by the worker $k$
 
     Finally, the aggregated result is the output which embedding is
     the closest one to the $\hat{e}_i$.
@@ -58,7 +58,7 @@ class RASA(BaseEmbeddingsAggregator):
         >>>         ['t1', 'p2', 'a', np.array([1.0, 0.0])],
         >>>         ['t1', 'p3', 'b', np.array([0.0, 1.0])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'output', 'embedding']
+        >>>     columns=['task', 'worker', 'output', 'embedding']
         >>> )
         >>> result = RASA().fit_predict(df)
     """
@@ -74,7 +74,7 @@ class RASA(BaseEmbeddingsAggregator):
     def _aggregate_embeddings(data: annotations.EMBEDDED_DATA, skills: annotations.SKILLS,
                               true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_EMBEDDINGS:
         """Calculates weighted average of embeddings for each task."""
-        data = data.join(skills.rename('skill'), on='performer')
+        data = data.join(skills.rename('skill'), on='worker')
         data['weighted_embedding'] = data.skill * data.embedding
         group = data.groupby('task')
         aggregated_embeddings = (group.weighted_embedding.apply(np.sum) / group.skill.sum())
@@ -88,7 +88,7 @@ class RASA(BaseEmbeddingsAggregator):
         """Estimates global reliabilities by aggregated embeddings."""
         data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
         data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
-        total_distances = data.groupby('performer').distance.apply(np.sum)
+        total_distances = data.groupby('worker').distance.apply(np.sum)
         total_distances.clip(lower=_EPS, inplace=True)
         return prior_skills / total_distances
 
@@ -112,7 +112,7 @@ class RASA(BaseEmbeddingsAggregator):
         Fit the model.
         """
 
-        data = data[['task', 'performer', 'embedding']]
+        data = data[['task', 'worker', 'embedding']]
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
             raise ValueError(
@@ -120,8 +120,8 @@ class RASA(BaseEmbeddingsAggregator):
             )
 
         # What we call skills here is called reliabilities in the paper
-        prior_skills = data.performer.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
-        skills = pd.Series(1.0, index=data.performer.unique())
+        prior_skills = data.worker.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
+        skills = pd.Series(1.0, index=data.worker.unique())
         aggregated_embeddings = None
         last_aggregated = None
 

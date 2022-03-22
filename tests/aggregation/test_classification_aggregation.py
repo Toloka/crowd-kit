@@ -84,7 +84,7 @@ def test_fit_predict_classification_aggregations_methods(
     Tests all aggregation methods, that fit->predict chain works well, and at each step we have the correct values for:
         - tasks_labels
         - probas
-        - performers_skills
+        - workers_skills
     """
     # incoming datasets
     answers = request.getfixturevalue(f'{dataset}_answers_df')

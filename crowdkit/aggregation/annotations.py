@@ -130,44 +130,44 @@ def manage_docstring(obj):
 
 EMBEDDED_DATA = Annotation(
     type=pd.DataFrame,
-    title="Performers' outputs with their embeddings",
-    description='A pandas.DataFrame containing `task`, `performer`, `output` and `embedding` columns.'
+    title="Workers' outputs with their embeddings",
+    description='A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.'
 )
 
 DATA = Annotation(
     type=pd.DataFrame,
-    title="Performers' outputs",
-    description='A pandas.DataFrame containing `task`, `performer` and `output` columns.'
+    title="Workers' outputs",
+    description='A pandas.DataFrame containing `task`, `worker` and `output` columns.'
 )
 
 LABELED_DATA = Annotation(
     type=pd.DataFrame,
-    title="Performers' labeling results",
-    description='A pandas.DataFrame containing `task`, `performer` and `label` columns.',
+    title="Workers' labeling results",
+    description='A pandas.DataFrame containing `task`, `worker` and `label` columns.',
 )
 
 
 PAIRWISE_DATA = Annotation(
     type=pd.DataFrame,
-    title="Performers' pairwise comparison results",
+    title="Workers' pairwise comparison results",
     description=textwrap.dedent('''
-        A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
+        A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
         For each row `label` must be equal to either `left` column or `right` column.
     ''')
 )
 
 TEXT_DATA = Annotation(
     type=pd.DataFrame,
-    title="Performers' text outputs",
-    description='A pandas.DataFrame containing `task`, `performer` and `text` columns.'
+    title="Workers' text outputs",
+    description='A pandas.DataFrame containing `task`, `worker` and `text` columns.'
 )
 
 
 SEGMENTATION_DATA = Annotation(
     type=pd.DataFrame,
-    title='Performers\' segmentations',
+    title='Workers\' segmentations',
     description=textwrap.dedent('''
-        A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+        A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
     ''')
 )
 
@@ -262,7 +262,7 @@ SEGMENTATION_ERRORS = Annotation(
     type=np.ndarray,
     title='Errors',
     description=textwrap.dedent('''
-         A numpy 1d ndarray, which contains the probability of correct answers for performers.
+         A numpy 1d ndarray, which contains the probability of correct answers for workers.
     '''),
 )
 
@@ -294,9 +294,9 @@ TASKS_TEXTS = Annotation(
 
 GLAD_ALPHAS = Annotation(
     type=pd.Series,
-    title="Performers' alpha parameters",
+    title="workers' alpha parameters",
     description=textwrap.dedent('''
-        A pandas.Series indexed by `performer` that contains estimated alpha parameters.
+        A pandas.Series indexed by `worker` that contains estimated alpha parameters.
     '''),
 )
 
@@ -309,27 +309,27 @@ GLAD_BETAS = Annotation(
 )
 
 
-# Performers related annotations
+# workers related annotations
 
 BIASES = Annotation(
     type=pd.Series,
-    title='Predicted biases for each performer. Indicates the probability of a performer to choose the left item.',
-    description=textwrap.dedent("A series of performers' biases indexed by performers"),
+    title='Predicted biases for each worker. Indicates the probability of a worker to choose the left item.',
+    description=textwrap.dedent("A series of workers' biases indexed by workers"),
 )
 
 SKILLS = Annotation(
     type=pd.Series,
-    title="Performers' skills",
-    description="A pandas.Series index by performers and holding corresponding performer's skill",
+    title="workers' skills",
+    description="A pandas.Series index by workers and holding corresponding worker's skill",
 )
 
 ERRORS = Annotation(
     type=pd.DataFrame,
-    title="Performers' error matrices",
+    title="Workers' error matrices",
     description=textwrap.dedent('''
-        A pandas.DataFrame indexed by `performer` and `label` with a column for every
-        label_id found in `data` such that `result.loc[performer, observed_label, true_label]`
-        is the probability of `performer` producing an `observed_label` given that a task's
+        A pandas.DataFrame indexed by `worker` and `label` with a column for every
+        label_id found in `data` such that `result.loc[worker, observed_label, true_label]`
+        is the probability of `worker` producing an `observed_label` given that a task's
         true label is `true_label`
     '''),
 )
@@ -337,13 +337,13 @@ ERRORS = Annotation(
 WEIGHTED_DATA = Annotation(
     type=pd.DataFrame,
     title='Input data',
-    description='A pandas.DataFrame containing `task`, `performer`, `label` and optionally `weight` columns',
+    description='A pandas.DataFrame containing `task`, `worker`, `label` and optionally `weight` columns',
 )
 
 WEIGHTS = Annotation(
     type=pd.DataFrame,
     title='Task weights',
-    description='A pandas.DataFrame containing `task`, `performer` and `weight`'
+    description='A pandas.DataFrame containing `task`, `worker` and `weight`'
 )
 
 

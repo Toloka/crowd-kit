@@ -32,7 +32,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
     Args:
         tokenizer: [Pre-trained tokenizer](https://huggingface.co/transformers/main_classes/tokenizer.html#pretrainedtokenizer).
         model: [Pre-trained model](https://huggingface.co/transformers/main_classes/model.html#pretrainedmodel) for text summarization.
-        concat_token: Token used for the performers' texts concatenation.
+        concat_token: Token used for the workers' texts concatenation.
             Default value: ` | `.
         num_beams: Number of beams for beam search. 1 means no beam search.
             Default value: `16`.
@@ -62,8 +62,8 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Run the aggregation and return the aggregated texts.
         Args:
-            data (DataFrame): Performers' text outputs.
-                A pandas.DataFrame containing `task`, `performer` and `text` columns.
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
         Returns:
             Series: Tasks' texts.
                 A pandas.Series indexed by `task` such that `result.loc[task, text]`

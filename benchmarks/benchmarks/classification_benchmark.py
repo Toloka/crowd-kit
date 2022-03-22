@@ -56,7 +56,7 @@ class NistTrecRelevance:
     def _calc_accuracy(self, predict):
         predict = predict.to_frame().reset_index()
         predict.columns = ['task', 'label']
-        predict['performer'] = None
+        predict['worker'] = None
         return get_accuracy(predict, true_labels=self.ground_truth)
 
     def track_accuracy_gold_majority_vote(self):

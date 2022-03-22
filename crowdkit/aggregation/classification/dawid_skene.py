@@ -22,10 +22,10 @@ class DawidSkene(BaseClassificationAggregator):
     Dawid-Skene aggregation model.
 
 
-    Probabilistic model that parametrizes performers' level of expertise through confusion matrices.
+    Probabilistic model that parametrizes workers' level of expertise through confusion matrices.
 
-    Let $e^w$ be a performer's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
-    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a performer's
+    Let $e^w$ be a worker's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
+    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a worker's
     answer for the task $j$. The relationships between these parameters are represented by the following latent
     label model.
 
@@ -35,7 +35,7 @@ class DawidSkene(BaseClassificationAggregator):
     $$
     \operatorname{Pr}(z_j = c) = p[c],
     $$
-    and the distribution on the performer's responses given the true label $c$ is represented by the
+    and the distribution on the worker's responses given the true label $c$ is represented by the
     corresponding column of the error matrix:
     $$
     \operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c].
@@ -73,15 +73,15 @@ class DawidSkene(BaseClassificationAggregator):
     def _m_step(data: annotations.LABELED_DATA, probas: annotations.TASKS_LABEL_PROBAS) -> annotations.ERRORS:
         """Perform M-step of Dawid-Skene algorithm.
 
-        Given performers' answers and tasks' true labels probabilities estimates
-        performer's errors probabilities matrix.
+        Given workers' answers and tasks' true labels probabilities estimates
+        worker's errors probabilities matrix.
         """
         joined = data.join(probas, on='task')
         joined.drop(columns=['task'], inplace=True)
 
-        errors = joined.groupby(['performer', 'label'], sort=False).sum()
+        errors = joined.groupby(['worker', 'label'], sort=False).sum()
         errors.clip(lower=_EPS, inplace=True)
-        errors /= errors.groupby('performer', sort=False).sum()
+        errors /= errors.groupby('worker', sort=False).sum()
 
         return errors
 
@@ -91,15 +91,15 @@ class DawidSkene(BaseClassificationAggregator):
         """
         Perform E-step of Dawid-Skene algorithm.
 
-        Given performer's answers, labels' prior probabilities and performer's performer's
+        Given worker's answers, labels' prior probabilities and worker's worker's
         errors probabilities matrix estimates tasks' true labels probabilities.
         """
 
         # We have to multiply lots of probabilities and such products are known to converge
         # to zero exponentially fast. To avoid floating-point precision problems we work with
         # logs of original values
-        joined = data.join(np.log2(errors), on=['performer', 'label'])
-        joined.drop(columns=['performer', 'label'], inplace=True)
+        joined = data.join(np.log2(errors), on=['worker', 'label'])
+        joined.drop(columns=['worker', 'label'], inplace=True)
         log_likelihoods = np.log2(priors) + joined.groupby('task', sort=False).sum()
 
         # Exponentiating log_likelihoods 'as is' may still get us beyond our precision.
@@ -116,7 +116,7 @@ class DawidSkene(BaseClassificationAggregator):
         priors: annotations.LABEL_PRIORS, errors: annotations.ERRORS
     ):
         # calculate joint probability log-likelihood expectation over probas
-        joined = data.join(np.log(errors), on=['performer', 'label'])
+        joined = data.join(np.log(errors), on=['worker', 'label'])
 
         # escape boolean index/column names to prevent confusion between indexing by boolean array and iterable of names
         joined = joined.rename(columns={True: 'True', False: 'False'}, copy=False)
@@ -124,7 +124,7 @@ class DawidSkene(BaseClassificationAggregator):
 
         joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))
 
-        joined.set_index(['task', 'performer'], inplace=True)
+        joined.set_index(['task', 'worker'], inplace=True)
         joint_expectation = (probas * joined).sum().sum()
 
         entropy = -(np.log(probas) * probas).sum().sum()
@@ -136,7 +136,7 @@ class DawidSkene(BaseClassificationAggregator):
         Fit the model through the EM-algorithm.
         """
 
-        data = data[['task', 'performer', 'label']]
+        data = data[['task', 'worker', 'label']]
 
         # Early exit
         if not data.size:

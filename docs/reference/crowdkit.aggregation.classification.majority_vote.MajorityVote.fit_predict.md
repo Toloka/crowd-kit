@@ -1,11 +1,11 @@
 # fit_predict
-`crowdkit.aggregation.classification.majority_vote.MajorityVote.fit_predict`
+`crowdkit.aggregation.classification.majority_vote.MajorityVote.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/majority_vote.py#L90)
 
 ```python
 fit_predict(
     self,
     data: DataFrame,
-    skills: Series = None
+    skills: Optional[Series] = None
 )
 ```
 
@@ -15,8 +15,8 @@ Fit the model and return aggregated results.
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; labeling results. A pandas.DataFrame containing `task`, `performer` and `label` columns.</p>
-`skills`|**Series**|<p>Performers&#x27; skills. A pandas.Series index by performers and holding corresponding performer&#x27;s skill</p>
+`data`|**DataFrame**|<p>Workers&#x27; labeling results. A pandas.DataFrame containing `task`, `worker` and `label` columns.</p>
+`skills`|**Optional\[Series\]**|<p>workers&#x27; skills. A pandas.Series index by workers and holding corresponding worker&#x27;s skill</p>
 
 * **Returns:**
 

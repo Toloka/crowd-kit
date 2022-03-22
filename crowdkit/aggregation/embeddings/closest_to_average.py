@@ -16,7 +16,7 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     """
     Closest to Average - chooses the output with the embedding closest to the average embedding.
 
-    This method takes a `DataFrame` containing four columns: `task`, `performer`, `output`, and `embedding`.
+    This method takes a `DataFrame` containing four columns: `task`, `worker`, `output`, and `embedding`.
     Here the `embedding` is a vector containing a representation of the `output`. The `output` might be any
     type of data such as text, images, NumPy arrays, etc. As the result, the method returns the output which
     embedding is the closest one to the average embedding of the task's responses.
@@ -43,11 +43,11 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
                 'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
             )
 
-        data = data[['task', 'performer', 'output', 'embedding']]
+        data = data[['task', 'worker', 'output', 'embedding']]
         if aggregated_embeddings is None:
             group = data.groupby('task')
             # we don't use .mean() because it does not work with np.array in older pandas versions
-            avg_embeddings = group.embedding.apply(np.sum) / group.performer.count()
+            avg_embeddings = group.embedding.apply(np.sum) / group.worker.count()
             avg_embeddings.update(true_embeddings)
         else:
             avg_embeddings = aggregated_embeddings

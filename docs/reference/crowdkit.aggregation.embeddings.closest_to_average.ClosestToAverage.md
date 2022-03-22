@@ -1,5 +1,5 @@
 # ClosestToAverage
-`crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage`
+`crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/embeddings/closest_to_average.py#L12)
 
 ```python
 ClosestToAverage(self, distance: Callable[[ndarray, ndarray], float])
@@ -8,7 +8,7 @@ ClosestToAverage(self, distance: Callable[[ndarray, ndarray], float])
 Closest to Average - chooses the output with the embedding closest to the average embedding.
 
 
-This method takes a `DataFrame` containing four columns: `task`, `performer`, `output`, and `embedding`.
+This method takes a `DataFrame` containing four columns: `task`, `worker`, `output`, and `embedding`.
 Here the `embedding` is a vector containing a representation of the `output`. The `output` might be any
 type of data such as text, images, NumPy arrays, etc. As the result, the method returns the output which
 embedding is the closest one to the average embedding of the task's responses.

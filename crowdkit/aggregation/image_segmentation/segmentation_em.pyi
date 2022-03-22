@@ -11,8 +11,8 @@ class SegmentationEM(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
 
     This method performs a categorical aggregation task for each pixel: should
     it be included to the resulting aggregate or no. This task is solved by
-    the single coin Dawid-Skene algorithm. Each performer has a latent parameter
-    "skill" that shows the probability of this performer to answer correctly.
+    the single coin Dawid-Skene algorithm. Each worker has a latent parameter
+    "skill" that shows the probability of this worker to answer correctly.
     Skills and true pixels' labels are optimized by the Expectation-Maximization
     algorithm.
 
@@ -34,7 +34,7 @@ class SegmentationEM(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
         >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
         >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'segmentation']
+        >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationEM().fit_predict(df)
     Attributes:
@@ -46,8 +46,8 @@ class SegmentationEM(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
     def fit(self, data: pandas.DataFrame) -> 'SegmentationEM':
         """Fit the model.
         Args:
-            data (DataFrame): Performers' segmentations.
-                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
 
         Returns:
             SegmentationEM: self.
@@ -57,8 +57,8 @@ class SegmentationEM(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return the aggregated segmentations.
         Args:
-            data (DataFrame): Performers' segmentations.
-                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
 
         Returns:
             Series: Tasks' segmentations.

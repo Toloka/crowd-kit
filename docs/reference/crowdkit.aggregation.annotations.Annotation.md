@@ -1,5 +1,5 @@
 # Annotation
-`crowdkit.aggregation.annotations.Annotation`
+`crowdkit.aggregation.annotations.Annotation` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/annotations.py#L59)
 
 ```python
 Annotation(

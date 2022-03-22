@@ -10,10 +10,10 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
     """Dawid-Skene aggregation model.
 
 
-    Probabilistic model that parametrizes performers' level of expertise through confusion matrices.
+    Probabilistic model that parametrizes workers' level of expertise through confusion matrices.
 
-    Let $e^w$ be a performer's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
-    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a performer's
+    Let $e^w$ be a worker's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
+    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a worker's
     answer for the task $j$. The relationships between these parameters are represented by the following latent
     label model.
 
@@ -23,7 +23,7 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
     $$
     \operatorname{Pr}(z_j = c) = p[c],
     $$
-    and the distribution on the performer's responses given the true label $c$ is represented by the
+    and the distribution on the worker's responses given the true label $c$ is represented by the
     corresponding column of the error matrix:
     $$
     \operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c].
@@ -60,18 +60,18 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
             probability of occurrence. Each probability is between 0 and 1,
             all probabilities should sum up to 1
 
-        errors_ (typing.Optional[pandas.core.frame.DataFrame]): Performers' error matrices.
-            A pandas.DataFrame indexed by `performer` and `label` with a column for every
-            label_id found in `data` such that `result.loc[performer, observed_label, true_label]`
-            is the probability of `performer` producing an `observed_label` given that a task's
+        errors_ (typing.Optional[pandas.core.frame.DataFrame]): Workers' error matrices.
+            A pandas.DataFrame indexed by `worker` and `label` with a column for every
+            label_id found in `data` such that `result.loc[worker, observed_label, true_label]`
+            is the probability of `worker` producing an `observed_label` given that a task's
             true label is `true_label`
     """
 
     def fit(self, data: pandas.DataFrame) -> 'DawidSkene':
         """Fit the model through the EM-algorithm.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             DawidSkene: self.
         """
@@ -80,8 +80,8 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict_proba(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Fit the model and return probability distributions on labels for each task.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             DataFrame: Tasks' label probability distributions.
                 A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
@@ -93,8 +93,8 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return aggregated results.
         Args:
-            data (DataFrame): Performers' labeling results.
-                A pandas.DataFrame containing `task`, `performer` and `label` columns.
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
         Returns:
             Series: Tasks' labels.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`

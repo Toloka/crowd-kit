@@ -7,9 +7,9 @@ import typing
 
 
 class SegmentationRASA(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
-    """Segmentation RASA - chooses a pixel if sum of weighted votes of each performers' more than 0.5.
+    """Segmentation RASA - chooses a pixel if sum of weighted votes of each workers' more than 0.5.
 
-    Algorithm works iteratively, at each step, the performers are reweighted in proportion to their distances
+    Algorithm works iteratively, at each step, the workers are reweighted in proportion to their distances
     to the current answer estimation. The distance is considered as $1 - IOU$. Modification of the RASA method
     for texts.
 
@@ -32,7 +32,7 @@ class SegmentationRASA(crowdkit.aggregation.base.BaseImageSegmentationAggregator
         >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
         >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'segmentation']
+        >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationRASA().fit_predict(df)
     Attributes:
@@ -44,8 +44,8 @@ class SegmentationRASA(crowdkit.aggregation.base.BaseImageSegmentationAggregator
     def fit(self, data: pandas.DataFrame) -> 'SegmentationRASA':
         """Fit the model.
         Args:
-            data (DataFrame): Performers' segmentations.
-                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
 
         Returns:
             SegmentationRASA: self.
@@ -55,8 +55,8 @@ class SegmentationRASA(crowdkit.aggregation.base.BaseImageSegmentationAggregator
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Fit the model and return the aggregated segmentations.
         Args:
-            data (DataFrame): Performers' segmentations.
-                A pandas.DataFrame containing `performer`, `task` and `segmentation` columns'.
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
 
         Returns:
             Series: Tasks' segmentations.

@@ -1,5 +1,5 @@
 # TextHRRASA
-`crowdkit.aggregation.texts.text_hrrasa.TextHRRASA`
+`crowdkit.aggregation.texts.text_hrrasa.TextHRRASA` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/texts/text_hrrasa.py#L14)
 
 ```python
 TextHRRASA(
@@ -18,7 +18,7 @@ TextHRRASA(
 HRRASA on text embeddings.
 
 
-Given a sentence encoder, encodes texts provided by performers and runs the HRRASA algorithm for embedding
+Given a sentence encoder, encodes texts provided by workers and runs the HRRASA algorithm for embedding
 aggregation.
 
 ## Parameters Description

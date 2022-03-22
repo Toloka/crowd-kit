@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.texts.text_summarization.TextSummarization.fit_predict`
+`crowdkit.aggregation.texts.text_summarization.TextSummarization.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/texts/text_summarization.py#L72)
 
 ```python
 fit_predict(self, data: DataFrame)
@@ -11,7 +11,7 @@ Run the aggregation and return the aggregated texts.
 
 | Parameters | Type | Description |
 | :----------| :----| :-----------|
-`data`|**DataFrame**|<p>Performers&#x27; text outputs. A pandas.DataFrame containing `task`, `performer` and `text` columns.</p>
+`data`|**DataFrame**|<p>Workers&#x27; text outputs. A pandas.DataFrame containing `task`, `worker` and `text` columns.</p>
 
 * **Returns:**
 

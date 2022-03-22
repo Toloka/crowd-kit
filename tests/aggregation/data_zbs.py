@@ -17,7 +17,7 @@ def toy_labels_result_zbs():
 def toy_skills_result_zbs():
     return pd.Series(
         [0.6, 0.8, 1.0, 0.4, 0.8],
-        index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='performer'),
+        index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
         name='skill'
     )
 
@@ -55,7 +55,7 @@ def simple_skills_result_zbs():
         'bde3b214b06c1efa6cb1bc6284dc72d2': 1.0,
         'e563e2fb32fce9f00123a65a1bc78c55': 0.666667,
     }, name='skill')
-    skills.index.name = 'performer'
+    skills.index.name = 'worker'
     return skills
 
 

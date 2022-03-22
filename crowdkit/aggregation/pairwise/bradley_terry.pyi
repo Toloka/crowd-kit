@@ -57,8 +57,8 @@ class BradleyTerry(crowdkit.aggregation.base.BasePairwiseAggregator):
 
     def fit(self, data: pandas.DataFrame) -> 'BradleyTerry':
         """Args:
-            data (DataFrame): Performers' pairwise comparison results.
-                A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:
@@ -68,8 +68,8 @@ class BradleyTerry(crowdkit.aggregation.base.BasePairwiseAggregator):
 
     def fit_predict(self, data: pandas.DataFrame) -> pandas.Series:
         """Args:
-            data (DataFrame): Performers' pairwise comparison results.
-                A pandas.DataFrame containing `performer`, `left`, `right`, and `label` columns'.
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
                 For each row `label` must be equal to either `left` column or `right` column.
 
         Returns:

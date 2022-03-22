@@ -19,7 +19,7 @@ def test_majority_vote_with_missing_skills_value(simple_answers_df, simple_skill
     simple_skills_result_mv = simple_skills_result_mv.drop('0c3eb7d5fcc414db137c4180a654c06e')
     mv.fit_predict(simple_answers_df, skills=simple_skills_result_mv)
 
-    frauded_tasks = simple_answers_df[simple_answers_df['performer'] == '0c3eb7d5fcc414db137c4180a654c06e']['task']
+    frauded_tasks = simple_answers_df[simple_answers_df['worker'] == '0c3eb7d5fcc414db137c4180a654c06e']['task']
     for task in frauded_tasks:
         assert mv.labels_[task] == 'parrot'
 

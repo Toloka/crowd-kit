@@ -1,5 +1,5 @@
 # DawidSkene
-`crowdkit.aggregation.classification.dawid_skene.DawidSkene`
+`crowdkit.aggregation.classification.dawid_skene.DawidSkene` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/dawid_skene.py#L17)
 
 ```python
 DawidSkene(
@@ -12,10 +12,10 @@ DawidSkene(
 Dawid-Skene aggregation model.
 
 
-Probabilistic model that parametrizes performers' level of expertise through confusion matrices.
+Probabilistic model that parametrizes workers' level of expertise through confusion matrices.
 
-Let $e^w$ be a performer's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
-$p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a performer's
+Let $e^w$ be a worker's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
+$p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a worker's
 answer for the task $j$. The relationships between these parameters are represented by the following latent
 label model.
 
@@ -25,7 +25,7 @@ Here the prior true label probability is
 $$
 \operatorname{Pr}(z_j = c) = p[c],
 $$
-and the distribution on the performer's responses given the true label $c$ is represented by the
+and the distribution on the worker's responses given the true label $c$ is represented by the
 corresponding column of the error matrix:
 $$
 \operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c].
@@ -46,7 +46,7 @@ https://doi.org/10.2307/2346806
 `labels_`|**Optional\[Series\]**|<p>Tasks&#x27; labels. A pandas.Series indexed by `task` such that `labels.loc[task]` is the tasks&#x27;s most likely true label.</p>
 `probas_`|**Optional\[DataFrame\]**|<p>Tasks&#x27; label probability distributions. A pandas.DataFrame indexed by `task` such that `result.loc[task, label]` is the probability of `task`&#x27;s true label to be equal to `label`. Each probability is between 0 and 1, all task&#x27;s probabilities should sum up to 1</p>
 `priors_`|**Optional\[Series\]**|<p>A prior label distribution. A pandas.Series indexed by labels and holding corresponding label&#x27;s probability of occurrence. Each probability is between 0 and 1, all probabilities should sum up to 1</p>
-`errors_`|**Optional\[DataFrame\]**|<p>Performers&#x27; error matrices. A pandas.DataFrame indexed by `performer` and `label` with a column for every label_id found in `data` such that `result.loc[performer, observed_label, true_label]` is the probability of `performer` producing an `observed_label` given that a task&#x27;s true label is `true_label`</p>
+`errors_`|**Optional\[DataFrame\]**|<p>Workers&#x27; error matrices. A pandas.DataFrame indexed by `worker` and `label` with a column for every label_id found in `data` such that `result.loc[worker, observed_label, true_label]` is the probability of `worker` producing an `observed_label` given that a task&#x27;s true label is `true_label`</p>
 
 **Examples:**
 

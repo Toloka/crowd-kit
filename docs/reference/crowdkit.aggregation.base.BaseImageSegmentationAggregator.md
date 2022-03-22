@@ -1,5 +1,5 @@
 # BaseImageSegmentationAggregator
-`crowdkit.aggregation.base.BaseImageSegmentationAggregator`
+`crowdkit.aggregation.base.BaseImageSegmentationAggregator` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L31)
 
 ```python
 BaseImageSegmentationAggregator(self)

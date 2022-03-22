@@ -17,9 +17,9 @@ _EPS = 1e-5
 @manage_docstring
 class SegmentationRASA(BaseImageSegmentationAggregator):
     """
-    Segmentation RASA - chooses a pixel if sum of weighted votes of each performers' more than 0.5.
+    Segmentation RASA - chooses a pixel if sum of weighted votes of each workers' more than 0.5.
 
-    Algorithm works iteratively, at each step, the performers are reweighted in proportion to their distances
+    Algorithm works iteratively, at each step, the workers are reweighted in proportion to their distances
     to the current answer estimation. The distance is considered as $1 - IOU$. Modification of the RASA method
     for texts.
 
@@ -42,7 +42,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         >>>         ['t1', 'p2', np.array([[0, 1], [1, 1]])],
         >>>         ['t1', 'p3', np.array([[0, 1], [1, 1]])]
         >>>     ],
-        >>>     columns=['task', 'performer', 'segmentation']
+        >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationRASA().fit_predict(df)
     """
@@ -58,7 +58,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         """
         Performs weighted majority vote algorithm.
 
-        From the weights of all performers and their segmentation, performs a
+        From the weights of all workers and their segmentation, performs a
         weighted majority vote for the inclusion of each pixel in the answer.
         """
         weighted_segmentations = (weights * segmentations.T).T
@@ -68,7 +68,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     @manage_docstring
     def _calculate_weights(segmentations: annotations.SEGMENTATIONS, mv: annotations.SEGMENTATION) -> annotations.SEGMENTATION_ERRORS:
         """
-        Calculates weights of each performers, from current majority vote estimation.
+        Calculates weights of each workers, from current majority vote estimation.
         """
         intersection = (segmentations & mv).astype(float)
         union = (segmentations | mv).astype(float)
@@ -109,7 +109,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         Fit the model.
         """
 
-        data = data[['task', 'performer', 'segmentation']]
+        data = data[['task', 'worker', 'segmentation']]
 
         # The latest pandas version installable under Python3.7 is pandas 1.1.5.
         # This version fails to accept a method with an error but works fine with lambdas

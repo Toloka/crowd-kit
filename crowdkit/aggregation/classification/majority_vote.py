@@ -18,7 +18,7 @@ class MajorityVote(BaseClassificationAggregator):
 
     Majority vote is a straightforward approach for categorical aggregation: for each task,
     it outputs a label which has the largest number of responses. Additionaly, the majority vote
-    can be used when different weights assigned for performers' votes. In this case, the
+    can be used when different weights assigned for workers' votes. In this case, the
     resulting label will be the one with the largest sum of weights.
 
 
@@ -26,7 +26,7 @@ class MajorityVote(BaseClassificationAggregator):
     label will be the same for all tasks which have the same set of labels with equal count of votes.
 
     Args:
-        default_skill: Defualt performer's weight value.
+        default_skill: Defualt worker's weight value.
 
     Examples:
         Basic majority voting:
@@ -47,7 +47,7 @@ class MajorityVote(BaseClassificationAggregator):
         >>>         ['t2', 'p2', 0],
         >>>         ['t2', 'p3', 1],
         >>>     ],
-        >>>     columns=['task', 'performer', 'label']
+        >>>     columns=['task', 'worker', 'label']
         >>> )
         >>> skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
         >>> result = MajorityVote.fit_predict(df, skills)
@@ -66,7 +66,7 @@ class MajorityVote(BaseClassificationAggregator):
         Fit the model.
         """
 
-        data = data[['task', 'performer', 'label']]
+        data = data[['task', 'worker', 'label']]
 
         if skills is None:
             scores = data[['task', 'label']].value_counts()
@@ -76,7 +76,7 @@ class MajorityVote(BaseClassificationAggregator):
 
         self.probas_ = normalize_rows(scores.unstack('label', fill_value=0))
         self.labels_ = get_most_probable_labels(self.probas_)
-        self.skills_ = get_accuracy(data, self.labels_, by='performer')
+        self.skills_ = get_accuracy(data, self.labels_, by='worker')
 
         return self
 

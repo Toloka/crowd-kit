@@ -1,3 +1,8 @@
+__all__ = [
+    'load_dataset',
+    'get_datasets_list',
+]
+
 import pandas as pd
 from typing import Optional, List, Tuple
 
@@ -10,11 +15,11 @@ def load_dataset(dataset: str, data_dir: Optional[str] = None) -> Tuple[pd.DataF
 
     Parameters:
         dataset: str, a dataset name
-        data_dir: Optional[str], path to folder where to store downloaded dataset.
-        If `None`, `~/crowdkit_data` is used. `default=None`. Alternatively, it can be set by the 'CROWDKIT_DATA'
-        environment variable.
+        data_dir: Optional[str]
+            Path to folder where to store downloaded dataset. If `None`, `~/crowdkit_data` is used.
+            `default=None`. Alternatively, it can be set by the 'CROWDKIT_DATA' environment variable.
     Returns:
-        data: Tuple[pd.DataFrame, pd.Series], a tuple of performers answers and ground truth labels.
+        data: Tuple[pd.DataFrame, pd.Series], a tuple of workers answers and ground truth labels.
     """
 
     if dataset not in DATA_LOADERS:

@@ -45,7 +45,7 @@ def simple_image_df():
     return pd.DataFrame(
         {
             'task': [1, 1, 1, 2, 2, 2],
-            'performer': [
+            'worker': [
                 'bf3a144d756790eb511f5ebccfcf3964',
                 'be37db5784b50d08d2702f36317a3074',
                 'e044b0849dfa9ce3dee5debbefb3b5da',
@@ -88,7 +88,7 @@ def image_with_skills_df():
         pd.DataFrame(
             {
                 'task': [1, 1, 1],
-                'performer': [
+                'worker': [
                     'bf3a144d756790eb511f5ebccfcf3964',
                     'be37db5784b50d08d2702f36317a3074',
                     'e044b0849dfa9ce3dee5debbefb3b5da',
@@ -105,7 +105,7 @@ def image_with_skills_df():
                     'be37db5784b50d08d2702f36317a3074',
                     'e044b0849dfa9ce3dee5debbefb3b5da',
                 ],
-                name='performer',
+                name='worker',
             ),
         ),
     )
