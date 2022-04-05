@@ -1,5 +1,5 @@
 # fit
-`crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/pairwise/bradley_terry.py#L70)
+`crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/pairwise/bradley_terry.py#L74)
 
 ```python
 fit(self, data: DataFrame)

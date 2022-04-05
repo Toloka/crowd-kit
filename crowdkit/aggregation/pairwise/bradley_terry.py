@@ -33,7 +33,11 @@ class BradleyTerry(BasePairwiseAggregator):
     $$
     where $w_{ij}$ denotes the number of comparisons of $i$ and $j$ "won" by $i$.
 
-    **Note:** the Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+    {% note info %}
+
+    The Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+
+    {% endnote %}
 
     David R. Hunter.
     MM algorithms for generalized Bradley-Terry models

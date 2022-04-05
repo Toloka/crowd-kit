@@ -10,7 +10,7 @@ Annotation(
 )
 ```
 
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

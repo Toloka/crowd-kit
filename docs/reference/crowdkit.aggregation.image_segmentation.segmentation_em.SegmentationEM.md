@@ -22,7 +22,7 @@ algorithm.
 
 Doris Jung-Lin Lee. 2018.
 Quality Evaluation Methods for Crowdsourced Image Segmentation
-<http://ilpubs.stanford.edu:8090/1161/1/main.pdf>
+<https://ilpubs.stanford.edu:8090/1161/1/main.pdf>
 
 ## Parameters Description
 
@@ -47,7 +47,7 @@ df = pd.DataFrame(
 )
 result = SegmentationEM().fit_predict(df)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

@@ -36,16 +36,16 @@ def entropy_threshold(
 
         >>> answers = pd.DataFrame.from_records(
         >>>     [
-        >>>         {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
-        >>>         {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
-        >>>         {'task': '2', 'performer': 'A', 'label': frozenset(['cat'])},
-        >>>         {'task': '2', 'performer': 'B', 'label': frozenset(['cat'])},
-        >>>         {'task': '3', 'performer': 'A', 'label': frozenset(['dog'])},
-        >>>         {'task': '3', 'performer': 'B', 'label': frozenset(['cat'])},
+        >>>         {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
+        >>>         {'task': '1', 'worker': 'B', 'label': frozenset(['cat'])},
+        >>>         {'task': '2', 'worker': 'A', 'label': frozenset(['cat'])},
+        >>>         {'task': '2', 'worker': 'B', 'label': frozenset(['cat'])},
+        >>>         {'task': '3', 'worker': 'A', 'label': frozenset(['dog'])},
+        >>>         {'task': '3', 'worker': 'B', 'label': frozenset(['cat'])},
         >>>     ]
         >>> )
         >>> entropy_threshold(answers)
-          task performer  label
+          task worker  label
         0    1         A  (dog)
         2    2         A  (cat)
         4    3         A  (dog)

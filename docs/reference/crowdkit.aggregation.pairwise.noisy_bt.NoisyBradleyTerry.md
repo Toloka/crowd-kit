@@ -22,7 +22,7 @@ their biases.
 `scores_`|**Series**|<p>&#x27;Labels&#x27; scores. A pandas.Series index by labels and holding corresponding label&#x27;s scores</p>
 `skills_`|**Series**|<p>workers&#x27; skills. A pandas.Series index by workers and holding corresponding worker&#x27;s skill</p>
 `biases_`|**Series**|<p>Predicted biases for each worker. Indicates the probability of a worker to choose the left item.. A series of workers&#x27; biases indexed by workers</p>
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

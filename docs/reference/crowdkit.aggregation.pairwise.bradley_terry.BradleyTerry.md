@@ -25,7 +25,11 @@ L(\boldsymbol{p}) = \sum_{i=1}^n\sum_{j=1}^n[w_{ij}\ln p_i - w_{ij}\ln (p_i + p_
 $$
 where $w_{ij}$ denotes the number of comparisons of $i$ and $j$ "won" by $i$.
 
-**Note:** the Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+{% note info %}
+
+The Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+
+{% endnote %}
 
 David R. Hunter.
 MM algorithms for generalized Bradley-Terry models
@@ -60,7 +64,7 @@ df = pd.DataFrame(
     columns=['left', 'right', 'label']
 )
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

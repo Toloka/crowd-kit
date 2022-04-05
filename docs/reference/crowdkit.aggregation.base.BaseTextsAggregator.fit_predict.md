@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.base.BaseTextsAggregator.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L75)
+`crowdkit.aggregation.base.BaseTextsAggregator.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base/__init__.py#L75)
 
 ```python
 fit_predict(self, data: DataFrame)

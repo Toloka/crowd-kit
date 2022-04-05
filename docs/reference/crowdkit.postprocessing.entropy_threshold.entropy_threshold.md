@@ -40,12 +40,12 @@ Fraudent worker always answers the same and gets filtered out.
 ```python
 answers = pd.DataFrame.from_records(
     [
-        {'task': '1', 'performer': 'A', 'label': frozenset(['dog'])},
-        {'task': '1', 'performer': 'B', 'label': frozenset(['cat'])},
-        {'task': '2', 'performer': 'A', 'label': frozenset(['cat'])},
-        {'task': '2', 'performer': 'B', 'label': frozenset(['cat'])},
-        {'task': '3', 'performer': 'A', 'label': frozenset(['dog'])},
-        {'task': '3', 'performer': 'B', 'label': frozenset(['cat'])},
+        {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
+        {'task': '1', 'worker': 'B', 'label': frozenset(['cat'])},
+        {'task': '2', 'worker': 'A', 'label': frozenset(['cat'])},
+        {'task': '2', 'worker': 'B', 'label': frozenset(['cat'])},
+        {'task': '3', 'worker': 'A', 'label': frozenset(['dog'])},
+        {'task': '3', 'worker': 'B', 'label': frozenset(['cat'])},
     ]
 )
 entropy_threshold(answers)
