@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L43)
+`crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base/__init__.py#L43)
 
 ```python
 fit_predict(self, data: DataFrame)

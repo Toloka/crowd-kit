@@ -25,14 +25,14 @@ from crowdkit.datasets import load_dataset
 import pandas as pd
 ````
 
-Then, you need to read your annotations into Pandas DataFrame with columns `task`, `performer`, `label`. Alternatively, you can download an example dataset.
+Then, you need to read your annotations into Pandas DataFrame with columns `task`, `worker`, `label`. Alternatively, you can download an example dataset.
 
 ````python
-df = pd.read_csv('results.csv')  # should contain columns: task, performer, label
+df = pd.read_csv('results.csv')  # should contain columns: task, worker, label
 # df, ground_truth = load_dataset('relevance-2')  # or download an example dataset
 ````
 
-Then you can aggregate the performer responses as easily as in scikit-learn:
+Then you can aggregate the worker responses as easily as in scikit-learn:
 
 ````python
 aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)

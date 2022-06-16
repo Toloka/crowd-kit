@@ -48,7 +48,7 @@ true_labels = pd.Series({'t1': 0})
 gold_mv = GoldMajorityVote()
 result = gold_mv.fit_predict(df, true_labels)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

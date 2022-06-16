@@ -39,7 +39,7 @@ def uncertainty(
 ) -> typing.Union[float, pandas.Series]:
     """Label uncertainty metric: entropy of labels probability distribution.
     Computed as Shannon's Entropy with label probabilities computed either for tasks or workers:
-    .. math:: H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))
+    $$H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))$$
     Args:
         answers: A data frame containing `task`, `worker` and `label` columns.
         workers_skills: workers skills e.g. golden set skills. If not provided,

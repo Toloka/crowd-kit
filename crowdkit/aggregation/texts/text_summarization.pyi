@@ -3,8 +3,8 @@ __all__ = [
 ]
 import crowdkit.aggregation.base
 import pandas
+import transformers.modeling_utils
 import transformers.tokenization_utils
-import transformers.utils.dummy_pt_objects
 import typing
 
 
@@ -22,12 +22,12 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
     M. Orzhenovskii,
     "Fine-Tuning Pre-Trained Language Model for Crowdsourced Texts Aggregation,"
     Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 8-14.
-    <http://ceur-ws.org/Vol-2932/short1.pdf>
+    <https://ceur-ws.org/Vol-2932/short1.pdf>
 
     S. Pletenev,
     "Noisy Text Sequences Aggregation as a Summarization Subtask,"
     Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 15-20.
-    <http://ceur-ws.org/Vol-2932/short2.pdf>
+    <https://ceur-ws.org/Vol-2932/short2.pdf>
 
     Args:
         tokenizer: [Pre-trained tokenizer](https://huggingface.co/transformers/main_classes/tokenizer.html#pretrainedtokenizer).
@@ -74,7 +74,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
     def __init__(
         self,
         tokenizer: transformers.tokenization_utils.PreTrainedTokenizer,
-        model: transformers.utils.dummy_pt_objects.PreTrainedModel,
+        model: transformers.modeling_utils.PreTrainedModel,
         concat_token: str = ' | ',
         num_beams: int = 16,
         n_permutations: typing.Optional[int] = None,
@@ -87,7 +87,7 @@ class TextSummarization(crowdkit.aggregation.base.BaseTextsAggregator):
 
     texts_: pandas.Series
     tokenizer: transformers.tokenization_utils.PreTrainedTokenizer
-    model: transformers.utils.dummy_pt_objects.PreTrainedModel
+    model: transformers.modeling_utils.PreTrainedModel
     concat_token: str
     num_beams: int
     n_permutations: typing.Optional[int]

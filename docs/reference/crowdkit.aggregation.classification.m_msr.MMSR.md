@@ -44,7 +44,7 @@ Matrix Mean-Subsequence-Reduced Algorithm. Qianqian Ma and Alex Olshevsky.
 Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion.
 *34th Conference on Neural Information Processing Systems (NeurIPS 2020)*
 
-https://arxiv.org/abs/2010.12181
+<https://arxiv.org/abs/2010.12181>
 
 ## Parameters Description
 
@@ -66,7 +66,7 @@ df, gt = load_dataset('relevance-2')
 mmsr = MMSR()
 result = mmsr.fit_predict(df)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

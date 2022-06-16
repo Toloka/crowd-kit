@@ -19,7 +19,7 @@ $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, an
 answer for the task $j$. The relationships between these parameters are represented by the following latent
 label model.
 
-![Dawid-Skene latent label model](http://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
+![Dawid-Skene latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
 
 Here the prior true label probability is
 $$
@@ -36,7 +36,7 @@ Parameters $p$ and $e^w$ and latent variables $z$ are optimized through the Expe
 A. Philip Dawid and Allan M. Skene. Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm.
 *Journal of the Royal Statistical Society. Series C (Applied Statistics), Vol. 28*, 1 (1979), 20–28.
 
-https://doi.org/10.2307/2346806
+<https://doi.org/10.2307/2346806>
 
 ## Parameters Description
 
@@ -57,7 +57,7 @@ df, gt = load_dataset('relevance-2')
 ds = DawidSkene(100)
 result = ds.fit_predict(df)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

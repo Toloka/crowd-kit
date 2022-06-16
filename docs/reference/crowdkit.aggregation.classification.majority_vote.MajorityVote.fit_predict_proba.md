@@ -1,5 +1,5 @@
 # fit_predict_proba
-`crowdkit.aggregation.classification.majority_vote.MajorityVote.fit_predict_proba` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/majority_vote.py#L82)
+`crowdkit.aggregation.classification.majority_vote.MajorityVote.fit_predict_proba` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/majority_vote.py#L86)
 
 ```python
 fit_predict_proba(

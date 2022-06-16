@@ -42,7 +42,7 @@ class GLAD(BaseClassificationAggregator):
     be a worker's response that we observe. The relationships between this variables and parameters according
     to GLAD are represented by the following latent label model:
 
-    ![GLAD latent label model](http://tlk.s3.yandex.net/crowd-kit/docs/glad_llm.png)
+    ![GLAD latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/glad_llm.png)
 
 
     The prior probability of $z_j$ being equal to $c$ is
@@ -67,7 +67,7 @@ class GLAD(BaseClassificationAggregator):
     Whose Vote Should Count More: Optimal Integration of Labels from Labelers of Unknown Expertise.
     *Proceedings of the 22nd International Conference on Neural Information Processing Systems*, 2009
 
-    https://proceedings.neurips.cc/paper/2009/file/f899139df5e1059396431415e770c6dd-Paper.pdf
+    <https://proceedings.neurips.cc/paper/2009/file/f899139df5e1059396431415e770c6dd-Paper.pdf>
 
 
     Args:

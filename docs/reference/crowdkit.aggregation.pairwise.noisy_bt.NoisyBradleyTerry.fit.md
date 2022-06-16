@@ -1,5 +1,5 @@
 # fit
-`crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/pairwise/noisy_bt.py#L28)
+`crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/pairwise/noisy_bt.py#L61)
 
 ```python
 fit(self, data: DataFrame)

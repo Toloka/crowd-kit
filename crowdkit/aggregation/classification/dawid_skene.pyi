@@ -17,7 +17,7 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
     answer for the task $j$. The relationships between these parameters are represented by the following latent
     label model.
 
-    ![Dawid-Skene latent label model](http://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
+    ![Dawid-Skene latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
 
     Here the prior true label probability is
     $$
@@ -34,7 +34,7 @@ class DawidSkene(crowdkit.aggregation.base.BaseClassificationAggregator):
     A. Philip Dawid and Allan M. Skene. Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm.
     *Journal of the Royal Statistical Society. Series C (Applied Statistics), Vol. 28*, 1 (1979), 20–28.
 
-    https://doi.org/10.2307/2346806
+    <https://doi.org/10.2307/2346806>
 
     Args:
         n_iter: The number of EM iterations.

@@ -9,12 +9,13 @@ BradleyTerry(
 )
 ```
 
-Bradley-Terry, the classic algorithm for aggregating pairwise comparisons.
+Bradley-Terry model for pairwise comparisons.
 
 
-This algorithm constructs an items' ranking based on pairwise comparisons. Given
+The model implements the classic algorithm for aggregating pairwise comparisons.
+The algorithm constructs an items' ranking based on pairwise comparisons. Given
 a pair of two items $i$ and $j$, the probability of $i$ to be ranked higher is,
-according to the Bradley-Terry's probabilitstic model,
+according to the Bradley-Terry's probabilistic model,
 $$
 P(i > j) = \frac{p_i}{p_i + p_j}.
 $$
@@ -25,7 +26,11 @@ L(\boldsymbol{p}) = \sum_{i=1}^n\sum_{j=1}^n[w_{ij}\ln p_i - w_{ij}\ln (p_i + p_
 $$
 where $w_{ij}$ denotes the number of comparisons of $i$ and $j$ "won" by $i$.
 
-**Note:** the Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+{% note info %}
+
+The Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+
+{% endnote %}
 
 David R. Hunter.
 MM algorithms for generalized Bradley-Terry models
@@ -46,7 +51,7 @@ Rank analysis of incomplete block designs. I. The method of paired comparisons.
 
 The Bradley-Terry model needs the data to be a `DataFrame` containing columns
 `left`, `right`, and `label`. `left` and `right` contain identifiers of left and
-right items respectfuly, `label` contains identifiers of items that won these
+right items respectively, `label` contains identifiers of items that won these
 comparisons.
 
 ```python
@@ -60,7 +65,7 @@ df = pd.DataFrame(
     columns=['left', 'right', 'label']
 )
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

@@ -3,7 +3,7 @@ href: index.md
 items:
   - name: Overview
     href: index.md
-  - name: Aggregations
+  - name: Reference
     expanded: true
     include:
       path: reference/toc.yaml

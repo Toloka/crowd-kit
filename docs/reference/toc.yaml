@@ -297,7 +297,7 @@ items:
   items:
   - name: get_datasets_list
     href: crowdkit.datasets.load_dataset.get_datasets_list.md
-  - name: get_datasets_list
+  - name: load_dataset
     href: crowdkit.datasets.load_dataset.load_dataset.md
 - name: Metrics
   items:
@@ -309,7 +309,7 @@ items:
       href: crowdkit.metrics.data._classification.consistency.md
     - name: uncertainty
       href: crowdkit.metrics.data._classification.uncertainty.md
-  - name: Performers
+  - name: Workers
     items:
     - name: accuracy_on_aggregates
       href: crowdkit.metrics.workers.accuracy_on_aggregates.accuracy_on_aggregates.md

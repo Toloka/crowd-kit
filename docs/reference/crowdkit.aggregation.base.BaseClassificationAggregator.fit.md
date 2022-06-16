@@ -1,5 +1,5 @@
 # fit
-`crowdkit.aggregation.base.BaseClassificationAggregator.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base.py#L21)
+`crowdkit.aggregation.base.BaseClassificationAggregator.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/base/__init__.py#L21)
 
 ```python
 fit(self, data: DataFrame)

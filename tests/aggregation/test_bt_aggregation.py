@@ -47,12 +47,12 @@ def result_equal():
 
 @pytest.fixture
 def noisy_bt_result():
-    return pd.Series([0.999993, 0.653991, 0.000025], index=pd.Index(['a', 'b', 'c'], name='label'), name='agg_score')
+    return pd.Series([1.0, 1.0, 1.497123058531228e-45], index=pd.Index(['a', 'b', 'c'], name='label'), name='agg_score')
 
 
 @pytest.fixture
 def noisy_bt_result_equal():
-    return pd.Series([0.672879, 0.043679, 0.985681], index=pd.Index(['a', 'b', 'c'], name='label'), name='agg_score')
+    return pd.Series([0.6715468044437242, 0.6462882683525435, 0.632947637600415], index=pd.Index(['a', 'b', 'c'], name='label'), name='agg_score')
 
 
 @pytest.fixture
