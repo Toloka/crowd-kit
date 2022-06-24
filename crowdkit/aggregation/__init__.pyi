@@ -3,6 +3,7 @@ __all__ = [
     'BradleyTerry',
     'ClosestToAverage',
     'DawidSkene',
+    'OneCoinDawidSkene',
     'GLAD',
     'GoldMajorityVote',
     'HRRASA',
@@ -21,7 +22,10 @@ __all__ = [
     'ZeroBasedSkill',
 ]
 from crowdkit.aggregation import base
-from crowdkit.aggregation.classification.dawid_skene import DawidSkene
+from crowdkit.aggregation.classification.dawid_skene import (
+    DawidSkene,
+    OneCoinDawidSkene,
+)
 from crowdkit.aggregation.classification.glad import GLAD
 from crowdkit.aggregation.classification.gold_majority_vote import GoldMajorityVote
 from crowdkit.aggregation.classification.m_msr import MMSR

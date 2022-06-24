@@ -1,5 +1,5 @@
 # fit_predict
-`crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/dawid_skene.py#L183)
+`crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit_predict` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/dawid_skene.py#L187)
 
 ```python
 fit_predict(self, data: DataFrame)

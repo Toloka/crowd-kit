@@ -1,6 +1,7 @@
 from . import base
 from .classification import (
     DawidSkene,
+    OneCoinDawidSkene,
     GLAD,
     GoldMajorityVote,
     MMSR,
@@ -34,6 +35,7 @@ __all__ = [
     'BradleyTerry',
     'ClosestToAverage',
     'DawidSkene',
+    'OneCoinDawidSkene',
     'GLAD',
     'GoldMajorityVote',
     'HRRASA',
