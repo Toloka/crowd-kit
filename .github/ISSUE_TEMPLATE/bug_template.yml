@@ -1,0 +1,112 @@
+name: Bug report
+description: Create a report to help us improve
+title: "[BUG] "
+labels: bug
+body:
+  - type: markdown
+    attributes:
+      value: "# Bug report"
+  - type: markdown
+    attributes:
+      value: Thank you for reporting a bug and helping us improve Crowd-Kit! Please provide as much information as possible.
+  - type: markdown
+    attributes:
+      value: >
+        Please be aware that the issue tracker is NOT the place for general
+        support. For questions and technical assistance, come join the
+        [Toloka Global Community](https://toloka.ai/community/).
+  - type: markdown
+    attributes:
+      value: |
+        ## Issue details
+  - type: textarea
+    id: observed-behavior
+    attributes:
+      label: Observed behavior
+      description: What did actually happen?
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Environment information
+  - type: dropdown
+    id: os
+    attributes:
+      label: Python Version
+      description: What is your python version? If it's not in the list that it's not supported by Crowd-Kit.
+      multiple: false
+      options:
+        - 3.7
+        - 3.8
+        - 3.9
+        - 3.10
+    validations:
+      required: true
+  - type: input
+    id: crowd-kit_version
+    attributes:
+      label: Crowd-Kit Version
+      description:
+      placeholder: ex,. 1.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: packages_info
+    attributes:
+      label: Other Packages Versions
+      description: >
+        Run `pip freeze` if you're using *pip* as package management system,
+        `conda env export` if you're using *conda* as package management system
+        or your package management system specific command to get the list of packages installed
+        and paste the output here.
+      placeholder: |
+        attrs==21.2.0
+        boto3==1.4.7
+        cattrs==1.9.0
+        docstring-parser==0.13
+        filelock==3.4.0
+        ipyplot==1.1.0
+        jupyter-dash==0.4.0
+        kazoo==2.8.0
+        pandas==1.1.5
+        plotly==5.4.0
+        requests==2.27.1
+        simplejson==3.17.6
+        toloka-kit==0.1.25
+        typing_extensions==4.0.1
+        urllib3==1.26.9
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        ## Reproducible Example and Logs
+  - type: textarea
+    id: example
+    attributes:
+      label: Example code
+      description: >
+        [Complete, minimal, self-contained example code](https://stackoverflow.com/help/minimal-reproducible-example)
+        that reproduces the issue.
+
+        If the code is too long, feel free to put it in a public gist and link it in the issue: https://gist.github.com.
+      render: Python
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+    validations:
+      required: false

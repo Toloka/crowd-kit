@@ -1,0 +1,42 @@
+name: Documentation fix
+description: Suggest Crowd-Kit documentation fix
+title: "[DOCS] "
+labels: documentation
+body:
+  - type: markdown
+    attributes:
+      value: "# Documentation fix"
+  - type: markdown
+    attributes:
+      value: Thank you for helping us improve Crowd-Kit! Please provide as much information as possible.
+  - type: markdown
+    attributes:
+      value: >
+        Please be aware that the issue tracker is NOT the place for general
+        support. For questions and technical assistance, come join the
+        [Toloka Global Community](https://toloka.ai/community/).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem description
+      description: >-
+        Describe the problem with documentation. Please be as clear and concise as possible.
+    validations:
+      required: true
+  - type: textarea
+    id: doc_links
+    attributes:
+      label: Documentation links
+      description: >-
+        Provide links to documentation either in [repository](https://github.com/Toloka/crowd-kit/tree/main/docs)
+        or in [Toloka site](https://toloka.ai/en/docs/crowd-kit/)
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Potential fix suggestion
+      description: >-
+        Tell us how we could improve the documentation in this regard.
+    validations:
+      required: false
