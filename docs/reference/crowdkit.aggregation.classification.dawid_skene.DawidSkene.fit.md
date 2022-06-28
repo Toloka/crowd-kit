@@ -1,5 +1,5 @@
 # fit
-`crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/dawid_skene.py#L132)
+`crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/dawid_skene.py#L136)
 
 ```python
 fit(self, data: DataFrame)

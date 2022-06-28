@@ -1,5 +1,5 @@
 # fit_predict_proba
-`crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit_predict_proba` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/dawid_skene.py#L175)
+`crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit_predict_proba` | [Source code](https://github.com/Toloka/crowd-kit/blob/v1.0.0/crowdkit/aggregation/classification/dawid_skene.py#L179)
 
 ```python
 fit_predict_proba(self, data: DataFrame)
