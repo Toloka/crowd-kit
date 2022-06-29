@@ -10,6 +10,7 @@ crowd-kit = {editable = true, path = "."}
 mypy = "*"
 pytest = "*"
 twine = "*"
+flake8 = "*"
 build = "*"
 codecov = "*"
 cffconvert = "*"
