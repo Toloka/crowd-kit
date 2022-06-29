@@ -33,7 +33,7 @@ class Wawa(BaseClassificationAggregator):
     # labels_
 
     @manage_docstring
-    def _apply(self, data: annotations.LABELED_DATA) -> Annotation('Wawa', 'self'):
+    def _apply(self, data: annotations.LABELED_DATA) -> Annotation('Wawa', 'self'):  # noqa: F821
         check_is_fitted(self, attributes='skills_')
         mv = MajorityVote().fit(data, skills=self.skills_)
         self.probas_ = mv.probas_
@@ -41,7 +41,7 @@ class Wawa(BaseClassificationAggregator):
         return self
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation('Wawa', 'self'):
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation('Wawa', 'self'):  # noqa: F821
         """
         Fit the model.
         """

@@ -32,7 +32,7 @@ class MMSR(crowdkit.aggregation.base.BaseClassificationAggregator):
     Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion.
     *34th Conference on Neural Information Processing Systems (NeurIPS 2020)*
 
-    https://arxiv.org/abs/2010.12181
+    <https://arxiv.org/abs/2010.12181>
 
     Args:
         n_iter: The maximum number of iterations of the M-MSR algorithm.

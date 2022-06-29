@@ -1,5 +1,6 @@
 __all__ = [
     'DawidSkene',
+    'OneCoinDawidSkene',
     'GLAD',
     'GoldMajorityVote',
     'MMSR',
@@ -8,7 +9,7 @@ __all__ = [
     'ZeroBasedSkill'
 ]
 
-from .dawid_skene import DawidSkene
+from .dawid_skene import DawidSkene, OneCoinDawidSkene
 from .glad import GLAD
 from .gold_majority_vote import GoldMajorityVote
 from .m_msr import MMSR

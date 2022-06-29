@@ -28,12 +28,12 @@ is not provided, the resulting aggregate is the most common output over permuted
 M. Orzhenovskii,
 "Fine-Tuning Pre-Trained Language Model for Crowdsourced Texts Aggregation,"
 Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 8-14.
-<http://ceur-ws.org/Vol-2932/short1.pdf>
+<https://ceur-ws.org/Vol-2932/short1.pdf>
 
 S. Pletenev,
 "Noisy Text Sequences Aggregation as a Summarization Subtask,"
 Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 15-20.
-<http://ceur-ws.org/Vol-2932/short2.pdf>
+<https://ceur-ws.org/Vol-2932/short2.pdf>
 
 ## Parameters Description
 
@@ -61,7 +61,7 @@ model = AutoModelForSeq2SeqLM.from_pretrained(mname)
 agg = TextSummarization(tokenizer, model, device=device)
 result = agg.fit_predict(df)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

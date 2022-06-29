@@ -22,8 +22,12 @@ class MajorityVote(BaseClassificationAggregator):
     resulting label will be the one with the largest sum of weights.
 
 
-    **Note:** in case when two or more labels have the largest number of votes, the resulting
-    label will be the same for all tasks which have the same set of labels with equal count of votes.
+    {% note info %}
+
+     In case when two or more labels have the largest number of votes, the resulting
+     label will be the same for all tasks which have the same set of labels with equal count of votes.
+
+     {% endnote %}
 
     Args:
         default_skill: Defualt worker's weight value.
@@ -61,7 +65,7 @@ class MajorityVote(BaseClassificationAggregator):
     default_skill: Optional[float] = attr.ib(default=None)
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> Annotation(type='MajorityVote', title='self'):
+    def fit(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> Annotation(type='MajorityVote', title='self'):  # noqa: F821
         """
         Fit the model.
         """

@@ -45,7 +45,7 @@ df, gt = load_dataset('crowdspeech-test-clean')
 df['text'] = df['text'].apply(lambda s: s.lower())
 result = hrrasa.fit_predict(df)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

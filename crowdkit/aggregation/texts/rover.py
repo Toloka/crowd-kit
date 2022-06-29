@@ -37,13 +37,13 @@ class ROVER(BaseTextsAggregator):
 
     This method uses dynamic programming to align sequences. Next, aligned sequences are used
     to construct the Word Transition Network (WTN):
-    ![ROVER WTN scheme](http://tlk.s3.yandex.net/crowd-kit/docs/rover.png)
+    ![ROVER WTN scheme](https://tlk.s3.yandex.net/crowd-kit/docs/rover.png)
     Finally, the aggregated sequence is the result of majority voting on each edge of the WTN.
 
     J. G. Fiscus,
     "A post-processing system to yield reduced word error rates: Recognizer Output Voting Error Reduction (ROVER),"
     *1997 IEEE Workshop on Automatic Speech Recognition and Understanding Proceedings*, 1997, pp. 347-354.
-    https://doi.org/10.1109/ASRU.1997.659110
+    <https://doi.org/10.1109/ASRU.1997.659110>
 
     Args:
         tokenizer: A callable that takes a string and returns a list of tokens.
@@ -68,7 +68,7 @@ class ROVER(BaseTextsAggregator):
     # texts_
 
     @manage_docstring
-    def fit(self, data: TEXT_DATA) -> Annotation(type='ROVER', title='self'):
+    def fit(self, data: TEXT_DATA) -> Annotation(type='ROVER', title='self'):  # noqa: F821
         """
         Fits the model. The aggregated results are saved to the `texts_` attribute.
         """
@@ -118,7 +118,7 @@ class ROVER(BaseTextsAggregator):
         """Sequence alignment algorithm implementation.
 
         Aligns a sequence of sets of tokens (edges) with a sequence of tokens using dynamic programming algorithm. Look
-        for section 2.1 in https://doi.org/10.1109/ASRU.1997.659110 for implementation details. Penalty for
+        for section 2.1 in <https://doi.org/10.1109/ASRU.1997.659110> for implementation details. Penalty for
         insert/deletion or mismatch is 1.
 
         Args:

@@ -46,7 +46,7 @@ class TextRASA(BaseTextsAggregator):
         return getattr(self._rasa, name)
 
     @manage_docstring
-    def fit(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> Annotation(type='TextRASA', title='self'):
+    def fit(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> Annotation(type='TextRASA', title='self'):  # noqa: F821
         """
         Fit the model.
         """

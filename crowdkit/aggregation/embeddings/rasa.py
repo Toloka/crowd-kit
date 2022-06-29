@@ -42,7 +42,7 @@ class RASA(BaseEmbeddingsAggregator):
     A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
     *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
     pages 24–28 Hong Kong, China, November 3, 2019.
-    <http://doi.org/10.18653/v1/D19-5904>
+    <https://doi.org/10.18653/v1/D19-5904>
 
     Args:
         n_iter: A number of iterations.
@@ -99,7 +99,7 @@ class RASA(BaseEmbeddingsAggregator):
         return distance.cosine(embedding, avg_embedding)
 
     @manage_docstring
-    def _apply(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):
+    def _apply(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):  # noqa: F821
         cta = ClosestToAverage(distance=self._cosine_distance)
         cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
         self.scores_ = cta.scores_
@@ -107,7 +107,7 @@ class RASA(BaseEmbeddingsAggregator):
         return self
 
     @manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):
+    def fit(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):  # noqa: F821
         """
         Fit the model.
         """

@@ -26,7 +26,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     Doris Jung-Lin Lee. 2018.
     Quality Evaluation Methods for Crowdsourced Image Segmentation
-    <http://ilpubs.stanford.edu:8090/1161/1/main.pdf>
+    <https://ilpubs.stanford.edu:8090/1161/1/main.pdf>
 
     Args:
         n_iter: A number of EM iterations.
@@ -146,7 +146,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         return priors > 0.5
 
     @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationEM', title='self'):
+    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationEM', title='self'):  # noqa: F821
         """
         Fit the model.
         """

@@ -5,9 +5,8 @@ Testing all boundary conditions and asserts
 import numpy as np
 import pandas as pd
 import pytest
-from crowdkit.aggregation import DawidSkene
 from pandas.testing import assert_frame_equal, assert_series_equal
-
+from crowdkit.aggregation import DawidSkene, OneCoinDawidSkene
 
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
@@ -23,10 +22,31 @@ def test_aggregate_ds_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth_
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
 )
+def test_aggregate_hds_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth_df):
+    np.random.seed(42)
+    assert_series_equal(
+        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df).labels_.sort_index(),
+        toy_ground_truth_df.sort_index(),
+    )
+
+
+@pytest.mark.parametrize(
+    'n_iter, tol', [(10, 0), (100500, 1e-5)]
+)
 def test_aggregate_ds_on_simple(n_iter, tol, simple_answers_df, simple_ground_truth):
     np.random.seed(42)
     assert_series_equal(
         DawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),
+        simple_ground_truth.sort_index(),
+    )
+
+@pytest.mark.parametrize(
+    'n_iter, tol', [(10, 0), (100500, 1e-5)]
+)
+def test_aggregate_hds_on_simple(n_iter, tol, simple_answers_df, simple_ground_truth):
+    np.random.seed(42)
+    assert_series_equal(
+        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),
         simple_ground_truth.sort_index(),
     )
 
@@ -227,6 +247,11 @@ def test_dawid_skene_overlap(overlap):
     assert_series_equal(pd.Series({'no': 1/3, 'yes': 2/3}, name='prior'), ds.priors_, atol=0.005)
 
 
-def test_on_bool_labels(data_with_bool_labels, bool_labels_ground_truth):
+def test_ds_on_bool_labels(data_with_bool_labels, bool_labels_ground_truth):
     ds = DawidSkene(20).fit(data_with_bool_labels)
     assert_series_equal(bool_labels_ground_truth, ds.labels_, atol=0.005)
+
+
+def test_hds_on_bool_labels(data_with_bool_labels, bool_labels_ground_truth):
+    hds = OneCoinDawidSkene(20).fit(data_with_bool_labels)
+    assert_series_equal(bool_labels_ground_truth, hds.labels_, atol=0.005)

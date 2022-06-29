@@ -18,8 +18,12 @@ can be used when different weights assigned for workers' votes. In this case, th
 resulting label will be the one with the largest sum of weights.
 
 
-**Note:** in case when two or more labels have the largest number of votes, the resulting
-label will be the same for all tasks which have the same set of labels with equal count of votes.
+{% note info %}
+
+ In case when two or more labels have the largest number of votes, the resulting
+ label will be the same for all tasks which have the same set of labels with equal count of votes.
+
+ {% endnote %}
 
 ## Parameters Description
 
@@ -59,7 +63,7 @@ df = pd.DataFrame(
 skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
 result = MajorityVote.fit_predict(df, skills)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ._base import get_data_dir, fetch_remote
+from ._base import get_data_dir, fetch_remote  # type: ignore
 
 from os.path import exists, join
 from typing import Optional, Tuple
@@ -24,7 +24,7 @@ def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'performer': 'worker'})
-        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label'].rename('true_label')
 
         return labels, true_labels
 
@@ -82,7 +82,7 @@ def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.
 
 
 def load_crowdspeech_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-    labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'output': 'text'})
+    labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'output': 'text', 'performer': 'worker'})
     true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['output'].rename('true_label')
 
     return labels, true_labels
@@ -150,7 +150,7 @@ def load_nist_trec_relevance(data_dir: Optional[str] = None) -> Tuple[pd.DataFra
 
     def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
         labels = pd.read_csv(join(data_path, 'crowd_labels.csv')).rename(columns={'performer': 'worker'})
-        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label']
+        true_labels = pd.read_csv(join(data_path, 'gt.csv')).set_index('task')['label'].rename('true_label')
 
         return labels, true_labels
 

@@ -29,7 +29,7 @@ from crowdkit.datasets import load_dataset
 df, gt = load_dataset('relevance-2')
 result = Wawa().fit_predict(df)
 ```
-## Methods summary
+## Methods Summary
 
 | Method | Description |
 | :------| :-----------|

@@ -19,7 +19,7 @@ class SegmentationEM(crowdkit.aggregation.base.BaseImageSegmentationAggregator):
 
     Doris Jung-Lin Lee. 2018.
     Quality Evaluation Methods for Crowdsourced Image Segmentation
-    <http://ilpubs.stanford.edu:8090/1161/1/main.pdf>
+    <https://ilpubs.stanford.edu:8090/1161/1/main.pdf>
 
     Args:
         n_iter: A number of EM iterations.

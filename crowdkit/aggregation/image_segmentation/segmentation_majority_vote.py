@@ -26,7 +26,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
 
     Doris Jung-Lin Lee. 2018.
     Quality Evaluation Methods for Crowdsourced Image Segmentation
-    <http://ilpubs.stanford.edu:8090/1161/1/main.pdf>
+    <https://ilpubs.stanford.edu:8090/1161/1/main.pdf>
 
     Args:
         default_skill: A default skill value for missing skills.
@@ -52,7 +52,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     default_skill: Optional[float] = attr.ib(default=None)
 
     @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> Annotation(type='SegmentationMajorityVote', title='self'):
+    def fit(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> Annotation(type='SegmentationMajorityVote', title='self'):  # noqa: F821
         """
         Fit the model.
         """
