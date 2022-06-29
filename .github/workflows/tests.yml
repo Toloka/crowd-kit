@@ -25,7 +25,7 @@ jobs:
       - name: Lint with flake8
         run: flake8 --select=E,W,F --ignore=E122,E123,E127,E131,E203,E225,E226,E24,E275,E305,E306,E402,E722,E731,E741,F722,W503,W504,C9,N8 --max-line-length=200 crowdkit
       - name: Test with pytest
-        run: coverage run pytest
+        run: coverage run --source crowdkit -m pytest
       - name: Codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
