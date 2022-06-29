@@ -1,6 +1,0 @@
-# Legal
-include LICENSE AUTHORS CONTRIBUTING.md
-
-# Stubs
-recursive-include crowdkit py.typed
-recursive-include crowdkit *.pyi

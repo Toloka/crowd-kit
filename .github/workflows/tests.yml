@@ -1,26 +1,33 @@
 name: Tests
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install tox tox-gh-actions
-    - name: Run tox with Python ${{ matrix.python-version }}
-      run: |
-        python -m tox
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pipenv
+          pipenv install --dev --system --skip-lock
+      - name: Lint with Mypy
+        run: mypy --ignore-missing-imports crowdkit
+      - name: Lint with flake8
+        run: flake8 --select=E,W,F --ignore=E122,E123,E127,E131,E203,E225,E226,E24,E275,E305,E306,E402,E722,E731,E741,F722,W503,W504,C9,N8 --max-line-length=200 crowdkit
+      - name: Test with pytest
+        run: coverage run pytest
+      - name: Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: codecov
+        if: matrix.python-version == "3.8"
