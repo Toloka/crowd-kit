@@ -114,7 +114,7 @@ class HRRASA(BaseClassificationAggregator):
 
     @manage_docstring
     def fit(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
-                                                                                               title='self'):
+                                                                                               title='self'):  # noqa: F821
         """
         Fit the model.
         """
@@ -184,7 +184,7 @@ class HRRASA(BaseClassificationAggregator):
 
     @manage_docstring
     def _apply(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
-                                                                                                  title='self'):
+                                                                                                  title='self'):  # noqa: F821
         cta = ClosestToAverage(distance=self._cosine_distance)
         cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
         self.scores_ = cta.scores_

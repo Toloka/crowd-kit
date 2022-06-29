@@ -54,7 +54,7 @@ class GoldMajorityVote(BaseClassificationAggregator):
     probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
 
     @manage_docstring
-    def _apply(self, data: annotations.LABELED_DATA) -> Annotation('GoldMajorityVote', 'self'):
+    def _apply(self, data: annotations.LABELED_DATA) -> Annotation('GoldMajorityVote', 'self'):  # noqa: F821
         check_is_fitted(self, attributes='skills_')
         mv = MajorityVote().fit(data, self.skills_)
         self.labels_ = mv.labels_
@@ -62,7 +62,7 @@ class GoldMajorityVote(BaseClassificationAggregator):
         return self
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS) -> Annotation('GoldMajorityVote', 'self'):
+    def fit(self, data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS) -> Annotation('GoldMajorityVote', 'self'):  # noqa: F821
         """
         Estimate the workers' skills.
         """

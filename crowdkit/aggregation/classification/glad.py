@@ -278,7 +278,7 @@ class GLAD(BaseClassificationAggregator):
         return np.exp(x - logsumexp(x, keepdims=True))
 
     @manage_docstring
-    def fit(self, data: LABELED_DATA) -> Annotation(type='GLAD', title='self'):
+    def fit(self, data: LABELED_DATA) -> Annotation(type='GLAD', title='self'):  # noqa: F821
         """
         Fit the model through the EM-algorithm.
         """

@@ -74,7 +74,7 @@ class BradleyTerry(BasePairwiseAggregator):
     loss_history_: List[float] = attr.ib(init=False)
 
     @manage_docstring
-    def fit(self, data: annotations.PAIRWISE_DATA) -> Annotation(type='BradleyTerry', title='self'):
+    def fit(self, data: annotations.PAIRWISE_DATA) -> Annotation(type='BradleyTerry', title='self'):  # noqa: F821
         M, unique_labels = self._build_win_matrix(data)
 
         if not unique_labels.size:

@@ -21,7 +21,7 @@ class BaseClassificationAggregator:
 
     @annotations.manage_docstring
     def fit(self, data: annotations.LABELED_DATA) -> annotations.Annotation(type='BaseClassificationAggregator',
-                                                                            title='self'):
+                                                                            title='self'):  # noqa: F821
         raise NotImplementedError()
 
     @annotations.manage_docstring
@@ -38,7 +38,7 @@ class BaseImageSegmentationAggregator:
 
     @annotations.manage_docstring
     def fit(self, data: annotations.SEGMENTATION_DATA) -> annotations.Annotation(type='BaseImageSegmentationAggregator',
-                                                                                 title='self'):
+                                                                                 title='self'):  # noqa: F821
         raise NotImplementedError()
 
     @annotations.manage_docstring
@@ -54,7 +54,7 @@ class BaseEmbeddingsAggregator:
     embeddings_and_outputs_: annotations.TASKS_EMBEDDINGS_AND_OUTPUTS = attr.ib(init=False)
 
     @annotations.manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA) -> annotations.Annotation(type='BaseEmbeddingsAggregator', title='self'):
+    def fit(self, data: annotations.EMBEDDED_DATA) -> annotations.Annotation(type='BaseEmbeddingsAggregator', title='self'):  # noqa: F821
         raise NotImplementedError()
 
     @annotations.manage_docstring
@@ -70,7 +70,7 @@ class BaseTextsAggregator:
     texts_: annotations.TASKS_TEXTS = named_series_attrib(name='agg_text')
 
     @annotations.manage_docstring
-    def fit(self, data: annotations.TEXT_DATA) -> annotations.Annotation(type='BaseTextsAggregator', title='self'):
+    def fit(self, data: annotations.TEXT_DATA) -> annotations.Annotation(type='BaseTextsAggregator', title='self'):  # noqa: F821
         raise NotImplementedError()
 
     @annotations.manage_docstring
@@ -86,7 +86,7 @@ class BasePairwiseAggregator:
     scores_: annotations.LABEL_SCORES = named_series_attrib(name='agg_score')
 
     @annotations.manage_docstring
-    def fit(self, data: annotations.PAIRWISE_DATA) -> annotations.Annotation(type='BasePairwiseAggregator', title='self'):
+    def fit(self, data: annotations.PAIRWISE_DATA) -> annotations.Annotation(type='BasePairwiseAggregator', title='self'):  # noqa: F821
         raise NotImplementedError()
 
     @annotations.manage_docstring

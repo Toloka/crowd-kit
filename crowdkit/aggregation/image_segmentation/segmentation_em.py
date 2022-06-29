@@ -146,7 +146,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         return priors > 0.5
 
     @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationEM', title='self'):
+    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationEM', title='self'):  # noqa: F821
         """
         Fit the model.
         """

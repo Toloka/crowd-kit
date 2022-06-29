@@ -2,5 +2,5 @@
 include LICENSE AUTHORS CONTRIBUTING.md
 
 # Stubs
-recursive-include src py.typed
-recursive-include src *.pyi
+recursive-include crowdkit py.typed
+recursive-include crowdkit *.pyi
