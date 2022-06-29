@@ -51,7 +51,7 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
             probability is between 0 and 1, all task's probabilities should sum up to 1
     """
 
-    def fit(
+    def fit(  # type: ignore
         self,
         data: pandas.DataFrame,
         true_labels: pandas.Series
@@ -94,7 +94,7 @@ class GoldMajorityVote(crowdkit.aggregation.base.BaseClassificationAggregator):
         """
         ...
 
-    def fit_predict(
+    def fit_predict(  # type: ignore
         self,
         data: pandas.DataFrame,
         true_labels: pandas.Series

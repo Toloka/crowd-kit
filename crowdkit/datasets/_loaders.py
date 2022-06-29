@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ._base import get_data_dir, fetch_remote
+from ._base import get_data_dir, fetch_remote  # type: ignore
 
 from os.path import exists, join
 from typing import Optional, Tuple
