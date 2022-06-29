@@ -111,5 +111,5 @@ class ZeroBasedSkill(crowdkit.aggregation.base.BaseClassificationAggregator):
     lr_steps_to_reduce: int
     lr_reduce_factor: float
     eps: float
-    skills_: ...
-    probas_: ...
+    skills_: typing.Optional[pandas.Series]
+    probas_: typing.Optional[pandas.DataFrame]

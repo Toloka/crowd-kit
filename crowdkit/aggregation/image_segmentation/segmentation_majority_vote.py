@@ -52,7 +52,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     default_skill: Optional[float] = attr.ib(default=None)
 
     @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> Annotation(type='SegmentationMajorityVote', title='self'):
+    def fit(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> Annotation(type='SegmentationMajorityVote', title='self'):  # noqa: F821
         """
         Fit the model.
         """

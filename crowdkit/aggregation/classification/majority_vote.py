@@ -65,7 +65,7 @@ class MajorityVote(BaseClassificationAggregator):
     default_skill: Optional[float] = attr.ib(default=None)
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> Annotation(type='MajorityVote', title='self'):
+    def fit(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> Annotation(type='MajorityVote', title='self'):  # noqa: F821
         """
         Fit the model.
         """

@@ -99,7 +99,7 @@ class RASA(BaseEmbeddingsAggregator):
         return distance.cosine(embedding, avg_embedding)
 
     @manage_docstring
-    def _apply(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):
+    def _apply(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):  # noqa: F821
         cta = ClosestToAverage(distance=self._cosine_distance)
         cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
         self.scores_ = cta.scores_
@@ -107,7 +107,7 @@ class RASA(BaseEmbeddingsAggregator):
         return self
 
     @manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):
+    def fit(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):  # noqa: F821
         """
         Fit the model.
         """

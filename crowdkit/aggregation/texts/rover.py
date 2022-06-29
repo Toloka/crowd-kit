@@ -68,7 +68,7 @@ class ROVER(BaseTextsAggregator):
     # texts_
 
     @manage_docstring
-    def fit(self, data: TEXT_DATA) -> Annotation(type='ROVER', title='self'):
+    def fit(self, data: TEXT_DATA) -> Annotation(type='ROVER', title='self'):  # noqa: F821
         """
         Fits the model. The aggregated results are saved to the `texts_` attribute.
         """

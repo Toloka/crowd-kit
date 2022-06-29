@@ -80,14 +80,14 @@ class MMSR(BaseClassificationAggregator):
     loss_history_: List[float] = attr.ib(init=False)
 
     @manage_docstring
-    def _apply(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):
+    def _apply(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):  # noqa: F821
         mv = MajorityVote().fit(data, skills=self.skills_)
         self.labels_ = mv.labels_
         self.scores_ = mv.probas_
         return self
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):  # noqa: F821
         """
         Estimate the workers' skills.
         """

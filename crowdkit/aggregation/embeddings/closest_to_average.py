@@ -33,7 +33,7 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
 
     @manage_docstring
     def fit(self, data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None,
-            true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='ClosestToAverage', title='self'):
+            true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='ClosestToAverage', title='self'):  # noqa: F821
         """
         Fits the model.
         """

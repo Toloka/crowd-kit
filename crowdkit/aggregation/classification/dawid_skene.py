@@ -135,7 +135,7 @@ class DawidSkene(BaseClassificationAggregator):
         return joint_expectation + entropy
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):  # noqa: F821
         """
         Fit the model through the EM-algorithm.
         """
@@ -273,7 +273,7 @@ class OneCoinDawidSkene(DawidSkene):
         return skills
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):  # noqa: F821
         """
         Fit the model through the EM-algorithm.
         """

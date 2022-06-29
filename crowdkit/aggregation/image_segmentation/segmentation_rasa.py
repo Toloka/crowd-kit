@@ -104,7 +104,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         return mv
 
     @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationRASA', title='self'):
+    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationRASA', title='self'):  # noqa: F821
         """
         Fit the model.
         """

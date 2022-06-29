@@ -60,7 +60,7 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
     # scores_
 
     @manage_docstring
-    def fit(self, data: annotations.PAIRWISE_DATA) -> Annotation(type='NoisyBradleyTerry', title='self'):
+    def fit(self, data: annotations.PAIRWISE_DATA) -> Annotation(type='NoisyBradleyTerry', title='self'):  # noqa: F821
         unique_labels, np_data = factorize(data[['left', 'right', 'label']].values)
         unique_workers, np_workers = factorize(data.worker.values)
         np.random.seed(self.random_state)

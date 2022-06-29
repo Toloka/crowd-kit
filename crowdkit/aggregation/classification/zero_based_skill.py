@@ -58,7 +58,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         return pd.Series(skill_value, index=skill_index)
 
     @manage_docstring
-    def _apply(self, data: annotations.LABELED_DATA) -> Annotation(type='ZeroBasedSkill', title='self'):
+    def _apply(self, data: annotations.LABELED_DATA) -> Annotation(type='ZeroBasedSkill', title='self'):  # noqa: F821
         check_is_fitted(self, attributes='skills_')
         mv = MajorityVote().fit(data, self.skills_)
         self.labels_ = mv.labels_
@@ -66,7 +66,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         return self
 
     @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='ZeroBasedSkill', title='self'):
+    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='ZeroBasedSkill', title='self'):  # noqa: F821
         """
         Fit the model.
         """
