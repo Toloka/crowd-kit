@@ -2,13 +2,14 @@
 
 [![GitHub Tests][github_tests_badge]][github_tests_link]
 [![Codecov][codecov_badge]][codecov_link]
-
-[**Documentation**](https://yandex.com/dev/toloka/crowd-kit/doc/)
+[![Documentation][docs_badge]][docs_link]
 
 [github_tests_badge]: https://github.com/Toloka/crowdlib/workflows/Tests/badge.svg?branch=main
 [github_tests_link]: https://github.com/Toloka/crowdlib/actions?query=workflow:Tests
 [codecov_badge]: https://codecov.io/gh/Toloka/crowd-kit/branch/main/graph/badge.svg
 [codecov_link]: https://codecov.io/gh/Toloka/crowd-kit
+[docs_badge]: https://img.shields.io/badge/docs-toloka.ai-1E2126
+[docs_link]: https://toloka.ai/en/docs/crowd-kit/
 
 **Crowd-Kit** is a powerful Python library that implements commonly-used aggregation methods for crowdsourced annotation and offers the relevant metrics and datasets. We strive to implement functionality that simplifies working with crowdsourced data.
 
@@ -20,7 +21,9 @@ Currently, Crowd-Kit contains:
 
 ## Installing
 
-Installing Crowd-Kit is as easy as `pip install crowd-kit`
+Installing Crowd-Kit is as easy as `pip install crowd-kit`.
+
+Those who are interested in contributing to Crowd-Kit can use [Pipenv](https://pipenv.pypa.io/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://pytest.org/) for testing.
 
 ## Getting Started
 

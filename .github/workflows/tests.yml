@@ -31,3 +31,5 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: codecov
         if: matrix.python-version == '3.8'
+      - name: Build wheel
+        run: python3 -m build --sdist --wheel .
