@@ -199,7 +199,7 @@ class HRRASA(BaseClassificationAggregator):
         data = data.join(weights, on=['task', 'worker'])
         data['weighted_embedding'] = data.weight * data.embedding
         group = data.groupby('task')
-        aggregated_embeddings = (group.weighted_embedding.apply(np.sum) / group.weight.sum())
+        aggregated_embeddings = pd.Series((group.weighted_embedding.apply(np.sum) / group.weight.sum()), dtype=np.float64)
         aggregated_embeddings.update(true_embeddings)
         return aggregated_embeddings
 
@@ -323,10 +323,10 @@ class HRRASA(BaseClassificationAggregator):
                 weights_to_append.append({'task': row.task, 'worker': row.worker, 'weight': np.nan})
                 ranks_to_append.append({'task': row.task, 'output': row.output, 'rank': np.nan})
 
-        self.prior_skills_ = self.prior_skills_.append(pd.Series(np.nan, index=workers_to_append))
-        self.skills_ = self.skills_.append(pd.Series(np.nan, index=workers_to_append))
-        self.aggregated_embeddings_ = self.aggregated_embeddings_.append(pd.Series(aggregated_embeddings_to_append))
-        self.weights_ = self.weights_.append(pd.DataFrame(weights_to_append))
+        self.prior_skills_ = pd.concat([self.prior_skills_, pd.Series(np.nan, index=workers_to_append)]) 
+        self.skills_ = pd.concat([self.skills_, pd.Series(np.nan, index=workers_to_append)])
+        self.aggregated_embeddings_ = pd.concat([self.aggregated_embeddings_, pd.Series(aggregated_embeddings_to_append)])
+        self.weights_ = pd.concat([self.weights_, pd.DataFrame(weights_to_append)])
         if hasattr(self, 'ranks_'):
             self.ranks_ = self.ranks_.append(pd.DataFrame(ranks_to_append))
 
