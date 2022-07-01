@@ -62,12 +62,14 @@ Below is the list of currently implemented methods, including the already availa
 |Method|Status|
 |-|:-:|
 |Majority Vote|✅|
+|One-coin Dawid-Skene|✅|
 |[Dawid-Skene](https://doi.org/10.2307/2346806)|✅|
 |Gold Majority Vote|✅|
 |[M-MSR](https://proceedings.neurips.cc/paper/2020/hash/f86890095c957e9b949d11d15f0d0cd5-Abstract.html)|✅|
 |Wawa|✅|
 |Zero-Based Skill|✅|
 |[GLAD](https://papers.nips.cc/paper/3644-whose-vote-should-count-more-optimal-integration-of-labels-from-labelers-of-unknown-expertise.pdf)|✅|
+|[KOS](https://papers.nips.cc/paper/2011/file/c667d53acd899a97a85de0c201ba99be-Paper.pdf)|🟡|
 |BCC|🟡|
 
 ### Textual Responses
