@@ -1,4 +1,6 @@
 import pandas as pd
+import pytest
+import warnings
 
 from crowdkit.metrics.data import consistency
 from crowdkit.postprocessing import entropy_threshold
@@ -17,8 +19,8 @@ class TestEntropyThreshold:
                 {'task': '3', 'worker': 'B', 'label': frozenset(['cat'])},
             ]
         )
-
-        filtered_answers = entropy_threshold(answers)
+        with pytest.warns(UserWarning, match='Removed >= 1/2 of answers with entropy_threshold. This might lead to poor annotation quality. '):
+            filtered_answers = entropy_threshold(answers)
         assert filtered_answers.columns.tolist() == ['task', 'worker', 'label']
         assert filtered_answers.shape == (3, 3)
         assert 'B' not in filtered_answers.worker
@@ -54,7 +56,8 @@ class TestEntropyThreshold:
         )
 
         base_consistency = consistency(answers, skills)
-        filtered_answers = entropy_threshold(answers, skills, percentile=20)
+        with pytest.warns(UserWarning, match='Removed >= 1/2 of answers with entropy_threshold. This might lead to poor annotation quality. '):
+            filtered_answers = entropy_threshold(answers, skills, percentile=20)
 
         # B always answers "cat", his answers are useless and get filtered out
         assert 'B' not in filtered_answers.worker
@@ -82,8 +85,8 @@ class TestEntropyThreshold:
         # but left only 1 answer, so they don't get filtered out
         assert 'D' in filtered_answers.worker.values
         assert 'C' in filtered_answers.worker.values
-
-        filtered_answers = entropy_threshold(answers, min_answers=1)
+        with pytest.warns(UserWarning, match='Removed >= 1/2 of answers with entropy_threshold. This might lead to poor annotation quality. '):
+            filtered_answers = entropy_threshold(answers, min_answers=1)
         assert 'B' not in filtered_answers.worker.values
         assert 'D' not in filtered_answers.worker.values
         assert 'C' not in filtered_answers.worker.values
