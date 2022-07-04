@@ -116,7 +116,7 @@ class GLAD(BaseClassificationAggregator):
         """
         labels = list(priors.index)
         data.set_index('task', inplace=True)
-        data[labels] = 0
+        data.loc[:, labels] = 0
         data.reset_index(inplace=True)
         data = data.melt(id_vars=['task', 'worker', 'label'], value_vars=labels, value_name='posterior')
         data = data.set_index('variable')
