@@ -200,6 +200,8 @@ class HRRASA(BaseClassificationAggregator):
         data['weighted_embedding'] = data.weight * data.embedding
         group = data.groupby('task')
         aggregated_embeddings = pd.Series((group.weighted_embedding.apply(np.sum) / group.weight.sum()), dtype=np.float64)
+        if true_embeddings is None:
+            true_embeddings = pd.Series([], dtype=np.float64)
         aggregated_embeddings.update(true_embeddings)
         return aggregated_embeddings
 
