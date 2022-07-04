@@ -268,7 +268,7 @@ class OneCoinDawidSkene(DawidSkene):
         """
         skilled_data = data.copy()
         skilled_data['skill'] = pd.Series(
-                [probas.loc[row.task, row.label] 
+            [probas.loc[row.task, row.label]
                 for _, row in data.iterrows()], dtype=np.float64)
         skills = skilled_data.groupby(['worker'], sort=False)['skill'].mean()
         return skills

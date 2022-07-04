@@ -325,7 +325,7 @@ class HRRASA(BaseClassificationAggregator):
                 weights_to_append.append({'task': row.task, 'worker': row.worker, 'weight': np.nan})
                 ranks_to_append.append({'task': row.task, 'output': row.output, 'rank': np.nan})
 
-        self.prior_skills_ = pd.concat([self.prior_skills_, pd.Series(np.nan, index=workers_to_append)]) 
+        self.prior_skills_ = pd.concat([self.prior_skills_, pd.Series(np.nan, index=workers_to_append)])
         self.skills_ = pd.concat([self.skills_, pd.Series(np.nan, index=workers_to_append)])
         self.aggregated_embeddings_ = pd.concat([self.aggregated_embeddings_, pd.Series(aggregated_embeddings_to_append)])
         self.weights_ = pd.concat([self.weights_, pd.DataFrame(weights_to_append)])
