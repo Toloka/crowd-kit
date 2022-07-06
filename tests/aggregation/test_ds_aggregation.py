@@ -8,6 +8,7 @@ import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 from crowdkit.aggregation import DawidSkene, OneCoinDawidSkene
 
+
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
 )
@@ -39,6 +40,7 @@ def test_aggregate_ds_on_simple(n_iter, tol, simple_answers_df, simple_ground_tr
         DawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),
         simple_ground_truth.sort_index(),
     )
+
 
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]

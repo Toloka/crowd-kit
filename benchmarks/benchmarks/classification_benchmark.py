@@ -28,7 +28,7 @@ class NistTrecRelevance:
     def time_glad(self):
         GLAD(max_iter=5).fit_predict(self.crowd_labels)
 
-    ### peak memory
+    # peak memory
 
     def peakmem_gold_majority_vote(self):
         GoldMajorityVote().fit_predict(self.crowd_labels, self.ground_truth)
@@ -51,7 +51,7 @@ class NistTrecRelevance:
     def peakmem_glad(self):
         GLAD(max_iter=5).fit_predict(self.crowd_labels)
 
-    ### accuracy
+    # accuracy
 
     def _calc_accuracy(self, predict):
         predict = predict.to_frame().reset_index()
