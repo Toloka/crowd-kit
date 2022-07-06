@@ -1,5 +1,7 @@
 # Crowd-Kit: Computational Quality Control for Crowdsourcing
 
+[![Crowd-Kit](https://tlk.s3.yandex.net/crowd-kit/Crowd-Kit-GitHub.png)](https://github.com/Toloka/crowd-kit)
+
 [![GitHub Tests][github_tests_badge]][github_tests_link]
 [![Codecov][codecov_badge]][codecov_link]
 [![Documentation][docs_badge]][docs_link]
@@ -79,6 +81,7 @@ Below is the list of currently implemented methods, including the already availa
 |[RASA](https://doi.org/10.18653/v1/D19-5904)|✅|
 |[HRRASA](https://doi.org/10.1145/3397271.3401239)|✅|
 |[ROVER](https://ieeexplore.ieee.org/document/659110)|✅|
+|[Language Model-Based](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/65ded5353c5ee48d0b7d48c591b8f430-Abstract-round1.html)|✅|
 
 ### Image Segmentation
 
