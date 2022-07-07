@@ -4,6 +4,7 @@ from sklearn.metrics import ndcg_score
 
 import numpy as np
 
+
 class IMDBWikiSbs:
 
     def setup(self):

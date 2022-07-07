@@ -6,13 +6,13 @@ from os.path import exists, join
 from typing import Optional, Tuple
 
 
-def _load_dataset(data_name, data_dir, data_url, checksum_url):
-    data_dir = get_data_dir(data_dir)
-    full_data_path = join(data_dir, data_name)
+def _load_dataset(data_name: str, data_dir: Optional[str], data_url: str, checksum_url: str) -> str:
+    data_root = get_data_dir(data_dir)
+    full_data_path = join(data_root, data_name)
 
     if not exists(full_data_path):
         print(f'Downloading {data_name} from remote')
-        fetch_remote(data_url, checksum_url, full_data_path + '.zip', data_dir)
+        fetch_remote(data_url, checksum_url, full_data_path + '.zip', data_root)
 
     return full_data_path
 
