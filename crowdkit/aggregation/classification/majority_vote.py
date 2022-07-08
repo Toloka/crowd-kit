@@ -1,20 +1,17 @@
 __all__ = ['MajorityVote']
 
-from typing import Optional
+from typing import Optional, cast
 
 import attr
+import pandas as pd
 
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
 from ..base import BaseClassificationAggregator
 from ..utils import normalize_rows, get_most_probable_labels, get_accuracy, add_skills_to_data, named_series_attrib
 
 
 @attr.s
-@manage_docstring
 class MajorityVote(BaseClassificationAggregator):
-    """
-    Majority Vote aggregation algorithm.
+    """Majority Vote aggregation algorithm.
 
     Majority vote is a straightforward approach for categorical aggregation: for each task,
     it outputs a label which has the largest number of responses. Additionaly, the majority vote
@@ -55,19 +52,45 @@ class MajorityVote(BaseClassificationAggregator):
         >>> )
         >>> skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
         >>> result = MajorityVote.fit_predict(df, skills)
+
+    Attributes:
+        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's most likely true label.
+
+        skills_ (typing.Optional[pandas.core.series.Series]): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
+        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the probability of `task`'s true label to be equal to `label`. Each
+            probability is between 0 and 1, all task's probabilities should sum up to 1
+
+        on_missing_skill (str): How to handle assignments done by workers with unknown skill.
+            Possible values:
+                    * "error" — raise an exception if there is at least one assignment done by user with unknown skill;
+                    * "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no
+                    assignments with known skill for any task;
+                    * value — default value will be used if skill is missing.
     """
 
     # TODO: remove skills_
-    skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
-    probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
+    skills_: Optional[pd.Series] = named_series_attrib(name='skill')
+    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
     # labels_
-    on_missing_skill: annotations.ON_MISSING_SKILL = attr.ib(default='error')
+    on_missing_skill: str = attr.ib(default='error')
     default_skill: Optional[float] = attr.ib(default=None)
 
-    @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> Annotation(type='MajorityVote', title='self'):  # noqa: F821
-        """
-        Fit the model.
+    def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> 'MajorityVote':
+        """Fit the model.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            skills (Series): workers' skills.
+                A pandas.Series index by workers and holding corresponding worker's skill
+
+        Returns:
+            MajorityVote: self.
         """
 
         data = data[['task', 'worker', 'label']]
@@ -75,7 +98,8 @@ class MajorityVote(BaseClassificationAggregator):
         if skills is None:
             scores = data[['task', 'label']].value_counts()
         else:
-            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
+            # TODO: add check for None
+            data = add_skills_to_data(data, skills, self.on_missing_skill, cast(float, self.default_skill))
             scores = data.groupby(['task', 'label'])['skill'].sum()
 
         self.probas_ = normalize_rows(scores.unstack('label', fill_value=0))
@@ -84,18 +108,37 @@ class MajorityVote(BaseClassificationAggregator):
 
         return self
 
-    @manage_docstring
-    def fit_predict_proba(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABEL_PROBAS:
-        """
-        Fit the model and return probability distributions on labels for each task.
+    def fit_predict_proba(self, data: pd.DataFrame, skills: Optional[pd.Series] = None) -> pd.DataFrame:
+        """Fit the model and return probability distributions on labels for each task.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            skills (Series): workers' skills.
+                A pandas.Series index by workers and holding corresponding worker's skill
+
+        Returns:
+            DataFrame: Tasks' label probability distributions.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the probability of `task`'s true label to be equal to `label`. Each
+                probability is between 0 and 1, all task's probabilities should sum up to 1
         """
 
         return self.fit(data, skills).probas_
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.LABELED_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_LABELS:
-        """
-        Fit the model and return aggregated results.
-        """
+    def fit_predict(self, data: pd.DataFrame, skills: pd.Series = None) -> pd.Series:
+        """Fit the model and return aggregated results.
+
+         Args:
+             data (DataFrame): Workers' labeling results.
+                 A pandas.DataFrame containing `task`, `worker` and `label` columns.
+             skills (Series): workers' skills.
+                 A pandas.Series index by workers and holding corresponding worker's skill
+
+         Returns:
+             Series: Tasks' labels.
+                 A pandas.Series indexed by `task` such that `labels.loc[task]`
+                 is the tasks's most likely true label.
+         """
 
         return self.fit(data, skills).labels_

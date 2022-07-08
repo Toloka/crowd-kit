@@ -1,13 +1,9 @@
 __all__ = ['TextHRRASA']
+
 from typing import Callable
 
-from ..annotations import (
-    manage_docstring,
-    TASKS_LABEL_SCORES,
-    TASKS_TEXTS,
-    DATA,
-    TASKS_TRUE_LABELS,
-)
+import pandas as pd
+
 from ..base import BaseTextsAggregator
 from ..embeddings.hrrasa import HRRASA, glue_similarity
 
@@ -46,9 +42,9 @@ class TextHRRASA(BaseTextsAggregator):
         return self._hrrasa.loss_history_
 
     def __init__(
-        self,
-        encoder: Callable, n_iter: int = 100, tol: float = 1e-5, lambda_emb: float = 0.5, lambda_out: float = 0.5,
-        alpha: float = 0.05, calculate_ranks: bool = False, output_similarity: Callable = glue_similarity
+            self,
+            encoder: Callable, n_iter: int = 100, tol: float = 1e-5, lambda_emb: float = 0.5, lambda_out: float = 0.5,
+            alpha: float = 0.05, calculate_ranks: bool = False, output_similarity: Callable = glue_similarity
     ):
         super().__init__()
         self.encoder = encoder
@@ -57,18 +53,38 @@ class TextHRRASA(BaseTextsAggregator):
     def __getattr__(self, name):
         return getattr(self._hrrasa, name)
 
-    @manage_docstring
-    def fit_predict_scores(self, data: DATA, true_objects: TASKS_TRUE_LABELS = None) -> TASKS_LABEL_SCORES:
-        """
-        Fit the model and return scores.
+    def fit_predict_scores(self, data: pd.DataFrame, true_objects: pd.Series = None) -> pd.DataFrame:
+        """Fit the model and return scores.
+
+        Args:
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            DataFrame: Tasks' label scores.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
         """
 
         return self._hrrasa.fit_predict_scores(self._encode_data(data), self._encode_true_objects(true_objects))
 
-    @manage_docstring
-    def fit_predict(self, data: DATA, true_objects: TASKS_TRUE_LABELS = None) -> TASKS_TEXTS:
-        """
-        Fit the model and return aggregated texts.
+    def fit_predict(self, data: pd.DataFrame, true_objects: pd.Series = None) -> pd.Series:
+        """Fit the model and return aggregated texts.
+
+        Args:
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            Series: Tasks' texts.
+                A pandas.Series indexed by `task` such that `result.loc[task, text]`
+                is the task's text.
         """
 
         hrrasa_results = self._hrrasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))

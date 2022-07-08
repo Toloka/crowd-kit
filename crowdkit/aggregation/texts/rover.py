@@ -3,15 +3,14 @@ __all__ = [
 ]
 
 from copy import deepcopy
-from typing import List, Callable, Dict, Optional
 from enum import Enum, unique
+from typing import List, Callable, Dict, Optional, Tuple, cast
 
 import attr
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-from ..annotations import TEXT_DATA, TASKS_TEXTS, manage_docstring, Annotation
 from ..base import BaseTextsAggregator
 
 
@@ -30,10 +29,8 @@ class AlignmentEdge:
 
 
 @attr.s
-@manage_docstring
 class ROVER(BaseTextsAggregator):
-    """
-    Recognizer Output Voting Error Reduction (ROVER).
+    """Recognizer Output Voting Error Reduction (ROVER).
 
     This method uses dynamic programming to align sequences. Next, aligned sequences are used
     to construct the Word Transition Network (WTN):
@@ -54,10 +51,15 @@ class ROVER(BaseTextsAggregator):
         >>> from crowdkit.aggregation import load_dataset
         >>> from crowdkit.aggregation import ROVER
         >>> df, gt = load_dataset('crowdspeech-test-clean')
-        >>> df['text'] = df['text].apply(lambda s: s.lower())
+        >>> df['text'] = df['text'].apply(lambda s: s.lower())
         >>> tokenizer = lambda s: s.split(' ')
         >>> detokenizer = lambda tokens: ' '.join(tokens)
         >>> result = ROVER(tokenizer, detokenizer).fit_predict(df)
+
+    Attributes:
+        texts_ (Series): Tasks' texts.
+            A pandas.Series indexed by `task` such that `result.loc[task, text]`
+            is the task's text.
     """
 
     tokenizer: Callable[[str], List[str]] = attr.ib()
@@ -67,10 +69,15 @@ class ROVER(BaseTextsAggregator):
     # Available after fit
     # texts_
 
-    @manage_docstring
-    def fit(self, data: TEXT_DATA) -> Annotation(type='ROVER', title='self'):  # noqa: F821
-        """
-        Fits the model. The aggregated results are saved to the `texts_` attribute.
+    def fit(self, data: pd.DataFrame) -> 'ROVER':
+        """Fits the model. The aggregated results are saved to the `texts_` attribute.
+
+        Args:
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
+
+        Returns:
+            ROVER: self.
         """
 
         result = {}
@@ -85,15 +92,23 @@ class ROVER(BaseTextsAggregator):
 
             result[task] = text
 
-        result = pd.Series(result, name='text')
-        result.index.name = 'task'
-        self.texts_ = result
+        texts = pd.Series(result, name='text')
+        texts.index.name = 'task'
+        self.texts_ = texts
+
         return self
 
-    @manage_docstring
-    def fit_predict(self, data: TEXT_DATA) -> TASKS_TEXTS:
-        """
-        Fit the model and return the aggregated texts.
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Fit the model and return the aggregated texts.
+
+        Args:
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
+
+        Returns:
+            Series: Tasks' texts.
+                A pandas.Series indexed by `task` such that `result.loc[task, text]`
+                is the task's text.
         """
 
         self.fit(data)
@@ -111,9 +126,9 @@ class ROVER(BaseTextsAggregator):
 
     @staticmethod
     def _align(
-        ref_edges_sets: List[Dict[str, AlignmentEdge]],
-        hyp_edges: List[AlignmentEdge],
-        sources_count: int
+            ref_edges_sets: List[Dict[str, AlignmentEdge]],
+            hyp_edges: List[AlignmentEdge],
+            sources_count: int
     ) -> List[Dict[str, AlignmentEdge]]:
         """Sequence alignment algorithm implementation.
 
@@ -131,7 +146,10 @@ class ROVER(BaseTextsAggregator):
         distance[:, 0] = np.arange(len(hyp_edges) + 1)
         distance[0, :] = np.arange(len(ref_edges_sets) + 1)
 
-        memoization = [[None] * (len(ref_edges_sets) + 1) for _ in range(len(hyp_edges) + 1)]
+        memoization: List[List[Optional[Tuple[AlignmentAction, Dict[str, AlignmentEdge], AlignmentEdge]]]] = [
+            [None] * (len(ref_edges_sets) + 1) for _ in range(len(hyp_edges) + 1)
+        ]
+
         for i, hyp_edge in enumerate(hyp_edges, start=1):
             memoization[i][0] = (
                 AlignmentAction.INSERTION,
@@ -197,14 +215,15 @@ class ROVER(BaseTextsAggregator):
 
         # reconstruct answer from dp array
         while i != 0 or j != 0:
-            action, ref_edges, hyp_edge = memoization[i][j]
+            action, ref_edges, hyp_edge = cast(Tuple[AlignmentAction, Dict[str, AlignmentEdge], AlignmentEdge],
+                                               memoization[i][j])
             joined_edges = deepcopy(ref_edges)
             hyp_edge_word = hyp_edge.value
             if hyp_edge_word not in joined_edges:
                 joined_edges[hyp_edge_word] = hyp_edge
             else:
                 # if word is already in set increment sources count for future score calculation
-                joined_edges[hyp_edge_word].sources_count += 1
+                joined_edges[hyp_edge_word].sources_count += 1  # type: ignore
             alignment.append(joined_edges)
             if action == AlignmentAction.CORRECT or action == AlignmentAction.SUBSTITUTION:
                 i -= 1

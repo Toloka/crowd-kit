@@ -4,20 +4,16 @@ import typing
 
 import attr
 import numpy as np
+import pandas as pd
 
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
 from ..base import BaseImageSegmentationAggregator
-
 
 _EPS = 1e-5
 
 
 @attr.s
-@manage_docstring
 class SegmentationRASA(BaseImageSegmentationAggregator):
-    """
-    Segmentation RASA - chooses a pixel if sum of weighted votes of each workers' more than 0.5.
+    """Segmentation RASA - chooses a pixel if sum of weighted votes of each workers' more than 0.5.
 
     Algorithm works iteratively, at each step, the workers are reweighted in proportion to their distances
     to the current answer estimation. The distance is considered as $1 - IOU$. Modification of the RASA method
@@ -45,6 +41,11 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationRASA().fit_predict(df)
+
+    Attributes:
+        segmentations_ (Series): Tasks' segmentations.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's aggregated segmentation.
     """
 
     n_iter: int = attr.ib(default=10)
@@ -53,8 +54,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     loss_history_: typing.List[float] = attr.ib(init=False)
 
     @staticmethod
-    @manage_docstring
-    def _segmentation_weighted(segmentations: annotations.SEGMENTATIONS, weights: annotations.SEGMENTATION_ERRORS) -> annotations.SEGMENTATION:
+    def _segmentation_weighted(segmentations: pd.Series, weights: np.ndarray) -> np.ndarray:
         """
         Performs weighted majority vote algorithm.
 
@@ -65,21 +65,19 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         return weighted_segmentations.sum(axis=0)
 
     @staticmethod
-    @manage_docstring
-    def _calculate_weights(segmentations: annotations.SEGMENTATIONS, mv: annotations.SEGMENTATION) -> annotations.SEGMENTATION_ERRORS:
+    def _calculate_weights(segmentations: pd.Series, mv: np.ndarray) -> np.ndarray:
         """
         Calculates weights of each workers, from current majority vote estimation.
         """
         intersection = (segmentations & mv).astype(float)
         union = (segmentations | mv).astype(float)
-        distances = 1 - intersection.sum(axis=(1, 2))/union.sum(axis=(1, 2))
+        distances = 1 - intersection.sum(axis=(1, 2)) / union.sum(axis=(1, 2))
         # add a small bias for more
         # numerical stability and correctness of transform.
         weights = np.log(1 / (distances + _EPS) + 1)
         return weights / np.sum(weights)
 
-    @manage_docstring
-    def _aggregate_one(self, segmentations: annotations.SEGMENTATIONS) -> annotations.SEGMENTATION:
+    def _aggregate_one(self, segmentations: pd.Series) -> np.ndarray:
         """
         Performs Segmentation RASA algorithm for a single image.
         """
@@ -103,10 +101,15 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
             last_aggregated = weighted
         return mv
 
-    @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationRASA', title='self'):  # noqa: F821
-        """
-        Fit the model.
+    def fit(self, data: pd.DataFrame) -> 'SegmentationRASA':
+        """Fit the model.
+
+        Args:
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+
+        Returns:
+            SegmentationRASA: self.
         """
 
         data = data[['task', 'worker', 'segmentation']]
@@ -119,10 +122,17 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         self.segmentations_ = data.groupby('task').segmentation.apply(aggregate_one)
         return self
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.SEGMENTATION_DATA) -> annotations.TASKS_SEGMENTATIONS:
-        """
-        Fit the model and return the aggregated segmentations.
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Fit the model and return the aggregated segmentations.
+
+        Args:
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+
+        Returns:
+            Series: Tasks' segmentations.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's aggregated segmentation.
         """
 
         return self.fit(data).segmentations_

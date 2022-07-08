@@ -1,20 +1,17 @@
 __all__ = ['ClosestToAverage']
 
-from typing import Callable
+from typing import Callable, Optional
 
 import attr
 import numpy as np
+import pandas as pd
 
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
 from ..base import BaseEmbeddingsAggregator
 
 
 @attr.s
-@manage_docstring
 class ClosestToAverage(BaseEmbeddingsAggregator):
-    """
-    Closest to Average - chooses the output with the embedding closest to the average embedding.
+    """Closest to Average - chooses the output with the embedding closest to the average embedding.
 
     This method takes a `DataFrame` containing four columns: `task`, `worker`, `output`, and `embedding`.
     Here the `embedding` is a vector containing a representation of the `output`. The `output` might be any
@@ -24,18 +21,35 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     Args:
         distance: A callable that takes two NumPy arrays and returns a single `float` number — the distance
             between these two vectors.
+
+    Attributes:
+        embeddings_and_outputs_ (DataFrame): Tasks' embeddings and outputs.
+            A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+
+        scores_ (DataFrame): Tasks' label scores.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the score of `label` for `task`.
     """
 
     # embeddings_and_outputs_
-    scores_: annotations.TASKS_LABEL_SCORES
+    scores_: pd.DataFrame
 
     distance: Callable[[np.ndarray, np.ndarray], float] = attr.ib()
 
-    @manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None,
-            true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='ClosestToAverage', title='self'):  # noqa: F821
-        """
-        Fits the model.
+    def fit(self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None,
+            true_embeddings: pd.Series = None) -> 'ClosestToAverage':
+        """Fits the model.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            aggregated_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            true_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            ClosestToAverage: self.
         """
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
@@ -69,24 +83,37 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
 
         return self
 
-    @manage_docstring
-    def fit_predict_scores(
-        self,
-        data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None
-    ) -> annotations.TASKS_LABEL_PROBAS:
-        """
-        Fit the model and return the estimated scores.
+    def fit_predict_scores(self, data: pd.DataFrame, aggregated_embeddings: pd.Series = None) -> pd.DataFrame:
+        """Fit the model and return the estimated scores.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            aggregated_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            DataFrame: Tasks' label probability distributions.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the probability of `task`'s true label to be equal to `label`. Each
+                probability is between 0 and 1, all task's probabilities should sum up to 1
         """
 
         return self.fit(data, aggregated_embeddings).scores_
 
-    @manage_docstring
-    def fit_predict(
-        self,
-        data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS = None
-    ) -> annotations.TASKS_EMBEDDINGS_AND_OUTPUTS:
+    def fit_predict(self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None) -> pd.DataFrame:
         """
         Fit the model and return the aggregated results.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            aggregated_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            DataFrame: Tasks' embeddings and outputs.
+                A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
         """
 
         return self.fit(data, aggregated_embeddings).embeddings_and_outputs_

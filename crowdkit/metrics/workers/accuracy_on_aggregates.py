@@ -5,19 +5,21 @@ __all__ = [
 from typing import Optional, Union
 
 import pandas as pd
+
 from crowdkit.aggregation import MajorityVote
 from crowdkit.aggregation.base import BaseClassificationAggregator
 from crowdkit.aggregation.utils import get_accuracy
 
 
 def accuracy_on_aggregates(
-    answers: pd.DataFrame,
-    aggregator: Optional[BaseClassificationAggregator] = MajorityVote(),
-    aggregates: Optional[pd.Series] = None,
-    by: Optional[str] = None
+        answers: pd.DataFrame,
+        aggregator: Optional[BaseClassificationAggregator] = MajorityVote(),
+        aggregates: Optional[pd.Series] = None,
+        by: Optional[str] = None
 ) -> Union[float, pd.Series]:
     """
     Accuracy on aggregates: a fraction of worker's answers that match the aggregated one.
+
     Args:
         answers: a data frame containing `task`, `worker` and `label` columns.
         aggregator: aggregation algorithm. default: MajorityVote
@@ -30,6 +32,8 @@ def accuracy_on_aggregates(
     """
     if aggregates is None and aggregator is None:
         raise AssertionError('One of aggregator or aggregates should be not None')
+
     if aggregates is None:
-        aggregates = aggregator.fit_predict(answers)
+        aggregates = aggregator.fit_predict(answers)  # type: ignore
+
     return get_accuracy(answers, aggregates, by=by)

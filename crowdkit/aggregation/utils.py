@@ -10,14 +10,12 @@ __all__ = [
     'add_skills_to_data',
     'named_series_attrib',
 ]
+
 from typing import Tuple, Union, Callable, Optional
 
 import attr
 import numpy as np
 import pandas as pd
-
-from . import annotations
-from .annotations import manage_docstring
 
 
 def _argmax_random_ties(array: np.ndarray) -> int:
@@ -49,24 +47,46 @@ def factorize(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return unique_values, coded.reshape(data.shape)
 
 
-@manage_docstring
-def get_most_probable_labels(proba: annotations.TASKS_LABEL_PROBAS):
-    """Returns most probable labels"""
+def get_most_probable_labels(proba: pd.DataFrame):
+    """Returns most probable labels
+
+    Args:
+        proba (DataFrame): Tasks' label probability distributions.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the probability of `task`'s true label to be equal to `label`. Each
+            probability is between 0 and 1, all task's probabilities should sum up to 1
+    """
     # patch for pandas<=1.1.5
     if not proba.size:
         return pd.Series([], dtype='O')
     return proba.idxmax(axis='columns')
 
 
-@manage_docstring
-def normalize_rows(scores: annotations.TASKS_LABEL_SCORES) -> annotations.TASKS_LABEL_PROBAS:
-    """Scales values so that every raw sums to 1"""
+def normalize_rows(scores: pd.DataFrame) -> pd.DataFrame:
+    """Scales values so that every raw sums to 1
+
+    Args:
+        scores (DataFrame): Tasks' label scores.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the score of `label` for `task`.
+
+    Returns:
+        DataFrame: Tasks' label probability distributions.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the probability of `task`'s true label to be equal to `label`. Each
+            probability is between 0 and 1, all task's probabilities should sum up to 1
+    """
     return scores.div(scores.sum(axis=1), axis=0)
 
 
-@manage_docstring
-def manage_data(data: annotations.LABELED_DATA, weights: Optional[pd.Series] = None,
-                skills: annotations.SKILLS = None) -> pd.DataFrame:
+def manage_data(data: pd.DataFrame, weights: Optional[pd.Series] = None,
+                skills: pd.Series = None) -> pd.DataFrame:
+    """Args:
+        data (DataFrame): Workers' labeling results.
+            A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        skills (Series): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
+    """
     data = data[['task', 'worker', 'label']]
 
     if weights is None:
@@ -82,9 +102,18 @@ def manage_data(data: annotations.LABELED_DATA, weights: Optional[pd.Series] = N
     return data
 
 
-@manage_docstring
-def get_accuracy(data: annotations.LABELED_DATA, true_labels: annotations.TASKS_TRUE_LABELS,
-                 by: Optional[str] = None) -> annotations.SKILLS:
+def get_accuracy(data: pd.DataFrame, true_labels: pd.Series, by: Optional[str] = None) -> pd.Series:
+    """Args:
+        data (DataFrame): Workers' labeling results.
+            A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        true_labels (Series): Tasks' ground truth labels.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's ground truth label.
+
+    Returns:
+        Series: workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
+    """
     if 'weight' in data.columns:
         data = data[['task', 'worker', 'label', 'weight']]
     else:
@@ -119,14 +148,18 @@ def named_series_attrib(name: str):
     return attr.ib(init=False, converter=converter, on_setattr=attr.setters.convert)
 
 
-@manage_docstring
-def add_skills_to_data(
-    data: pd.DataFrame,
-    skills: annotations.SKILLS,
-    on_missing_skill: annotations.ON_MISSING_SKILL,
-    default_skill: float
-) -> pd.DataFrame:
-
+def add_skills_to_data(data: pd.DataFrame, skills: pd.Series, on_missing_skill: str,
+                       default_skill: float) -> pd.DataFrame:
+    """Args:
+        skills (Series): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
+        on_missing_skill (str): How to handle assignments done by workers with unknown skill.
+            Possible values:
+                    * "error" — raise an exception if there is at least one assignment done by user with unknown skill;
+                    * "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no
+                    assignments with known skill for any task;
+                    * value — default value will be used if skill is missing.
+    """
     data = data.join(skills.rename('skill'), on='worker')
 
     if on_missing_skill != 'value' and default_skill is not None:

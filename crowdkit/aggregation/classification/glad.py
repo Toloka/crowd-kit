@@ -1,5 +1,7 @@
 __all__ = ['GLAD']
 
+from typing import Optional, Tuple, List, cast
+
 import attr
 import numpy as np
 import pandas as pd
@@ -7,7 +9,6 @@ import scipy
 import scipy.stats
 from scipy.optimize import minimize
 from tqdm.auto import tqdm
-from typing import Optional, Tuple, List
 
 # logsumexp was moved to scipy.special in 0.19.0rc1 version of scipy
 try:
@@ -15,25 +16,13 @@ try:
 except ImportError:
     from scipy.misc.common import logsumexp
 
-from ..annotations import (
-    manage_docstring,
-    Annotation,
-    OPTIONAL_PROBAS,
-    LABELED_DATA,
-    TASKS_LABEL_PROBAS,
-    TASKS_LABELS,
-    GLAD_ALPHAS,
-    GLAD_BETAS,
-)
 from ..base import BaseClassificationAggregator
 from ..utils import named_series_attrib
 
 
 @attr.s
-@manage_docstring
 class GLAD(BaseClassificationAggregator):
-    r"""
-    Generative model of Labels, Abilities, and Difficulties.
+    r"""Generative model of Labels, Abilities, and Difficulties.
 
     A probabilistic model that parametrizes workers' abilities and tasks' dificulties.
     Let's consider a case of $K$ class classification. Let $p$ be a vector of prior class probabilities,
@@ -86,6 +75,22 @@ class GLAD(BaseClassificationAggregator):
         >>> df, gt = load_dataset('relevance-2')
         >>> glad = GLAD()
         >>> result = glad.fit_predict(df)
+
+    Attributes:
+        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's most likely true label.
+
+        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the probability of `task`'s true label to be equal to `label`. Each
+            probability is between 0 and 1, all task's probabilities should sum up to 1
+
+        alphas_ (Series): workers' alpha parameters.
+            A pandas.Series indexed by `worker` that contains estimated alpha parameters.
+
+        betas_ (Series): Tasks' beta parameters.
+            A pandas.Series indexed by `task` that contains estimated beta parameters.
     """
 
     n_iter: int = attr.ib(default=100)
@@ -99,18 +104,17 @@ class GLAD(BaseClassificationAggregator):
 
     # Available after fit
     # labels_
-    probas_: OPTIONAL_PROBAS = attr.ib(init=False)
-    alphas_: GLAD_ALPHAS = named_series_attrib(name='alpha')
-    betas_: GLAD_BETAS = named_series_attrib(name='beta')
+    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    alphas_: pd.Series = named_series_attrib(name='alpha')
+    betas_: pd.Series = named_series_attrib(name='beta')
     loss_history_: List[float] = attr.ib(init=False)
 
-    @manage_docstring
     def _join_all(
-        self,
-        data: LABELED_DATA,
-        alphas: GLAD_ALPHAS,
-        betas: GLAD_BETAS,
-        priors: pd.Series
+            self,
+            data: pd.DataFrame,
+            alphas: pd.Series,
+            betas: pd.Series,
+            priors: pd.Series
     ) -> pd.DataFrame:
         """Make a data frame with format `(task, worker, label, variable) -> (alpha, beta, posterior, delta)`
         """
@@ -129,8 +133,7 @@ class GLAD(BaseClassificationAggregator):
         data['delta'] = data['label'] == data['variable']
         return data
 
-    @manage_docstring
-    def _e_step(self, data: LABELED_DATA) -> TASKS_LABEL_PROBAS:
+    def _e_step(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Perform E-step of GLAD algorithm.
 
@@ -144,7 +147,7 @@ class GLAD(BaseClassificationAggregator):
         # sum up by workers
         probas = data.groupby(['task', 'variable']).sum()['posterior']
         # add priors to every label
-        probas = probas.add(np.log(self.priors_), level=1)
+        probas = probas.add(np.log(self.priors_), level=1)  # type: ignore
         # exponentiate and normalize
         probas = probas.groupby(['task']).transform(self._softmax)
         # put posterior in data['posterior']
@@ -154,8 +157,7 @@ class GLAD(BaseClassificationAggregator):
         self.probas_ = probas.unstack()
         return data
 
-    @manage_docstring
-    def _gradient_Q(self, data: LABELED_DATA):
+    def _gradient_Q(self, data: pd.DataFrame):
         """Compute gradient of loss function
         """
 
@@ -172,8 +174,7 @@ class GLAD(BaseClassificationAggregator):
         dQalpha -= (self.alphas_ - self.alphas_priors_mean_)
         return dQalpha, dQbeta
 
-    @manage_docstring
-    def _compute_Q(self, data: LABELED_DATA):
+    def _compute_Q(self, data: pd.DataFrame):
         """Compute loss function
         """
 
@@ -192,7 +193,6 @@ class GLAD(BaseClassificationAggregator):
             return -np.inf
         return Q
 
-    @manage_docstring
     def _optimize_f(self, x: np.ndarray) -> float:
         """Compute loss by parameters represented by numpy array
         """
@@ -200,7 +200,6 @@ class GLAD(BaseClassificationAggregator):
         self._update_alphas_betas(alpha, beta)
         return -self._compute_Q(self._current_data)
 
-    @manage_docstring
     def _optimize_df(self, x: np.ndarray) -> np.ndarray:
         """Compute loss gradient by parameters represented by numpy array
         """
@@ -213,8 +212,7 @@ class GLAD(BaseClassificationAggregator):
         minus_grad[len(self.workers_):] = -dQbeta[self.tasks_].values
         return minus_grad
 
-    @manage_docstring
-    def _update_alphas_betas(self, alphas: GLAD_ALPHAS, betas: GLAD_BETAS):
+    def _update_alphas_betas(self, alphas: pd.Series, betas: pd.Series):
         self.alphas_ = alphas
         self.betas_ = betas
         self._current_data.set_index('worker', inplace=True)
@@ -224,7 +222,6 @@ class GLAD(BaseClassificationAggregator):
         self._current_data['beta'] = betas
         self._current_data.reset_index(inplace=True)
 
-    @manage_docstring
     def _get_alphas_betas_by_point(self, x: np.ndarray) -> Tuple[pd.Series, pd.Series]:
         alphas = pd.Series(x[:len(self.workers_)], index=self.workers_, name='alpha')
         alphas.index.name = 'worker'
@@ -232,8 +229,7 @@ class GLAD(BaseClassificationAggregator):
         betas.index.name = 'task'
         return alphas, betas
 
-    @manage_docstring
-    def _m_step(self, data: LABELED_DATA) -> LABELED_DATA:
+    def _m_step(self, data: pd.DataFrame) -> pd.DataFrame:
         """Optimize alpha and beta using conjugate gradient method
         """
         x_0 = np.concatenate([self.alphas_.values, self.betas_.values])
@@ -244,8 +240,7 @@ class GLAD(BaseClassificationAggregator):
         self._update_alphas_betas(self.alphas_, self.betas_)
         return self._current_data
 
-    @manage_docstring
-    def _init(self, data: LABELED_DATA) -> None:
+    def _init(self, data: pd.DataFrame) -> None:
         self.alphas_ = pd.Series(1.0, index=pd.unique(data.worker))
         self.betas_ = pd.Series(1.0, index=pd.unique(data.task))
         self.tasks_ = pd.unique(data['task'])
@@ -277,10 +272,15 @@ class GLAD(BaseClassificationAggregator):
     def _softmax(x: np.ndarray) -> np.ndarray:
         return np.exp(x - logsumexp(x, keepdims=True))
 
-    @manage_docstring
-    def fit(self, data: LABELED_DATA) -> Annotation(type='GLAD', title='self'):  # noqa: F821
-        """
-        Fit the model through the EM-algorithm.
+    def fit(self, data: pd.DataFrame) -> 'GLAD':
+        """Fit the model through the EM-algorithm.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            GLAD: self.
         """
 
         # Initialization
@@ -309,19 +309,26 @@ class GLAD(BaseClassificationAggregator):
             if Q - last_Q < self.tol:
                 break
 
-        self.labels_ = self.probas_.idxmax(axis=1)
+        self.labels_ = cast(pd.DataFrame, self.probas_).idxmax(axis=1)
         return self
 
-    @manage_docstring
-    def fit_predict_proba(self, data: LABELED_DATA) -> TASKS_LABEL_PROBAS:
-        """
-        Fit the model and return probability distributions on labels for each task.
+    def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Fit the model and return probability distributions on labels for each task.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            DataFrame: Tasks' label probability distributions.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the probability of `task`'s true label to be equal to `label`. Each
+                probability is between 0 and 1, all task's probabilities should sum up to 1
         """
 
         return self.fit(data).probas_
 
-    @manage_docstring
-    def fit_predict(self, data: LABELED_DATA) -> TASKS_LABELS:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
         """
         Fit the model and return aggregated results.
         """

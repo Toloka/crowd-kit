@@ -6,17 +6,13 @@ import pandas as pd
 from scipy.optimize import minimize
 from scipy.special import expit
 
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
 from ..base import BasePairwiseAggregator
 from ..utils import factorize, named_series_attrib
 
 
 @attr.s
-@manage_docstring
 class NoisyBradleyTerry(BasePairwiseAggregator):
-    r"""
-    Bradley-Terry model for pairwise comparisons with additional parameters.
+    r"""Bradley-Terry model for pairwise comparisons with additional parameters.
 
     This model is a modification of the [Bradley-Terry model](crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md)
     with parameters for workers' skills (reliability) and biases.
@@ -50,17 +46,34 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         >>> result.index = pd.MultiIndex.from_tuples(result.index, names=['question', 'label'])
         >>> print(result['q1'])      # Scores for all items in the q1 question
         >>> print(result['q2']['b']) # Score for the item b in the q2 question
+
+    Attributes:
+        scores_ (Series): 'Labels' scores.
+            A pandas.Series index by labels and holding corresponding label's scores
+        skills_ (Series): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
+        biases_ (Series): Predicted biases for each worker. Indicates the probability of a worker to choose the left item..
+            A series of workers' biases indexed by workers
     """
     n_iter: int = attr.ib(default=100)
     tol: float = attr.ib(default=1e-5)
     regularization_ratio: float = attr.ib(default=1e-5)
     random_state: int = attr.ib(default=0)
-    skills_: annotations.SKILLS = named_series_attrib(name='skill')
-    biases_: annotations.BIASES = named_series_attrib(name='bias')
+    skills_: pd.Series = named_series_attrib(name='skill')
+    biases_: pd.Series = named_series_attrib(name='bias')
+
     # scores_
 
-    @manage_docstring
-    def fit(self, data: annotations.PAIRWISE_DATA) -> Annotation(type='NoisyBradleyTerry', title='self'):  # noqa: F821
+    def fit(self, data: pd.DataFrame) -> 'NoisyBradleyTerry':
+        """Args:
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
+                For each row `label` must be equal to either `left` column or `right` column.
+
+        Returns:
+            NoisyBradleyTerry: self.
+        """
+
         unique_labels, np_data = factorize(data[['left', 'right', 'label']].values)
         unique_workers, np_workers = factorize(data.worker.values)
         np.random.seed(self.random_state)
@@ -80,35 +93,45 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
 
         return self
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.PAIRWISE_DATA) -> annotations.LABEL_SCORES:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Args:
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
+                For each row `label` must be equal to either `left` column or `right` column.
+
+        Returns:
+            Series: 'Labels' scores.
+                A pandas.Series index by labels and holding corresponding label's scores
+        """
         return self.fit(data).scores_
 
     @staticmethod
-    def _compute_log_likelihood(x: np.ndarray, np_data: np.ndarray, np_workers: np.ndarray, labels: int, workers: int, regularization_ratio: float) -> float:
+    def _compute_log_likelihood(x: np.ndarray, np_data: np.ndarray, np_workers: np.ndarray, labels: int, workers: int,
+                                regularization_ratio: float) -> float:
         s_i = x[np_data[:, 0]]
         s_j = x[np_data[:, 1]]
         y = np.zeros_like(np_data[:, 2])
         y[np_data[:, 0] == np_data[:, 2]] = 1
         y[np_data[:, 0] != np_data[:, 2]] = -1
-        q = x[1+np_workers + labels]
-        gamma = x[1+np_workers + labels + workers]
+        q = x[1 + np_workers + labels]
+        gamma = x[1 + np_workers + labels + workers]
 
         total = np.sum(np.log(expit(gamma) * expit(y * (s_i - s_j)) + (1 - expit(gamma)) * expit(y * q)))
-        reg = np.sum(np.log(expit(x[0] - x[1:labels+1]))) + np.sum(np.log(expit(x[1:labels+1]-x[0])))
+        reg = np.sum(np.log(expit(x[0] - x[1:labels + 1]))) + np.sum(np.log(expit(x[1:labels + 1] - x[0])))
 
         return -total + regularization_ratio * reg
 
     @staticmethod
-    def _compute_gradient(x: np.ndarray, np_data: np.ndarray, np_workers: np.ndarray, labels: int, workers: int, regularization_ratio: float) -> np.ndarray:
+    def _compute_gradient(x: np.ndarray, np_data: np.ndarray, np_workers: np.ndarray, labels: int, workers: int,
+                          regularization_ratio: float) -> np.ndarray:
         gradient = np.zeros_like(x)
 
         for worker_idx, (left_idx, right_idx, label) in zip(np_workers, np_data):
             s_i = x[left_idx]
             s_j = x[right_idx]
             y = 1 if label == left_idx else -1
-            q = x[1+labels + worker_idx]
-            gamma = x[1+labels + workers + worker_idx]
+            q = x[1 + labels + worker_idx]
+            gamma = x[1 + labels + workers + worker_idx]
 
             # We'll use autograd in the future
             gradient[left_idx] += (y * np.exp(y * (-(s_i - s_j)))) / ((np.exp(-gamma) + 1) * (np.exp(y * (-(s_i - s_j))) + 1) ** 2 * (1 / ((np.exp(-gamma) + 1) * (np.exp(y * (-(s_i - s_j))) + 1)) + (1 - 1 / (np.exp(-gamma) + 1)) / (np.exp(-q * y) + 1)))  # noqa
@@ -116,6 +139,6 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
             gradient[labels + worker_idx] = (y * np.exp(q * y) * (np.exp(s_i * y) + np.exp(s_j * y))) / ((np.exp(q * y) + 1) * (np.exp(y * (s_i + q) + gamma) + np.exp(s_i * y + gamma) + np.exp(y * (s_i + q)) + np.exp(y * (s_j + q))))  # noqa #dq
             gradient[labels + workers + worker_idx] = (np.exp(gamma) * (np.exp(s_i * y) - np.exp(y * (s_j + q)))) / ((np.exp(gamma) + 1) * (np.exp(y * (s_i + q) + gamma) + np.exp(s_i * y + gamma) + np.exp(y * (s_i + q)) + np.exp(y * (s_j + q))))  # noqa #dgamma
 
-        gradient[1:labels+1] -= regularization_ratio * np.tanh((x[1:labels+1] - x[0])/2.)
-        gradient[0] += regularization_ratio * np.sum(np.tanh((x[1:labels+1] - x[0])/2.))
+        gradient[1:labels + 1] -= regularization_ratio * np.tanh((x[1:labels + 1] - x[0]) / 2.)
+        gradient[0] += regularization_ratio * np.sum(np.tanh((x[1:labels + 1] - x[0]) / 2.))
         return -gradient

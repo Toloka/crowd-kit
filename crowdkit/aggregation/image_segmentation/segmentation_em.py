@@ -1,20 +1,17 @@
 __all__ = ['SegmentationEM']
 
+from typing import List, Union
+
 import attr
 import numpy as np
+import pandas as pd
 
-from typing import List
-
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
 from ..base import BaseImageSegmentationAggregator
 
 
 @attr.s
-@manage_docstring
 class SegmentationEM(BaseImageSegmentationAggregator):
-    """
-    The EM algorithm for the image segmentation task.
+    """The EM algorithm for the image segmentation task.
 
     This method performs a categorical aggregation task for each pixel: should
     it be included to the resulting aggregate or no. This task is solved by
@@ -44,6 +41,11 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationEM().fit_predict(df)
+
+    Attributes:
+        segmentations_ (Series): Tasks' segmentations.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's aggregated segmentation.
     """
 
     n_iter: int = attr.ib(default=10)
@@ -53,20 +55,19 @@ class SegmentationEM(BaseImageSegmentationAggregator):
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
-    @manage_docstring
     def _e_step(
-        segmentations: annotations.SEGMENTATIONS,
-        errors: annotations.SEGMENTATION_ERRORS,
-        priors: annotations.IMAGE_PIXEL_PROBAS,
-    ) -> annotations.IMAGE_PIXEL_PROBAS:
+            segmentations: pd.Series,
+            errors: np.ndarray,
+            priors: Union[float, np.ndarray],
+    ) -> np.ndarray:
         """
         Perform E-step of algorithm.
         Given workers' segmentations and error vector and priors
         for each pixel calculates posteriori probabilities.
         """
 
-        weighted_seg = np.multiply(errors, segmentations.T.astype(float)).T +\
-                        np.multiply((1 - errors), (1 - segmentations).T.astype(float)).T
+        weighted_seg = np.multiply(errors, segmentations.T.astype(float)).T + \
+                       np.multiply((1 - errors), (1 - segmentations).T.astype(float)).T
 
         with np.errstate(divide='ignore'):
             pos_log_prob = np.log(priors) + np.log(weighted_seg).sum(axis=0)
@@ -79,13 +80,8 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         return posteriors
 
     @staticmethod
-    @manage_docstring
-    def _m_step(
-        segmentations: annotations.SEGMENTATIONS,
-        posteriors: annotations.IMAGE_PIXEL_PROBAS,
-        segmentation_region_size: int,
-        segmentations_sizes: np.ndarray
-    ) -> annotations.SEGMENTATION_ERRORS:
+    def _m_step(segmentations: pd.Series, posteriors: np.ndarray, segmentation_region_size: int,
+                segmentations_sizes: np.ndarray) -> np.ndarray:
         """
         Perform M-step of algorithm.
         Given a priori probabilities for each pixel and the segmentation of the workers,
@@ -98,26 +94,21 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         # return probability of worker marking pixel correctly
         return 1 - mean_errors_expectation
 
-    def _evidence_lower_bound(
-        self,
-        segmentations: annotations.SEGMENTATIONS,
-        priors: annotations.IMAGE_PIXEL_PROBAS,
-        posteriors: annotations.IMAGE_PIXEL_PROBAS,
-        errors: annotations.SEGMENTATION_ERRORS
-    ):
+    def _evidence_lower_bound(self, segmentations: pd.Series, priors: Union[float, np.ndarray], posteriors: np.ndarray,
+                              errors: np.ndarray):
         weighted_seg = (np.multiply(errors, segmentations.T.astype(float)).T +
                         np.multiply((1 - errors), (1 - segmentations).T.astype(float)).T)
 
         # we handle log(0) * 0 == 0 case with nan_to_num so warnings are irrelevant here
         with np.errstate(divide='ignore', invalid='ignore'):
             log_likelihood_expectation = \
-                np.nan_to_num((np.log(weighted_seg) + np.log(priors)[None, ...]) * posteriors, nan=0).sum() +\
-                np.nan_to_num((np.log(1 - weighted_seg) + np.log(1 - priors)[None, ...]) * (1 - posteriors), nan=0).sum()
+                np.nan_to_num((np.log(weighted_seg) + np.log(priors)[None, ...]) * posteriors, nan=0).sum() + \
+                np.nan_to_num((np.log(1 - weighted_seg) + np.log(1 - priors)[None, ...]) * (1 - posteriors),
+                              nan=0).sum()
 
             return log_likelihood_expectation - np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum()
 
-    @manage_docstring
-    def _aggregate_one(self, segmentations: annotations.SEGMENTATIONS) -> annotations.SEGMENTATION:
+    def _aggregate_one(self, segmentations: pd.Series) -> bool:
         """
         Performs an expectation maximization algorithm for a single image.
         """
@@ -136,7 +127,8 @@ class SegmentationEM(BaseImageSegmentationAggregator):
             posteriors = self._e_step(segmentations, errors, priors)
             posteriors[posteriors < self.eps] = 0
             errors = self._m_step(segmentations, posteriors, segmentation_region_size, segmentations_sizes)
-            new_loss = self._evidence_lower_bound(segmentations, priors, posteriors, errors) / (len(segmentations) * segmentations[0].size)
+            new_loss = self._evidence_lower_bound(
+                segmentations, priors, posteriors, errors) / (len(segmentations) * segmentations[0].size)
             priors = posteriors
             self.loss_history_.append(new_loss)
             if new_loss - loss < self.tol:
@@ -145,10 +137,15 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
         return priors > 0.5
 
-    @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA) -> Annotation(type='SegmentationEM', title='self'):  # noqa: F821
-        """
-        Fit the model.
+    def fit(self, data: pd.DataFrame) -> 'SegmentationEM':
+        """Fit the model.
+
+        Args:
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+
+        Returns:
+            SegmentationEM: self.
         """
 
         data = data[['task', 'worker', 'segmentation']]
@@ -158,9 +155,17 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         )
         return self
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.SEGMENTATION_DATA) -> annotations.TASKS_SEGMENTATIONS:
+    def fit_predict(self, data: np.ndarray) -> pd.Series:
+        """Fit the model and return the aggregated segmentations.
+
+        Args:
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+
+        Returns:
+            Series: Tasks' segmentations.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's aggregated segmentation.
         """
-        Fit the model and return the aggregated segmentations.
-        """
+
         return self.fit(data).segmentations_

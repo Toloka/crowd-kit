@@ -1,6 +1,6 @@
 __all__ = ['MMSR']
 
-from typing import Optional, Tuple, List
+from typing import Optional, List
 
 import attr
 import numpy as np
@@ -8,18 +8,14 @@ import pandas as pd
 import scipy.sparse.linalg as sla
 import scipy.stats as sps
 
-from .. import annotations
-from ..annotations import manage_docstring, Annotation
+from .majority_vote import MajorityVote
 from ..base import BaseClassificationAggregator
 from ..utils import named_series_attrib
-from .majority_vote import MajorityVote
 
 
 @attr.s
-@manage_docstring
 class MMSR(BaseClassificationAggregator):
-    r"""
-    Matrix Mean-Subsequence-Reduced Algorithm.
+    r"""Matrix Mean-Subsequence-Reduced Algorithm.
 
     The M-MSR assumes that workers have different level of expertise and associated
     with a vector of "skills" $\boldsymbol{s}$ which entries $s_i$ show the probability
@@ -56,7 +52,18 @@ class MMSR(BaseClassificationAggregator):
         >>> df, gt = load_dataset('relevance-2')
         >>> mmsr = MMSR()
         >>> result = mmsr.fit_predict(df)
+    Attributes:
+        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's most likely true label.
+
+        skills_ (typing.Optional[pandas.core.series.Series]): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
+        scores_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label scores.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the score of `label` for `task`.
     """
+
     n_iter: int = attr.ib(default=10000)
     tol: float = attr.ib(default=1e-10)
     random_state: Optional[int] = attr.ib(default=0)
@@ -71,25 +78,29 @@ class MMSR(BaseClassificationAggregator):
     _tasks_mapping: dict = attr.ib(factory=dict)
 
     # Available after fit
-    skills_: annotations.OPTIONAL_SKILLS = named_series_attrib(name='skill')
+    skills_: Optional[pd.Series] = named_series_attrib(name='skill')
 
     # Available after predict or predict_score
     # labels_
-    scores_: annotations.OPTIONAL_SCORES = attr.ib(init=False)
+    scores_: Optional[pd.DataFrame] = attr.ib(init=False)
 
     loss_history_: List[float] = attr.ib(init=False)
 
-    @manage_docstring
-    def _apply(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):  # noqa: F821
+    def _apply(self, data: pd.DataFrame) -> 'MMSR':
         mv = MajorityVote().fit(data, skills=self.skills_)
         self.labels_ = mv.labels_
         self.scores_ = mv.probas_
         return self
 
-    @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='MMSR', title='self'):  # noqa: F821
-        """
-        Estimate the workers' skills.
+    def fit(self, data: pd.DataFrame) -> 'MMSR':
+        """Estimate the workers' skills.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            MMSR: self.
         """
 
         data = data[['task', 'worker', 'label']]
@@ -97,34 +108,62 @@ class MMSR(BaseClassificationAggregator):
         self._m_msr()
         return self
 
-    @manage_docstring
-    def predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
-        """
-        Infer the true labels when the model is fitted.
+    def predict(self, data: pd.DataFrame) -> pd.Series:
+        """Infer the true labels when the model is fitted.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            Series: Tasks' labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
         """
 
         return self._apply(data).labels_
 
-    @manage_docstring
-    def predict_score(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_SCORES:
-        """
-        Return total sum of weights for each label when the model is fitted.
+    def predict_score(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Return total sum of weights for each label when the model is fitted.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            DataFrame: Tasks' label scores.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
         """
 
         return self._apply(data).scores_
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
-        """
-        Fit the model and return aggregated results.
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Fit the model and return aggregated results.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            Series: Tasks' labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
         """
 
         return self.fit(data).predict(data)
 
-    @manage_docstring
-    def fit_predict_score(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_SCORES:
-        """
-        Fit the model and return the total sum of weights for each label.
+    def fit_predict_score(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Fit the model and return the total sum of weights for each label.
+
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            DataFrame: Tasks' label scores.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
         """
 
         return self.fit(data).predict_score(data)
@@ -160,7 +199,7 @@ class MMSR(BaseClassificationAggregator):
                     u[i][0] = y.mean()
 
             loss = np.linalg.norm(u @ v.T - u_prev @ v_prev.T, ord='fro')
-            self.loss_history_.append(loss)
+            self.loss_history_.append(float(loss))
             if loss < self.tol:
                 break
 
@@ -176,8 +215,7 @@ class MMSR(BaseClassificationAggregator):
 
         self.skills_ = self._get_skills_from_array(skills)
 
-    @manage_docstring
-    def _get_skills_from_array(self, array: np.ndarray) -> annotations.SKILLS:
+    def _get_skills_from_array(self, array: np.ndarray) -> pd.Series:
         inverse_workers_mapping = {ind: worker for worker, ind in self._workers_mapping.items()}
         index = [inverse_workers_mapping[i] for i in range(len(array))]
         return pd.Series(array, index=pd.Index(index, name='worker'))
@@ -224,8 +262,7 @@ class MMSR(BaseClassificationAggregator):
             y[0][0] = 1 / np.sqrt(n_tasks)
         return y
 
-    @manage_docstring
-    def _construnct_covariation_matrix(self, answers: annotations.LABELED_DATA) -> Tuple[np.ndarray]:
+    def _construnct_covariation_matrix(self, answers: pd.DataFrame) -> None:
         labels = pd.unique(answers.label)
         self._n_labels = len(labels)
         self._labels_mapping = {labels[idx]: idx + 1 for idx in range(self._n_labels)}
@@ -241,7 +278,7 @@ class MMSR(BaseClassificationAggregator):
         self._observation_matrix = np.zeros(shape=(self._n_workers, self._n_tasks))
         for i, row in answers.iterrows():
             self._observation_matrix[self._workers_mapping[row['worker']]][self._tasks_mapping[row['task']]] = \
-            self._labels_mapping[row['label']]
+                self._labels_mapping[row['label']]
 
         self._n_common_tasks = np.sign(self._observation_matrix) @ np.sign(self._observation_matrix).T
         self._n_common_tasks -= np.diag(np.diag(self._n_common_tasks))
@@ -253,7 +290,9 @@ class MMSR(BaseClassificationAggregator):
             for j in range(self._n_workers):
                 if self._n_common_tasks[i][j]:
                     valid_idx = np.sign(self._observation_matrix[i]) * np.sign(self._observation_matrix[j])
-                    self._covariation_matrix[i][j] = np.sum((self._observation_matrix[i] == self._observation_matrix[j]) * valid_idx) / self._n_common_tasks[i][j]
+                    self._covariation_matrix[i][j] = np.sum(
+                        (self._observation_matrix[i] == self._observation_matrix[j]) * valid_idx) / \
+                                                     self._n_common_tasks[i][j]
 
         self._covariation_matrix *= self._n_labels / (self._n_labels - 1)
         self._covariation_matrix -= np.ones(shape=(self._n_workers, self._n_workers)) / (self._n_labels - 1)
