@@ -267,9 +267,9 @@ class OneCoinDawidSkene(DawidSkene):
         worker's errors probabilities matrix.
         """
         skilled_data = data.copy()
-        skilled_data['skill'] = pd.Series(
-            [probas.loc[row.task, row.label]
-                for _, row in data.iterrows()], dtype=np.float64)
+        idx_cols, cols = pd.factorize(data['label'])
+        idx_rows, rows = pd.factorize(data['task'])
+        skilled_data['skill'] = probas.reindex(rows, axis=0).reindex(cols, axis=1).to_numpy()[idx_rows, idx_cols]
         skills = skilled_data.groupby(['worker'], sort=False)['skill'].mean()
         return skills
 
