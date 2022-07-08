@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-import warnings
 
 from crowdkit.metrics.data import consistency
 from crowdkit.postprocessing import entropy_threshold
