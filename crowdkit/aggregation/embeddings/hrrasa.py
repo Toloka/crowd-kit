@@ -2,28 +2,19 @@ __all__ = [
     'glue_similarity',
     'HRRASA',
 ]
-from typing import Any, Iterator, Tuple, List
 
 from functools import partial
+from typing import Any, Iterator, Tuple, List, Optional
+
+import attr
 import nltk.translate.gleu_score as gleu
 import numpy as np
 import pandas as pd
 import scipy.stats as sps
 from scipy.spatial import distance
-import attr
 
-from ..annotations import (
-    Annotation,
-    manage_docstring,
-    TASKS_EMBEDDINGS,
-    TASKS_EMBEDDINGS_AND_OUTPUTS,
-    EMBEDDED_DATA,
-    SKILLS,
-    TASKS_LABEL_SCORES,
-    WEIGHTS,
-)
-from ..base import BaseClassificationAggregator
 from .closest_to_average import ClosestToAverage
+from ..base import BaseClassificationAggregator
 
 _EPS = 1e-5
 
@@ -34,8 +25,7 @@ def glue_similarity(hyp, ref):
 
 @attr.s
 class HRRASA(BaseClassificationAggregator):
-    r"""
-    Hybrid Reliability and Representation Aware Sequence Aggregation.
+    r"""Hybrid Reliability and Representation Aware Sequence Aggregation.
 
 
     At the first step, the HRRASA estimates *local* workers reliabilities that represent how good is a
@@ -112,11 +102,17 @@ class HRRASA(BaseClassificationAggregator):
     # embeddings_and_outputs_
     loss_history_: List[float] = attr.ib(init=False)
 
-    @manage_docstring
-    def fit(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
-                                                                                               title='self'):  # noqa: F821
-        """
-        Fit the model.
+    def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'HRRASA':
+        """Fit the model.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            HRRASA: self.
         """
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
@@ -160,18 +156,35 @@ class HRRASA(BaseClassificationAggregator):
             self._fill_single_overlap_tasks_info(single_overlap_tasks)
         return self
 
-    @manage_docstring
-    def fit_predict_scores(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> TASKS_LABEL_SCORES:
-        """
-        Fit the model and return scores.
+    def fit_predict_scores(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> pd.DataFrame:
+        """Fit the model and return scores.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            DataFrame: Tasks' label scores.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
-    @manage_docstring
-    def fit_predict(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> TASKS_EMBEDDINGS_AND_OUTPUTS:
-        """
-        Fit the model and return aggregated outputs.
+    def fit_predict(self, data: pd.DataFrame, true_embeddings: Optional[pd.Series] = None) -> pd.DataFrame:
+        """Fit the model and return aggregated outputs.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            DataFrame: Tasks' embeddings and outputs.
+                A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_
@@ -182,9 +195,7 @@ class HRRASA(BaseClassificationAggregator):
             return float('inf')
         return distance.cosine(embedding, avg_embedding)
 
-    @manage_docstring
-    def _apply(self, data: EMBEDDED_DATA, true_embeddings: TASKS_EMBEDDINGS = None) -> Annotation(type='HRRASA',
-                                                                                                  title='self'):  # noqa: F821
+    def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'HRRASA':
         cta = ClosestToAverage(distance=self._cosine_distance)
         cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
         self.scores_ = cta.scores_
@@ -192,9 +203,8 @@ class HRRASA(BaseClassificationAggregator):
         return self
 
     @staticmethod
-    @manage_docstring
-    def _aggregate_embeddings(data: EMBEDDED_DATA, weights: WEIGHTS,
-                              true_embeddings: TASKS_EMBEDDINGS = None) -> TASKS_EMBEDDINGS:
+    def _aggregate_embeddings(data: pd.DataFrame, weights: pd.DataFrame,
+                              true_embeddings: Optional[pd.Series] = None) -> pd.Series:
         """Calculates weighted average of embeddings for each task."""
         data = data.join(weights, on=['task', 'worker'])
         data['weighted_embedding'] = data.weight * data.embedding
@@ -205,16 +215,17 @@ class HRRASA(BaseClassificationAggregator):
         aggregated_embeddings.update(true_embeddings)
         return aggregated_embeddings
 
-    def _distance_from_aggregated(self, answers: EMBEDDED_DATA):
+    def _distance_from_aggregated(self, answers: pd.DataFrame):
         """Calculates the square of Euclidian distance from aggregated embedding for each answer.
         """
         with_task_aggregate = answers.set_index('task')
         with_task_aggregate['task_aggregate'] = self.aggregated_embeddings_
-        with_task_aggregate['distance'] = with_task_aggregate.apply(lambda row: np.sum((row['embedding'] - row['task_aggregate']) ** 2), axis=1)
+        with_task_aggregate['distance'] = with_task_aggregate.apply(
+            lambda row: np.sum((row['embedding'] - row['task_aggregate']) ** 2), axis=1)
         with_task_aggregate['distance'] = with_task_aggregate['distance'].replace({0.0: 1e-5})  # avoid division by zero
         return with_task_aggregate.reset_index()
 
-    def _rank_outputs(self, data: EMBEDDED_DATA, skills: SKILLS) -> TASKS_LABEL_SCORES:
+    def _rank_outputs(self, data: pd.DataFrame, skills: pd.Series) -> pd.DataFrame:
         """Returns ranking score for each record in `data` data frame.
         """
 
@@ -228,8 +239,7 @@ class HRRASA(BaseClassificationAggregator):
         return data[['task', 'output', 'rank']]
 
     @staticmethod
-    @manage_docstring
-    def _calc_weights(data: EMBEDDED_DATA, worker_skills: SKILLS) -> WEIGHTS:
+    def _calc_weights(data: pd.DataFrame, worker_skills: pd.Series) -> pd.DataFrame:
         """Calculates the weight for every embedding according to its local and global skills.
         """
         data = data.set_index('worker')
@@ -239,9 +249,7 @@ class HRRASA(BaseClassificationAggregator):
         return data[['task', 'worker', 'weight']].set_index(['task', 'worker'])
 
     @staticmethod
-    @manage_docstring
-    def _update_skills(data: EMBEDDED_DATA, aggregated_embeddings: TASKS_EMBEDDINGS,
-                       prior_skills: SKILLS) -> SKILLS:
+    def _update_skills(data: pd.DataFrame, aggregated_embeddings: pd.Series, prior_skills: pd.Series) -> pd.Series:
         """Estimates global reliabilities by aggregated embeddings."""
         data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
         data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
@@ -250,8 +258,7 @@ class HRRASA(BaseClassificationAggregator):
         total_distances.clip(lower=_EPS, inplace=True)
         return prior_skills / total_distances
 
-    @manage_docstring
-    def _get_local_skills(self, data: EMBEDDED_DATA) -> EMBEDDED_DATA:
+    def _get_local_skills(self, data: pd.DataFrame) -> pd.DataFrame:
         """Computes local (relative) skills for each task's answer.
         """
         index = []
@@ -264,7 +271,8 @@ class HRRASA(BaseClassificationAggregator):
                     index.append((task, worker))
                     processed_pairs.add((task, worker))
         data = data.set_index(['task', 'worker'])
-        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'worker']), dtype=float)
+        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'worker']),
+                                 dtype=float)
         data['local_skill'] = local_skills
         return data.reset_index()
 
@@ -296,8 +304,7 @@ class HRRASA(BaseClassificationAggregator):
 
             yield worker, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
 
-    @manage_docstring
-    def _filter_single_overlap(self, data: EMBEDDED_DATA):
+    def _filter_single_overlap(self, data: pd.DataFrame):
         """Filter skills, embeddings, weights and ranks for single overlap tasks that couldn't be processed by HRASSA
         """
 
@@ -308,8 +315,7 @@ class HRRASA(BaseClassificationAggregator):
         data = data.set_index('task')
         return data.drop(single_overlap_task_ids).reset_index(), data.loc[single_overlap_task_ids].reset_index()
 
-    @manage_docstring
-    def _fill_single_overlap_tasks_info(self, single_overlap_tasks: EMBEDDED_DATA):
+    def _fill_single_overlap_tasks_info(self, single_overlap_tasks: pd.DataFrame):
         """Fill skills, embeddings, weights and ranks for single overlap tasks
         """
 

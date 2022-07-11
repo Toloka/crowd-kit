@@ -1,21 +1,18 @@
 __all__ = ['SegmentationMajorityVote']
 
-from typing import Optional
+from typing import Optional, cast
 
 import attr
 import numpy as np
+import pandas as pd
 
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
 from ..base import BaseImageSegmentationAggregator
 from ..utils import add_skills_to_data
 
 
 @attr.s
-@manage_docstring
 class SegmentationMajorityVote(BaseImageSegmentationAggregator):
-    """
-    Segmentation Majority Vote - chooses a pixel if more than half of workers voted.
+    """Segmentation Majority Vote - chooses a pixel if more than half of workers voted.
 
     This method implements a straightforward approach to the image segmentations aggregation:
     it assumes that if pixel is not inside in the worker's segmentation, this vote counts
@@ -44,15 +41,26 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationMajorityVote().fit_predict(df)
+
+    Attributes:
+        segmentations_ (Series): Tasks' segmentations.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's aggregated segmentation.
+
+        on_missing_skill (str): How to handle assignments done by workers with unknown skill.
+            Possible values:
+                    * "error" — raise an exception if there is at least one assignment done by user with unknown skill;
+                    * "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no
+                    assignments with known skill for any task;
+                    * value — default value will be used if skill is missing.
     """
 
     # segmentations_
 
-    on_missing_skill: annotations.ON_MISSING_SKILL = attr.ib(default='error')
+    on_missing_skill: str = attr.ib(default='error')
     default_skill: Optional[float] = attr.ib(default=None)
 
-    @manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> Annotation(type='SegmentationMajorityVote', title='self'):  # noqa: F821
+    def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> 'SegmentationMajorityVote':
         """
         Fit the model.
         """
@@ -62,7 +70,8 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         if skills is None:
             data['skill'] = 1
         else:
-            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
+            # TODO: add check for None
+            data = add_skills_to_data(data, skills, self.on_missing_skill, cast(float, self.default_skill))
 
         data['pixel_scores'] = data.segmentation * data.skill
         group = data.groupby('task')
@@ -70,8 +79,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         self.segmentations_ = (2 * group.pixel_scores.apply(np.sum) - group.skill.apply(np.sum)).apply(lambda x: x >= 0)
         return self
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.SEGMENTATION_DATA, skills: annotations.SKILLS = None) -> annotations.TASKS_SEGMENTATIONS:
+    def fit_predict(self, data: pd.DataFrame, skills: Optional[pd.Series] = None) -> pd.Series:
         """
         Fit the model and return the aggregated segmentations.
         """

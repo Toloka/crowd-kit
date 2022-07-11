@@ -19,14 +19,14 @@ from .image_segmentation import (
     SegmentationRASA,
     SegmentationMajorityVote
 )
+from .pairwise import (
+    BradleyTerry,
+    NoisyBradleyTerry
+)
 from .texts import (
     TextRASA,
     TextHRRASA,
     ROVER
-)
-from .pairwise import (
-    BradleyTerry,
-    NoisyBradleyTerry
 )
 
 __all__ = [

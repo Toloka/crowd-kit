@@ -3,15 +3,13 @@ __all__ = [
     'OneCoinDawidSkene'
 ]
 
-from typing import List
+from typing import List, Optional
 
 import attr
 import numpy as np
 import pandas as pd
 
 from .majority_vote import MajorityVote
-from .. import annotations
-from ..annotations import manage_docstring, Annotation
 from ..base import BaseClassificationAggregator
 from ..utils import get_most_probable_labels, named_series_attrib
 
@@ -19,11 +17,8 @@ _EPS = np.float_power(10, -10)
 
 
 @attr.s
-@manage_docstring
 class DawidSkene(BaseClassificationAggregator):
-    r"""
-    Dawid-Skene aggregation model.
-
+    r"""Dawid-Skene aggregation model.
 
     Probabilistic model that parametrizes workers' level of expertise through confusion matrices.
 
@@ -60,20 +55,40 @@ class DawidSkene(BaseClassificationAggregator):
         >>> df, gt = load_dataset('relevance-2')
         >>> ds = DawidSkene(100)
         >>> result = ds.fit_predict(df)
+
+    Attributes:
+        labels_ (Optional[pd.Series]): Tasks' labels.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's most likely true label.
+
+        probas_ (Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the probability of `task`'s true label to be equal to `label`. Each
+            probability is between 0 and 1, all task's probabilities should sum up to 1
+
+        priors_ (Optional[pd.Series]): A prior label distribution.
+            A pandas.Series indexed by labels and holding corresponding label's
+            probability of occurrence. Each probability is between 0 and 1,
+            all probabilities should sum up to 1
+
+        errors_ (Optional[pandas.core.frame.DataFrame]): Workers' error matrices.
+            A pandas.DataFrame indexed by `worker` and `label` with a column for every
+            label_id found in `data` such that `result.loc[worker, observed_label, true_label]`
+            is the probability of `worker` producing an `observed_label` given that a task's
+            true label is `true_label`
     """
 
     n_iter: int = attr.ib(default=100)
     tol: float = attr.ib(default=1e-5)
 
-    probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
-    priors_: annotations.OPTIONAL_PRIORS = named_series_attrib(name='prior')
+    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    priors_: Optional[pd.Series] = named_series_attrib(name='prior')
     # labels_
-    errors_: annotations.OPTIONAL_ERRORS = attr.ib(init=False)
+    errors_: Optional[pd.DataFrame] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
-    @manage_docstring
-    def _m_step(data: annotations.LABELED_DATA, probas: annotations.TASKS_LABEL_PROBAS) -> annotations.ERRORS:
+    def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> pd.DataFrame:
         """Perform M-step of Dawid-Skene algorithm.
 
         Given workers' answers and tasks' true labels probabilities estimates
@@ -89,9 +104,7 @@ class DawidSkene(BaseClassificationAggregator):
         return errors
 
     @staticmethod
-    @manage_docstring
-    def _e_step(data: annotations.LABELED_DATA, priors: annotations.LABEL_PRIORS,
-                errors: annotations.ERRORS) -> annotations.TASKS_LABEL_PROBAS:
+    def _e_step(data: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame) -> pd.DataFrame:
         """
         Perform E-step of Dawid-Skene algorithm.
 
@@ -114,11 +127,7 @@ class DawidSkene(BaseClassificationAggregator):
         scaled_likelihoods = np.exp2(log_likelihoods.sub(log_likelihoods.max(axis=1), axis=0))
         return scaled_likelihoods.div(scaled_likelihoods.sum(axis=1), axis=0)
 
-    def _evidence_lower_bound(
-        self,
-        data: annotations.LABELED_DATA, probas: annotations.TASKS_LABEL_PROBAS,
-        priors: annotations.LABEL_PRIORS, errors: annotations.ERRORS
-    ):
+    def _evidence_lower_bound(self, data: pd.DataFrame, probas: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame):
         # calculate joint probability log-likelihood expectation over probas
         joined = data.join(np.log(errors), on=['worker', 'label'])
 
@@ -134,10 +143,13 @@ class DawidSkene(BaseClassificationAggregator):
         entropy = -(np.log(probas) * probas).sum().sum()
         return joint_expectation + entropy
 
-    @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):  # noqa: F821
-        """
-        Fit the model through the EM-algorithm.
+    def fit(self, data: pd.DataFrame) -> 'DawidSkene':
+        """Fit the model through the EM-algorithm.
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        Returns:
+            DawidSkene: self.
         """
 
         data = data[['task', 'worker', 'label']]
@@ -177,28 +189,37 @@ class DawidSkene(BaseClassificationAggregator):
 
         return self
 
-    @manage_docstring
-    def fit_predict_proba(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABEL_PROBAS:
-        """
-        Fit the model and return probability distributions on labels for each task.
+    def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Fit the model and return probability distributions on labels for each task.
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        Returns:
+            DataFrame: Tasks' label probability distributions.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the probability of `task`'s true label to be equal to `label`. Each
+                probability is between 0 and 1, all task's probabilities should sum up to 1
         """
 
         return self.fit(data).probas_
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
-        """
-        Fit the model and return aggregated results.
+    def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Fit the model and return aggregated results.
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        Returns:
+            Series: Tasks' labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
         """
 
         return self.fit(data).labels_
 
 
 @attr.s
-@manage_docstring
 class OneCoinDawidSkene(DawidSkene):
-    r"""
-    One-coin Dawid-Skene aggregation model.
+    r"""One-coin Dawid-Skene aggregation model.
 
     This model works exactly like original Dawid-Skene model based on EM Algorithm except for workers' error calculation
     on M-step of the algorithm.
@@ -223,20 +244,42 @@ class OneCoinDawidSkene(DawidSkene):
         >>> df, gt = load_dataset('relevance-2')
         >>> hds = OneCoinDawidSkene(100)
         >>> result = hds.fit_predict(df)
+    Attributes:
+        labels_ (Optional[pd.Series]): Tasks' labels.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's most likely true label.
+
+        probas_ (Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
+            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+            is the probability of `task`'s true label to be equal to `label`. Each
+            probability is between 0 and 1, all task's probabilities should sum up to 1
+
+        priors_ (Optional[pd.Series]): A prior label distribution.
+            A pandas.Series indexed by labels and holding corresponding label's
+            probability of occurrence. Each probability is between 0 and 1,
+            all probabilities should sum up to 1
+
+        errors_ (Optional[pandas.core.frame.DataFrame]): Workers' error matrices.
+            A pandas.DataFrame indexed by `worker` and `label` with a column for every
+            label_id found in `data` such that `result.loc[worker, observed_label, true_label]`
+            is the probability of `worker` producing an `observed_label` given that a task's
+            true label is `true_label`
+
+        skills_ (Optional[pd.Series]): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
     """
 
     n_iter: int = attr.ib(default=100)
     tol: float = attr.ib(default=1e-5)
 
-    probas_: annotations.OPTIONAL_PROBAS = attr.ib(init=False)
-    priors_: annotations.OPTIONAL_PRIORS = named_series_attrib(name='prior')
-    # labels_
-    errors_: annotations.OPTIONAL_ERRORS = attr.ib(init=False)
-    skills_: annotations.OPTIONAL_SKILLS = attr.ib(init=False)
+    probas_: pd.DataFrame = attr.ib(init=False)
+    priors_: pd.Series = named_series_attrib(name='prior')
+    errors_: pd.DataFrame = attr.ib(init=False)
+    skills_: pd.Series = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
-    def _assign_skills(row: pd.Series, skills: pd.DataFrame) -> annotations.ERRORS:
+    def _assign_skills(row: pd.Series, skills: pd.DataFrame) -> pd.DataFrame:
         """
         Assign user skills to error matrix row by row.
         """
@@ -249,8 +292,7 @@ class OneCoinDawidSkene(DawidSkene):
         return row
 
     @staticmethod
-    def _process_skills_to_errors(data: annotations.LABELED_DATA, probas: annotations.TASKS_LABEL_PROBAS,
-                                  skills: annotations.SKILLS) -> annotations.ERRORS:
+    def _process_skills_to_errors(data: pd.DataFrame, probas: pd.DataFrame, skills: pd.Series) -> pd.DataFrame:
         errors = DawidSkene._m_step(data, probas)
 
         errors = errors.apply(OneCoinDawidSkene._assign_skills, args=(skills,), axis=1)
@@ -259,8 +301,7 @@ class OneCoinDawidSkene(DawidSkene):
         return errors
 
     @staticmethod
-    @manage_docstring
-    def _m_step(data: annotations.LABELED_DATA, probas: annotations.TASKS_LABEL_PROBAS) -> annotations.SKILLS:
+    def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> pd.Series:
         """Perform M-step of Homogeneous Dawid-Skene algorithm.
 
         Given workers' answers and tasks' true labels probabilities estimates
@@ -273,10 +314,13 @@ class OneCoinDawidSkene(DawidSkene):
         skills = skilled_data.groupby(['worker'], sort=False)['skill'].mean()
         return skills
 
-    @manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> Annotation(type='DawidSkene', title='self'):  # noqa: F821
-        """
-        Fit the model through the EM-algorithm.
+    def fit(self, data: pd.DataFrame) -> 'OneCoinDawidSkene':
+        """Fit the model through the EM-algorithm.
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        Returns:
+            DawidSkene: self.
         """
 
         data = data[['task', 'worker', 'label']]

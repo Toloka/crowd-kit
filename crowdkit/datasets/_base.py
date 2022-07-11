@@ -1,14 +1,14 @@
 import os.path
+import tempfile
 from hashlib import md5
 from os import environ, makedirs, listdir, rename
 from os.path import exists, expanduser, join, splitext, basename
 from shutil import unpack_archive
-from typing import Optional
-import tempfile
+from typing import Optional, AnyStr, cast
 from urllib.request import urlretrieve
 
 
-def get_data_dir(data_dir: Optional[str] = None) -> str:
+def get_data_dir(data_dir: Optional[AnyStr] = None) -> AnyStr:
     """Return the path of the crowd-kit data dir.
 
     This folder is used by some large dataset loaders to avoid downloading the
@@ -21,15 +21,17 @@ def get_data_dir(data_dir: Optional[str] = None) -> str:
     If the folder does not already exist, it is automatically created.
 
     Parameters:
-        data_home: str, default=None
+        data_dir: str, default=None
             The path to crowd-kit data directory. If `None`, the default path
             is `~/crowdkit_data`.
     """
     if data_dir is None:
-        data_dir = environ.get('CROWDKIT_DATA', join('~', 'crowdkit_data'))
+        data_dir = cast(AnyStr, environ.get('CROWDKIT_DATA', join('~', 'crowdkit_data')))
         data_dir = expanduser(data_dir)
+
     if not exists(data_dir):
         makedirs(data_dir)
+
     return data_dir
 
 
@@ -52,7 +54,8 @@ def fetch_remote(url: str, checksum_url: str, path: str, data_dir: str) -> None:
         with open(checksum_path) as f:
             checksum = f.read().strip()
     if checksum != fetched_checksum:
-        raise IOError(f"{path} has an MD5 checksum ({fetched_checksum}) differing from expected ({checksum}), file may be corrupted.")
+        raise IOError(
+            f"{path} has an MD5 checksum ({fetched_checksum}) differing from expected ({checksum}), file may be corrupted.")
     listed_data_dir = listdir(data_dir)
     print(f'Unpacking {basename(path)}')
     unpack_archive(path, data_dir)

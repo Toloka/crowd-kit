@@ -1,15 +1,15 @@
 __all__ = ['TextRASA']
-from typing import Callable
 
-from .. import annotations
-from ..annotations import manage_docstring, Annotation
+from typing import Callable, Optional
+
+import pandas as pd
+
 from ..base import BaseTextsAggregator
 from ..embeddings.rasa import RASA
 
 
 class TextRASA(BaseTextsAggregator):
-    """
-    RASA on text embeddings.
+    """RASA on text embeddings.
 
     Given a sentence encoder, encodes texts provided by workers and runs the RASA algorithm for embedding
     aggregation.
@@ -45,27 +45,54 @@ class TextRASA(BaseTextsAggregator):
     def __getattr__(self, name):
         return getattr(self._rasa, name)
 
-    @manage_docstring
-    def fit(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> Annotation(type='TextRASA', title='self'):  # noqa: F821
-        """
-        Fit the model.
+    def fit(self, data: pd.DataFrame, true_objects: Optional[pd.Series] = None) -> 'TextRASA':
+        """Fit the model.
+        Args:
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            TextRASA: self.
         """
 
         self._rasa.fit(self._encode_data(data), self._encode_true_objects(true_objects))
         return self
 
-    @manage_docstring
-    def fit_predict_scores(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> annotations.TASKS_LABEL_SCORES:
-        """
-        Fit the model and return scores.
+    def fit_predict_scores(self, data: pd.DataFrame, true_objects: Optional[pd.Series] = None) -> pd.DataFrame:
+        """Fit the model and return scores.
+
+        Args:
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            DataFrame: Tasks' label scores.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
         """
 
         return self._rasa.fit_predict_scores(self._encode_data(data), self._encode_true_objects(true_objects))
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.DATA, true_objects: annotations.TASKS_TRUE_LABELS = None) -> annotations.TASKS_TEXTS:
-        """
-        Fit the model and return aggregated texts.
+    def fit_predict(self, data: pd.DataFrame, true_objects: Optional[pd.Series] = None) -> pd.Series:
+        """Fit the model and return aggregated texts.
+
+        Args:
+            data (DataFrame): Workers' outputs.
+                A pandas.DataFrame containing `task`, `worker` and `output` columns.
+            true_objects (Series): Tasks' ground truth labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's ground truth label.
+
+        Returns:
+            Series: Tasks' texts.
+                A pandas.Series indexed by `task` such that `result.loc[task, text]`
+                is the task's text.
         """
 
         rasa_results = self._rasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))

@@ -11,20 +11,15 @@ import pandas as pd
 import scipy.stats as sps
 from scipy.spatial import distance
 
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
-from ..base import BaseEmbeddingsAggregator
 from .closest_to_average import ClosestToAverage
-
+from ..base import BaseEmbeddingsAggregator
 
 _EPS = 1e-5
 
 
 @attr.s
-@manage_docstring
 class RASA(BaseEmbeddingsAggregator):
-    r"""
-    Reliability Aware Sequence Aggregation.
+    r"""Reliability Aware Sequence Aggregation.
 
     RASA estimates *global* workers' reliabilities $\beta$ that are initialized by ones.
 
@@ -61,6 +56,10 @@ class RASA(BaseEmbeddingsAggregator):
         >>>     columns=['task', 'worker', 'output', 'embedding']
         >>> )
         >>> result = RASA().fit_predict(df)
+
+    Attributes:
+        embeddings_and_outputs_ (DataFrame): Tasks' embeddings and outputs.
+            A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
     """
 
     n_iter: int = attr.ib(default=100)
@@ -70,9 +69,8 @@ class RASA(BaseEmbeddingsAggregator):
     loss_history_: typing.List[float] = attr.ib(init=False)
 
     @staticmethod
-    @manage_docstring
-    def _aggregate_embeddings(data: annotations.EMBEDDED_DATA, skills: annotations.SKILLS,
-                              true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_EMBEDDINGS:
+    def _aggregate_embeddings(data: pd.DataFrame, skills: pd.Series,
+                              true_embeddings: pd.Series = None) -> pd.Series:
         """Calculates weighted average of embeddings for each task."""
         data = data.join(skills.rename('skill'), on='worker')
         data['weighted_embedding'] = data.skill * data.embedding
@@ -82,9 +80,8 @@ class RASA(BaseEmbeddingsAggregator):
         return aggregated_embeddings
 
     @staticmethod
-    @manage_docstring
-    def _update_skills(data: annotations.EMBEDDED_DATA, aggregated_embeddings: annotations.TASKS_EMBEDDINGS,
-                       prior_skills: annotations.TASKS_EMBEDDINGS) -> annotations.SKILLS:
+    def _update_skills(data: pd.DataFrame, aggregated_embeddings: pd.Series,
+                       prior_skills: pd.Series) -> pd.Series:
         """Estimates global reliabilities by aggregated embeddings."""
         data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
         data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
@@ -98,18 +95,24 @@ class RASA(BaseEmbeddingsAggregator):
             return float('inf')
         return distance.cosine(embedding, avg_embedding)
 
-    @manage_docstring
-    def _apply(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):  # noqa: F821
+    def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'RASA':
         cta = ClosestToAverage(distance=self._cosine_distance)
         cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
         self.scores_ = cta.scores_
         self.embeddings_and_outputs_ = cta.embeddings_and_outputs_
         return self
 
-    @manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> Annotation(type='RASA', title='self'):  # noqa: F821
-        """
-        Fit the model.
+    def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'RASA':
+        """Fit the model.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            RASA: self.
         """
 
         data = data[['task', 'worker', 'embedding']]
@@ -141,18 +144,36 @@ class RASA(BaseEmbeddingsAggregator):
         self.aggregated_embeddings_ = aggregated_embeddings
         return self
 
-    @manage_docstring
-    def fit_predict_scores(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_LABEL_SCORES:
-        """
-        Fit the model and return scores.
+    def fit_predict_scores(self, data: pd.DataFrame,
+                           true_embeddings: pd.Series = None) -> pd.DataFrame:
+        """Fit the model and return scores.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            DataFrame: Tasks' label scores.
+                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
+                is the score of `label` for `task`.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.EMBEDDED_DATA, true_embeddings: annotations.TASKS_EMBEDDINGS = None) -> annotations.TASKS_EMBEDDINGS_AND_OUTPUTS:
-        """
-        Fit the model and return aggregated outputs.
+    def fit_predict(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> pd.DataFrame:
+        """Fit the model and return aggregated outputs.
+
+        Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+            true_embeddings (Series): Tasks' embeddings.
+                A pandas.Series indexed by `task` and holding corresponding embeddings.
+
+        Returns:
+            DataFrame: Tasks' embeddings and outputs.
+                A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_

@@ -1,9 +1,9 @@
+from os.path import exists, join
+from typing import Optional, Tuple, Dict, Callable, Union
+
 import pandas as pd
 
 from ._base import get_data_dir, fetch_remote  # type: ignore
-
-from os.path import exists, join
-from typing import Optional, Tuple
 
 
 def _load_dataset(data_name: str, data_dir: Optional[str], data_url: str, checksum_url: str) -> str:
@@ -159,7 +159,7 @@ def load_nist_trec_relevance(data_dir: Optional[str] = None) -> Tuple[pd.DataFra
     return load_dataframes(full_data_path)
 
 
-DATA_LOADERS = {
+DATA_LOADERS: Dict[str, Dict[str, Union[str, Callable[[Optional[str]], Tuple[pd.DataFrame, pd.Series]]]]] = {
     'relevance-2': {
         'loader': load_relevance2,
         'description': 'This dataset, designed for evaluating answer aggregation methods in crowdsourcing, '

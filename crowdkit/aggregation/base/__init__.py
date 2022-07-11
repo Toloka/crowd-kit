@@ -6,89 +6,174 @@ __all__ = [
     'BasePairwiseAggregator',
 ]
 
-import attr
+from typing import Optional
 
-from .. import annotations
+import attr
+import pandas as pd
+
 from ..utils import named_series_attrib
 
 
 @attr.s
-@annotations.manage_docstring
 class BaseClassificationAggregator:
-    """ This is a base class for all classification aggregators"""
+    """This is a base class for all classification aggregators
 
-    labels_: annotations.OPTIONAL_LABELS = named_series_attrib(name='agg_label')
+    Attributes:
+        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's most likely true label.
+    """
 
-    @annotations.manage_docstring
-    def fit(self, data: annotations.LABELED_DATA) -> annotations.Annotation(type='BaseClassificationAggregator',
-                                                                            title='self'):  # noqa: F821
+    labels_: Optional[pd.Series] = named_series_attrib(name='agg_label')
+
+    def fit(self, data: pd.DataFrame) -> 'BaseClassificationAggregator':
+        """Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+
+        Returns:
+            BaseClassificationAggregator: self.
+        """
         raise NotImplementedError()
 
-    @annotations.manage_docstring
-    def fit_predict(self, data: annotations.LABELED_DATA) -> annotations.TASKS_LABELS:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        Returns:
+            Series: Tasks' labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's most likely true label.
+        """
         raise NotImplementedError()
 
 
 @attr.s
-@annotations.manage_docstring
 class BaseImageSegmentationAggregator:
-    """This is a base class for all image segmentation aggregators"""
+    """This is a base class for all image segmentation aggregators
 
-    segmentations_: annotations.TASKS_SEGMENTATIONS = named_series_attrib(name='agg_segmentation')
+    Attributes:
+        segmentations_ (Series): Tasks' segmentations.
+            A pandas.Series indexed by `task` such that `labels.loc[task]`
+            is the tasks's aggregated segmentation.
+    """
 
-    @annotations.manage_docstring
-    def fit(self, data: annotations.SEGMENTATION_DATA) -> annotations.Annotation(type='BaseImageSegmentationAggregator',
-                                                                                 title='self'):  # noqa: F821
+    segmentations_: pd.Series = named_series_attrib(name='agg_segmentation')
+
+    def fit(self, data: pd.DataFrame) -> 'BaseImageSegmentationAggregator':
+        """Args:
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+
+        Returns:
+            BaseImageSegmentationAggregator: self.
+        """
         raise NotImplementedError()
 
-    @annotations.manage_docstring
-    def fit_predict(self, data: annotations.SEGMENTATION_DATA) -> annotations.TASKS_SEGMENTATIONS:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Args:
+            data (DataFrame): Workers' segmentations.
+                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+
+        Returns:
+            Series: Tasks' segmentations.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is the tasks's aggregated segmentation.
+        """
         raise NotImplementedError()
 
 
 @attr.s
-@annotations.manage_docstring
 class BaseEmbeddingsAggregator:
-    """This is a base class for all embeddings aggregators"""
+    """This is a base class for all embeddings aggregators
+    Attributes:
+        embeddings_and_outputs_ (DataFrame): Tasks' embeddings and outputs.
+            A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+    """
 
-    embeddings_and_outputs_: annotations.TASKS_EMBEDDINGS_AND_OUTPUTS = attr.ib(init=False)
+    embeddings_and_outputs_: pd.DataFrame = attr.ib(init=False)
 
-    @annotations.manage_docstring
-    def fit(self, data: annotations.EMBEDDED_DATA) -> annotations.Annotation(type='BaseEmbeddingsAggregator', title='self'):  # noqa: F821
+    def fit(self, data: pd.DataFrame) -> 'BaseEmbeddingsAggregator':
+        """Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+        Returns:
+            BaseEmbeddingsAggregator: self.
+        """
         raise NotImplementedError()
 
-    @annotations.manage_docstring
-    def fit_predict(self, data: annotations.EMBEDDED_DATA) -> annotations.TASKS_EMBEDDINGS_AND_OUTPUTS:
+    def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Args:
+            data (DataFrame): Workers' outputs with their embeddings.
+                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
+        Returns:
+            DataFrame: Tasks' embeddings and outputs.
+                A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+        """
         raise NotImplementedError()
 
 
 @attr.s
-@annotations.manage_docstring
 class BaseTextsAggregator:
-    """ This is a base class for all texts aggregators"""
+    """This is a base class for all texts aggregators
+    Attributes:
+        texts_ (Series): Tasks' texts.
+            A pandas.Series indexed by `task` such that `result.loc[task, text]`
+            is the task's text.
+    """
 
-    texts_: annotations.TASKS_TEXTS = named_series_attrib(name='agg_text')
+    texts_: pd.Series = named_series_attrib(name='agg_text')
 
-    @annotations.manage_docstring
-    def fit(self, data: annotations.TEXT_DATA) -> annotations.Annotation(type='BaseTextsAggregator', title='self'):  # noqa: F821
+    def fit(self, data: pd.DataFrame) -> 'BaseTextsAggregator':
+        """Args:
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
+        Returns:
+            BaseTextsAggregator: self.
+        """
         raise NotImplementedError()
 
-    @annotations.manage_docstring
-    def fit_predict(self, data: annotations.TEXT_DATA) -> annotations.TASKS_TEXTS:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Args:
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
+        Returns:
+            Series: Tasks' texts.
+                A pandas.Series indexed by `task` such that `result.loc[task, text]`
+                is the task's text.
+        """
         raise NotImplementedError()
 
 
 @attr.s
-@annotations.manage_docstring
 class BasePairwiseAggregator:
-    """ This is a base class for all pairwise comparison aggregators"""
+    """This is a base class for all pairwise comparison aggregators
+    Attributes:
+        scores_ (Series): 'Labels' scores.
+            A pandas.Series index by labels and holding corresponding label's scores
+    """
 
-    scores_: annotations.LABEL_SCORES = named_series_attrib(name='agg_score')
+    scores_: pd.Series = named_series_attrib(name='agg_score')
 
-    @annotations.manage_docstring
-    def fit(self, data: annotations.PAIRWISE_DATA) -> annotations.Annotation(type='BasePairwiseAggregator', title='self'):  # noqa: F821
+    def fit(self, data: pd.DataFrame) -> 'BasePairwiseAggregator':
+        """Args:
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
+                For each row `label` must be equal to either `left` column or `right` column.
+
+        Returns:
+            BasePairwiseAggregator: self.
+        """
         raise NotImplementedError()
 
-    @annotations.manage_docstring
-    def fit_predict(self, data: annotations.PAIRWISE_DATA) -> annotations.LABEL_SCORES:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Args:
+                    data (DataFrame): Workers' pairwise comparison results.
+                        A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
+                        For each row `label` must be equal to either `left` column or `right` column.
+
+                Returns:
+                    Series: 'Labels' scores.
+                        A pandas.Series index by labels and holding corresponding label's scores
+                """
         raise NotImplementedError()

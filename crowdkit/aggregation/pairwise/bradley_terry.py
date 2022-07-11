@@ -1,24 +1,19 @@
 __all__ = ['BradleyTerry']
 
-
 from typing import Tuple, List
 
 import attr
 import numpy as np
 import pandas as pd
 
-from .. import annotations
-from ..annotations import Annotation, manage_docstring
 from ..base import BasePairwiseAggregator
 
 _EPS = np.float_power(10, -10)
 
 
 @attr.s
-@manage_docstring
 class BradleyTerry(BasePairwiseAggregator):
-    r"""
-    Bradley-Terry model for pairwise comparisons.
+    r"""Bradley-Terry model for pairwise comparisons.
 
     The model implements the classic algorithm for aggregating pairwise comparisons.
     The algorithm constructs an items' ranking based on pairwise comparisons. Given
@@ -66,6 +61,10 @@ class BradleyTerry(BasePairwiseAggregator):
         >>>     ],
         >>>     columns=['left', 'right', 'label']
         >>> )
+
+    Attributes:
+        scores_ (Series): 'Labels' scores.
+            A pandas.Series index by labels and holding corresponding label's scores
     """
 
     n_iter: int = attr.ib()
@@ -73,8 +72,16 @@ class BradleyTerry(BasePairwiseAggregator):
     # scores_
     loss_history_: List[float] = attr.ib(init=False)
 
-    @manage_docstring
-    def fit(self, data: annotations.PAIRWISE_DATA) -> Annotation(type='BradleyTerry', title='self'):  # noqa: F821
+    def fit(self, data: pd.DataFrame) -> 'BradleyTerry':
+        """Args:
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
+                For each row `label` must be equal to either `left` column or `right` column.
+
+        Returns:
+            BradleyTerry: self.
+        """
+
         M, unique_labels = self._build_win_matrix(data)
 
         if not unique_labels.size:
@@ -113,13 +120,20 @@ class BradleyTerry(BasePairwiseAggregator):
 
         return self
 
-    @manage_docstring
-    def fit_predict(self, data: annotations.PAIRWISE_DATA) -> annotations.LABEL_SCORES:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Args:
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
+                For each row `label` must be equal to either `left` column or `right` column.
+
+        Returns:
+            Series: 'Labels' scores.
+                A pandas.Series index by labels and holding corresponding label's scores
+        """
         return self.fit(data).scores_
 
     @staticmethod
-    @manage_docstring
-    def _build_win_matrix(data: annotations.PAIRWISE_DATA) -> Tuple[np.ndarray, np.ndarray]:
+    def _build_win_matrix(data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
         data = data[['left', 'right', 'label']]
 
         unique_labels, np_data = np.unique(data.values, return_inverse=True)

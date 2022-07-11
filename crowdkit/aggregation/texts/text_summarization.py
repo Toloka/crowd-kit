@@ -2,19 +2,18 @@ __all__ = [
     'TextSummarization'
 ]
 
-import attr
 import itertools
+from typing import Optional
+
+import attr
 import numpy as np
 import pandas as pd
 from transformers import PreTrainedTokenizer, PreTrainedModel
-from typing import Optional
 
 from ..base import BaseTextsAggregator
-from ..annotations import TEXT_DATA, TASKS_TEXTS, manage_docstring
 
 
 @attr.s
-@manage_docstring
 class TextSummarization(BaseTextsAggregator):
     """Text Aggregation through Summarization
 
@@ -60,6 +59,10 @@ class TextSummarization(BaseTextsAggregator):
         >>> agg = TextSummarization(tokenizer, model, device=device)
         >>> result = agg.fit_predict(df)
         ...
+    Attributes:
+        texts_ (Series): Tasks' texts.
+            A pandas.Series indexed by `task` such that `result.loc[task, text]`
+            is the task's text.
     """
     tokenizer: PreTrainedTokenizer = attr.ib()
     model: PreTrainedModel = attr.ib()
@@ -68,22 +71,27 @@ class TextSummarization(BaseTextsAggregator):
     n_permutations: Optional[int] = attr.ib(default=None)
     permutation_aggregator: Optional[BaseTextsAggregator] = attr.ib(default=None)
     device: str = attr.ib(default='cpu')
+
     # texts_
 
-    @manage_docstring
-    def fit_predict(self, data: TEXT_DATA) -> TASKS_TEXTS:
-        """
-        Run the aggregation and return the aggregated texts.
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Run the aggregation and return the aggregated texts.
+        Args:
+            data (DataFrame): Workers' text outputs.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
+        Returns:
+            Series: Tasks' texts.
+                A pandas.Series indexed by `task` such that `result.loc[task, text]`
+                is the task's text.
         """
 
         data = data[['task', 'worker', 'text']]
 
-        self.model = self.model.to(self.device)
+        self.model = self.model.to(self.device)  # type: ignore
         self.texts_ = data.groupby('task')['text'].apply(self._aggregate_one)
         return self.texts_
 
-    @manage_docstring
-    def _aggregate_one(self, outputs: TASKS_TEXTS) -> str:
+    def _aggregate_one(self, outputs: pd.Series) -> str:
         if not self.n_permutations:
             return self._generate_output(outputs)
 
@@ -101,9 +109,8 @@ class TextSummarization(BaseTextsAggregator):
             return self.permutation_aggregator.fit_predict(data)['']
         return data.text.mode()
 
-    @manage_docstring
-    def _generate_output(self, permutation: TASKS_TEXTS) -> str:
+    def _generate_output(self, permutation: pd.Series) -> str:
         input_text = self.concat_token.join(permutation)
         input_ids = self.tokenizer.encode(input_text, return_tensors='pt').to(self.device)
-        outputs = self.model.generate(input_ids, num_beams=self.num_beams)
+        outputs = self.model.generate(input_ids, num_beams=self.num_beams)  # type: ignore
         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)

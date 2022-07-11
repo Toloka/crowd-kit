@@ -5,17 +5,15 @@ __all__ = [
 ]
 
 from typing import Any, Callable, Hashable, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
-from scipy.stats import entropy
-
 from nltk.metrics.agreement import AnnotationTask
 from nltk.metrics.distance import binary_distance
+from scipy.stats import entropy
 
-from crowdkit.aggregation.annotations import manage_docstring
-from crowdkit.aggregation.base import BaseClassificationAggregator
 from crowdkit.aggregation import MajorityVote
-from crowdkit.aggregation import annotations
+from crowdkit.aggregation.base import BaseClassificationAggregator
 
 
 def _check_answers(answers: pd.DataFrame) -> None:
@@ -37,14 +35,15 @@ def _task_consistency(row: pd.Series) -> float:
 
 
 def consistency(
-    answers: pd.DataFrame,
-    workers_skills: Optional[pd.Series] = None,
-    aggregator: BaseClassificationAggregator = MajorityVote(),
-    by_task: bool = False
+        answers: pd.DataFrame,
+        workers_skills: Optional[pd.Series] = None,
+        aggregator: BaseClassificationAggregator = MajorityVote(),
+        by_task: bool = False
 ) -> Union[float, pd.Series]:
     """
     Consistency metric: posterior probability of aggregated label given workers skills
     calculated using standard Dawid-Skene model.
+
     Args:
         answers (pandas.DataFrame): A data frame containing `task`, `worker` and `label` columns.
         workers_skills (Optional[pandas.Series]): workers skills e.g. golden set skills. If not provided,
@@ -59,7 +58,7 @@ def consistency(
     aggregated = aggregator.fit_predict(answers)
     if workers_skills is None:
         if hasattr(aggregator, 'skills_'):
-            workers_skills = aggregator.skills_
+            workers_skills = aggregator.skills_  # type: ignore
         else:
             raise AssertionError('This aggregator is not supported. Please, provide workers skills.')
 
@@ -68,18 +67,21 @@ def consistency(
     answers = answers.reset_index().set_index('worker')
     answers['skill'] = workers_skills
     answers.reset_index(inplace=True)
+
     labels = pd.unique(answers.label)
     for label in labels:
         answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
+
     labels_proba = answers.groupby('task').prod()
     labels_proba['aggregated_label'] = aggregated
     labels_proba['denominator'] = labels_proba[list(labels)].sum(axis=1)
-    consistecies = labels_proba.apply(_task_consistency, axis=1)
+
+    consistencies = labels_proba.apply(_task_consistency, axis=1)
 
     if by_task:
-        return consistecies
+        return consistencies
     else:
-        return consistecies.mean()
+        return consistencies.mean()
 
 
 def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
@@ -92,18 +94,17 @@ def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
     return -np.sum(softmax * log_softmax)
 
 
-@manage_docstring
 def uncertainty(
-    answers: annotations.LABELED_DATA,
-    workers_skills: annotations.OPTIONAL_SKILLS = None,
-    aggregator: Optional[BaseClassificationAggregator] = None,
-    compute_by: str = 'task',
-    aggregate: bool = True
+        answers: pd.DataFrame,
+        workers_skills: Optional[pd.Series] = None,
+        aggregator: Optional[BaseClassificationAggregator] = None,
+        compute_by: str = 'task',
+        aggregate: bool = True
 ) -> Union[float, pd.Series]:
-    r"""
-    Label uncertainty metric: entropy of labels probability distribution.
+    r"""Label uncertainty metric: entropy of labels probability distribution.
     Computed as Shannon's Entropy with label probabilities computed either for tasks or workers:
     $$H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))$$
+
     Args:
         answers: A data frame containing `task`, `worker` and `label` columns.
         workers_skills: workers skills e.g. golden set skills. If not provided,
@@ -165,13 +166,19 @@ def uncertainty(
         A    0.000000
         B    0.693147
         dtype: float64
+
+    Args:
+        answers (DataFrame): Workers' labeling results.
+            A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        workers_skills (typing.Optional[pandas.core.series.Series]): workers' skills.
+            A pandas.Series index by workers and holding corresponding worker's skill
     """
     _check_answers(answers)
 
     if workers_skills is None and aggregator is not None:
         aggregator.fit(answers)
         if hasattr(aggregator, 'skills_'):
-            workers_skills = aggregator.skills_
+            workers_skills = aggregator.skills_  # type: ignore
         else:
             raise AssertionError('This aggregator is not supported. Please, provide workers skills.')
 
@@ -188,15 +195,14 @@ def uncertainty(
         answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
 
     labels_proba = answers.groupby(compute_by).sum()
-    uncertainties = labels_proba.apply(lambda row: entropy(row[labels] / (sum(row[labels])+1e-6)), axis=1)
+    uncertainties = labels_proba.apply(lambda row: entropy(row[labels] / (sum(row[labels]) + 1e-6)), axis=1)
     if aggregate:
         return uncertainties.mean()
     return uncertainties
 
 
-def alpha_krippendorff(
-    answers: pd.DataFrame, distance: Callable[[Hashable, Hashable], float] = binary_distance
-) -> float:
+def alpha_krippendorff(answers: pd.DataFrame,
+                       distance: Callable[[Hashable, Hashable], float] = binary_distance) -> float:
     """Inter-annotator agreement coefficient (Krippendorff 1980).
 
     Amount that annotators agreed on label assignments beyond what is expected by chance.
