@@ -33,3 +33,16 @@ jobs:
         if: matrix.python-version == '3.8'
       - name: Build wheel
         run: python3 -m build --sdist --wheel .
+      - name: Run Jupyter
+        run: |
+          jupyter nbconvert --to html --output TlkAgg-Categorical.html --execute examples/TlkAgg-Categorical.ipynb
+          jupyter nbconvert --to html --output Readability-Pairwise.html --execute examples/Readability-Pairwise.ipynb
+      - name: Upload Jupyter
+        uses: actions/upload-artifact@v3
+        with:
+          name: crowd-kit-jupyter
+          path: examples/*.html
+      - name: Validate CITATION.cff
+        uses: citation-file-format/cffconvert-github-action@2.0.0
+        with:
+          args: "--validate"
