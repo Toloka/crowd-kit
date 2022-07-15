@@ -148,7 +148,7 @@ class GLAD(BaseClassificationAggregator):
         # sum up by workers
         probas = data.groupby(['task', 'variable']).sum()['posterior']
         # add priors to every label
-        probas = probas.add(np.log(self.priors_), level=1)
+        probas = probas.add(np.log(cast(pd.Series, self.priors_)), level=1)
         # exponentiate and normalize
         probas = probas.groupby(['task']).transform(self._softmax)
         # put posterior in data['posterior']

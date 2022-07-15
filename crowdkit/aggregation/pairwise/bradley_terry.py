@@ -90,7 +90,7 @@ class BradleyTerry(BasePairwiseAggregator):
             return self
 
         T: npt.NDArray[np.int_] = M.T + M
-        active: npt.NDArray[np.int_] = T > 0
+        active: npt.NDArray[np.bool_] = T > 0
 
         w = M.sum(axis=1)
 
