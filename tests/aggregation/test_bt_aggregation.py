@@ -89,7 +89,8 @@ def test_bradley_terry_step_by_step(request, data_abc, n_iter):
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
 )
 def test_noisy_bradley_terry(n_iter, tol, data_abc, noisy_bt_result):
-    noisy_bt = NoisyBradleyTerry(n_iter=n_iter, tol=tol).fit(data_abc)
+    with pytest.warns(RuntimeWarning):
+        noisy_bt = NoisyBradleyTerry(n_iter=n_iter, tol=tol).fit(data_abc)
     assert_series_equal(noisy_bt.scores_, noisy_bt_result, atol=0.005)
     assert noisy_bt.skills_.name == 'skill'
     assert noisy_bt.biases_.name == 'bias'
