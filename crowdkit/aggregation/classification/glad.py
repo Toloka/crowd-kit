@@ -1,9 +1,10 @@
 __all__ = ['GLAD']
 
-from typing import Optional, Tuple, List, cast
+from typing import Optional, Tuple, List, cast, Any
 
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy
 import scipy.stats
@@ -147,7 +148,7 @@ class GLAD(BaseClassificationAggregator):
         # sum up by workers
         probas = data.groupby(['task', 'variable']).sum()['posterior']
         # add priors to every label
-        probas = probas.add(np.log(self.priors_), level=1)  # type: ignore
+        probas = probas.add(np.log(self.priors_), level=1)
         # exponentiate and normalize
         probas = probas.groupby(['task']).transform(self._softmax)
         # put posterior in data['posterior']
@@ -157,7 +158,7 @@ class GLAD(BaseClassificationAggregator):
         self.probas_ = probas.unstack()
         return data
 
-    def _gradient_Q(self, data: pd.DataFrame):
+    def _gradient_Q(self, data: pd.DataFrame) -> Tuple[npt.NDArray[Any], npt.NDArray[Any]]:
         """Compute gradient of loss function
         """
 
@@ -174,7 +175,7 @@ class GLAD(BaseClassificationAggregator):
         dQalpha -= (self.alphas_ - self.alphas_priors_mean_)
         return dQalpha, dQbeta
 
-    def _compute_Q(self, data: pd.DataFrame):
+    def _compute_Q(self, data: pd.DataFrame) -> float:
         """Compute loss function
         """
 
@@ -191,16 +192,16 @@ class GLAD(BaseClassificationAggregator):
         Q += np.log(scipy.stats.norm.pdf(self.betas_ - self.betas_priors_mean_)).sum()
         if np.isnan(Q):
             return -np.inf
-        return Q
+        return float(Q)
 
-    def _optimize_f(self, x: np.ndarray) -> float:
+    def _optimize_f(self, x: npt.NDArray[Any]) -> float:
         """Compute loss by parameters represented by numpy array
         """
         alpha, beta = self._get_alphas_betas_by_point(x)
         self._update_alphas_betas(alpha, beta)
         return -self._compute_Q(self._current_data)
 
-    def _optimize_df(self, x: np.ndarray) -> np.ndarray:
+    def _optimize_df(self, x: npt.NDArray[Any]) -> npt.NDArray[Any]:
         """Compute loss gradient by parameters represented by numpy array
         """
         alpha, beta = self._get_alphas_betas_by_point(x)
@@ -212,7 +213,7 @@ class GLAD(BaseClassificationAggregator):
         minus_grad[len(self.workers_):] = -dQbeta[self.tasks_].values
         return minus_grad
 
-    def _update_alphas_betas(self, alphas: pd.Series, betas: pd.Series):
+    def _update_alphas_betas(self, alphas: pd.Series, betas: pd.Series) -> None:
         self.alphas_ = alphas
         self.betas_ = betas
         self._current_data.set_index('worker', inplace=True)
@@ -222,7 +223,7 @@ class GLAD(BaseClassificationAggregator):
         self._current_data['beta'] = betas
         self._current_data.reset_index(inplace=True)
 
-    def _get_alphas_betas_by_point(self, x: np.ndarray) -> Tuple[pd.Series, pd.Series]:
+    def _get_alphas_betas_by_point(self, x: npt.NDArray[Any]) -> Tuple[pd.Series, pd.Series]:
         alphas = pd.Series(x[:len(self.workers_)], index=self.workers_, name='alpha')
         alphas.index.name = 'worker'
         betas = pd.Series(x[len(self.workers_):], index=self.tasks_, name='beta')
@@ -232,7 +233,7 @@ class GLAD(BaseClassificationAggregator):
     def _m_step(self, data: pd.DataFrame) -> pd.DataFrame:
         """Optimize alpha and beta using conjugate gradient method
         """
-        x_0 = np.concatenate([self.alphas_.values, self.betas_.values])
+        x_0 = np.concatenate([self.alphas_.values, self.betas_.values])  # type: ignore
         self._current_data = data
         res = minimize(self._optimize_f, x_0, method='CG', jac=self._optimize_df, tol=self.m_step_tol,
                        options={'disp': False, 'maxiter': self.m_step_max_iter})
@@ -257,7 +258,7 @@ class GLAD(BaseClassificationAggregator):
             self.betas_priors_mean_ = pd.Series(1., index=self.betas_.index)
 
     @staticmethod
-    def _softplus(x: pd.Series, limit=30) -> np.ndarray:
+    def _softplus(x: pd.Series, limit: int = 30) -> npt.NDArray[Any]:
         """log(1 + exp(x)) stable version
 
         For x > 30 or x < -30 error is less than 1e-13
@@ -265,12 +266,12 @@ class GLAD(BaseClassificationAggregator):
         positive_mask = x > limit
         negative_mask = x < -limit
         mask = positive_mask | negative_mask
-        return np.log1p(np.exp(x * (1 - mask))) * (1 - mask) + x * positive_mask
+        return cast(npt.NDArray[Any], np.log1p(np.exp(x * (1 - mask))) * (1 - mask) + x * positive_mask)
 
     # backport for scipy < 1.12.0
     @staticmethod
-    def _softmax(x: np.ndarray) -> np.ndarray:
-        return np.exp(x - logsumexp(x, keepdims=True))
+    def _softmax(x: npt.NDArray[Any]) -> npt.NDArray[Any]:
+        return cast(npt.NDArray[Any], np.exp(x - logsumexp(x, keepdims=True)))
 
     def fit(self, data: pd.DataFrame) -> 'GLAD':
         """Fit the model through the EM-algorithm.

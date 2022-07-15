@@ -1,16 +1,19 @@
+from typing import Dict, Any
+
 import numpy as np
+import pandas as pd
 import pytest
 
 from crowdkit.datasets import get_datasets_list, load_dataset
 
 
-def test_get_datasets_list():
+def test_get_datasets_list() -> None:
     available_datasets = {'relevance-2', 'relevance-5'}
     datasets_list = {dataset for dataset, description in get_datasets_list()}
     assert len(available_datasets) == len(available_datasets & datasets_list)
 
 
-def collect_stats_for_dataset(crowd_labels, gt):
+def collect_stats_for_dataset(crowd_labels: pd.DataFrame, gt: pd.Series) -> Dict[str, Any]:
     return {
         'rows': len(crowd_labels),
         'dtypes_labels': crowd_labels.dtypes.to_dict(),
@@ -136,7 +139,7 @@ def collect_stats_for_dataset(crowd_labels, gt):
         }),
     ]
 )
-def test_load_dataset(dataset, dataset_stats, tmpdir_factory):
+def test_load_dataset(dataset: str, dataset_stats: Dict[str, Any], tmpdir_factory: Any) -> None:
     data_dir = tmpdir_factory.mktemp('crowdkit_data')
     df, gt = load_dataset(dataset, data_dir=data_dir)
     assert collect_stats_for_dataset(df, gt) == dataset_stats

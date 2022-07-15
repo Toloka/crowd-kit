@@ -4,11 +4,12 @@ __all__ = [
 ]
 
 from functools import partial
-from typing import Any, Iterator, Tuple, List, Optional
+from typing import Any, Tuple, List, Optional, cast, Callable, Generator
 
 import attr
 import nltk.translate.gleu_score as gleu
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy.stats as sps
 from scipy.spatial import distance
@@ -19,8 +20,8 @@ from ..base import BaseClassificationAggregator
 _EPS = 1e-5
 
 
-def glue_similarity(hyp, ref):
-    return gleu.sentence_gleu([hyp.split()], ref)
+def glue_similarity(hyp: str, ref: List[List[str]]) -> float:
+    return cast(float, gleu.sentence_gleu([hyp.split()], ref))
 
 
 @attr.s
@@ -98,7 +99,7 @@ class HRRASA(BaseClassificationAggregator):
     lambda_out: float = attr.ib(default=0.5)
     alpha: float = attr.ib(default=0.05)
     calculate_ranks: bool = attr.ib(default=False)
-    _output_similarity = attr.ib(default=glue_similarity)
+    _output_similarity: Callable[[str, List[List[str]]], float] = attr.ib(default=glue_similarity)
     # embeddings_and_outputs_
     loss_history_: List[float] = attr.ib(init=False)
 
@@ -190,10 +191,10 @@ class HRRASA(BaseClassificationAggregator):
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_
 
     @staticmethod
-    def _cosine_distance(embedding, avg_embedding):
+    def _cosine_distance(embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]) -> float:
         if not embedding.any() or not avg_embedding.any():
             return float('inf')
-        return distance.cosine(embedding, avg_embedding)
+        return cast(float, distance.cosine(embedding, avg_embedding))
 
     def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'HRRASA':
         cta = ClosestToAverage(distance=self._cosine_distance)
@@ -209,13 +210,14 @@ class HRRASA(BaseClassificationAggregator):
         data = data.join(weights, on=['task', 'worker'])
         data['weighted_embedding'] = data.weight * data.embedding
         group = data.groupby('task')
-        aggregated_embeddings = pd.Series((group.weighted_embedding.apply(np.sum) / group.weight.sum()), dtype=np.float64)
+        aggregated_embeddings = pd.Series((group.weighted_embedding.apply(np.sum) / group.weight.sum()),
+                                          dtype=np.float64)
         if true_embeddings is None:
             true_embeddings = pd.Series([], dtype=np.float64)
         aggregated_embeddings.update(true_embeddings)
         return aggregated_embeddings
 
-    def _distance_from_aggregated(self, answers: pd.DataFrame):
+    def _distance_from_aggregated(self, answers: pd.DataFrame) -> pd.DataFrame:
         """Calculates the square of Euclidian distance from aggregated embedding for each answer.
         """
         with_task_aggregate = answers.set_index('task')
@@ -276,7 +278,7 @@ class HRRASA(BaseClassificationAggregator):
         data['local_skill'] = local_skills
         return data.reset_index()
 
-    def _local_skills_on_task(self, task_answers: pd.DataFrame) -> Iterator[Tuple[Any, float]]:
+    def _local_skills_on_task(self, task_answers: pd.DataFrame) -> Generator[Tuple[Any, float], None, None]:
         overlap = len(task_answers)
 
         for _, cur_row in task_answers.iterrows():
@@ -304,7 +306,7 @@ class HRRASA(BaseClassificationAggregator):
 
             yield worker, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
 
-    def _filter_single_overlap(self, data: pd.DataFrame):
+    def _filter_single_overlap(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Filter skills, embeddings, weights and ranks for single overlap tasks that couldn't be processed by HRASSA
         """
 
@@ -315,7 +317,7 @@ class HRRASA(BaseClassificationAggregator):
         data = data.set_index('task')
         return data.drop(single_overlap_task_ids).reset_index(), data.loc[single_overlap_task_ids].reset_index()
 
-    def _fill_single_overlap_tasks_info(self, single_overlap_tasks: pd.DataFrame):
+    def _fill_single_overlap_tasks_info(self, single_overlap_tasks: pd.DataFrame) -> None:
         """Fill skills, embeddings, weights and ranks for single overlap tasks
         """
 
@@ -333,9 +335,8 @@ class HRRASA(BaseClassificationAggregator):
 
         self.prior_skills_ = pd.concat([self.prior_skills_, pd.Series(np.nan, index=workers_to_append)])
         self.skills_ = pd.concat([self.skills_, pd.Series(np.nan, index=workers_to_append)])
-        self.aggregated_embeddings_ = pd.concat([self.aggregated_embeddings_, pd.Series(aggregated_embeddings_to_append)])
+        self.aggregated_embeddings_ = pd.concat(
+            [self.aggregated_embeddings_, pd.Series(aggregated_embeddings_to_append)])
         self.weights_ = pd.concat([self.weights_, pd.DataFrame(weights_to_append)])
         if hasattr(self, 'ranks_'):
             self.ranks_ = self.ranks_.append(pd.DataFrame(ranks_to_append))
-
-        return

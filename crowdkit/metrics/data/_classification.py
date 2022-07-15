@@ -4,7 +4,7 @@ __all__ = [
     'alpha_krippendorff',
 ]
 
-from typing import Any, Callable, Hashable, List, Optional, Tuple, Union
+from typing import Any, Callable, Hashable, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -26,12 +26,18 @@ def _check_answers(answers: pd.DataFrame) -> None:
 
 def _label_probability(row: pd.Series, label: Any, n_labels: int) -> float:
     """Numerator in the Bayes formula"""
-    return row['skill'] if row['label'] == label else (1.0 - row['skill']) / (n_labels - 1)
+    if row['label'] == label:
+        return cast(float, row['skill'])
+    else:
+        return (1. - cast(float, row['skill'])) / (n_labels - 1)
 
 
 def _task_consistency(row: pd.Series) -> float:
     """Posterior probability for a single task"""
-    return row[row['aggregated_label']] / row['denominator'] if row['denominator'] != 0 else 0.0
+    if row['denominator'] != 0:
+        return cast(float, row[row['aggregated_label']]) / cast(float, row['denominator'])
+    else:
+        return 0.
 
 
 def consistency(
@@ -91,7 +97,7 @@ def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
         row[labels] /= row['denominator']
     softmax = row[labels]
     log_softmax = np.log(row[list(labels)])
-    return -np.sum(softmax * log_softmax)
+    return cast(float, -np.sum(softmax * log_softmax))
 
 
 def uncertainty(
@@ -245,4 +251,4 @@ def alpha_krippendorff(answers: pd.DataFrame,
     """
     _check_answers(answers)
     data: List[Tuple[Any, Hashable, Hashable]] = answers[['worker', 'task', 'label']].values.tolist()
-    return AnnotationTask(data, distance).alpha()
+    return cast(float, AnnotationTask(data, distance).alpha())
