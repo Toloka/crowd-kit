@@ -1,6 +1,6 @@
 __all__ = ['MajorityVote']
 
-from typing import Optional, cast
+from typing import Optional
 
 import attr
 import pandas as pd

@@ -1,6 +1,6 @@
 __all__ = ['SegmentationMajorityVote']
 
-from typing import Optional, cast
+from typing import Optional
 
 import attr
 import numpy as np

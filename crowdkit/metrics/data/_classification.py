@@ -4,7 +4,7 @@ __all__ = [
     'alpha_krippendorff',
 ]
 
-from typing import Any, Callable, Hashable, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Hashable, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd

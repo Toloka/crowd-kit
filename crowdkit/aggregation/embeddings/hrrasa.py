@@ -4,7 +4,7 @@ __all__ = [
 ]
 
 from functools import partial
-from typing import Any, Tuple, List, Optional, cast, Callable, Generator
+from typing import Any, Tuple, List, Optional, Callable, Generator
 
 import attr
 import nltk.translate.gleu_score as gleu

@@ -2,7 +2,7 @@ __all__ = [
     'RASA',
 ]
 
-from typing import Any, List, cast
+from typing import Any, List
 from functools import partial
 
 import attr
