@@ -35,7 +35,7 @@ def _label_probability(row: pd.Series, label: Any, n_labels: int) -> float:
 def _task_consistency(row: pd.Series) -> float:
     """Posterior probability for a single task"""
     if row['denominator'] != 0:
-        return cast(float, row[row['aggregated_label']]) / cast(float, row['denominator'])
+        return float(row[row['aggregated_label']]) / float(row['denominator'])
     else:
         return 0.
 
