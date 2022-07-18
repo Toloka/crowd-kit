@@ -21,7 +21,7 @@ _EPS = 1e-5
 
 
 def glue_similarity(hyp: str, ref: List[List[str]]) -> float:
-    return cast(float, gleu.sentence_gleu([hyp.split()], ref))
+    return float(gleu.sentence_gleu([hyp.split()], ref))
 
 
 @attr.s
@@ -194,7 +194,7 @@ class HRRASA(BaseClassificationAggregator):
     def _cosine_distance(embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]) -> float:
         if not embedding.any() or not avg_embedding.any():
             return float('inf')
-        return cast(float, distance.cosine(embedding, avg_embedding))
+        return float(distance.cosine(embedding, avg_embedding))
 
     def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'HRRASA':
         cta = ClosestToAverage(distance=self._cosine_distance)

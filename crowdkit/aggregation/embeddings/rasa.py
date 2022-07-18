@@ -94,7 +94,7 @@ class RASA(BaseEmbeddingsAggregator):
     def _cosine_distance(embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]) -> float:
         if not embedding.any() or not avg_embedding.any():
             return float('inf')
-        return cast(float, distance.cosine(embedding, avg_embedding))
+        return float(distance.cosine(embedding, avg_embedding))
 
     def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'RASA':
         cta = ClosestToAverage(distance=self._cosine_distance)

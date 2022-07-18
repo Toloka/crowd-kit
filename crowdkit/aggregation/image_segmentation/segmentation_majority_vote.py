@@ -70,8 +70,8 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         if skills is None:
             data['skill'] = 1
         else:
-            # TODO: add check for None
-            data = add_skills_to_data(data, skills, self.on_missing_skill, cast(float, self.default_skill))
+            assert self.default_skill is not None, 'default_skill should not be None'
+            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
 
         data['pixel_scores'] = data.segmentation * data.skill
         group = data.groupby('task')

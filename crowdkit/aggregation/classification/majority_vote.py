@@ -98,8 +98,8 @@ class MajorityVote(BaseClassificationAggregator):
         if skills is None:
             scores = data[['task', 'label']].value_counts()
         else:
-            # TODO: add check for None
-            data = add_skills_to_data(data, skills, self.on_missing_skill, cast(float, self.default_skill))
+            assert self.default_skill is not None, 'default_skill should not be None'
+            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
             scores = data.groupby(['task', 'label'])['skill'].sum()
 
         self.probas_ = normalize_rows(scores.unstack('label', fill_value=0))
