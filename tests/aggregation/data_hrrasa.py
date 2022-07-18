@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.fixture
-def simple_text_result_hrrasa():
+def simple_text_result_hrrasa() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['1255-74899-0020', 'i shouuld had seen you damp my word', np.array([4.2875843, 0.24995197])], # noqa
@@ -18,7 +18,7 @@ def simple_text_result_hrrasa():
 
 
 @pytest.fixture
-def simple_text_result_rasa():
+def simple_text_result_rasa() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['1255-74899-0020', 'i shouuld had seen you damp my word', np.array([4.2875843, 0.24995197])], # noqa

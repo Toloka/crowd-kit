@@ -3,12 +3,12 @@ __all__ = [
 ]
 
 import itertools
-from typing import Optional
+from typing import Optional, cast
 
 import attr
 import numpy as np
 import pandas as pd
-from transformers import PreTrainedTokenizer, PreTrainedModel
+from transformers import PreTrainedTokenizer, PreTrainedModel  # type: ignore
 
 from ..base import BaseTextsAggregator
 
@@ -105,12 +105,14 @@ class TextSummarization(BaseTextsAggregator):
             generated_outputs.append(self._generate_output(permutation))
 
         data = pd.DataFrame({'task': [''] * len(generated_outputs), 'text': generated_outputs})
+
         if self.permutation_aggregator is not None:
-            return self.permutation_aggregator.fit_predict(data)['']
-        return data.text.mode()
+            return cast(str, self.permutation_aggregator.fit_predict(data)[''])
+
+        return cast(str, data.text.mode())
 
     def _generate_output(self, permutation: pd.Series) -> str:
         input_text = self.concat_token.join(permutation)
         input_ids = self.tokenizer.encode(input_text, return_tensors='pt').to(self.device)
         outputs = self.model.generate(input_ids, num_beams=self.num_beams)  # type: ignore
-        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        return cast(str, self.tokenizer.decode(outputs[0], skip_special_tokens=True))

@@ -1,9 +1,10 @@
 __all__ = ['SegmentationEM']
 
-from typing import List, Union
+from typing import List, Union, Any, cast
 
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from ..base import BaseImageSegmentationAggregator
@@ -57,9 +58,9 @@ class SegmentationEM(BaseImageSegmentationAggregator):
     @staticmethod
     def _e_step(
             segmentations: pd.Series,
-            errors: np.ndarray,
-            priors: Union[float, np.ndarray],
-    ) -> np.ndarray:
+            errors: npt.NDArray[Any],
+            priors: Union[float, npt.NDArray[Any]],
+    ) -> npt.NDArray[Any]:
         """
         Perform E-step of algorithm.
         Given workers' segmentations and error vector and priors
@@ -75,52 +76,57 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
             with np.errstate(invalid='ignore'):
                 # division by the denominator in the Bayes formula
-                posteriors = np.nan_to_num(np.exp(pos_log_prob) / (np.exp(pos_log_prob) + np.exp(neg_log_prob)), nan=0)
+                posteriors: npt.NDArray[Any] = np.nan_to_num(np.exp(pos_log_prob) /  # type: ignore
+                                                                   (np.exp(pos_log_prob) + np.exp(neg_log_prob)),
+                                                                   nan=0)
 
         return posteriors
 
     @staticmethod
-    def _m_step(segmentations: pd.Series, posteriors: np.ndarray, segmentation_region_size: int,
-                segmentations_sizes: np.ndarray) -> np.ndarray:
+    def _m_step(segmentations: pd.Series, posteriors: npt.NDArray[Any],
+                segmentation_region_size: int, segmentations_sizes: npt.NDArray[Any]) -> npt.NDArray[Any]:
         """
         Perform M-step of algorithm.
         Given a priori probabilities for each pixel and the segmentation of the workers,
         it estimates worker's errors probabilities vector.
         """
 
-        mean_errors_expectation = (segmentations_sizes + posteriors.sum() -
-                                   2 * (segmentations * posteriors).sum(axis=(1, 2))) / segmentation_region_size
+        mean_errors_expectation: npt.NDArray[Any] = (segmentations_sizes + posteriors.sum() -
+                                                     2 * (segmentations * posteriors).
+                                                     sum(axis=(1, 2))) / segmentation_region_size
 
         # return probability of worker marking pixel correctly
         return 1 - mean_errors_expectation
 
-    def _evidence_lower_bound(self, segmentations: pd.Series, priors: Union[float, np.ndarray], posteriors: np.ndarray,
-                              errors: np.ndarray):
+    def _evidence_lower_bound(self, segmentations: pd.Series,
+                              priors: Union[float, npt.NDArray[Any]],
+                              posteriors: npt.NDArray[Any],
+                              errors: npt.NDArray[Any]) -> float:
         weighted_seg = (np.multiply(errors, segmentations.T.astype(float)).T +
                         np.multiply((1 - errors), (1 - segmentations).T.astype(float)).T)
 
         # we handle log(0) * 0 == 0 case with nan_to_num so warnings are irrelevant here
         with np.errstate(divide='ignore', invalid='ignore'):
-            log_likelihood_expectation = \
-                np.nan_to_num((np.log(weighted_seg) + np.log(priors)[None, ...]) * posteriors, nan=0).sum() + \
-                np.nan_to_num((np.log(1 - weighted_seg) + np.log(1 - priors)[None, ...]) * (1 - posteriors),
-                              nan=0).sum()
+            log_likelihood_expectation: float = np.nan_to_num(  # type: ignore
+                (np.log(weighted_seg) + np.log(priors)[None, ...]) * posteriors, nan=0).sum() + np.nan_to_num(  # type: ignore
+                (np.log(1 - weighted_seg) + np.log(1 - priors)[None, ...]) * (1 - posteriors), nan=0).sum()
 
-            return log_likelihood_expectation - np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum()
+            return log_likelihood_expectation - float(np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum())  # type: ignore
 
-    def _aggregate_one(self, segmentations: pd.Series) -> bool:
+    def _aggregate_one(self, segmentations: pd.Series) -> npt.NDArray[np.bool_]:
         """
         Performs an expectation maximization algorithm for a single image.
         """
         priors = sum(segmentations) / len(segmentations)
         segmentations = np.stack(segmentations.values)
         segmentation_region_size = segmentations.any(axis=0).sum()
+
         if segmentation_region_size == 0:
             return np.zeros_like(segmentations[0])
 
         segmentations_sizes = segmentations.sum(axis=(1, 2))
         # initialize with errors assuming that ground truth segmentation is majority vote
-        errors = self._m_step(segmentations, np.round(priors), segmentation_region_size, segmentations_sizes)
+        errors = self._m_step(segmentations, np.round(priors), segmentation_region_size, segmentations_sizes)  # type: ignore
         loss = -np.inf
         self.loss_history_ = []
         for _ in range(self.n_iter):
@@ -135,7 +141,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
                 break
             loss = new_loss
 
-        return priors > 0.5
+        return cast(npt.NDArray[np.bool_], priors > 0.5)
 
     def fit(self, data: pd.DataFrame) -> 'SegmentationEM':
         """Fit the model.
@@ -155,7 +161,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         )
         return self
 
-    def fit_predict(self, data: np.ndarray) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
         """Fit the model and return the aggregated segmentations.
 
         Args:

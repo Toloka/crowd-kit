@@ -1,7 +1,10 @@
 __all__ = ['NoisyBradleyTerry']
 
+from typing import Any
+
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy.optimize import minimize
 from scipy.special import expit
@@ -106,7 +109,8 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         return self.fit(data).scores_
 
     @staticmethod
-    def _compute_log_likelihood(x: np.ndarray, np_data: np.ndarray, np_workers: np.ndarray, labels: int, workers: int,
+    def _compute_log_likelihood(x: npt.NDArray[Any], np_data: npt.NDArray[Any],
+                                np_workers: npt.NDArray[Any], labels: int, workers: int,
                                 regularization_ratio: float) -> float:
         s_i = x[np_data[:, 0]]
         s_j = x[np_data[:, 1]]
@@ -119,11 +123,12 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         total = np.sum(np.log(expit(gamma) * expit(y * (s_i - s_j)) + (1 - expit(gamma)) * expit(y * q)))
         reg = np.sum(np.log(expit(x[0] - x[1:labels + 1]))) + np.sum(np.log(expit(x[1:labels + 1] - x[0])))
 
-        return -total + regularization_ratio * reg
+        return float(-total + regularization_ratio * reg)
 
     @staticmethod
-    def _compute_gradient(x: np.ndarray, np_data: np.ndarray, np_workers: np.ndarray, labels: int, workers: int,
-                          regularization_ratio: float) -> np.ndarray:
+    def _compute_gradient(x: npt.NDArray[Any], np_data: npt.NDArray[Any],
+                          np_workers: npt.NDArray[Any], labels: int, workers: int,
+                          regularization_ratio: float) -> npt.NDArray[Any]:
         gradient = np.zeros_like(x)
 
         for worker_idx, (left_idx, right_idx, label) in zip(np_workers, np_data):

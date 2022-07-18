@@ -11,14 +11,15 @@ __all__ = [
     'named_series_attrib',
 ]
 
-from typing import Tuple, Union, Callable, Optional
+from typing import Tuple, Union, Callable, Optional, Any
 
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 
-def _argmax_random_ties(array: np.ndarray) -> int:
+def _argmax_random_ties(array: npt.NDArray[Any]) -> int:
     # Returns the index of the maximum element
     # If there are several such elements, it returns a random one
     return int(np.random.choice(np.flatnonzero(array == array.max())))
@@ -42,12 +43,12 @@ def evaluate(df_true: pd.DataFrame, df_pred: pd.DataFrame,
     return float(df['evaluation'].mean())
 
 
-def factorize(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    unique_values, coded = np.unique(data, return_inverse=True)
+def factorize(data: npt.NDArray[Any]) -> Tuple[npt.NDArray[Any], npt.NDArray[Any]]:
+    unique_values, coded = np.unique(data, return_inverse=True)  # type: ignore
     return unique_values, coded.reshape(data.shape)
 
 
-def get_most_probable_labels(proba: pd.DataFrame):
+def get_most_probable_labels(proba: pd.DataFrame) -> pd.Series:
     """Returns most probable labels
 
     Args:
@@ -138,7 +139,7 @@ def get_accuracy(data: pd.DataFrame, true_labels: pd.Series, by: Optional[str] =
     return data.score.sum() / data.weight.sum()
 
 
-def named_series_attrib(name: str):
+def named_series_attrib(name: str) -> pd.Series:
     """Attrs attribute with converter and setter which preserves specified attribute name"""
 
     def converter(series: pd.Series) -> pd.Series:

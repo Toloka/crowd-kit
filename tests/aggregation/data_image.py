@@ -1,11 +1,12 @@
+from typing import Tuple
+
 import pandas as pd
 import numpy as np
 import pytest
 
 
 @pytest.fixture
-def simple_image_df():
-
+def simple_image_df() -> pd.DataFrame:
     im1_seg1 = np.array([
         [0, 0, 0, 1, 0, 0, 0, 0],
         [1, 1, 1, 1, 1, 1, 1, 1],
@@ -67,7 +68,7 @@ def simple_image_df():
 
 
 @pytest.fixture
-def image_with_skills_df():
+def image_with_skills_df() -> Tuple[pd.DataFrame, pd.Series]:
 
     im1_seg1 = np.array([
         [1, 1, 0, 0, 0],
@@ -112,7 +113,7 @@ def image_with_skills_df():
 
 
 @pytest.fixture
-def simple_image_mv_result():
+def simple_image_mv_result() -> pd.Series:
     return pd.Series(
         [
             np.array([
@@ -132,7 +133,7 @@ def simple_image_mv_result():
 
 
 @pytest.fixture
-def image_with_skills_mv_result():
+def image_with_skills_mv_result() -> pd.Series:
     return pd.Series(
         [np.array([[0, 1, 1, 1, 0], [0, 0, 0, 0, 0]], dtype=bool)],
         index=pd.Index([1], name='task'),
@@ -141,7 +142,7 @@ def image_with_skills_mv_result():
 
 
 @pytest.fixture
-def simple_image_rasa_result():
+def simple_image_rasa_result() -> pd.Series:
     return pd.Series(
         [
             np.array([
@@ -161,7 +162,7 @@ def simple_image_rasa_result():
 
 
 @pytest.fixture
-def simple_image_em_result():
+def simple_image_em_result() -> pd.Series:
     return pd.Series(
         [
             np.array([

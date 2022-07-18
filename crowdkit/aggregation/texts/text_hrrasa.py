@@ -1,7 +1,8 @@
 __all__ = ['TextHRRASA']
 
-from typing import Callable
+from typing import Callable, List, Any
 
+import numpy.typing as npt
 import pandas as pd
 
 from ..base import BaseTextsAggregator
@@ -38,19 +39,21 @@ class TextHRRASA(BaseTextsAggregator):
     # texts_
 
     @property
-    def loss_history_(self):
+    def loss_history_(self) -> List[float]:
         return self._hrrasa.loss_history_
 
     def __init__(
             self,
-            encoder: Callable, n_iter: int = 100, tol: float = 1e-5, lambda_emb: float = 0.5, lambda_out: float = 0.5,
-            alpha: float = 0.05, calculate_ranks: bool = False, output_similarity: Callable = glue_similarity
-    ):
+            encoder: Callable[[str], npt.ArrayLike],
+            n_iter: int = 100, tol: float = 1e-5, lambda_emb: float = 0.5, lambda_out: float = 0.5,
+            alpha: float = 0.05, calculate_ranks: bool = False,
+            output_similarity: Callable[[str, List[List[str]]], float] = glue_similarity
+    ) -> None:
         super().__init__()
         self.encoder = encoder
         self._hrrasa = HRRASA(n_iter, tol, lambda_emb, lambda_out, alpha, calculate_ranks, output_similarity)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         return getattr(self._hrrasa, name)
 
     def fit_predict_scores(self, data: pd.DataFrame, true_objects: pd.Series = None) -> pd.DataFrame:
@@ -91,10 +94,10 @@ class TextHRRASA(BaseTextsAggregator):
         self.texts_ = hrrasa_results.reset_index()[['task', 'output']].set_index('task')
         return self.texts_
 
-    def _encode_data(self, data):
+    def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data[['task', 'worker', 'output']]
         data['embedding'] = data.output.apply(self.encoder)
         return data
 
-    def _encode_true_objects(self, true_objects):
-        return true_objects and true_objects.apply(self.endcoder)
+    def _encode_true_objects(self, true_objects: pd.Series) -> pd.Series:
+        return true_objects and true_objects.apply(self.encoder)

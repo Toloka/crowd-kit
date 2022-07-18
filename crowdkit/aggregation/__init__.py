@@ -1,3 +1,5 @@
+from typing import cast
+
 from . import base
 from .classification import (
     DawidSkene,
@@ -55,10 +57,10 @@ __all__ = [
 ]
 
 
-def is_arcadia():
+def is_arcadia() -> bool:
     try:
         import __res
-        return __res == __res
+        return cast(bool, __res == __res)
     except ImportError:
         return False
 

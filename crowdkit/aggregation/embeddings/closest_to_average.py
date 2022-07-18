@@ -1,9 +1,10 @@
 __all__ = ['ClosestToAverage']
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from ..base import BaseEmbeddingsAggregator
@@ -34,7 +35,7 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     # embeddings_and_outputs_
     scores_: pd.DataFrame
 
-    distance: Callable[[np.ndarray, np.ndarray], float] = attr.ib()
+    distance: Callable[[npt.NDArray[Any], npt.NDArray[Any]], float] = attr.ib()
 
     def fit(self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None,
             true_embeddings: pd.Series = None) -> 'ClosestToAverage':

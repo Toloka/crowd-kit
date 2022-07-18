@@ -3,7 +3,7 @@ import pytest
 
 
 @pytest.fixture
-def simple_text_result_rover():
+def simple_text_result_rover() -> pd.Series:
     return pd.Series(
         [
             'as soon as you donned my worst is stocking sweetheart',

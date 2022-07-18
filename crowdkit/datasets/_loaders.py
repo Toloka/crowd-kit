@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Dict, Callable, Union
 
 import pandas as pd
 
-from ._base import get_data_dir, fetch_remote  # type: ignore
+from ._base import get_data_dir, fetch_remote
 
 
 def _load_dataset(data_name: str, data_dir: Optional[str], data_url: str, checksum_url: str) -> str:

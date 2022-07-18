@@ -2,11 +2,12 @@ __all__ = [
     'RASA',
 ]
 
-import typing
+from typing import Any, List
 from functools import partial
 
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy.stats as sps
 from scipy.spatial import distance
@@ -66,7 +67,7 @@ class RASA(BaseEmbeddingsAggregator):
     tol: float = attr.ib(default=1e-9)
     alpha: float = attr.ib(default=0.05)
     # embeddings_and_outputs_
-    loss_history_: typing.List[float] = attr.ib(init=False)
+    loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
     def _aggregate_embeddings(data: pd.DataFrame, skills: pd.Series,
@@ -90,10 +91,10 @@ class RASA(BaseEmbeddingsAggregator):
         return prior_skills / total_distances
 
     @staticmethod
-    def _cosine_distance(embedding, avg_embedding):
+    def _cosine_distance(embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]) -> float:
         if not embedding.any() or not avg_embedding.any():
             return float('inf')
-        return distance.cosine(embedding, avg_embedding)
+        return float(distance.cosine(embedding, avg_embedding))
 
     def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'RASA':
         cta = ClosestToAverage(distance=self._cosine_distance)
