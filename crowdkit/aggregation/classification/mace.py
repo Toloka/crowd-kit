@@ -3,6 +3,7 @@ __all__ = ['MACE']
 from typing import Any, List, Optional, Tuple
 import attr
 import numpy as np
+from numpy.typing import NDArray
 import pandas as pd
 import scipy.stats as sps
 from scipy.special import digamma
@@ -11,7 +12,7 @@ from tqdm.auto import trange
 from ..base import BaseClassificationAggregator
 
 
-def normalize(x: np.ndarray, smoothing: float) -> np.ndarray:
+def normalize(x: NDArray[np.float64], smoothing: float) -> NDArray[np.float64]:
     """Normalize the rows of the matrix using the smoothing parameter.
 
     Args:
@@ -30,7 +31,7 @@ def normalize(x: np.ndarray, smoothing: float) -> np.ndarray:
     )
 
 
-def variational_normalize(x: np.ndarray, hparams: np.ndarray) -> np.ndarray:
+def variational_normalize(x: NDArray[np.float64], hparams: NDArray[np.float64]) -> NDArray[np.float64]:
     """Normalize the rows of the matrix using the MACE priors.
 
     Args:
@@ -135,10 +136,10 @@ class MACE(BaseClassificationAggregator):
     random_state: int = attr.ib(default=0)
     verbose: int = attr.ib(default=0)
 
-    spamming_: np.ndarray = attr.ib(init=False)
-    thetas_: np.ndarray = attr.ib(init=False)
-    theta_priors_: Optional[np.ndarray] = attr.ib(init=False)
-    strategy_priors_: Optional[np.ndarray] = attr.ib(init=False)
+    spamming_: NDArray[np.float64] = attr.ib(init=False)
+    thetas_: NDArray[np.float64] = attr.ib(init=False)
+    theta_priors_: Optional[NDArray[np.float64]] = attr.ib(init=False)
+    strategy_priors_: Optional[NDArray[np.float64]] = attr.ib(init=False)
     smoothing_: float = attr.ib(init=False)
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
 
@@ -275,7 +276,7 @@ class MACE(BaseClassificationAggregator):
 
         self.spamming_ = sps.uniform(1, 1 + self.default_noise).rvs(
             size=(n_workers, 2),
-            random_state=self.random_state
+            random_state=self.random_state,
         )
         self.thetas_ = sps.uniform(1, 1 + self.default_noise).rvs(
             size=(n_workers, n_labels),
@@ -298,9 +299,9 @@ class MACE(BaseClassificationAggregator):
         task_names: List[Any],
         worker_names: List[Any],
         label_names: List[Any],
-        tasks: np.ndarray,
-        workers: np.ndarray,
-        labels: np.ndarray,
+        tasks: NDArray[np.int64],
+        workers: NDArray[np.int64],
+        labels: NDArray[np.int64],
     ) -> Tuple[float, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """E-step of the MACE algorithm.
 
@@ -424,9 +425,11 @@ class MACE(BaseClassificationAggregator):
         Returns:
             None
         """
+        assert self.theta_priors_ is not None
         self.spamming_ = variational_normalize(
             knowing_expected_counts.values, self.theta_priors_
         )
+        assert self.strategy_priors_ is not None
         self.thetas_ = variational_normalize(
             strategy_expected_counts.values, self.strategy_priors_
         )
