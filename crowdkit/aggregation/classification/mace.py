@@ -22,8 +22,8 @@ def normalize(x: NDArray[np.float64], smoothing: float) -> NDArray[np.float64]:
     Returns:
         np.ndarray: normalized array
     """
-    norm = (x + smoothing).sum(axis=1)
-    return np.divide(
+    norm = (x + smoothing).sum(axis=1)  # type: ignore
+    return np.divide(  # type: ignore
         x + smoothing,
         norm[:, np.newaxis],
         out=np.zeros_like(x),
@@ -41,9 +41,9 @@ def variational_normalize(x: NDArray[np.float64], hparams: NDArray[np.float64]) 
     Returns:
         np.ndarray: normalized array
     """
-    norm = (x + hparams).sum(axis=1)
+    norm = (x + hparams).sum(axis=1)  # type: ignore
     norm = np.exp(digamma(norm))
-    return np.divide(
+    return np.divide(  # type: ignore
         np.exp(digamma(x + hparams)),
         norm[:, np.newaxis],
         out=np.zeros_like(x),
