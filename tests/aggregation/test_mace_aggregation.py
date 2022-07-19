@@ -2,6 +2,8 @@
 Simple aggregation tests.
 """
 import numpy as np
+from numpy.typing import NDArray
+import pandas as pd
 import pytest
 
 from crowdkit.aggregation import MACE
@@ -11,7 +13,11 @@ from crowdkit.aggregation.utils import evaluate, evaluate_equal
 @pytest.mark.parametrize(
     'method', ['vb', 'em']
 )
-def test_aggregate_mace_on_toy_ysda(method, toy_answers_df, toy_ground_truth_df):
+def test_aggregate_mace_on_toy_ysda(
+        method: str,
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: pd.DataFrame
+) -> None:
     np.random.seed(42)
     predict_df = MACE(n_restarts=1, n_iter=5, method=method).fit_predict(toy_answers_df)
     accuracy = evaluate(
@@ -25,7 +31,11 @@ def test_aggregate_mace_on_toy_ysda(method, toy_answers_df, toy_ground_truth_df)
 @pytest.mark.parametrize(
     'method', ['vb', 'em']
 )
-def test_aggregate_mace_on_simple(method, simple_answers_df, simple_ground_truth):
+def test_aggregate_mace_on_simple(
+        method: str,
+        simple_answers_df: pd.DataFrame,
+        simple_ground_truth: pd.DataFrame
+) -> None:
     np.random.seed(42)
     predict_df = MACE(n_restarts=1, n_iter=5, method=method).fit_predict(simple_answers_df)
     accuracy = evaluate(
@@ -40,7 +50,7 @@ def test_aggregate_mace_on_simple(method, simple_answers_df, simple_ground_truth
 
 
 @pytest.fixture
-def thetas_simple():
+def thetas_simple() -> NDArray[np.float_]:
     return np.array(
         [
             [0.27249486, 0.27249486, 0.42663689],
@@ -53,6 +63,6 @@ def thetas_simple():
     )
 
 
-def test_thetas_on_simple(simple_answers_df, thetas_simple):
+def test_thetas_on_simple(simple_answers_df: pd.DataFrame, thetas_simple: pd.DataFrame) -> None:
     thetas = MACE(n_restarts=1, n_iter=5, method='vb', random_state=0).fit(simple_answers_df).thetas_
     assert np.allclose(thetas, thetas_simple)
