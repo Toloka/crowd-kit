@@ -79,7 +79,7 @@ class MACE(BaseClassificationAggregator):
     $A_{iw} = T_i$. Otherwise, their response $A_{iw}$ is drawn from a multinomial
     distribution with parameters $\xi_w$.
 
-    ![Dawid-Skene latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
+    ![MACE latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/mace_llm.png)
 
     The model can be enhanced by adding a Beta prior over $\theta_w$ and Diriclet
     prior over $\xi_w$.
