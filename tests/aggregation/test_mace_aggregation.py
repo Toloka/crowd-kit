@@ -16,7 +16,7 @@ from crowdkit.aggregation.utils import evaluate, evaluate_equal
 def test_aggregate_mace_on_toy_ysda(
         method: str,
         toy_answers_df: pd.DataFrame,
-        toy_ground_truth_df: pd.DataFrame
+        toy_ground_truth_df: pd.Series
 ) -> None:
     np.random.seed(42)
     predict_df = MACE(n_restarts=1, n_iter=5, method=method).fit_predict(toy_answers_df)
@@ -34,7 +34,7 @@ def test_aggregate_mace_on_toy_ysda(
 def test_aggregate_mace_on_simple(
         method: str,
         simple_answers_df: pd.DataFrame,
-        simple_ground_truth: pd.DataFrame
+        simple_ground_truth: pd.Series
 ) -> None:
     np.random.seed(42)
     predict_df = MACE(n_restarts=1, n_iter=5, method=method).fit_predict(simple_answers_df)
