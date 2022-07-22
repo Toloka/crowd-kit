@@ -150,7 +150,7 @@ def named_series_attrib(name: str) -> pd.Series:
 
 
 def add_skills_to_data(data: pd.DataFrame, skills: pd.Series, on_missing_skill: str,
-                       default_skill: float) -> pd.DataFrame:
+                       default_skill: Optional[float]) -> pd.DataFrame:
     """Args:
         skills (Series): workers' skills.
             A pandas.Series index by workers and holding corresponding worker's skill
