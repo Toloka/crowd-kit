@@ -15,7 +15,21 @@ _MAX = np.float_power(10, 300)
 class KOS(BaseClassificationAggregator):
     r"""Karger-Oh-Shah aggregation model.
 
-    The model learns the aggregated labels by...
+    Iterative algorithm that calculates the log-likelihood of the task being positive while modeling
+    the reliabilities of the workers.
+
+    Let $A_{ij}$ be a matrix of answers of worker $j$ on task $i$.
+    $A_{ij} = 0$ if worker $j$ didn't answer the task $i$, otherwise $|A_{ij}| = 1$.
+    The algorithm operates on real-valued task messages $x_{i \rightarrow j}$  and
+    worker messages $y_{j \rightarrow i}$. A task message $x_{i \rightarrow j}$ represents
+    the log-likelihood of task $i$ being a positive task, and a worker message $y_{j \rightarrow i}$ represents
+    how reliable worker $j$ is.
+
+    On iteration $k$ the values are updated as follows:
+    $$
+    x_{i \rightarrow j}^{(k)} = \sum_{j^{'} \in \partial i \backslash j} A_{ij^{'}} y_{j^{'} \rightarrow i}^{(k-1)} \\
+    y_{j \rightarrow i}^{(k)} = \sum_{i^{'} \in \partial j \backslash i} A_{i^{'}j} x_{i^{'} \rightarrow j}^{(k-1)}
+    $$
 
     Karger, David R., Sewoong Oh, and Devavrat Shah. Budget-optimal task allocation for reliable crowdsourcing systems.
     Operations Research 62.1 (2014): 1-24.
@@ -26,10 +40,10 @@ class KOS(BaseClassificationAggregator):
         n_iter: The number of iterations.
 
     Examples:
-        >>> from crowdkit.aggregation import DawidSkene
+        >>> from crowdkit.aggregation import KOS
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
-        >>> ds = DawidSkene(100)
+        >>> ds = KOS(10)
         >>> result = ds.fit_predict(df)
 
     Attributes:
