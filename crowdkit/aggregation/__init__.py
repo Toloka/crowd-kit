@@ -3,13 +3,14 @@ from typing import cast
 from . import base
 from .classification import (
     DawidSkene,
-    OneCoinDawidSkene,
     GLAD,
     GoldMajorityVote,
-    MMSR,
+    MACE,
     MajorityVote,
+    MMSR,
+    OneCoinDawidSkene,
     Wawa,
-    ZeroBasedSkill
+    ZeroBasedSkill,
 )
 from .embeddings import (
     ClosestToAverage,
@@ -41,6 +42,7 @@ __all__ = [
     'GLAD',
     'GoldMajorityVote',
     'HRRASA',
+    'MACE',
     'MMSR',
     'MajorityVote',
     'NoisyBradleyTerry',
