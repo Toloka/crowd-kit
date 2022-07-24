@@ -5,7 +5,7 @@ Testing all boundary conditions and asserts
 import numpy as np
 import pandas as pd
 import pytest
-from pandas.testing import assert_frame_equal, assert_series_equal
+from pandas.testing import assert_series_equal
 from crowdkit.aggregation import KOS
 
 
@@ -27,4 +27,4 @@ def test_kos_on_empty_input():
 
 def test_kos_not_binary_data(simple_answers_df):
     with pytest.raises(ValueError):
-        result = KOS(n_iter=10).fit(simple_answers_df)
+        KOS(n_iter=10).fit(simple_answers_df)
