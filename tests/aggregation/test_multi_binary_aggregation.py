@@ -9,7 +9,7 @@ from crowdkit.aggregation import MultiBinary, MajorityVote, DawidSkene, Wawa, GL
 
 
 @pytest.fixture
-def data_toy():
+def data_toy() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['t1', 'w1', ['house', 'tree']],
@@ -24,7 +24,7 @@ def data_toy():
 
 
 @pytest.fixture
-def multi_binary_toy_result():
+def multi_binary_toy_result() -> pd.Series:
     result = pd.Series([['house', 'tree'], ['car']], index=['t1', 't2'], name='agg_label')
     result.index.name = 'task'
     return result
@@ -33,7 +33,7 @@ def multi_binary_toy_result():
 @pytest.mark.parametrize(
     'aggregator, args', [(MajorityVote, {}), (DawidSkene, {'n_iter': 10}), (Wawa, {}), (GLAD, {})]
 )
-def test_multi_binary_aggregation_on_toy_data(aggregator, args, multi_binary_toy_result, data_toy):
+def test_multi_binary_aggregation_on_toy_data(aggregator, args, multi_binary_toy_result, data_toy) -> None:
     mb = MultiBinary(aggregator=aggregator, args=args)
     assert_series_equal(multi_binary_toy_result, mb.fit_predict(data_toy))
 
@@ -41,7 +41,7 @@ def test_multi_binary_aggregation_on_toy_data(aggregator, args, multi_binary_toy
 @pytest.mark.parametrize(
     'aggregator, args', [(MajorityVote, {}), (DawidSkene, {'n_iter': 10}), (Wawa, {}), (GLAD, {})]
 )
-def test_multi_binary_aggregation_on_empty(aggregator, args):
+def test_multi_binary_aggregation_on_empty(aggregator, args) -> None:
     mb = MultiBinary(aggregator=aggregator, args=args)
     result = mb.fit_predict(pd.DataFrame([], columns=['task', 'worker', 'label']))
     assert_series_equal(pd.Series(dtype=float, name='agg_label'), result)
