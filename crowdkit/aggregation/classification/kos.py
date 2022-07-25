@@ -69,7 +69,7 @@ class KOS(BaseClassificationAggregator):
 
         # Early exit
         if not data.size:
-            self.labels_ = pd.Series(dtype=float)
+            self.labels_ = pd.Series([], dtype='O')
             return self
 
         # Initialization
@@ -100,9 +100,9 @@ class KOS(BaseClassificationAggregator):
             kos_data['reliabilities'] = (kos_data.summed - kos_data.multiplied).astype('float')
 
         kos_data['inferred'] = kos_data.label * kos_data.reliabilities
-        self.labels_ = np.sign(kos_data.groupby('task')['inferred'].sum())
+        inferred_labels = np.sign(kos_data.groupby('task')['inferred'].sum())
         back_mapping = {v: k for k, v in mapping.items()}
-        self.labels_ = self.labels_.apply(lambda x: back_mapping[x])
+        self.labels_ = inferred_labels.apply(lambda x: back_mapping[x])
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
