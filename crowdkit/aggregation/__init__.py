@@ -7,7 +7,8 @@ from .classification import (
     MMSR,
     MajorityVote,
     Wawa,
-    ZeroBasedSkill
+    ZeroBasedSkill,
+    MultiBinary
 )
 from .embeddings import (
     ClosestToAverage,
@@ -52,6 +53,7 @@ __all__ = [
     'TextSummarization',
     'Wawa',
     'ZeroBasedSkill',
+    'MultiBinary'
 ]
 
 

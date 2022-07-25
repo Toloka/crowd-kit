@@ -6,7 +6,8 @@ __all__ = [
     'MMSR',
     'MajorityVote',
     'Wawa',
-    'ZeroBasedSkill'
+    'ZeroBasedSkill',
+    'MultiBinary'
 ]
 
 from .dawid_skene import DawidSkene, OneCoinDawidSkene
@@ -16,3 +17,4 @@ from .m_msr import MMSR
 from .majority_vote import MajorityVote
 from .wawa import Wawa
 from .zero_based_skill import ZeroBasedSkill
+from .multi_binary import MultiBinary
