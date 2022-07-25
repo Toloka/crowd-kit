@@ -60,9 +60,9 @@ class MultiBinary(BaseClassificationAggregator):
             The set of keys is all the classes that are in the input data.
     """
 
-    aggregator: type = attr.ib(validator=attr.validators.instance_of(type), default=MajorityVote)
-    args: dict[tp.Any] = attr.ib(validator=attr.validators.instance_of(dict), default={})
-    aggregators_: dict[str, BaseClassificationAggregator] = dict()
+    args: tp.Dict[str, tp.Any] = attr.ib(validator=attr.validators.instance_of(dict), default={})
+    aggregators_: tp.Dict[str, BaseClassificationAggregator] = dict()
+    aggregator: type = attr.ib(default=MajorityVote)
 
     def fit(self, data: pd.DataFrame) -> 'MultiBinary':
         """Fit the aggregators.
@@ -76,7 +76,7 @@ class MultiBinary(BaseClassificationAggregator):
         data = data[['task', 'worker', 'label']]
         mlb = MultiLabelBinarizer()
         binarized_labels = mlb.fit_transform(data['label'])
-        task_to_labels = defaultdict(list)
+        task_to_labels: tp.DefaultDict[tp.Union[str, float], tp.List[tp.Union[str, float]]] = defaultdict(list)
 
         for i, label in enumerate(mlb.classes_):
             single_label_df = data[['task', 'worker']]
