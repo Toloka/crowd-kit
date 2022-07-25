@@ -2,6 +2,8 @@
 Simplest aggregation algorythms tests on different datasets
 Testing all boundary conditions and asserts
 """
+from typing import Any, Callable, Type
+
 import pandas as pd
 import pytest
 
@@ -13,27 +15,27 @@ from .data_gold_mv import *  # noqa: F401, F403
 
 
 @pytest.fixture
-def answers_no_task():
+def answers_no_task() -> pd.DataFrame:
     return pd.DataFrame({'worker': ['w1'], 'label': ['no']})
 
 
 @pytest.fixture
-def answers_no_label():
+def answers_no_label() -> pd.DataFrame:
     return pd.DataFrame({'worker': ['w1'], 'task': ['t1']})
 
 
 @pytest.fixture
-def answers_no_worker():
+def answers_no_worker() -> pd.DataFrame:
     return pd.DataFrame({'task': ['t1'], 'label': ['no']})
 
 
 @pytest.fixture
-def gold_no_task():
+def gold_no_task() -> pd.DataFrame:
     return pd.DataFrame({'label': ['no']})
 
 
 @pytest.fixture
-def gold_no_label():
+def gold_no_label() -> pd.DataFrame:
     return pd.DataFrame({'task': ['t1']})
 
 
@@ -92,7 +94,8 @@ def gold_no_label():
         'ZBS predict_proba raises on no "worker"',
     ],
 )
-def test_agg_raise_on_less_columns(request, agg_class, predict_method, exception, answers_dataset):
+def test_agg_raise_on_less_columns(request: Any, agg_class: Any, predict_method: str,
+                                   exception: Type[Exception], answers_dataset: str) -> None:
     """
     Tests all aggregation methods raises basik exceptions
     """
@@ -126,7 +129,8 @@ def test_agg_raise_on_less_columns(request, agg_class, predict_method, exception
         # 'cannot compute workers skills',
     ],
 )
-def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answers_on_gold_dataset):
+def test_gold_mv_raise_in_fit(request: Any, not_random: Callable[[], None], toy_gold_df: pd.Series,
+                              exception: Type[Exception], answers_on_gold_dataset: str) -> None:
     """
     Tests Gold MajorityVote on raises basik exceptions
     """
@@ -167,11 +171,11 @@ def test_gold_mv_raise_in_fit(request, not_random, toy_gold_df, exception, answe
     ],
 )
 def test_gold_mv_raise_in_predict(
-    request, not_random, toy_gold_df,
-    predict_method, exception, answers_on_gold_dataset, answers_dataset
-):
+    request: Any, not_random: Callable[[], None], toy_gold_df: pd.Series,
+    predict_method: str, exception: Type[Exception], answers_on_gold_dataset: str, answers_dataset: str
+) -> None:
     """
-    Tests Gold MajorityVote on raises basik exceptions
+    Tests Gold MajorityVote on raises basic exceptions
     """
     answers_on_gold = request.getfixturevalue(answers_on_gold_dataset)
     answers = request.getfixturevalue(answers_dataset)
@@ -182,7 +186,7 @@ def test_gold_mv_raise_in_predict(
         getattr(aggregator, predict_method)(answers)
 
 
-def test_gold_mv_empty():
+def test_gold_mv_empty() -> None:
     aggregator = GoldMajorityVote()
     probas = aggregator.fit_predict_proba(
         pd.DataFrame({'task': [], 'worker': [], 'label': []}),
@@ -195,7 +199,8 @@ def test_gold_mv_empty():
     'agg_class',
     [MMSR, ZeroBasedSkill, DawidSkene, GLAD]
 )
-def test_zero_iter(agg_class, simple_answers_df, simple_ground_truth):
+def test_zero_iter(agg_class: Any, simple_answers_df: pd.DataFrame,
+                   simple_ground_truth: pd.Series) -> None:
     aggregator = agg_class(n_iter=0)
     answers = aggregator.fit_predict(simple_answers_df)
     assert len(answers.index.difference(simple_ground_truth.index)) == 0

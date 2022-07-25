@@ -1,11 +1,14 @@
+from typing import cast
+
 from . import base
 from .classification import (
     DawidSkene,
-    OneCoinDawidSkene,
     GLAD,
     GoldMajorityVote,
-    MMSR,
+    MACE,
     MajorityVote,
+    MMSR,
+    OneCoinDawidSkene,
     Wawa,
     ZeroBasedSkill,
     MultiBinary
@@ -40,6 +43,7 @@ __all__ = [
     'GLAD',
     'GoldMajorityVote',
     'HRRASA',
+    'MACE',
     'MMSR',
     'MajorityVote',
     'NoisyBradleyTerry',
@@ -57,10 +61,10 @@ __all__ = [
 ]
 
 
-def is_arcadia():
+def is_arcadia() -> bool:
     try:
         import __res
-        return __res == __res
+        return cast(bool, __res == __res)
     except ImportError:
         return False
 

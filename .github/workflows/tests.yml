@@ -15,13 +15,21 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Workaround for notebook in Pipfile on Python 3.7
+        run: |
+          fgrep -v notebook Pipfile > Pipfile.py37
+          mv -f Pipfile.py37 Pipfile
+        if: matrix.python-version == '3.7'
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
           pip install pipenv
           pipenv install --dev --system --skip-lock
+      - name: Install notebook on Python 3.7
+        run: pip install notebook
+        if: matrix.python-version == '3.7'
       - name: Lint with Mypy
-        run: mypy crowdkit
+        run: mypy crowdkit tests
       - name: Lint with flake8
         run: flake8
       - name: Test with pytest
@@ -33,3 +41,15 @@ jobs:
         if: matrix.python-version == '3.8'
       - name: Build wheel
         run: python3 -m build --sdist --wheel .
+      - name: Run Jupyter
+        run: jupyter nbconvert --to html --TagRemovePreprocessor.remove_cell_tags pip --execute examples/*.ipynb
+      - name: Upload Jupyter
+        uses: actions/upload-artifact@v3
+        with:
+          name: crowd-kit-jupyter
+          path: examples/*.html
+      - name: Validate CITATION.cff
+        uses: citation-file-format/cffconvert-github-action@2.0.0
+        with:
+          args: "--validate"
+        if: matrix.python-version == '3.8'

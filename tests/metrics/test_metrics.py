@@ -9,12 +9,12 @@ from crowdkit.metrics.data import alpha_krippendorff, consistency, uncertainty
 from crowdkit.metrics.workers import accuracy_on_aggregates
 
 
-def test_consistency(toy_answers_df):
+def test_consistency(toy_answers_df: pd.DataFrame) -> None:
     assert consistency(toy_answers_df) == 0.9384615384615385
 
 
 class TestUncertaintyMetric:
-    def test_uncertainty_mean_per_task_skills(self, toy_answers_df):
+    def test_uncertainty_mean_per_task_skills(self, toy_answers_df: pd.DataFrame) -> None:
         workers_skills = pd.Series(
             [0.6, 0.8, 1.0,  0.4, 0.8],
             index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
@@ -22,7 +22,7 @@ class TestUncertaintyMetric:
 
         assert uncertainty(toy_answers_df, workers_skills) == 0.6308666201949331
 
-    def test_uncertainty_raises_wrong_compte_by(self, toy_answers_df):
+    def test_uncertainty_raises_wrong_compte_by(self, toy_answers_df: pd.DataFrame) -> None:
         workers_skills = pd.Series(
             [0.6, 0.8, 1.0,  0.4, 0.8],
             index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
@@ -30,7 +30,7 @@ class TestUncertaintyMetric:
         with pytest.raises(KeyError):
             uncertainty(toy_answers_df, workers_skills, compute_by='invalid')
 
-    def test_uncertainty_docstring_examples(self):
+    def test_uncertainty_docstring_examples(self) -> None:
         assert uncertainty(
             pd.DataFrame.from_records(
                 [
@@ -50,7 +50,7 @@ class TestUncertaintyMetric:
             )
         ) == 1.0986122886681096
 
-        np.testing.assert_allclose(
+        np.testing.assert_allclose(  # type: ignore
             uncertainty(
                 pd.DataFrame.from_records(
                     [
@@ -65,7 +65,7 @@ class TestUncertaintyMetric:
             ), pd.Series([0.693147, 0.0], index=['X', 'Y'], name='task'), atol=1e-3
         )
 
-        np.testing.assert_allclose(
+        np.testing.assert_allclose(  # type: ignore
             uncertainty(
                 pd.DataFrame.from_records(
                     [
@@ -80,7 +80,7 @@ class TestUncertaintyMetric:
             ), pd.Series([0.0, 0.693147], index=['A', 'B'], name='worker'), atol=1e-3
         )
 
-    def test_uncertainty_raises_skills_not_found(self):
+    def test_uncertainty_raises_skills_not_found(self) -> None:
         answers = pd.DataFrame.from_records(
             [
                 {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
@@ -97,7 +97,7 @@ class TestUncertaintyMetric:
         with pytest.raises(AssertionError):
             uncertainty(answers, workers_skills)
 
-    def test_uncertainty_per_worker(self):
+    def test_uncertainty_per_worker(self) -> None:
         answers = pd.DataFrame.from_records(
             [
                 {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
@@ -128,13 +128,13 @@ class TestUncertaintyMetric:
         )
 
         assert isinstance(entropies, pd.Series)
-        assert sorted(np.unique(entropies.index).tolist()) == ['A', 'B', 'C']
+        assert sorted(np.unique(entropies.index).tolist()) == ['A', 'B', 'C']  # type: ignore
 
         # B always answers the same, entropy = 0
-        np.testing.assert_allclose(entropies['B'], 0, atol=1e-6)
+        np.testing.assert_allclose(entropies['B'], 0, atol=1e-6)  # type: ignore
 
         # A answers uniformly, entropy = max possible
-        np.testing.assert_allclose(entropies['A'], 0.693147, atol=1e-6)
+        np.testing.assert_allclose(entropies['A'], 0.693147, atol=1e-6)  # type: ignore
 
         # C answers non-uniformly, entropy = between B and A
         assert entropies['A'] > entropies['C'] > entropies['B']
@@ -146,7 +146,7 @@ class TestUncertaintyMetric:
             aggregate=True
         )
 
-    def test_uncertainty_per_task(self):
+    def test_uncertainty_per_task(self) -> None:
         answers = pd.DataFrame.from_records(
             [
                 {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
@@ -178,18 +178,18 @@ class TestUncertaintyMetric:
                                 aggregate=False)
 
         assert isinstance(entropies, pd.Series)
-        assert sorted(np.unique(entropies.index).tolist()) == ['1', '2', '3', '4', '5']
+        assert sorted(np.unique(entropies.index).tolist()) == ['1', '2', '3', '4', '5']  # type: ignore
 
         # Everybody answered same on tasks 2 and 4
-        np.testing.assert_allclose(entropies['2'], 0, atol=1e-6)
-        np.testing.assert_allclose(entropies['4'], 0, atol=1e-6)
+        np.testing.assert_allclose(entropies['2'], 0, atol=1e-6)  # type: ignore
+        np.testing.assert_allclose(entropies['4'], 0, atol=1e-6)  # type: ignore
 
         # On tasks 1 and 3, 2 workers agreed and one answered differently
         assert entropies['1'] > 0
-        np.testing.assert_allclose(entropies['1'], entropies['3'], atol=1e-6)
+        np.testing.assert_allclose(entropies['1'], entropies['3'], atol=1e-6)  # type: ignore
 
         # Complete disagreement on task 5, max possible entropy
-        np.testing.assert_allclose(entropies['5'], 0.693147, atol=1e-6)
+        np.testing.assert_allclose(entropies['5'], 0.693147, atol=1e-6)  # type: ignore
 
         assert entropies.mean() == uncertainty(
             answers,
@@ -199,7 +199,7 @@ class TestUncertaintyMetric:
         )
 
 
-def test_golden_set_accuracy(toy_answers_df, toy_gold_df):
+def test_golden_set_accuracy(toy_answers_df: pd.DataFrame, toy_gold_df: pd.Series) -> None:
     assert get_accuracy(toy_answers_df, toy_gold_df) == 5 / 9
     assert get_accuracy(toy_answers_df, toy_gold_df, by='worker').equals(pd.Series(
         [0.5, 1.0, 1.0, 0.5, 0.0],
@@ -207,7 +207,7 @@ def test_golden_set_accuracy(toy_answers_df, toy_gold_df):
     ))
 
 
-def test_accuracy_on_aggregates(toy_answers_df):
+def test_accuracy_on_aggregates(toy_answers_df: pd.DataFrame) -> None:
     expected_workers_accuracy = pd.Series(
         [0.6, 0.8, 1.0,  0.4, 0.8],
         index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
@@ -216,7 +216,7 @@ def test_accuracy_on_aggregates(toy_answers_df):
     assert accuracy_on_aggregates(toy_answers_df) == 0.7083333333333334
 
 
-def test_alpha_krippendorff(toy_answers_df):
+def test_alpha_krippendorff(toy_answers_df: pd.DataFrame) -> None:
     assert alpha_krippendorff(pd.DataFrame.from_records([
         {'task': 'X', 'worker': 'A', 'label': 'Yes'},
         {'task': 'X', 'worker': 'B', 'label': 'Yes'},
@@ -236,7 +236,7 @@ def test_alpha_krippendorff(toy_answers_df):
     assert alpha_krippendorff(toy_answers_df) == 0.14219114219114215
 
 
-def test_alpha_krippendorff_with_distance():
+def test_alpha_krippendorff_with_distance() -> None:
     whos_on_the_picture = pd.DataFrame.from_records([
         {'task': 'X', 'worker': 'A', 'label': frozenset(['dog'])},
         {'task': 'X', 'worker': 'B', 'label': frozenset(['dog'])},

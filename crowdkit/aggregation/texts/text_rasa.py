@@ -1,7 +1,8 @@
 __all__ = ['TextRASA']
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Any, List
 
+import numpy.typing as npt
 import pandas as pd
 
 from ..base import BaseTextsAggregator
@@ -34,15 +35,16 @@ class TextRASA(BaseTextsAggregator):
     # texts_
 
     @property
-    def loss_history_(self):
-        return self._hrrasa.loss_history_
+    def loss_history_(self) -> List[float]:
+        return self._rasa.loss_history_
 
-    def __init__(self, encoder: Callable, n_iter: int = 100, tol: float = 1e-5, alpha: float = 0.05):
+    def __init__(self, encoder: Callable[[str], npt.NDArray[Any]],
+                 n_iter: int = 100, tol: float = 1e-5, alpha: float = 0.05):
         super().__init__()
         self.encoder = encoder
         self._rasa = RASA(n_iter, tol, alpha)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         return getattr(self._rasa, name)
 
     def fit(self, data: pd.DataFrame, true_objects: Optional[pd.Series] = None) -> 'TextRASA':
@@ -99,10 +101,10 @@ class TextRASA(BaseTextsAggregator):
         self.texts_ = rasa_results.reset_index()[['task', 'output']].set_index('task')
         return self.texts_
 
-    def _encode_data(self, data):
+    def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data[['task', 'worker', 'output']]
         data['embedding'] = data.output.apply(self.encoder)
         return data
 
-    def _encode_true_objects(self, true_objects):
-        return true_objects and true_objects.apply(self.endcoder)
+    def _encode_true_objects(self, true_objects: pd.Series) -> pd.Series:
+        return true_objects and true_objects.apply(self.encoder)

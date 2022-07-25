@@ -114,14 +114,16 @@ class ROVER(BaseTextsAggregator):
         self.fit(data)
         return self.texts_
 
-    def _build_word_transition_network(self, hypotheses) -> List[Dict[str, AlignmentEdge]]:
+    def _build_word_transition_network(self, hypotheses: List[List[str]]) -> List[Dict[str, AlignmentEdge]]:
         edges = [{edge.value: edge} for edge in self._get_edges_for_words(hypotheses[0])]
+
         for sources_count, hyp in enumerate(hypotheses[1:], start=1):
             edges = self._align(edges, self._get_edges_for_words(hyp), sources_count)
+
         return edges
 
     @staticmethod
-    def _get_edges_for_words(words):
+    def _get_edges_for_words(words: List[str]) -> List[AlignmentEdge]:
         return [AlignmentEdge(word, 1) for word in words]
 
     @staticmethod
@@ -207,7 +209,7 @@ class ROVER(BaseTextsAggregator):
                     )
                 ))
 
-                distance[i, j], memoization[i][j] = min(options, key=lambda t: t[0])
+                distance[i, j], memoization[i][j] = min(options, key=lambda t: t[0])  # type: ignore
 
         alignment = []
         i = len(hyp_edges)

@@ -5,7 +5,7 @@ import pytest
 # Wawa on toy YSDA
 
 @pytest.fixture
-def toy_labels_result_mmsr():
+def toy_labels_result_mmsr() -> pd.Series:
     return pd.Series(
         ['yes', 'no', 'no', 'yes', 'no'],
         index=pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
@@ -14,7 +14,7 @@ def toy_labels_result_mmsr():
 
 
 @pytest.fixture
-def toy_skills_result_mmsr():
+def toy_skills_result_mmsr() -> pd.Series:
     return pd.Series(
         [-0.9486439852160969, 0.9764628672747041, 1.2428113335479982, 0.948643985216097, 0.9764628672747041],
         pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
@@ -23,7 +23,7 @@ def toy_skills_result_mmsr():
 
 
 @pytest.fixture
-def toy_scores_result_mmsr():
+def toy_scores_result_mmsr() -> pd.DataFrame:
     result_df = pd.DataFrame(
         [
             [0.014244720916141606, 0.9857552790838584],
@@ -41,12 +41,12 @@ def toy_scores_result_mmsr():
 
 
 @pytest.fixture
-def simple_labels_result_mmsr(simple_ground_truth):
+def simple_labels_result_mmsr(simple_ground_truth: pd.Series) -> pd.Series:
     return simple_ground_truth
 
 
 @pytest.fixture
-def simple_skills_result_mmsr():
+def simple_skills_result_mmsr() -> pd.Series:
     skills = pd.Series({
         '0c3eb7d5fcc414db137c4180a654c06e': -0.6268515139467665,
         '0f65edea0a6dc7b9acba1dea313bbb3d': 2.0131458750666567,
@@ -60,7 +60,7 @@ def simple_skills_result_mmsr():
 
 
 @pytest.fixture
-def simple_scores_result_mmsr():
+def simple_scores_result_mmsr() -> pd.DataFrame:
     result_df = pd.DataFrame(
         [
             [1.1843984510373275, 0.0, -0.18439845103732766],

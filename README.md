@@ -71,6 +71,7 @@ Below is the list of currently implemented methods, including the already availa
 |Wawa|✅|
 |Zero-Based Skill|✅|
 |[GLAD](https://papers.nips.cc/paper/3644-whose-vote-should-count-more-optimal-integration-of-labels-from-labelers-of-unknown-expertise.pdf)|✅|
+|[MACE](https://aclanthology.org/N13-1132.pdf)|✅|
 |[KOS](https://papers.nips.cc/paper/2011/file/c667d53acd899a97a85de0c201ba99be-Paper.pdf)|🟡|
 |BCC|🟡|
 |Multi Binary|✅|

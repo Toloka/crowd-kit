@@ -7,7 +7,7 @@ from crowdkit.aggregation import MajorityVote
 
 
 class TestEntropyThreshold:
-    def test_entropy_threshold_docstring_test(self):
+    def test_entropy_threshold_docstring_test(self) -> None:
         answers = pd.DataFrame.from_records(
             [
                 {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
@@ -24,7 +24,7 @@ class TestEntropyThreshold:
         assert filtered_answers.shape == (3, 3)
         assert 'B' not in filtered_answers.worker
 
-    def test_entropy_threshold_consistency_improves(self):
+    def test_entropy_threshold_consistency_improves(self) -> None:
         answers = pd.DataFrame.from_records(
             [
                 {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
@@ -64,7 +64,7 @@ class TestEntropyThreshold:
         filtered_consistency = consistency(filtered_answers, skills)
         assert filtered_consistency > base_consistency
 
-    def test_entropy_threshold_min_answers(self):
+    def test_entropy_threshold_min_answers(self) -> None:
         answers = pd.DataFrame.from_records(
             [
                 {'task': '1', 'worker': 'A', 'label': frozenset(['dog'])},
@@ -90,7 +90,7 @@ class TestEntropyThreshold:
         assert 'D' not in filtered_answers.worker.values
         assert 'C' not in filtered_answers.worker.values
 
-    def test_entropy_threshold_simple_answers(self, simple_answers_df, simple_ground_truth):
+    def test_entropy_threshold_simple_answers(self, simple_answers_df: pd.DataFrame, simple_ground_truth: pd.Series) -> None:
         aggregated = MajorityVote().fit_predict(simple_answers_df)
         base_accuracy = sum(aggregated[simple_ground_truth.index] == simple_ground_truth)/len(simple_ground_truth)
 
