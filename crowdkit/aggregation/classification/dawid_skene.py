@@ -127,7 +127,7 @@ class DawidSkene(BaseClassificationAggregator):
         scaled_likelihoods = np.exp2(log_likelihoods.sub(log_likelihoods.max(axis=1), axis=0))
         return scaled_likelihoods.div(scaled_likelihoods.sum(axis=1), axis=0)
 
-    def _evidence_lower_bound(self, data: pd.DataFrame, probas: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame):
+    def _evidence_lower_bound(self, data: pd.DataFrame, probas: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame) -> float:
         # calculate joint probability log-likelihood expectation over probas
         joined = data.join(np.log(errors), on=['worker', 'label'])
 
@@ -138,10 +138,10 @@ class DawidSkene(BaseClassificationAggregator):
         joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))
 
         joined.set_index(['task', 'worker'], inplace=True)
-        joint_expectation = (probas * joined).sum().sum()
+        joint_expectation = (probas.rename(columns={True: 'True', False: 'False'}) * joined).sum().sum()
 
         entropy = -(np.log(probas) * probas).sum().sum()
-        return joint_expectation + entropy
+        return float(joint_expectation + entropy)
 
     def fit(self, data: pd.DataFrame) -> 'DawidSkene':
         """Fit the model through the EM-algorithm.

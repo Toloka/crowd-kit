@@ -1,6 +1,6 @@
 __all__ = ['MajorityVote']
 
-from typing import Optional, cast
+from typing import Optional
 
 import attr
 import pandas as pd
@@ -98,8 +98,7 @@ class MajorityVote(BaseClassificationAggregator):
         if skills is None:
             scores = data[['task', 'label']].value_counts()
         else:
-            # TODO: add check for None
-            data = add_skills_to_data(data, skills, self.on_missing_skill, cast(float, self.default_skill))
+            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
             scores = data.groupby(['task', 'label'])['skill'].sum()
 
         self.probas_ = normalize_rows(scores.unstack('label', fill_value=0))

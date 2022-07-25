@@ -5,12 +5,12 @@ import pytest
 # Gold Majority vote on toy YSDA
 
 @pytest.fixture
-def toy_labels_result_gold(toy_ground_truth_df):
+def toy_labels_result_gold(toy_ground_truth_df: pd.Series) -> pd.Series:
     return toy_ground_truth_df
 
 
 @pytest.fixture
-def toy_skills_result_gold():
+def toy_skills_result_gold() -> pd.Series:
     return pd.Series(
         [0.5, 1.0, 1.0, 0.5, 0.0],
         pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
@@ -19,7 +19,7 @@ def toy_skills_result_gold():
 
 
 @pytest.fixture
-def toy_probas_result_gold():
+def toy_probas_result_gold() -> pd.DataFrame:
     result_df = pd.DataFrame(
         [
             [0.750000, 0.250000],
@@ -37,7 +37,7 @@ def toy_probas_result_gold():
 
 
 @pytest.fixture
-def toy_answers_on_gold_df_cannot_fit():
+def toy_answers_on_gold_df_cannot_fit() -> pd.DataFrame:
     # When we have this dataset and 'toy_gold_df' we are trying to calculate the skills of the workers,
     # and we cannot do it for some workers
     return pd.DataFrame(
@@ -53,7 +53,7 @@ def toy_answers_on_gold_df_cannot_fit():
 
 
 @pytest.fixture
-def toy_answers_on_gold_df_cannot_predict():
+def toy_answers_on_gold_df_cannot_predict() -> pd.DataFrame:
     # When we have this dataset in 'fit', and standart 'toy_answers_df' in predict and we cannot predict
     # labels or probas, because this dataset doesn't contain all workers from 'toy_answers_df'
     return pd.DataFrame(
@@ -71,12 +71,12 @@ def toy_answers_on_gold_df_cannot_predict():
 # Gold Majority vote on simple
 
 @pytest.fixture
-def simple_labels_result_gold(simple_ground_truth):
+def simple_labels_result_gold(simple_ground_truth: pd.Series) -> pd.Series:
     return simple_ground_truth
 
 
 @pytest.fixture
-def simple_skills_result_gold():
+def simple_skills_result_gold() -> pd.Series:
     skills = pd.Series({
         '0c3eb7d5fcc414db137c4180a654c06e': 0.5,
         '0f65edea0a6dc7b9acba1dea313bbb3d': 1.0,
@@ -90,7 +90,7 @@ def simple_skills_result_gold():
 
 
 @pytest.fixture
-def simple_probas_result_gold():
+def simple_probas_result_gold() -> pd.DataFrame:
     result_df = pd.DataFrame(
         [
             [0.8, 0.0, 0.2],
@@ -124,7 +124,7 @@ def simple_probas_result_gold():
 
 
 @pytest.fixture
-def multiple_gt_df():
+def multiple_gt_df() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['t1', 'w1', 'l1'],  # right
@@ -141,7 +141,7 @@ def multiple_gt_df():
 
 
 @pytest.fixture
-def multiple_gt_gt():
+def multiple_gt_gt() -> pd.Series:
     return pd.Series(
         ['l1', 'l2', 'l2'],
         index=['t1', 't1', 't3']
@@ -149,7 +149,7 @@ def multiple_gt_gt():
 
 
 @pytest.fixture
-def multiple_gt_aggregated():
+def multiple_gt_aggregated() -> pd.Series:
     aggregated = pd.Series(
         ['l2', 'l1', 'l2'],
         index=['t1', 't2', 't3']
@@ -160,7 +160,7 @@ def multiple_gt_aggregated():
 
 
 @pytest.fixture
-def multiple_gt_skills():
+def multiple_gt_skills() -> pd.Series:
     skills = pd.Series(
         [0.5, 1., 0.],
         index=['w1', 'w2', 'w3'],

@@ -5,7 +5,7 @@ import pytest
 # Wawa on toy YSDA
 
 @pytest.fixture
-def toy_labels_result_zbs():
+def toy_labels_result_zbs() -> pd.Series:
     return pd.Series(
         ['no', 'yes', 'no', 'yes', 'no'],
         index=pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
@@ -14,7 +14,7 @@ def toy_labels_result_zbs():
 
 
 @pytest.fixture
-def toy_skills_result_zbs():
+def toy_skills_result_zbs() -> pd.Series:
     return pd.Series(
         [0.6, 0.8, 1.0, 0.4, 0.8],
         index=pd.Index(['w1', 'w2', 'w3', 'w4', 'w5'], name='worker'),
@@ -23,7 +23,7 @@ def toy_skills_result_zbs():
 
 
 @pytest.fixture
-def toy_probas_result_zbs():
+def toy_probas_result_zbs() -> pd.DataFrame:
     result_df = pd.DataFrame(
         [
             [0.538462, 0.461538],
@@ -41,12 +41,12 @@ def toy_probas_result_zbs():
 
 
 @pytest.fixture
-def simple_labels_result_zbs(simple_ground_truth):
+def simple_labels_result_zbs(simple_ground_truth: pd.Series) -> pd.Series:
     return simple_ground_truth
 
 
 @pytest.fixture
-def simple_skills_result_zbs():
+def simple_skills_result_zbs() -> pd.Series:
     skills = pd.Series({
         '0c3eb7d5fcc414db137c4180a654c06e': 0.333333,
         '0f65edea0a6dc7b9acba1dea313bbb3d': 1.0,
@@ -60,7 +60,7 @@ def simple_skills_result_zbs():
 
 
 @pytest.fixture
-def simple_probas_result_zbs():
+def simple_probas_result_zbs() -> pd.DataFrame:
     result_df = pd.DataFrame(
         [
             [0.857143, 0.0, 0.142857],

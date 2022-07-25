@@ -29,7 +29,7 @@ jobs:
         run: pip install notebook
         if: matrix.python-version == '3.7'
       - name: Lint with Mypy
-        run: mypy crowdkit
+        run: mypy crowdkit tests
       - name: Lint with flake8
         run: flake8
       - name: Test with pytest

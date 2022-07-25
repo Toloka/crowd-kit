@@ -16,7 +16,7 @@ def entropy_threshold(
         workers_skills: Optional[pd.Series] = None,
         percentile: int = 10,
         min_answers: int = 2,
-):
+) -> pd.DataFrame:
     """Entropy thresholding postprocessing: filters out all answers by workers,
     whos' entropy (uncertanity) of answers is below specified percentile.
 
@@ -70,7 +70,7 @@ def entropy_threshold(
         aggregate=False,
     ))
 
-    cutoff = np.percentile(uncertainties, percentile)
+    cutoff = np.percentile(uncertainties, percentile)  # type: ignore
 
     removed_workers = uncertainties[uncertainties <= cutoff].index
 

@@ -1,9 +1,10 @@
 __all__ = ['MMSR']
 
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy.sparse.linalg as sla
 import scipy.stats as sps
@@ -67,15 +68,15 @@ class MMSR(BaseClassificationAggregator):
     n_iter: int = attr.ib(default=10000)
     tol: float = attr.ib(default=1e-10)
     random_state: Optional[int] = attr.ib(default=0)
-    _observation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
-    _covariation_matrix: np.ndarray = attr.ib(factory=lambda: np.array([]))
-    _n_common_tasks: np.ndarray = attr.ib(factory=lambda: np.array([]))
+    _observation_matrix: npt.NDArray[Any] = attr.ib(factory=lambda: np.array([]))
+    _covariation_matrix: npt.NDArray[Any] = attr.ib(factory=lambda: np.array([]))
+    _n_common_tasks: npt.NDArray[Any] = attr.ib(factory=lambda: np.array([]))
     _n_workers: int = attr.ib(default=0)
     _n_tasks: int = attr.ib(default=0)
     _n_labels: int = attr.ib(default=0)
-    _labels_mapping: dict = attr.ib(factory=dict)
-    _workers_mapping: dict = attr.ib(factory=dict)
-    _tasks_mapping: dict = attr.ib(factory=dict)
+    _labels_mapping: Dict[Any, int] = attr.ib(factory=dict)
+    _workers_mapping: Dict[Any, int] = attr.ib(factory=dict)
+    _tasks_mapping: Dict[Any, int] = attr.ib(factory=dict)
 
     # Available after fit
     skills_: Optional[pd.Series] = named_series_attrib(name='skill')
@@ -177,8 +178,8 @@ class MMSR(BaseClassificationAggregator):
         X = np.abs(self._covariation_matrix)
         self.loss_history_ = []
         for _ in range(self.n_iter):
-            v_prev = np.copy(v)
-            u_prev = np.copy(u)
+            v_prev = np.copy(v)  # type: ignore
+            u_prev = np.copy(u)  # type: ignore
             for j in range(n):
                 target_v = X[:, j].reshape(-1, 1)
                 target_v = target_v[observed_entries[:, j]] / u[observed_entries[:, j]]
@@ -198,12 +199,12 @@ class MMSR(BaseClassificationAggregator):
                 else:
                     u[i][0] = y.mean()
 
-            loss = np.linalg.norm(u @ v.T - u_prev @ v_prev.T, ord='fro')
+            loss = np.linalg.norm(u @ v.T - u_prev @ v_prev.T, ord='fro')  # type: ignore
             self.loss_history_.append(float(loss))
             if loss < self.tol:
                 break
 
-        k = np.sqrt(np.linalg.norm(u) / np.linalg.norm(v))
+        k = np.sqrt(np.linalg.norm(u) / np.linalg.norm(v))  # type: ignore
         x_track_1 = u / k
         x_track_2 = self._sign_determination_valid(self._covariation_matrix, x_track_1)
         x_track_3 = np.minimum(x_track_2, 1 - 1. / np.sqrt(self._n_tasks))
@@ -215,20 +216,20 @@ class MMSR(BaseClassificationAggregator):
 
         self.skills_ = self._get_skills_from_array(skills)
 
-    def _get_skills_from_array(self, array: np.ndarray) -> pd.Series:
+    def _get_skills_from_array(self, array: npt.NDArray[Any]) -> pd.Series:
         inverse_workers_mapping = {ind: worker for worker, ind in self._workers_mapping.items()}
         index = [inverse_workers_mapping[i] for i in range(len(array))]
         return pd.Series(array, index=pd.Index(index, name='worker'))
 
     @staticmethod
-    def _sign_determination_valid(C: np.ndarray, s_abs: np.ndarray) -> np.ndarray:
+    def _sign_determination_valid(C: npt.NDArray[Any], s_abs: npt.NDArray[Any]) -> npt.NDArray[Any]:
         S = np.sign(C)
         n = len(s_abs)
 
         valid_idx = np.where(np.sum(C, axis=1) != 0)[0]
         S_valid = S[valid_idx[:, None], valid_idx]
         k = S_valid.shape[0]
-        upper_idx = np.triu(np.ones(shape=(k, k)))
+        upper_idx = np.triu(np.ones(shape=(k, k)))  # type: ignore
         S_valid_upper = S_valid * upper_idx
         new_node_end_I, new_node_end_J = np.where(S_valid_upper == 1)
         S_valid[S_valid == 1] = 0
@@ -246,7 +247,7 @@ class MMSR(BaseClassificationAggregator):
         return s_sign
 
     @staticmethod
-    def _remove_largest_and_smallest_F_value(x, F, a, n_tasks) -> np.ndarray:
+    def _remove_largest_and_smallest_F_value(x: npt.NDArray[Any], F: int, a: float, n_tasks: int) -> npt.NDArray[Any]:
         y = np.sort(x, axis=0)
         if np.sum(y < a) < F:
             y = y[y[:, 0] >= a]
@@ -257,7 +258,7 @@ class MMSR(BaseClassificationAggregator):
         if np.sum(y > a) < F:
             y = y[y[:, 0] <= a]
         else:
-            y = np.concatenate((y[:m - F], y[m:]), axis=0)
+            y = np.concatenate((y[:m - F], y[m:]), axis=0)  # type: ignore
         if len(y) == 1 and y[0][0] == 0:
             y[0][0] = 1 / np.sqrt(n_tasks)
         return y
@@ -281,8 +282,8 @@ class MMSR(BaseClassificationAggregator):
                 self._labels_mapping[row['label']]
 
         self._n_common_tasks = np.sign(self._observation_matrix) @ np.sign(self._observation_matrix).T
-        self._n_common_tasks -= np.diag(np.diag(self._n_common_tasks))
-        self._sparsity = np.min(np.sign(self._n_common_tasks).sum(axis=0))
+        self._n_common_tasks -= np.diag(np.diag(self._n_common_tasks))  # type: ignore
+        self._sparsity = np.min(np.sign(self._n_common_tasks).sum(axis=0))  # type: ignore
 
         # Can we rewrite it in matrix operations?
         self._covariation_matrix = np.zeros(shape=(self._n_workers, self._n_workers))

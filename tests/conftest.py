@@ -6,7 +6,7 @@ import numpy as np
 
 
 @pytest.fixture
-def not_random():
+def not_random() -> None:
     random.seed(42)
     np.random.seed(42)
 
@@ -14,7 +14,7 @@ def not_random():
 # toy YSDA dataset
 
 @pytest.fixture
-def toy_answers_df():
+def toy_answers_df() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['w1', 't1', 'no'],
@@ -47,7 +47,7 @@ def toy_answers_df():
 
 
 @pytest.fixture
-def toy_ground_truth_df():
+def toy_ground_truth_df() -> pd.Series:
     return pd.Series(
         ['yes', 'yes', 'no', 'yes', 'no'],
         pd.Index(['t1', 't2', 't3', 't4', 't5'], name='task'),
@@ -56,7 +56,7 @@ def toy_ground_truth_df():
 
 
 @pytest.fixture
-def toy_gold_df():
+def toy_gold_df() -> pd.Series:
     return pd.Series({
         't1': 'yes',
         't2': 'yes',
@@ -66,7 +66,7 @@ def toy_gold_df():
 # Simple dataset that imitates real toloka answers
 
 @pytest.fixture
-def simple_answers_df():
+def simple_answers_df() -> pd.DataFrame:
     return pd.DataFrame(
         [
             # good workers
@@ -111,7 +111,7 @@ def simple_answers_df():
 
 
 @pytest.fixture
-def simple_ground_truth():
+def simple_ground_truth() -> pd.Series:
     ground_truth = pd.Series({
         '1231239876--5fac0d234ffb2f3b00893eec': 'goose',
         '1231239876--5fac0d234ffb2f3b00893f03': 'goose',
@@ -129,7 +129,7 @@ def simple_ground_truth():
 
 
 @pytest.fixture
-def simple_gold_df():
+def simple_gold_df() -> pd.Series:
     true_labels = pd.Series({
         '1231239876--5fac0d234ffb2f3b00893eec': 'goose',
         '1231239876--5fac0d234ffb2f3b00893efb': 'parrot',
@@ -140,7 +140,7 @@ def simple_gold_df():
 
 
 @pytest.fixture
-def simple_text_df():
+def simple_text_df() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['1255-74899-0020', 'as soon as you downed my worst in stockings sweetheart', 'b6214dff3665ba9c6bc96dc326a417c9', 'i\'d sooner see you darning my worsted stockings sweetheart', np.array([1.8628045, -0.66789037]), np.array([0.8619265, 0.3983395])],  # noqa
@@ -205,7 +205,7 @@ def simple_text_df():
 
 
 @pytest.fixture
-def simple_text_true_embeddings():
+def simple_text_true_embeddings() -> pd.Series:
     return pd.Series(
         [np.array([0.8619265, 0.3983395]), np.array([10.686009, 17.633106])],
         index=pd.Index(['1255-74899-0020', '7601-175351-0021'], name='task')
@@ -213,7 +213,7 @@ def simple_text_true_embeddings():
 
 
 @pytest.fixture
-def data_with_bool_labels():
+def data_with_bool_labels() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['w1', 't1', True],
@@ -228,7 +228,7 @@ def data_with_bool_labels():
 
 
 @pytest.fixture
-def bool_labels_ground_truth():
+def bool_labels_ground_truth() -> pd.Series:
     return pd.Series(
         [True, True],
         index=pd.Index(['t1', 't2'], name='task'),

@@ -4,6 +4,7 @@ from typing import Tuple, List
 
 import attr
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from ..base import BasePairwiseAggregator
@@ -88,8 +89,8 @@ class BradleyTerry(BasePairwiseAggregator):
             self.scores_ = pd.Series([], dtype=np.float64)
             return self
 
-        T = M.T + M
-        active = T > 0
+        T: npt.NDArray[np.int_] = M.T + M
+        active: npt.NDArray[np.bool_] = T > 0
 
         w = M.sum(axis=1)
 
@@ -99,9 +100,11 @@ class BradleyTerry(BasePairwiseAggregator):
         p_new = p.copy() / p.sum()
 
         p_old = None
+
         self.loss_history_ = []
+
         for _ in range(self.n_iter):
-            P = np.broadcast_to(p, M.shape)
+            P: npt.NDArray[np.float_] = np.broadcast_to(p, M.shape)  # type: ignore
 
             Z[active] = T[active] / (P[active] + P.T[active])
 
@@ -112,8 +115,10 @@ class BradleyTerry(BasePairwiseAggregator):
 
             if p_old is not None:
                 loss = np.abs(p_new - p_old).sum()
+
                 if loss < self.tol:
                     break
+
             p_old = p_new
 
         self.scores_ = pd.Series(p_new, index=unique_labels)
@@ -133,10 +138,10 @@ class BradleyTerry(BasePairwiseAggregator):
         return self.fit(data).scores_
 
     @staticmethod
-    def _build_win_matrix(data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+    def _build_win_matrix(data: pd.DataFrame) -> Tuple[npt.NDArray[np.int_], npt.NDArray[np.int_]]:
         data = data[['left', 'right', 'label']]
 
-        unique_labels, np_data = np.unique(data.values, return_inverse=True)
+        unique_labels, np_data = np.unique(data.values, return_inverse=True)  # type: ignore
         np_data = np_data.reshape(data.shape)
 
         left_wins = np_data[np_data[:, 0] == np_data[:, 2], :2].T

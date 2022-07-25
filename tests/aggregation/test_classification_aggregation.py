@@ -2,6 +2,8 @@
 Simplest aggregation algorythms tests on different datasets
 Testing all boundary conditions and asserts
 """
+from typing import Any, Callable
+
 import pytest
 
 import pandas as pd
@@ -16,13 +18,13 @@ from .data_zbs import *  # noqa: F401, F403
 from pandas.testing import assert_series_equal, assert_frame_equal
 
 
-def asserts_compare_df(left_df, right_df, sort_flds):
+def asserts_compare_df(left_df: pd.DataFrame, right_df: pd.DataFrame, sort_flds: str) -> None:
     left_df = left_df.sort_values(sort_flds).reset_index(drop=True)
     right_df = right_df.sort_values(sort_flds).reset_index(drop=True)
     pd.testing.assert_frame_equal(left_df, right_df, rtol=1e-5)
 
 
-def asserts_compare_matrix_df(left_df, right_df):
+def asserts_compare_matrix_df(left_df: pd.DataFrame, right_df: pd.DataFrame) -> None:
     left_df = left_df[sorted(left_df.columns.values)]
     right_df = right_df[sorted(right_df.columns.values)]
     pd.testing.assert_frame_equal(left_df, right_df, rtol=1e-5)
@@ -76,10 +78,10 @@ def asserts_compare_matrix_df(left_df, right_df):
     ],
 )
 def test_fit_predict_classification_aggregations_methods(
-    request, not_random,
-    agg_class, fit_method, predict_method,
-    dataset, results_dataset
-):
+    request: Any, not_random: Callable[[], None],
+    agg_class: Any, fit_method: str, predict_method: str,
+    dataset: pd.DataFrame, results_dataset: pd.Series
+) -> None:
     """
     Tests all aggregation methods, that fit->predict chain works well, and at each step we have the correct values for:
         - tasks_labels

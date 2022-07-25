@@ -2,6 +2,8 @@
 Simplest aggregation algorithms tests on toy YSDA dataset
 Testing all boundary conditions and asserts
 """
+from typing import List, Any
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -12,10 +14,11 @@ from crowdkit.aggregation import DawidSkene, OneCoinDawidSkene
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
 )
-def test_aggregate_ds_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth_df):
+def test_aggregate_ds_on_toy_ysda(n_iter: int, tol: float, toy_answers_df: pd.DataFrame,
+                                  toy_ground_truth_df: pd.Series) -> None:
     np.random.seed(42)
     assert_series_equal(
-        DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df).labels_.sort_index(),
+        DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df).labels_.sort_index(),  # type: ignore
         toy_ground_truth_df.sort_index(),
     )
 
@@ -23,10 +26,11 @@ def test_aggregate_ds_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth_
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
 )
-def test_aggregate_hds_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth_df):
+def test_aggregate_hds_on_toy_ysda(n_iter: int, tol: float, toy_answers_df: pd.DataFrame,
+                                   toy_ground_truth_df: pd.Series) -> None:
     np.random.seed(42)
     assert_series_equal(
-        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df).labels_.sort_index(),
+        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df).labels_.sort_index(),  # type: ignore
         toy_ground_truth_df.sort_index(),
     )
 
@@ -34,10 +38,11 @@ def test_aggregate_hds_on_toy_ysda(n_iter, tol, toy_answers_df, toy_ground_truth
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
 )
-def test_aggregate_ds_on_simple(n_iter, tol, simple_answers_df, simple_ground_truth):
+def test_aggregate_ds_on_simple(n_iter: int, tol: float, simple_answers_df: pd.DataFrame,
+                                simple_ground_truth: pd.Series) -> None:
     np.random.seed(42)
     assert_series_equal(
-        DawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),
+        DawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),  # type: ignore
         simple_ground_truth.sort_index(),
     )
 
@@ -45,26 +50,27 @@ def test_aggregate_ds_on_simple(n_iter, tol, simple_answers_df, simple_ground_tr
 @pytest.mark.parametrize(
     'n_iter, tol', [(10, 0), (100500, 1e-5)]
 )
-def test_aggregate_hds_on_simple(n_iter, tol, simple_answers_df, simple_ground_truth):
+def test_aggregate_hds_on_simple(n_iter: int, tol: float, simple_answers_df: pd.DataFrame,
+                                 simple_ground_truth: pd.Series) -> None:
     np.random.seed(42)
     assert_series_equal(
-        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),
+        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit(simple_answers_df).labels_.sort_index(),  # type: ignore
         simple_ground_truth.sort_index(),
     )
 
 
-def _make_probas(data):
+def _make_probas(data: List[List[Any]]) -> pd.DataFrame:
     # TODO: column should not be an index!
     columns = pd.Index(['task', 'no', 'yes'], name='label')
     return pd.DataFrame(data, columns=columns).set_index('task')
 
 
-def _make_tasks_labels(data):
+def _make_tasks_labels(data: List[List[Any]]) -> pd.DataFrame:
     # TODO: should task be indexed?
     return pd.DataFrame(data, columns=['task', 'label']).set_index('task').squeeze().rename('agg_label')
 
 
-def _make_errors(data):
+def _make_errors(data: List[List[Any]]) -> pd.DataFrame:
     return pd.DataFrame(
         data,
         columns=['worker', 'label', 'no', 'yes'],
@@ -72,7 +78,7 @@ def _make_errors(data):
 
 
 @pytest.fixture
-def data():
+def data() -> pd.DataFrame:
     return pd.DataFrame(
         [
             ['t1', 'w1', 'no'],
@@ -110,7 +116,7 @@ def data():
 
 
 @pytest.fixture
-def probas_iter_0():
+def probas_iter_0() -> pd.DataFrame:
     return _make_probas([
         ['t1', 0.5, 0.5],
         ['t2', 0.4, 0.6],
@@ -121,12 +127,12 @@ def probas_iter_0():
 
 
 @pytest.fixture
-def priors_iter_0():
+def priors_iter_0() -> pd.Series:
     return pd.Series([0.46, 0.54], pd.Index(['no', 'yes'], name='label'), name='prior')
 
 
 @pytest.fixture
-def tasks_labels_iter_0():
+def tasks_labels_iter_0() -> pd.DataFrame:
     return _make_tasks_labels([
         ['t1', 'no'],
         ['t2', 'yes'],
@@ -137,7 +143,7 @@ def tasks_labels_iter_0():
 
 
 @pytest.fixture
-def errors_iter_0():
+def errors_iter_0() -> pd.DataFrame:
     return _make_errors([
         ['w1', 'no',  0.22, 0.19],
         ['w1', 'yes', 0.78, 0.81],
@@ -157,7 +163,7 @@ def errors_iter_0():
 
 
 @pytest.fixture
-def probas_iter_1():
+def probas_iter_1() -> pd.DataFrame:
     return _make_probas([
         ['t1', 0.35, 0.65],
         ['t2', 0.26, 0.74],
@@ -168,13 +174,12 @@ def probas_iter_1():
 
 
 @pytest.fixture
-def priors_iter_1():
-    # return pd.Series([0.49, 0.51], pd.Index(['no', 'yes'], name='label'))
+def priors_iter_1() -> pd.Series:
     return pd.Series([0.49, 0.51], pd.Index(['no', 'yes']), name='prior')
 
 
 @pytest.fixture
-def tasks_labels_iter_1():
+def tasks_labels_iter_1() -> pd.DataFrame:
     return _make_tasks_labels([
         ['t1', 'yes'],
         ['t2', 'yes'],
@@ -185,7 +190,7 @@ def tasks_labels_iter_1():
 
 
 @pytest.fixture
-def errors_iter_1():
+def errors_iter_1() -> pd.DataFrame:
     return _make_errors([
         ['w1', 'no',  0.14, 0.25],
         ['w1', 'yes', 0.86, 0.75],
@@ -205,7 +210,7 @@ def errors_iter_1():
 
 
 @pytest.mark.parametrize('n_iter', [0, 1])
-def test_dawid_skene_step_by_step(request, data, n_iter):
+def test_dawid_skene_step_by_step(request: Any, data: pd.DataFrame, n_iter: int) -> None:
     probas = request.getfixturevalue(f'probas_iter_{n_iter}')
     labels = request.getfixturevalue(f'tasks_labels_iter_{n_iter}')
     errors = request.getfixturevalue(f'errors_iter_{n_iter}')
@@ -218,7 +223,7 @@ def test_dawid_skene_step_by_step(request, data, n_iter):
     assert_series_equal(labels, ds.labels_, atol=0.005)
 
 
-def test_dawid_skene_on_empty_input(request, data):
+def test_dawid_skene_on_empty_input(request: Any, data: pd.DataFrame) -> None:
     ds = DawidSkene(10).fit(pd.DataFrame([], columns=['task', 'worker', 'label']))
     assert_frame_equal(pd.DataFrame(), ds.probas_, check_like=True, atol=0.005)
     assert_frame_equal(pd.DataFrame(), ds.errors_, check_like=True, atol=0.005)
@@ -227,7 +232,7 @@ def test_dawid_skene_on_empty_input(request, data):
 
 
 @pytest.mark.parametrize('overlap', [3, 300, 30000])
-def test_dawid_skene_overlap(overlap):
+def test_dawid_skene_overlap(overlap: int) -> None:
     data = pd.DataFrame([
         {
             'task': task_id,
@@ -249,11 +254,13 @@ def test_dawid_skene_overlap(overlap):
     assert_series_equal(pd.Series({'no': 1/3, 'yes': 2/3}, name='prior'), ds.priors_, atol=0.005)
 
 
-def test_ds_on_bool_labels(data_with_bool_labels, bool_labels_ground_truth):
+def test_ds_on_bool_labels(data_with_bool_labels: pd.DataFrame,
+                           bool_labels_ground_truth: pd.Series) -> None:
     ds = DawidSkene(20).fit(data_with_bool_labels)
     assert_series_equal(bool_labels_ground_truth, ds.labels_, atol=0.005)
 
 
-def test_hds_on_bool_labels(data_with_bool_labels, bool_labels_ground_truth):
+def test_hds_on_bool_labels(data_with_bool_labels: pd.DataFrame,
+                            bool_labels_ground_truth: pd.Series) -> None:
     hds = OneCoinDawidSkene(20).fit(data_with_bool_labels)
     assert_series_equal(bool_labels_ground_truth, hds.labels_, atol=0.005)

@@ -4,7 +4,7 @@ from crowdkit.aggregation.utils import get_most_probable_labels, get_accuracy, n
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 
-def test_get_most_probable_labels():
+def test_get_most_probable_labels() -> None:
     proba = pd.DataFrame(
         [
             [0.9, 0.1, 0.0],
@@ -24,7 +24,7 @@ def test_get_most_probable_labels():
     assert_series_equal(get_most_probable_labels(proba), most_probable_labels)
 
 
-def test_normalize_rows():
+def test_normalize_rows() -> None:
     scores = pd.DataFrame(
         [
             [4.5, 0.5, 0.0],
@@ -50,7 +50,7 @@ def test_normalize_rows():
     assert_frame_equal(normalize_rows(scores), proba)
 
 
-def test_get_accuracy():
+def test_get_accuracy() -> None:
     true_labels = pd.Series({'t1': 'c', 't2': 'b'})
     data = pd.DataFrame(
         [
