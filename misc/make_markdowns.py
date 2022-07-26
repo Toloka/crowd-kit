@@ -28,7 +28,10 @@ class GitHubSourceFinder:
 
         file_path = '/'.join(definition_module_name.split('.')[1:]) + '.py'
         try:
-            line = inspect.findsource(definition.obj)[1]
+            obj = definition.obj
+            while hasattr(obj, '__wrapped__'):
+                obj = obj.__wrapped__
+            line = inspect.findsource(obj)[1]
         except OSError as exc:
             msg = f"Can't find source for {definition.obj}"
             if self.handle_unknown_source == 'ignore':
