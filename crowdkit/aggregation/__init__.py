@@ -11,7 +11,7 @@ from .classification import (
     OneCoinDawidSkene,
     Wawa,
     ZeroBasedSkill,
-    MultiBinary
+    BinaryRelevance
 )
 from .embeddings import (
     ClosestToAverage,
@@ -57,7 +57,7 @@ __all__ = [
     'TextSummarization',
     'Wawa',
     'ZeroBasedSkill',
-    'MultiBinary'
+    'BinaryRelevance'
 ]
 
 
