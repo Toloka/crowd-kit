@@ -18,6 +18,8 @@ items:
       items:
       - name: Overview
         href: crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene.md
+      - name: Overview
+        href: crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene.fit.md
     - name: GLAD
       items:
       - name: Overview
@@ -56,6 +58,16 @@ items:
         href: crowdkit.aggregation.classification.m_msr.MMSR.predict.md
       - name: predict_score
         href: crowdkit.aggregation.classification.m_msr.MMSR.predict_score.md
+    - name: MACE
+      items:
+      - name: Overview
+        href: crowdkit.aggregation.classification.mace.MACE.md
+      - name: fit
+        href: crowdkit.aggregation.classification.mace.MACE.fit.md
+      - name: fit_predict
+        href: crowdkit.aggregation.classification.mace.MACE.fit_predict.md
+      - name: fit_predict_proba
+        href: crowdkit.aggregation.classification.mace.MACE.fit_predict_proba.md
     - name: MajorityVote
       items:
       - name: Overview
@@ -233,21 +245,6 @@ items:
       hidden: true
     - name: factorize
       href: crowdkit.aggregation.utils.factorize.md
-      hidden: true
-  - name: annotations
-    hidden: true
-    items:
-    - name: Annotation
-      href: crowdkit.aggregation.annotations.Annotation.md
-      hidden: true
-    - name: format_google_style_attribute
-      href: crowdkit.aggregation.annotations.Annotation.format_google_style_attribute.md
-      hidden: true
-    - name: format_google_style_return
-      href: crowdkit.aggregation.annotations.Annotation.format_google_style_return.md
-      hidden: true
-    - name: manage_docstring
-      href: crowdkit.aggregation.annotations.manage_docstring.md
       hidden: true
   - name: base
     hidden: true

@@ -82,7 +82,8 @@ def normalize_rows(scores: pd.DataFrame) -> pd.DataFrame:
 
 def manage_data(data: pd.DataFrame, weights: Optional[pd.Series] = None,
                 skills: pd.Series = None) -> pd.DataFrame:
-    """Args:
+    """
+    Args:
         data (DataFrame): Workers' labeling results.
             A pandas.DataFrame containing `task`, `worker` and `label` columns.
         skills (Series): workers' skills.
@@ -104,7 +105,8 @@ def manage_data(data: pd.DataFrame, weights: Optional[pd.Series] = None,
 
 
 def get_accuracy(data: pd.DataFrame, true_labels: pd.Series, by: Optional[str] = None) -> pd.Series:
-    """Args:
+    """
+    Args:
         data (DataFrame): Workers' labeling results.
             A pandas.DataFrame containing `task`, `worker` and `label` columns.
         true_labels (Series): Tasks' ground truth labels.
@@ -151,7 +153,8 @@ def named_series_attrib(name: str) -> pd.Series:
 
 def add_skills_to_data(data: pd.DataFrame, skills: pd.Series, on_missing_skill: str,
                        default_skill: Optional[float]) -> pd.DataFrame:
-    """Args:
+    """
+    Args:
         skills (Series): workers' skills.
             A pandas.Series index by workers and holding corresponding worker's skill
         on_missing_skill (str): How to handle assignments done by workers with unknown skill.
