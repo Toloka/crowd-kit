@@ -1,6 +1,6 @@
 __all__ = ['BinaryRelevance']
 
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Any
 
 import attr
 import pandas as pd
@@ -59,9 +59,14 @@ class BinaryRelevance(BaseClassificationAggregator):
             The set of keys is all the classes that are in the input data.
     """
     aggregator: BaseClassificationAggregator = attr.ib(
-        validator=attr.validators.instance_of(BaseClassificationAggregator),
+        # validator=attr.validators.instance_of(BaseClassificationAggregator),
         default=MajorityVote())
     aggregators_: Dict[str, BaseClassificationAggregator] = dict()
+
+    @aggregator.validator
+    def _any_name_except_a_name_of_an_attribute(self, attribute: Any, value: Any) -> None:
+        assert issubclass(value.__class__, BaseClassificationAggregator), \
+            "Aggregator argument should be a classification aggregator"
 
     def fit(self, data: pd.DataFrame) -> 'BinaryRelevance':
         """Fit the aggregators.
