@@ -4,9 +4,9 @@ Simple aggregation tests.
 import pandas as pd
 import pytest
 from pandas.testing import assert_series_equal
-import typing as tp
 
 from crowdkit.aggregation import BinaryRelevance, MajorityVote, DawidSkene, Wawa, GLAD
+from crowdkit.aggregation.base import BaseClassificationAggregator
 
 
 @pytest.fixture
@@ -32,29 +32,19 @@ def binary_relevance_toy_result() -> pd.Series:
 
 
 @pytest.mark.parametrize(
-    'aggregator, args', [(MajorityVote, {}), (DawidSkene, {'n_iter': 10}), (Wawa, {}), (GLAD, {})]
+    'aggregator', [MajorityVote(), DawidSkene(), Wawa(), GLAD()]
 )
-def test_binary_relevance_aggregation_on_toy_data(aggregator: type, args: tp.Dict[str, tp.Any],
+def test_binary_relevance_aggregation_on_toy_data(aggregator: BaseClassificationAggregator,
                                                   binary_relevance_toy_result: pd.Series,
                                                   data_toy_binary_relevance: pd.DataFrame) -> None:
-    mb = BinaryRelevance(aggregator, args)
-    assert_series_equal(binary_relevance_toy_result, mb.fit_predict(data_toy_binary_relevance))
-
-
-@pytest.mark.parametrize(
-    'aggregator', [MajorityVote, DawidSkene, Wawa, GLAD]
-)
-def test_binary_relevance_aggregation_without_args(aggregator: type,
-                                                   binary_relevance_toy_result: pd.Series,
-                                                   data_toy_binary_relevance: pd.DataFrame) -> None:
     mb = BinaryRelevance(aggregator)
     assert_series_equal(binary_relevance_toy_result, mb.fit_predict(data_toy_binary_relevance))
 
 
 @pytest.mark.parametrize(
-    'aggregator, args', [(MajorityVote, {}), (DawidSkene, {'n_iter': 10}), (Wawa, {}), (GLAD, {})]
+    'aggregator', [MajorityVote(), DawidSkene(), Wawa(), GLAD()]
 )
-def test_binary_relevance_aggregation_on_empty(aggregator: type, args: tp.Dict[str, tp.Any]) -> None:
-    mb = BinaryRelevance(aggregator=aggregator, args=args)
+def test_binary_relevance_aggregation_on_empty(aggregator: BaseClassificationAggregator) -> None:
+    mb = BinaryRelevance(aggregator)
     result = mb.fit_predict(pd.DataFrame([], columns=['task', 'worker', 'label']))
     assert_series_equal(pd.Series(dtype=float, name='agg_label'), result)

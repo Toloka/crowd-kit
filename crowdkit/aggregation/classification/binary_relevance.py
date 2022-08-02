@@ -1,6 +1,6 @@
 __all__ = ['BinaryRelevance']
 
-from typing import Dict, Any, List, Union
+from typing import Dict, List, Union
 
 import attr
 import pandas as pd
@@ -8,6 +8,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from . import MajorityVote
 
 from ..base import BaseClassificationAggregator
+from ..utils import clone_aggregator
 
 
 @attr.s
@@ -27,13 +28,12 @@ class BinaryRelevance(BaseClassificationAggregator):
     {% endnote %}
 
     Args:
-        aggregator: A type of aggregator class that will be used for each binary classification.
-
-        args: (optional) Dictionary of args to be passed in aggregators, if such needed.
+        aggregator: Aggregator instance that will be used for each binary classification. All class parameters
+         will be copied, except for the results of previous fit.
 
     Examples:
         >>> import pandas as pd
-        >>> from crowdkit.aggregation import BinaryRelevance, MajorityVote
+        >>> from crowdkit.aggregation import BinaryRelevance, DawidSkene
         >>> df = pd.DataFrame(
         >>>     [
         >>>         ['t1', 'w1', ['house', 'tree']],
@@ -45,7 +45,7 @@ class BinaryRelevance(BaseClassificationAggregator):
         >>>     ]
         >>> )
         >>> df.columns = ['task', 'worker', 'label']
-        >>> result = BinaryRelevance(DawidSkene, {'n_iter': 10}).fit_predict(df)
+        >>> result = BinaryRelevance(DawidSkene(n_iter=10)).fit_predict(df)
 
     Attributes:
         labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
@@ -58,9 +58,9 @@ class BinaryRelevance(BaseClassificationAggregator):
             and the value is the aggregator used for this class.
             The set of keys is all the classes that are in the input data.
     """
-
-    aggregator: type = attr.ib(default=MajorityVote)
-    args: Dict[str, Any] = attr.ib(validator=attr.validators.instance_of(dict), default={})
+    aggregator: BaseClassificationAggregator = attr.ib(
+        validator=attr.validators.instance_of(BaseClassificationAggregator),
+        default=MajorityVote())
     aggregators_: Dict[str, BaseClassificationAggregator] = dict()
 
     def fit(self, data: pd.DataFrame) -> 'BinaryRelevance':
@@ -70,6 +70,9 @@ class BinaryRelevance(BaseClassificationAggregator):
             data (DataFrame): Workers' labeling results.
                 A pandas.DataFrame containing `task`, `worker` and `label` columns.
                 'label' column should contain list of labels, e.g. ['tree', 'house', 'car']
+
+        Returns:
+            BinaryRelevance: self.
         """
 
         data = data[['task', 'worker', 'label']]
@@ -81,7 +84,7 @@ class BinaryRelevance(BaseClassificationAggregator):
             single_label_df = data[['task', 'worker']]
             single_label_df['label'] = binarized_labels[:, i]
 
-            label_aggregator = self.aggregator(**self.args)
+            label_aggregator = clone_aggregator(self.aggregator)
             label_aggregator.fit_predict(single_label_df)
             self.aggregators_[label] = label_aggregator
             for task, label_value in label_aggregator.labels_.iteritems():
@@ -104,7 +107,6 @@ class BinaryRelevance(BaseClassificationAggregator):
          Returns:
              Series: Tasks' labels.
                  A pandas.Series indexed by `task` such that `labels.loc[task]`
-                 is a list with task's aggregated labels.
+                 is a list with the task's aggregated labels.
          """
-
         return self.fit(data).labels_
