@@ -3,6 +3,7 @@
 * New aggregation methods: One-Coin Dawid Skene, MACE, and KOS
 * Fixed bugs in Dawid-Skene implementation
 * Improved maintainability by removing stub files
+* Switched to `setup.cfg` from `setup.py`
 
 1.0.0
 -------------------
