@@ -89,10 +89,6 @@ Below is the list of currently implemented methods, including the already availa
 
 * [Crowd-Kit on GitHub](https://github.com/Toloka/crowd-kit)
 
-## Toloka Global Community
+{% include [global-community](../_includes/global-community.md) %}
 
-Stay informed about updates to the platform and open-source libraries — connect with the Toloka team in our [Global Community](https://join.slack.com/t/tolokacommunity/shared_invite/zt-sxr745fr-dvfZffzvQTwNXOE0gEqysg) for announcements, discussions, and invites to events.
-
-## License
-
-© YANDEX LLC, 2020-2022. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
+{% include [social-media](../_includes/social-media.md) %}
