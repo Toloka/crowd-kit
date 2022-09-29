@@ -335,7 +335,7 @@ class MACE(BaseClassificationAggregator):
             annotation['gold_marginal'] = self.spamming_[workers, 0] * self.thetas_[
                 workers, labels
             ] + self.spamming_[workers, 1] * (label_idx == labels)
-            gold_label_marginals[label] = annotation.groupby('task').prod()[
+            gold_label_marginals[label] = annotation.groupby('task').prod(numeric_only=True)[
                 'gold_marginal'
             ] / len(label_names)
 
@@ -366,12 +366,12 @@ class MACE(BaseClassificationAggregator):
         )
 
         strategy_expected_counts = (
-            annotation.groupby(['worker', 'label']).sum()['strategy_marginal'].unstack().fillna(0.0)
+            annotation.groupby(['worker', 'label']).sum(numeric_only=True)['strategy_marginal'].unstack().fillna(0.0)
         )
 
         knowing_expected_counts['knowing_expected_count_0'] = annotation.groupby(
             'worker'
-        ).sum()['strategy_marginal']
+        ).sum(numeric_only=True)['strategy_marginal']
 
         annotation['knowing_expected_counts'] = (
             gold_label_marginals.values[tasks, labels].ravel()
@@ -383,7 +383,7 @@ class MACE(BaseClassificationAggregator):
         ) / instance_marginals.values[tasks]
         knowing_expected_counts['knowing_expected_count_1'] = annotation.groupby(
             'worker'
-        ).sum()['knowing_expected_counts']
+        ).sum(numeric_only=True)['knowing_expected_counts']
 
         return (
             log_marginal_likelihood,

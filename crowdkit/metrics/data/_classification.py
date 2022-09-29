@@ -78,7 +78,7 @@ def consistency(
     for label in labels:
         answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
 
-    labels_proba = answers.groupby('task').prod()
+    labels_proba = answers.groupby('task').prod(numeric_only=True)
     labels_proba['aggregated_label'] = aggregated
     labels_proba['denominator'] = labels_proba[list(labels)].sum(axis=1)
 
@@ -200,7 +200,7 @@ def uncertainty(
     for label in labels:
         answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
 
-    labels_proba = answers.groupby(compute_by).sum()
+    labels_proba = answers.groupby(compute_by).sum(numeric_only=True)
     uncertainties = labels_proba.apply(lambda row: entropy(row[labels] / (sum(row[labels]) + 1e-6)), axis=1)
     if aggregate:
         return uncertainties.mean()
