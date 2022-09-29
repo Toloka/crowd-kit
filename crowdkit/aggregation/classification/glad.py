@@ -121,7 +121,7 @@ class GLAD(BaseClassificationAggregator):
         """
         labels = list(priors.index)
         data = data.set_index('task')
-        data.loc[:, labels] = 0
+        data[labels] = 0
         data.reset_index(inplace=True)
         data = data.melt(id_vars=['task', 'worker', 'label'], value_vars=labels, value_name='posterior')
         data = data.set_index('variable')
@@ -146,7 +146,7 @@ class GLAD(BaseClassificationAggregator):
         data['posterior'] = data['delta'] * log_sigma + \
                             (1 - data['delta']) * (log_one_minus_sigma - np.log(len(self.prior_labels_) - 1))
         # sum up by workers
-        probas = data.groupby(['task', 'variable']).sum()['posterior']
+        probas = data.groupby(['task', 'variable']).sum(numeric_only=True)['posterior']
         # add priors to every label
         probas = probas.add(np.log(cast(pd.Series, self.priors_)), level=1)
         # exponentiate and normalize
@@ -165,12 +165,12 @@ class GLAD(BaseClassificationAggregator):
         sigma = scipy.special.expit(data['alpha'] * np.exp(data['beta']))
         # multiply by exponent of beta because of beta -> exp(beta) reparameterization
         data['dQb'] = data['posterior'] * (data['delta'] - sigma) * data['alpha'] * np.exp(data['beta'])
-        dQbeta = data.groupby('task').sum()['dQb']
+        dQbeta = data.groupby('task').sum(numeric_only=True)['dQb']
         # gradient of priors on betas
         dQbeta -= (self.betas_ - self.betas_priors_mean_)
 
         data['dQa'] = data['posterior'] * (data['delta'] - sigma) * np.exp(data['beta'])
-        dQalpha = data.groupby('worker').sum()['dQa']
+        dQalpha = data.groupby('worker').sum(numeric_only=True)['dQa']
         # gradient of priors on alphas
         dQalpha -= (self.alphas_ - self.alphas_priors_mean_)
         return dQalpha, dQbeta
