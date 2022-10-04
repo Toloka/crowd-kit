@@ -11,8 +11,9 @@ from .classification import (
     MMSR,
     OneCoinDawidSkene,
     Wawa,
-    ZeroBasedSkill,
+    ZeroBasedSkill
 )
+from .multilabel import BinaryRelevance
 from .embeddings import (
     ClosestToAverage,
     HRRASA,
@@ -58,6 +59,7 @@ __all__ = [
     'TextSummarization',
     'Wawa',
     'ZeroBasedSkill',
+    'BinaryRelevance'
 ]
 
 

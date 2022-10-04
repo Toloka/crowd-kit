@@ -8,7 +8,7 @@ __all__ = [
     'MMSR',
     'OneCoinDawidSkene',
     'Wawa',
-    'ZeroBasedSkill'
+    'ZeroBasedSkill',
 ]
 
 from .dawid_skene import DawidSkene, OneCoinDawidSkene

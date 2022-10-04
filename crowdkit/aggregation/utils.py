@@ -9,6 +9,7 @@ __all__ = [
     'get_accuracy',
     'add_skills_to_data',
     'named_series_attrib',
+    'clone_aggregator',
 ]
 
 from typing import Tuple, Union, Callable, Optional, Any
@@ -17,6 +18,28 @@ import attr
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+from . import base
+
+
+def clone_aggregator(aggregator: 'base.BaseClassificationAggregator') -> 'base.BaseClassificationAggregator':
+    """ Construct a new unfitted aggregator with the same parameters.
+    Args:
+        aggregator (BaseClassificationAggregator): aggregator instance to be cloned
+
+    Returns:
+        BaseClassificationAggregator: cloned aggregator's instance. Its params are same to input,
+            except for the results of previous fit (private attributes).
+    """
+    assert isinstance(aggregator, base.BaseClassificationAggregator), \
+        'Can\'t clone object that is not inherit BaseClassificationAggregator'
+    aggregator_class = aggregator.__class__
+    new_object_params = dict()
+    for attr_name in aggregator.__dict__:
+        # if attribute is not private
+        if not (attr_name.startswith('_') or attr_name.endswith('_')):
+            new_object_params[attr_name] = getattr(aggregator, attr_name)
+    new_object = aggregator_class(**new_object_params)
+    return new_object
 
 
 def _argmax_random_ties(array: npt.NDArray[Any]) -> int:

@@ -75,6 +75,11 @@ Below is the list of currently implemented methods, including the already availa
 |[MACE](https://aclanthology.org/N13-1132.pdf)|✅|
 |BCC|🟡|
 
+### Multi-Label Responses
+|Method|Status|
+|-|:-:|
+|Binary Relevance|✅|
+
 ### Textual Responses
 
 |Method|Status|
