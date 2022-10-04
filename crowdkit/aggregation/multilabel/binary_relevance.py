@@ -5,7 +5,7 @@ from typing import Dict, List, Union, Any
 import attr
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
-from . import MajorityVote
+from ..classification import MajorityVote
 
 from ..base import BaseClassificationAggregator
 from ..utils import clone_aggregator
@@ -28,7 +28,7 @@ class BinaryRelevance(BaseClassificationAggregator):
     {% endnote %}
 
     Args:
-        aggregator: Aggregator instance that will be used for each binary classification. All class parameters
+        base_aggregator: Aggregator instance that will be used for each binary classification. All class parameters
          will be copied, except for the results of previous fit.
 
     Examples:
@@ -58,12 +58,12 @@ class BinaryRelevance(BaseClassificationAggregator):
             and the value is the aggregator used for this class.
             The set of keys is all the classes that are in the input data.
     """
-    aggregator: BaseClassificationAggregator = attr.ib(
+    base_aggregator: BaseClassificationAggregator = attr.ib(
         # validator=attr.validators.instance_of(BaseClassificationAggregator),
         default=MajorityVote())
     aggregators_: Dict[str, BaseClassificationAggregator] = dict()
 
-    @aggregator.validator
+    @base_aggregator.validator
     def _any_name_except_a_name_of_an_attribute(self, attribute: Any, value: Any) -> None:
         assert issubclass(value.__class__, BaseClassificationAggregator), \
             "Aggregator argument should be a classification aggregator"
@@ -89,7 +89,7 @@ class BinaryRelevance(BaseClassificationAggregator):
             single_label_df = data[['task', 'worker']]
             single_label_df['label'] = binarized_labels[:, i]
 
-            label_aggregator = clone_aggregator(self.aggregator)
+            label_aggregator = clone_aggregator(self.base_aggregator)
             label_aggregator.fit_predict(single_label_df)
             self.aggregators_[label] = label_aggregator
             if label_aggregator.labels_ is not None:  # for mypy correct work

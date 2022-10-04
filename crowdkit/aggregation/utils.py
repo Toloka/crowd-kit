@@ -32,13 +32,13 @@ def clone_aggregator(aggregator: 'base.BaseClassificationAggregator') -> 'base.B
     """
     assert isinstance(aggregator, base.BaseClassificationAggregator), \
         'Can\'t clone object that is not inherit BaseClassificationAggregator'
-    klass = aggregator.__class__
+    aggregator_class = aggregator.__class__
     new_object_params = dict()
     for attr_name in aggregator.__dict__:
         # if attribute is not private
         if not (attr_name.startswith('_') or attr_name.endswith('_')):
             new_object_params[attr_name] = getattr(aggregator, attr_name)
-    new_object = klass(**new_object_params)
+    new_object = aggregator_class(**new_object_params)
     return new_object
 
 

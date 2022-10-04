@@ -10,9 +10,9 @@ from .classification import (
     MMSR,
     OneCoinDawidSkene,
     Wawa,
-    ZeroBasedSkill,
-    BinaryRelevance
+    ZeroBasedSkill
 )
+from .multilabel import BinaryRelevance
 from .embeddings import (
     ClosestToAverage,
     HRRASA,
