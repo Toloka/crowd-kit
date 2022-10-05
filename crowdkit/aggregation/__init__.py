@@ -1,4 +1,5 @@
 from typing import cast
+import importlib.util
 
 from . import base
 from .classification import (
@@ -71,5 +72,5 @@ def is_arcadia() -> bool:
         return False
 
 
-if not is_arcadia():
+if not is_arcadia() and importlib.util.find_spec('torch'):
     from .texts.text_summarization import TextSummarization
