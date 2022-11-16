@@ -83,7 +83,7 @@ def crowd_layer_vw_b(
     return scale[workers] * outputs + bias[workers]
 
 
-class CrowdLayer(nn.Module):
+class CrowdLayer(nn.Module):  # type: ignore
     """
     CrowdLayer module for classification tasks.
 

@@ -4,7 +4,8 @@ __ALL__ = [
     'CoNAL',
 ]
 
-from typing import Tuple
+from typing import Optional, Tuple, Union
+from numpy.typing import NDArray
 
 import numpy as np
 import torch
@@ -14,7 +15,7 @@ from torch import nn
 from crowdkit.learning.utils import differentiable_ds
 
 
-def _identity_init(shape: Tuple[int]) -> torch.Tensor:
+def _identity_init(shape: Union[Tuple[int, int], Tuple[int, int, int]]) -> torch.Tensor:
     """
     Creates a tensor containing identity matrices.
 
@@ -35,7 +36,7 @@ def _identity_init(shape: Tuple[int]) -> torch.Tensor:
     return torch.Tensor(out)
 
 
-class CoNAL(nn.Module):
+class CoNAL(nn.Module):  # type: ignore
     """
     Common Noise Adaptation Layers (CoNAL). This method introduces two types of confusions: worker-specific and
     global. Each is parameterized by a confusion matrix. The ratio of the two confusions is determined by the
@@ -61,7 +62,7 @@ class CoNAL(nn.Module):
         num_labels: int,
         n_workers: int,
         com_emb_size: int = 20,
-        user_feature: np.ndarray = None,
+        user_feature: Optional[NDArray[np.float32]] = None,
     ):
         """
         Initializes the CoNAL module.
@@ -83,7 +84,7 @@ class CoNAL(nn.Module):
             _identity_init((num_labels, num_labels)), requires_grad=True
         )
 
-        user_feature = user_feature or np.eye(n_workers)
+        user_feature = user_feature or np.eye(n_workers, dtype=np.float32)
         self.user_feature_vec = nn.Parameter(
             torch.from_numpy(user_feature).float(), requires_grad=False
         )
