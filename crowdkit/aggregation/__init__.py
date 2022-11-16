@@ -56,7 +56,6 @@ __all__ = [
     'SegmentationRASA',
     'TextHRRASA',
     'TextRASA',
-    'TextSummarization',
     'Wawa',
     'ZeroBasedSkill',
     'BinaryRelevance'
@@ -69,7 +68,3 @@ def is_arcadia() -> bool:
         return cast(bool, __res == __res)
     except ImportError:
         return False
-
-
-if not is_arcadia():
-    from .texts.text_summarization import TextSummarization

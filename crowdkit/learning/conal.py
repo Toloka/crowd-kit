@@ -1,6 +1,6 @@
 # Adapted from:
 # https://github.com/zdchu/CoNAL/blob/main/conal.py
-__ALL__ = [
+__all__ = [
     'CoNAL',
 ]
 

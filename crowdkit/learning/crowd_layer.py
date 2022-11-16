@@ -1,4 +1,4 @@
-__ALL__ = [
+__all__ = [
     'CrowdLayer',
 ]
 
