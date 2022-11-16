@@ -39,7 +39,6 @@ def batch_identity_matrices(
     Returns:
         Tensor of shape (batch_size, dim_size, dim_size)
     """
-    factory_kwargs = {"device": device, "dtype": dtype}
-    x = torch.eye(dim_size, **factory_kwargs)
+    x = torch.eye(dim_size, dtype=dtype, device=device)
     x = x.reshape((1, dim_size, dim_size))
     return x.repeat(batch_size, 1, 1)

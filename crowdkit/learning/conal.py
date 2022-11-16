@@ -136,7 +136,7 @@ class CoNAL(nn.Module):  # type: ignore
         )
         batch_confusion_matrices = self.annotator_confusion_matrices[workers]
         indivi_prob = differentiable_ds(logits, batch_confusion_matrices)
-        crowd_out = (
+        crowd_out: torch.Tensor = (
             common_rate * common_prob + (1 - common_rate) * indivi_prob
         )  # single instance
         return crowd_out

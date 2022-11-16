@@ -2,6 +2,8 @@ __ALL__ = [
     'CrowdLayer',
 ]
 
+from typing import Optional
+
 import torch
 from torch import nn
 
@@ -111,8 +113,8 @@ class CrowdLayer(nn.Module):  # type: ignore
         num_labels: int,
         n_workers: int,
         conn_type: str = "mw",
-        device: torch.DeviceObjType = None,
-        dtype: torch.dtype = None,
+        device: Optional[torch.device] = None,
+        dtype: Optional[torch.dtype] = None,
     ):
         """
         Args:
@@ -124,29 +126,28 @@ class CrowdLayer(nn.Module):  # type: ignore
         Raises:
             ValueError: If conn_type is not one of 'mw', 'vw', 'vb', 'vw+b'.
         """
-        factory_kwargs = {"device": device, "dtype": dtype}
         super(CrowdLayer, self).__init__()
         self.conn_type = conn_type
 
         self.n_workers = n_workers
         if conn_type == "mw":
             self.weight = nn.Parameter(
-                batch_identity_matrices(n_workers, num_labels, **factory_kwargs)
+                batch_identity_matrices(n_workers, num_labels, dtype=dtype, device=device)
             )
         elif conn_type == "vw":
             self.weight = nn.Parameter(
-                torch.ones(n_workers, num_labels, **factory_kwargs)
+                torch.ones(n_workers, num_labels, dtype=dtype, device=device)
             )
         elif conn_type == "vb":
             self.weight = nn.Parameter(
-                torch.zeros(n_workers, num_labels, **factory_kwargs)
+                torch.zeros(n_workers, num_labels, dtype=dtype, device=device)
             )
         elif conn_type == "vw+b":
             self.scale = nn.Parameter(
-                torch.ones(n_workers, num_labels, **factory_kwargs)
+                torch.ones(n_workers, num_labels, dtype=dtype, device=device)
             )
             self.bias = nn.Parameter(
-                torch.zeros(n_workers, num_labels, **factory_kwargs)
+                torch.zeros(n_workers, num_labels, dtype=dtype, device=device)
             )
         else:
             raise ValueError("Unknown connection type for CrowdLayer.")
