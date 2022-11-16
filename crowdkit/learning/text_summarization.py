@@ -1,3 +1,7 @@
+__all__ = [
+    'TextSummarization',
+]
+
 import itertools
 from typing import Optional, cast
 
