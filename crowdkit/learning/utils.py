@@ -1,3 +1,8 @@
+__all__ = [
+    'differentiable_ds',
+    'batch_identity_matrices',
+]
+
 import torch
 import torch.nn.functional as F
 from typing import Optional
