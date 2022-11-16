@@ -1,5 +1,9 @@
 # Adapted from:
 # https://github.com/zdchu/CoNAL/blob/main/conal.py
+__ALL__ = [
+    'CoNAL',
+]
+
 from typing import Tuple
 
 import numpy as np
@@ -10,7 +14,7 @@ from torch import nn
 from crowdkit.learning.utils import differentiable_ds
 
 
-def __identity_init(shape: Tuple[int]) -> torch.Tensor:
+def _identity_init(shape: Tuple[int]) -> torch.Tensor:
     """
     Creates a tensor containing identity matrices.
 
@@ -47,8 +51,9 @@ class CoNAL(nn.Module):
         >>> import torch
         >>> input = torch.randn(3, 5)
         >>> workers = torch.tensor([0, 1, 0])
-        >>> conal = CoNAL(5, 2, conn_type="mw")
-        >>> conal(input, workers)
+        >>> embeddings = torch.randn(3, 5)
+        >>> conal = CoNAL(5, 2)
+        >>> conal(embeddings, input, workers)
     """
 
     def __init__(
@@ -70,12 +75,12 @@ class CoNAL(nn.Module):
         super().__init__()
         self.n_workers = n_workers
         self.annotator_confusion_matrices = nn.Parameter(
-            __identity_init((n_workers, num_labels, num_labels)),
+            _identity_init((n_workers, num_labels, num_labels)),
             requires_grad=True,
         )
 
         self.common_confusion_matrix = nn.Parameter(
-            __identity_init((num_labels, num_labels)), requires_grad=True
+            _identity_init((num_labels, num_labels)), requires_grad=True
         )
 
         user_feature = user_feature or np.eye(n_workers)

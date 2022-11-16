@@ -1,3 +1,7 @@
+__ALL__ = [
+    'CrowdLayer',
+]
+
 import torch
 from torch import nn
 
