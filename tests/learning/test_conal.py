@@ -4,7 +4,7 @@ from crowdkit.learning import CoNAL
 from .data_learning import toy_logits, toy_workers  # noqa F401
 
 
-def test_conal(toy_logits: torch.Tensor, toy_workers: torch.Tensor) -> None:
+def test_conal(toy_logits: torch.Tensor, toy_workers: torch.Tensor) -> None:  # noqa F811
     embeddings = torch.tensor(
         [
             [1., 1.],

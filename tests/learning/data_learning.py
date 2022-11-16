@@ -1,6 +1,7 @@
 import pytest
 import torch
 
+
 @pytest.fixture
 def toy_logits() -> torch.Tensor:
     return torch.tensor(
