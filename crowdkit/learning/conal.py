@@ -25,14 +25,14 @@ def _identity_init(shape: Union[Tuple[int, int], Tuple[int, int, int]]) -> torch
     Returns:
         torch.Tensor: Tensor containing identity matrices.
     """
-    out = np.ones(shape) * 0
+    out = np.zeros(shape, dtype=np.float32)
     if len(shape) == 3:
         for r in range(shape[0]):
             for i in range(shape[1]):
-                out[r, i, i] = 2
+                out[r, i, i] = 2.0
     elif len(shape) == 2:
         for i in range(shape[1]):
-            out[i, i] = 2
+            out[i, i] = 2.0
     return torch.Tensor(out)
 
 
