@@ -10,12 +10,11 @@ import numpy as np
 import pandas as pd
 from transformers import PreTrainedTokenizer, PreTrainedModel  # type: ignore
 
-from ..aggregation.utils import named_series_attrib
 from crowdkit.aggregation.base import BaseTextsAggregator
 
 
 @attr.s
-class TextSummarization:
+class TextSummarization(BaseTextsAggregator):
     """Text Aggregation through Summarization
 
     The method uses a pre-trained language model for summarization to aggregate crowdsourced texts.
@@ -52,7 +51,7 @@ class TextSummarization:
     Example:
         >>> import torch
         >>> from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, AutoConfig
-        >>> from crowdkit.aggregation import TextSummarization
+        >>> from crowdkit.learning import TextSummarization
         >>> device = 'cuda' if torch.cuda.is_available() else 'cpu'
         >>> mname = "toloka/t5-large-for-text-aggregation"
         >>> tokenizer = AutoTokenizer.from_pretrained(mname)
@@ -73,7 +72,7 @@ class TextSummarization:
     permutation_aggregator: Optional[BaseTextsAggregator] = attr.ib(default=None)
     device: str = attr.ib(default='cpu')
 
-    texts_: pd.Series = named_series_attrib(name='agg_text')
+    # texts_
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
         """Run the aggregation and return the aggregated texts.
