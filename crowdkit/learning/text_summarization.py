@@ -1,5 +1,5 @@
 __all__ = [
-    'TextSummarization'
+    'TextSummarization',
 ]
 
 import itertools
@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from transformers import PreTrainedTokenizer, PreTrainedModel  # type: ignore
 
-from ..base import BaseTextsAggregator
+from crowdkit.aggregation.base import BaseTextsAggregator
 
 
 @attr.s
@@ -51,7 +51,7 @@ class TextSummarization(BaseTextsAggregator):
     Example:
         >>> import torch
         >>> from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, AutoConfig
-        >>> from crowdkit.aggregation import TextSummarization
+        >>> from crowdkit.learning import TextSummarization
         >>> device = 'cuda' if torch.cuda.is_available() else 'cpu'
         >>> mname = "toloka/t5-large-for-text-aggregation"
         >>> tokenizer = AutoTokenizer.from_pretrained(mname)
