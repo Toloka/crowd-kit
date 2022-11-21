@@ -21,9 +21,11 @@ Currently, Crowd-Kit contains:
 * metrics of uncertainty, consistency, and agreement with aggregate
 * loaders for popular crowdsourced datasets
 
+Also, the `learning` subpackage contains PyTorch implementations of deep learning from crowds methods and advanced aggregation algorithms.
+
 ## Installing
 
-Installing Crowd-Kit is as easy as `pip install crowd-kit`.
+Installing Crowd-Kit is as easy as `pip install crowd-kit`. If you also want to use the `learning` subpackage, type `pip instal crowd-kit[learning]`.
 
 Those who are interested in contributing to Crowd-Kit can use [Pipenv](https://pipenv.pypa.io/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://pytest.org/) for testing.
 
@@ -103,6 +105,13 @@ Below is the list of currently implemented methods, including the already availa
 |-|:-:|
 |[Bradley-Terry](https://doi.org/10.2307/2334029)|✅|
 |Noisy Bradley-Terry|✅|
+
+### Learning from Crowds
+
+|Method|Status|
+|-|:-:|
+|[CrowdLayer](https://doi.org/10.1609/aaai.v32i1.11506)|✅|
+|[CoNAL](https://doi.org/10.1609/aaai.v35i7.16730)|✅|
 
 ## Citation
 
