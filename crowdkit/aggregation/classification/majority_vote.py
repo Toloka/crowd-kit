@@ -65,7 +65,7 @@ class MajorityVote(BaseClassificationAggregator):
             probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
         on_missing_skill (str): A value which specifies how to handle assignments performed by workers with an unknown skill.
-            
+
             Possible values:
                     * "error" — raises an exception if there is at least one assignment performed by a worker with an unknown skill;
                     * "ignore" — drops assignments performed by workers with an unknown skill during prediction. Raises an exception if there are no

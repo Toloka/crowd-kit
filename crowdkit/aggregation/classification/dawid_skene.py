@@ -223,7 +223,7 @@ class DawidSkene(BaseClassificationAggregator):
 
 @attr.s
 class OneCoinDawidSkene(DawidSkene):
-    r"""The $\boldsymbol{one-coin Dawid-Skene}$ aggregation model works exactly the same as the original Dawid-Skene model based on the EM algorithm, except for calculating the workers' errors 
+    r"""The $\boldsymbol{one-coin Dawid-Skene}$ aggregation model works exactly the same as the original Dawid-Skene model based on the EM algorithm, except for calculating the workers' errors
     at the M-step of the algorithm.
 
     For the one-coin model, a worker confusion (error) matrix is parameterized by a single parameter $s_w$:

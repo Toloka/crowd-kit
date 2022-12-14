@@ -21,7 +21,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
     This process is repeated until the labels change or exceed the number of iterations.
 
     {% note info %}
-    
+
     It is necessary that all workers in the dataset that is sent to `predict` exist in responses to
     the dataset that was sent to `fit`.
 
