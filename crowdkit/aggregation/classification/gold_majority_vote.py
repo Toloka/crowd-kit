@@ -1,5 +1,7 @@
 __all__ = ['GoldMajorityVote']
 
+from typing import Optional
+
 import attr
 import pandas as pd
 from sklearn.utils.validation import check_is_fitted
