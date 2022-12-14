@@ -13,31 +13,30 @@ _MAX = np.float_power(10, 300)
 
 @attr.s
 class KOS(BaseClassificationAggregator):
-    r"""Karger-Oh-Shah aggregation model.
+    r"""The $\boldsymbol{KOS}$ (Karger, Oh, and Shah 2011) aggregation model is an iterative algorithm that calculates the log-likelihood of the task being positive while modeling
+    the worker reliability.
 
-    Iterative algorithm that calculates the log-likelihood of the task being positive while modeling
-    the reliabilities of the workers.
-
-    Let $A_{ij}$ be a matrix of answers of worker $j$ on task $i$.
-    $A_{ij} = 0$ if worker $j$ didn't answer the task $i$, otherwise $|A_{ij}| = 1$.
+    Let $A_{ij}$ be a matrix of the responses of a worker $j$ on a task $i$.
+    If the worker $j$ does not respond to the task $i$, then $A_{ij} = 0$. Otherwise, $|A_{ij}| = 1$.
     The algorithm operates on real-valued task messages $x_{i \rightarrow j}$  and
     worker messages $y_{j \rightarrow i}$. A task message $x_{i \rightarrow j}$ represents
     the log-likelihood of task $i$ being a positive task, and a worker message $y_{j \rightarrow i}$ represents
     how reliable worker $j$ is.
 
-    On iteration $k$ the values are updated as follows:
+    At $k$-th iteration, the values are updated as follows:
     $$
     x_{i \rightarrow j}^{(k)} = \sum_{j^{'} \in \partial i \backslash j} A_{ij^{'}} y_{j^{'} \rightarrow i}^{(k-1)} \\
     y_{j \rightarrow i}^{(k)} = \sum_{i^{'} \in \partial j \backslash i} A_{i^{'}j} x_{i^{'} \rightarrow j}^{(k-1)}
     $$
 
-    Karger, David R., Sewoong Oh, and Devavrat Shah. Budget-optimal task allocation for reliable crowdsourcing systems.
-    Operations Research 62.1 (2014): 1-24.
+    David R. Karger, Sewoong Oh, and Devavrat Shah. Budget-Optimal Task Allocation for Reliable Crowdsourcing Systems.
+    *Operations Research 62.1 (2014)*, 1-38.
 
     <https://arxiv.org/abs/1110.3564>
 
     Args:
         n_iter: The number of iterations.
+        random_state: The state of the random number generator.
 
     Examples:
         >>> from crowdkit.aggregation import KOS
@@ -47,9 +46,9 @@ class KOS(BaseClassificationAggregator):
         >>> result = ds.fit_predict(df)
 
     Attributes:
-        labels_ (Optional[pd.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's most likely true label.
+        labels_ (Optional[pd.Series]): The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
 
     """
 
@@ -57,10 +56,10 @@ class KOS(BaseClassificationAggregator):
     random_state: int = attr.ib(default=0)
 
     def fit(self, data: pd.DataFrame) -> 'KOS':
-        """Fit the model.
+        """Fits the model to the training data.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
         Returns:
             KOS: self.
         """
@@ -106,14 +105,14 @@ class KOS(BaseClassificationAggregator):
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Fit the model and return aggregated results.
+        """Fits the model to the training data and returns the aggregated results.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks' most likely true label.
+            Series: The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
         """
 
         return self.fit(data).labels_

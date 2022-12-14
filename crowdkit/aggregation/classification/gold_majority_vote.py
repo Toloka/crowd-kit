@@ -11,19 +11,18 @@ from ..utils import get_accuracy, named_series_attrib
 
 @attr.s
 class GoldMajorityVote(BaseClassificationAggregator):
-    """Majority Vote when exist golden dataset (ground truth) for some tasks.
+    r"""The $\boldsymbol{Gold Majority Vote}$ model is used when a golden dataset (ground truth) exists for some tasks.
+    It calculates the probability of a correct label for each worker based on the golden set.
+    After that, the sum of the probabilities of each label is calculated for each task.
+    The correct label is the one with the greatest sum of the probabilities.
 
-    Calculates the probability of a correct label for each worker based on the golden set.
-    Based on this, for each task, calculates the sum of the probabilities of each label.
-    The correct label is the one where the sum of the probabilities is greater.
+    For example, you have 10 000 tasks completed by 3 000 different workers. And you have 100 tasks where you already
+    know the ground truth labels. First, you can call `fit` to calculate the percentage of correct labels for each worker.
+    And then call `predict` to calculate labels for your 10 000 tasks.
 
-    For Example: You have 10k tasks completed by 3k different workers. And you have 100 tasks where you already
-    know ground truth labels. First you can call `fit` to calc percents of correct labels for each workers.
-    And then call `predict` to calculate labels for you 10k tasks.
-
-    It's necessary that:
-    1. All workers must done at least one task from golden dataset.
-    2. All workers in dataset that send to `predict`, existed in answers dataset that was sent to `fit`.
+    The following rules must be observed:
+    1. All workers must complete at least one task from the golden dataset.
+    2. All workers from the dataset that is submitted to `predict` must be included in the response dataset that is submitted to `fit`.
 
     Examples:
         >>> import pandas as pd
@@ -44,24 +43,25 @@ class GoldMajorityVote(BaseClassificationAggregator):
         >>> result = gold_mv.fit_predict(df, true_labels)
 
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's most likely true label.
+        labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
 
-        skills_ (typing.Optional[pandas.core.series.Series]): workers' skills.
-            A pandas.Series index by workers and holding corresponding worker's skill
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
-            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-            is the probability of `task`'s true label to be equal to `label`. Each
-            probability is between 0 and 1, all task's probabilities should sum up to 1
+        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills.
+            pandas.Series is indexed by `worker` and has the corresponding worker skill.
+
+        probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
+            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            is the probability that the `task` true label is equal to `label`. Each
+            probability is in the range from 0 to 1, all task probabilities must sum up to 1.
     """
 
     # Available after fit
-    skills_: pd.Series = named_series_attrib(name='skill')
+    skills_: Optional[pd.Series] = named_series_attrib(name='skill')
 
     # Available after predict or predict_proba
     # labels_
-    probas_: pd.DataFrame = attr.ib(init=False)
+    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
 
     def _apply(self, data: pd.DataFrame) -> 'GoldMajorityVote':
         check_is_fitted(self, attributes='skills_')
@@ -71,14 +71,14 @@ class GoldMajorityVote(BaseClassificationAggregator):
         return self
 
     def fit(self, data: pd.DataFrame, true_labels: pd.Series) -> 'GoldMajorityVote':  # type: ignore
-        """Estimate the workers' skills.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
-            true_labels (Series): Tasks' ground truth labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's ground truth label.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+            true_labels (Series): The ground truth labels of tasks.
+                pandas.Series is indexed by `task` so that `labels.loc[task]`
+                is the task ground truth label.
 
         Returns:
             GoldMajorityVote: self.
@@ -89,68 +89,68 @@ class GoldMajorityVote(BaseClassificationAggregator):
         return self
 
     def predict(self, data: pd.DataFrame) -> pd.Series:
-        """Infer the true labels when the model is fitted.
+        """Predicts the true labels of tasks when the model is fitted.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
 
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
+            Series: The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
         """
 
         return self._apply(data).labels_
 
     def predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Return probability distributions on labels for each task when the model is fitted.
+        """Returns probability distributions of labels for each task when the model is fitted.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
 
         Returns:
-            DataFrame: Tasks' label probability distributions.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the probability of `task`'s true label to be equal to `label`. Each
-                probability is between 0 and 1, all task's probabilities should sum up to 1
+            DataFrame: Probability distributions of task labels.
+            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            is the probability that the `task` true label is equal to `label`. Each
+            probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self._apply(data).probas_
 
     def fit_predict(self, data: pd.DataFrame, true_labels: pd.Series) -> pd.Series:  # type: ignore
-        """Fit the model and return aggregated results.
+        """Fits the model to the training data and returns the aggregated results.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
-            true_labels (Series): Tasks' ground truth labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's ground truth label.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+            true_labels (Series): The ground truth labels of tasks.
+                pandas.Series is indexed by `task` so that `labels.loc[task]`
+                is the task ground truth label.
 
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
+            Series: The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
         """
 
         return self.fit(data, true_labels).predict(data)
 
     def fit_predict_proba(self, data: pd.DataFrame, true_labels: pd.Series) -> pd.DataFrame:
-        """Fit the model and return probability distributions on labels for each task.
+        """Fits the model to the training data and returns probability distributions of labels for each task.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
-            true_labels (Series): Tasks' ground truth labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's ground truth label.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+            true_labels (Series): The ground truth labels of tasks.
+                pandas.Series is indexed by `task` so that `labels.loc[task]`
+                is the task ground truth label.
 
         Returns:
-            DataFrame: Tasks' label probability distributions.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the probability of `task`'s true label to be equal to `label`. Each
-                probability is between 0 and 1, all task's probabilities should sum up to 1
+            DataFrame: Probability distributions of task labels.
+            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            is the probability that the `task` true label is equal to `label`. Each
+            probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self.fit(data, true_labels).predict_proba(data)

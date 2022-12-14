@@ -4,13 +4,17 @@
 
 Currently, Crowd-Kit contains:
 
-* implementations of commonly-used aggregation methods for categorical, pairwise, textual, and segmentation responses
-* metrics of uncertainty, consistency, and agreement with aggregate
-* loaders for popular crowdsourced datasets
+* implementations of commonly-used aggregation methods for categorical, pairwise, textual, and segmentation responses;
+* metrics of uncertainty, consistency, and agreement with aggregate;
+* loaders for popular crowdsourced datasets.
+
+Also, the `learning` subpackage contains PyTorch implementations of deep learning from crowds methods and advanced aggregation algorithms.
 
 ## Installing
 
-Installing Crowd-Kit is as easy as `pip install crowd-kit`
+To install Crowd-Kit, run the following command: `pip install crowd-kit`. If you also want to use the `learning` subpackage, type `pip instal crowd-kit[learning]`.
+
+If you are interested in contributing to Crowd-Kit, use [Pipenv](https://pipenv.pypa.io/en/latest/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://docs.pytest.org/en/7.1.x/) for testing.
 
 ## Getting Started
 
@@ -25,14 +29,14 @@ from crowdkit.datasets import load_dataset
 import pandas as pd
 ````
 
-Then, you need to read your annotations into Pandas DataFrame with columns `task`, `worker`, `label`. Alternatively, you can download an example dataset.
+Then, you need to read your annotations into Pandas DataFrame with columns `task`, `worker`, `label`. Alternatively, you can download an example dataset:
 
 ````python
 df = pd.read_csv('results.csv')  # should contain columns: task, worker, label
 # df, ground_truth = load_dataset('relevance-2')  # or download an example dataset
 ````
 
-Then you can aggregate the worker responses as easily as in scikit-learn:
+Then, you can aggregate the workers' responses using the `fit_predict` method from the **scikit-learn** library:
 
 ````python
 aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
@@ -49,13 +53,22 @@ Below is the list of currently implemented methods, including the already availa
 | Method | Status |
 | ------------- | :-------------: |
 | [Majority Vote](reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.md) | ✅ |
+| [One-coin Dawid-Skene](reference/crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene.md) | ✅ |
 | [Dawid-Skene](reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.md) | ✅ |
 | [Gold Majority Vote](reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.md) | ✅ |
 | [M-MSR](reference/crowdkit.aggregation.classification.m_msr.MMSR.md) | ✅ |
 | [Wawa](reference/crowdkit.aggregation.classification.wawa.Wawa.md) | ✅ |
 | [Zero-Based Skill](reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.md) | ✅ |
 | [GLAD](reference/crowdkit.aggregation.classification.glad.GLAD.md) | ✅ |
+| [KOS](reference/crowdkit.aggregation.classification.kos.KOS.md) | ✅ |
+| [MACE](reference/crowdkit.aggregation.classification.mace.MACE.md) | ✅ |
 | BCC | 🟡 |
+
+### Multi-Label Responses
+
+|Method|Status|
+|-|:-:|
+|[Binary Relevance](reference/crowdkit.aggregation.multilabel.binary_relevance.BinaryRelevance.md)|✅|
 
 ### Textual Responses
 
@@ -80,15 +93,22 @@ Below is the list of currently implemented methods, including the already availa
 | [Bradley-Terry](reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md) | ✅ |
 | [Noisy Bradley-Terry](reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.md) | ✅ |
 
+### Learning from Crowds
+
+|Method|Status|
+|-|:-:|
+|[CrowdLayer](reference/crowdkit.learning.crowd_layer.CrowdLayer.md)|✅|
+|[CoNAL](reference/crowdkit.learning.conal.Conal.md)|✅|
+
 ## Questions and Bug Reports
 
-* For reporting bugs please use the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
-* Join our English-speaking [slack community](https://toloka.ai/community) for both tech and abstract questions.
+* To report a bug, post an issue on the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
+* To find answers to common questions or start a new discussion, join our English-speaking [Slack community](https://toloka.ai/community).
 
 ## Source Code
 
 * [Crowd-Kit on GitHub](https://github.com/Toloka/crowd-kit)
 
-{% include [global-community](../_includes/global-community.md) %}
+## License
 
-{% include [social-media](../_includes/social-media.md) %}
+© YANDEX LLC, 2020-2022. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.

@@ -16,36 +16,42 @@ from ..utils import named_series_attrib
 
 @attr.s
 class MMSR(BaseClassificationAggregator):
-    r"""Matrix Mean-Subsequence-Reduced Algorithm.
-
-    The M-MSR assumes that workers have different level of expertise and associated
-    with a vector of "skills" $\boldsymbol{s}$ which entries $s_i$ show the probability
-    of the worker $i$ to answer correctly to the given task. Having that, we can show that
+    r"""The $\boldsymbol{Matrix Mean-Subsequence-Reduced Algorithm}$ (M-MSR) model assumes that workers have different expertise levels and are represented
+    as a vector of "skills" $\boldsymbol{s}$ which entries $s_i$ show the probability
+    that the worker $i$ will answer the given task correctly. Having that, we can estimate the probability of each worker via solving a rank-one matrix completion problem as follows:
     $$
     \mathbb{E}\left[\frac{M}{M-1}\widetilde{C}-\frac{1}{M-1}\boldsymbol{1}\boldsymbol{1}^T\right]
      = \boldsymbol{s}\boldsymbol{s}^T,
     $$
-    where $M$ is the total number of classes, $\widetilde{C}$ is a covariation matrix between
+    where $M$ is the total number of classes, $\widetilde{C}$ is a covariance matrix between
     workers, and $\boldsymbol{1}\boldsymbol{1}^T$ is the all-ones matrix which has the same
     size as $\widetilde{C}$.
 
 
-    So, the problem of recovering the skills vector $\boldsymbol{s}$ becomes equivalent to the
-    rank-one matrix completion problem. The M-MSR algorithm is an iterative algorithm for *rubust*
+    Thus, the problem of estimating the skill level vector $\boldsymbol{s}$ becomes equivalent to the
+    rank-one matrix completion problem. The M-MSR algorithm is an iterative algorithm for the *robust*
     rank-one matrix completion, so its result is an estimator of the vector $\boldsymbol{s}$.
-    Then, the aggregation is the weighted majority vote with weights equal to
+    And the aggregation is weighted majority voting with weights equal to
     $\log \frac{(M-1)s_i}{1-s_i}$.
 
-    Matrix Mean-Subsequence-Reduced Algorithm. Qianqian Ma and Alex Olshevsky.
-    Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion.
+    Q. Ma and Alex Olshevsky. Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion.
     *34th Conference on Neural Information Processing Systems (NeurIPS 2020)*
 
     <https://arxiv.org/abs/2010.12181>
 
     Args:
         n_iter: The maximum number of iterations of the M-MSR algorithm.
-        eps: Convergence threshold.
-        random_state: Seed number for the random initialization.
+        tol: The convergence threshold.
+        random_state: The seed number for the random initialization.
+        _observation_matrix: The matrix representing which workers give responses to which tasks.
+        _covariation_matrix: The matrix representing the covariance between workers.
+        _n_common_tasks: The matrix representing workers with tasks in common.
+        _n_workers: The number of workers.
+        _n_tasks: The number of tasks that are assigned to workers.
+        _n_labels: The number of possible labels for a series of classification tasks.
+        _labels_mapping: The mapping of labels and integer values.
+        _workers_mapping: The mapping of workers and integer values.
+        _tasks_mapping: The mapping of tasks and integer values.
 
     Examples:
         >>> from crowdkit.aggregation import MMSR
@@ -54,15 +60,16 @@ class MMSR(BaseClassificationAggregator):
         >>> mmsr = MMSR()
         >>> result = mmsr.fit_predict(df)
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's most likely true label.
+        labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
 
-        skills_ (typing.Optional[pandas.core.series.Series]): workers' skills.
-            A pandas.Series index by workers and holding corresponding worker's skill
-        scores_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label scores.
-            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-            is the score of `label` for `task`.
+        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills.
+            pandas.Series is indexed by `worker` and has the corresponding worker skill.
+        scores_ (typing.Optional[pandas.core.frame.DataFrame]): The task label scores.
+            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            is a score of `label` for `task`.
+        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=10000)
@@ -94,11 +101,11 @@ class MMSR(BaseClassificationAggregator):
         return self
 
     def fit(self, data: pd.DataFrame) -> 'MMSR':
-        """Estimate the workers' skills.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
 
         Returns:
             MMSR: self.
@@ -110,61 +117,61 @@ class MMSR(BaseClassificationAggregator):
         return self
 
     def predict(self, data: pd.DataFrame) -> pd.Series:
-        """Infer the true labels when the model is fitted.
+        """Predicts the true labels of tasks when the model is fitted.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
 
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
+            Series: The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
         """
 
         return self._apply(data).labels_
 
     def predict_score(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Return total sum of weights for each label when the model is fitted.
+        """Returns the total sum of weights for each label when the model is fitted.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
 
         Returns:
-            DataFrame: Tasks' label scores.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the score of `label` for `task`.
+            DataFrame: The task label scores.
+            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            is a score of `label` for `task`.
         """
 
         return self._apply(data).scores_
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """Fit the model and return aggregated results.
+        """Fits the model to the training data and returns the aggregated results.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
 
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
+            Series: The task labels.
+            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            is the most likely true label of tasks.
         """
 
         return self.fit(data).predict(data)
 
     def fit_predict_score(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Fit the model and return the total sum of weights for each label.
+        """Fits the model to the training data and returns the total sum of weights for each label.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as
+                pandas.DataFrame containing `task`, `worker`, and `label` columns.
 
         Returns:
-            DataFrame: Tasks' label scores.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the score of `label` for `task`.
+            DataFrame: The task label scores.
+            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            is a score of `label` for `task`.
         """
 
         return self.fit(data).predict_score(data)
