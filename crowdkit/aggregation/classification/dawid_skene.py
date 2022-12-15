@@ -60,21 +60,21 @@ class DawidSkene(BaseClassificationAggregator):
 
     Attributes:
         labels_ (Optional[pd.Series]): The task labels.
-            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            `pandas.Series` is indexed by `task` so that `labels.loc[task]`
             is the most likely true label of tasks.
 
         probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
         priors_ (Optional[pd.Series]): The prior label distribution.
-            pandas.Series is indexed by `label` and contains the probability of the corresponding label
+            `pandas.Series` is indexed by `label` and contains the probability of the corresponding label
             occurrence. Each probability is in the range from 0 to 1,
             all probabilities must sum up to 1.
 
         errors_ (Optional[pandas.core.frame.DataFrame]): The workers' error matrices.
-            pandas.DataFrame is indexed by `worker` and `label` with a column for every
+            `pandas.DataFrame` is indexed by `worker` and `label` with a column for every
             `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]`
             is the probability that `worker` produces `observed_label`, given that the task
             true label is `true_label`.
@@ -150,7 +150,7 @@ class DawidSkene(BaseClassificationAggregator):
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
         Returns:
             DawidSkene: self.
         """
@@ -197,25 +197,23 @@ class DawidSkene(BaseClassificationAggregator):
         """Fits the model to the training data and returns probability distributions of labels for each task.
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
         Returns:
             DataFrame: Probability distributions of task labels.
-            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self.fit(data).probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
         Returns:
-            Series: Task labels.
-            pandas.Series is indexed by `task` so that `labels.loc[task]`
-            is the most likely true label of tasks.
+            Series: Task labels. `pandas.Series` is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).labels_
@@ -266,27 +264,27 @@ class OneCoinDawidSkene(DawidSkene):
 
     Attributes:
         labels_ (Optional[pd.Series]): The task labels.
-            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            `pandas.Series` is indexed by `task` so that `labels.loc[task]`
             is the most likely true label of tasks.
 
         probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
         priors_ (Optional[pd.Series]): The prior label distribution.
-            pandas.Series is indexed by `label` and contains the probability of the corresponding label
+            `pandas.Series` is indexed by `label` and contains the probability of the corresponding label
             occurrence. Each probability is in the range from 0 to 1,
             all probabilities must sum up to 1.
 
         errors_ (Optional[pandas.core.frame.DataFrame]): The workers' error matrices.
-            pandas.DataFrame is indexed by `worker` and `label` with a column for every
+            `pandas.DataFrame` is indexed by `worker` and `label` with a column for every
             `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]`
             is the probability that `worker` produces `observed_label`, given that the task
             true label is `true_label`.
 
         skills_ (Optional[pd.Series]): The workers' skills.
-            pandas.Series is indexed by `worker` and has the corresponding worker skill.
+            `pandas.Series` is indexed by `worker` and has the corresponding worker skill.
 
         loss_history_ (List[float]): A list of loss values during training.
     """
@@ -339,7 +337,7 @@ class OneCoinDawidSkene(DawidSkene):
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
         Returns:
             DawidSkene: self.
         """

@@ -114,11 +114,11 @@ class MACE(BaseClassificationAggregator):
 
     Attributes:
         labels_ (Optional[pd.Series]): The task labels.
-            pandas.Series is indexed by `task` so that `labels.loc[task]`
+            `pandas.Series` is indexed by `task` so that `labels.loc[task]`
             is the most likely true label of tasks.
 
         probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
@@ -153,7 +153,7 @@ class MACE(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
 
         Returns:
             MACE: The fitted MACE model.
@@ -243,12 +243,10 @@ class MACE(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
 
         Returns:
-            pandas.Series: Task labels.
-            pandas.Series is indexed by `task` so that `labels.loc[task]`
-            is the most likely true label of tasks.
+            Series: Task labels. `pandas.Series` is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
         return self.fit(data).labels_
 
@@ -258,11 +256,11 @@ class MACE(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                pandas.DataFrame containing `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
 
         Returns:
-            pandas.DataFrame: Probability distributions of task labels.
-            pandas.DataFrame is indexed by `task` so that `result.loc[task, label]`
+            DataFrame: Probability distributions of task labels.
+            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
@@ -312,7 +310,7 @@ class MACE(BaseClassificationAggregator):
 
         Args:
             annotation (DataFrame): The workers' labeling results.
-                pandas.DataFrame contains `task`, `worker`, and `label` columns.
+                `pandas.DataFrame` contains `task`, `worker`, and `label` columns.
             task_names (List[Any]): The task names.
             worker_names (List[Any]): The workers' names.
             label_names (List[Any]): The label names.
