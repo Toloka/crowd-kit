@@ -215,9 +215,9 @@ items:
     - name: TextSummarization
       items:
       - name: Overview
-        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_summarization.TextSummarization.md
+        href: ../crowd-kit/reference/crowdkit.learning.text_summarization.TextSummarization.md
       - name: fit_predict
-        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_summarization.TextSummarization.fit_predict.md
+        href: ../crowd-kit/reference/crowdkit.learning.text_summarization.TextSummarization.fit_predict.md
   - name: utils
     items:
     - name: get_accuracy
