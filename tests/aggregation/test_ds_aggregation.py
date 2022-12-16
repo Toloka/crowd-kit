@@ -175,7 +175,7 @@ def probas_iter_1() -> pd.DataFrame:
 
 @pytest.fixture
 def priors_iter_1() -> pd.Series:
-    return pd.Series([0.49, 0.51], pd.Index(['no', 'yes']), name='prior')
+    return pd.Series([0.49, 0.51], pd.Index(['no', 'yes'], name='label'), name='prior')
 
 
 @pytest.fixture
@@ -251,7 +251,11 @@ def test_dawid_skene_overlap(overlap: int) -> None:
     # TODO: check errors_
     assert_frame_equal(expected_probas, ds.probas_, check_like=True, atol=0.005)
     assert_series_equal(expected_labels, ds.labels_, atol=0.005)
-    assert_series_equal(pd.Series({'no': 1/3, 'yes': 2/3}, name='prior'), ds.priors_, atol=0.005)
+    assert_series_equal(
+        pd.Series([1/3, 2/3], pd.Index(['no', 'yes'], name='label'), name='prior'),
+        ds.priors_,
+        atol=0.005,
+    )
 
 
 def test_ds_on_bool_labels(data_with_bool_labels: pd.DataFrame,

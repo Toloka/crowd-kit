@@ -1,0 +1,320 @@
+items:
+- name: Aggregation
+  items:
+  - name: Classification
+    items:
+    - name: DawidSkene
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit_predict.md
+      - name: fit_predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.fit_predict_proba.md
+    - name: OneCoinDawidSkene
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene.fit.md
+    - name: GLAD
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.glad.GLAD.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.glad.GLAD.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.glad.GLAD.fit_predict.md
+      - name: fit_predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.glad.GLAD.fit_predict_proba.md
+    - name: GoldMajorityVote
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.fit_predict.md
+      - name: fit_predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.fit_predict_proba.md
+      - name: predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.predict.md
+      - name: predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.predict_proba.md
+    - name: MMSR
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.m_msr.MMSR.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.m_msr.MMSR.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.m_msr.MMSR.fit_predict.md
+      - name: fit_predict_score
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.m_msr.MMSR.fit_predict_score.md
+      - name: predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.m_msr.MMSR.predict.md
+      - name: predict_score
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.m_msr.MMSR.predict_score.md
+    - name: MACE
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.mace.MACE.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.mace.MACE.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.mace.MACE.fit_predict.md
+      - name: fit_predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.mace.MACE.fit_predict_proba.md
+    - name: MajorityVote
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.fit_predict.md
+      - name: fit_predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.fit_predict_proba.md
+    - name: Wawa
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.wawa.Wawa.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.wawa.Wawa.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.wawa.Wawa.fit_predict.md
+      - name: fit_predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.wawa.Wawa.fit_predict_proba.md
+      - name: predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.wawa.Wawa.predict.md
+      - name: predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.wawa.Wawa.predict_proba.md
+    - name: ZeroBasedSkill
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.fit_predict.md
+      - name: fit_predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.fit_predict_proba.md
+      - name: predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.predict.md
+      - name: predict_proba
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.predict_proba.md
+  - name: Embeddings
+    items:
+    - name: ClosestToAverage
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage.fit_predict.md
+      - name: fit_predict_scores
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.closest_to_average.ClosestToAverage.fit_predict_scores.md
+    - name: HRRASA
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit_predict.md
+      - name: fit_predict_scores
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA.fit_predict_scores.md
+      - name: glue_similarity
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.hrrasa.glue_similarity.md
+        hidden: true
+    - name: RASA
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.rasa.RASA.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.rasa.RASA.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.rasa.RASA.fit_predict.md
+      - name: fit_predict_scores
+        href: ../crowd-kit/reference/crowdkit.aggregation.embeddings.rasa.RASA.fit_predict_scores.md
+  - name: Image segmentation
+    items:
+    - name: SegmentationEM
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.fit_predict.md
+    - name: SegmentationMajorityVote
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.fit_predict.md
+    - name: SegmentationRASA
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.fit_predict.md
+  - name: Pairwise
+    items:
+    - name: BradleyTerry
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.fit_predict.md
+    - name: NoisyBradleyTerry
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.fit_predict.md
+  - name: Texts
+    items:
+    - name: ROVER
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.rover.ROVER.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.rover.ROVER.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.rover.ROVER.fit_predict.md
+    - name: TextHRRASA
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_hrrasa.TextHRRASA.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_hrrasa.TextHRRASA.fit_predict.md
+      - name: fit_predict_scores
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_hrrasa.TextHRRASA.fit_predict_scores.md
+    - name: TextRASA
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_rasa.TextRASA.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_rasa.TextRASA.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_rasa.TextRASA.fit_predict.md
+      - name: fit_predict_scores
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_rasa.TextRASA.fit_predict_scores.md
+    - name: TextSummarization
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_summarization.TextSummarization.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_summarization.TextSummarization.fit_predict.md
+  - name: utils
+    items:
+    - name: get_accuracy
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.get_accuracy.md
+    - name: get_most_probable_labels
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.get_most_probable_labels.md
+    - name: manage_data
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.manage_data.md
+    - name: normalize_rows
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.normalize_rows.md
+    - name: add_skills_to_data
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.add_skills_to_data.md
+    - name: named_series_attrib
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.named_series_attrib.md
+      hidden: true
+    - name: evaluate
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.evaluate.md
+      hidden: true
+    - name: evaluate_equal
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.evaluate_equal.md
+      hidden: true
+    - name: evaluate_in
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.evaluate_in.md
+      hidden: true
+    - name: factorize
+      href: ../crowd-kit/reference/crowdkit.aggregation.utils.factorize.md
+      hidden: true
+  - name: base
+    hidden: true
+    items:
+    - name: BaseClassificationAggregator
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseClassificationAggregator.md
+      hidden: true
+    - name: fit
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseClassificationAggregator.fit.md
+      hidden: true
+    - name: fit_predict
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseClassificationAggregator.fit_predict.md
+      hidden: true
+    - name: BaseEmbeddingsAggregator
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseEmbeddingsAggregator.md
+      hidden: true
+    - name: fit
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseEmbeddingsAggregator.fit.md
+      hidden: true
+    - name: fit_predict
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseEmbeddingsAggregator.fit_predict.md
+      hidden: true
+    - name: BaseImageSegmentationAggregator
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseImageSegmentationAggregator.md
+      hidden: true
+    - name: fit
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit.md
+      hidden: true
+    - name: fit_predict
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseImageSegmentationAggregator.fit_predict.md
+      hidden: true
+    - name: BasePairwiseAggregator
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BasePairwiseAggregator.md
+      hidden: true
+    - name: fit
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BasePairwiseAggregator.fit.md
+      hidden: true
+    - name: fit_predict
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BasePairwiseAggregator.fit_predict.md
+      hidden: true
+    - name: BaseTextsAggregator
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseTextsAggregator.md
+      hidden: true
+    - name: fit
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseTextsAggregator.fit.md
+      hidden: true
+    - name: fit_predict
+      href: ../crowd-kit/reference/crowdkit.aggregation.base.BaseTextsAggregator.fit_predict.md
+      hidden: true
+- name: Datasets
+  items:
+  - name: get_datasets_list
+    href: ../crowd-kit/reference/crowdkit.datasets.load_dataset.get_datasets_list.md
+  - name: load_dataset
+    href: ../crowd-kit/reference/crowdkit.datasets.load_dataset.load_dataset.md
+- name: Metrics
+  items:
+  - name: Data
+    items:
+    - name: alpha_krippendorff
+      href: ../crowd-kit/reference/crowdkit.metrics.data._classification.alpha_krippendorff.md
+    - name: consistency
+      href: ../crowd-kit/reference/crowdkit.metrics.data._classification.consistency.md
+    - name: uncertainty
+      href: ../crowd-kit/reference/crowdkit.metrics.data._classification.uncertainty.md
+  - name: Workers
+    items:
+    - name: accuracy_on_aggregates
+      href: ../crowd-kit/reference/crowdkit.metrics.workers.accuracy_on_aggregates.accuracy_on_aggregates.md
+- name: Postprocessing
+  items:
+  - name: entropy_threshold
+    href: ../crowd-kit/reference/crowdkit.postprocessing.entropy_threshold.entropy_threshold.md
+base: en
