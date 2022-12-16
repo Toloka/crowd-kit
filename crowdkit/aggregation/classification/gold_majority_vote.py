@@ -46,14 +46,14 @@ class GoldMajorityVote(BaseClassificationAggregator):
 
     Attributes:
         labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
-            `pandas.Series` is indexed by `task` so that `labels.loc[task]`
+            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
             is the most likely true label of tasks.
 
         skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills.
-            `pandas.Series` is indexed by `worker` and has the corresponding worker skill.
+            The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill.
 
         probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in the range from 0 to 1, all task probabilities must sum up to 1.
     """
@@ -77,9 +77,9 @@ class GoldMajorityVote(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
             true_labels (Series): The ground truth labels of tasks.
-                `pandas.Series` is indexed by `task` so that `labels.loc[task]`
+                The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
                 is the task ground truth label.
 
         Returns:
@@ -95,10 +95,10 @@ class GoldMajorityVote(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
-            Series: The task labels. `pandas.Series` is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
+            Series: The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self._apply(data).labels_
@@ -108,11 +108,11 @@ class GoldMajorityVote(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
@@ -123,13 +123,13 @@ class GoldMajorityVote(BaseClassificationAggregator):
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
             true_labels (Series): The ground truth labels of tasks.
-                `pandas.Series` is indexed by `task` so that `labels.loc[task]`
+                The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
                 is the task ground truth label.
 
         Returns:
-            Series: The task labels. `pandas.Series` is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
+            Series: The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data, true_labels).predict(data)
@@ -139,14 +139,14 @@ class GoldMajorityVote(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
             true_labels (Series): The ground truth labels of tasks.
-                `pandas.Series` is indexed by `task` so that `labels.loc[task]`
+                The `pandas.Series` daata is indexed by `task` so that `labels.loc[task]`
                 is the task ground truth label.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """

@@ -61,13 +61,13 @@ class MMSR(BaseClassificationAggregator):
         >>> result = mmsr.fit_predict(df)
     Attributes:
         labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
-            `pandas.Series` is indexed by `task` so that `labels.loc[task]`
+            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
             is the most likely true label of tasks.
 
         skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills.
-            `pandas.Series` is indexed by `worker` and has the corresponding worker skill.
+            The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill.
         scores_ (typing.Optional[pandas.core.frame.DataFrame]): The task label scores.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is a score of `label` for `task`.
         loss_history_ (List[float]): A list of loss values during training.
     """
@@ -105,7 +105,7 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             MMSR: self.
@@ -121,10 +121,10 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
-            Series: The task labels. `pandas.Series` is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
+            Series: The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self._apply(data).labels_
@@ -134,11 +134,11 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: The task label scores.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is a score of `label` for `task`.
         """
 
@@ -149,10 +149,10 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
-            Series: The task labels. `pandas.Series` is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
+            Series: The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).predict(data)
@@ -162,11 +162,11 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: The task label scores.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is a score of `label` for `task`.
         """
 

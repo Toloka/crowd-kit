@@ -81,19 +81,19 @@ class GLAD(BaseClassificationAggregator):
 
     Attributes:
         labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
-            `pandas.Series` is indexed by `task` so that `labels.loc[task]`
+            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
             is the most likely true label of tasks.
 
         probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
         alphas_ (Series): The alpha parameters of workers' abilities.
-            `pandas.Series` is indexed by `worker` that contains the estimated alpha parameters.
+            The `pandas.Series` data is indexed by `worker` that contains the estimated alpha parameters.
 
         betas_ (Series): The beta parameters of task difficulty.
-            `pandas.Series` is indexed by `task` that contains the estimated beta parameters.
+            The `pandas.Series` data is indexed by `task` that contains the estimated beta parameters.
 
         loss_history_ (List[float]): A list of loss values during training.
     """
@@ -283,7 +283,7 @@ class GLAD(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             GLAD: self.
@@ -323,11 +323,11 @@ class GLAD(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            `pandas.DataFrame` is indexed by `task` so that `result.loc[task, label]`
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
             is the probability that the `task` true label is equal to `label`. Each
             probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
@@ -340,9 +340,9 @@ class GLAD(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results which is represented as
-                `pandas.DataFrame` containing `task`, `worker`, and `label` columns.
+                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
         Returns:
-            Series: Task labels. `pandas.Series` is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
+            Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).labels_
