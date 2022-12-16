@@ -1,0 +1,9 @@
+items:
+  - name: Overview
+    href: ../crowd-kit/index.md
+  - name: Reference
+    expanded: true
+    include:
+      path: crowd-kit-reference-toc.yaml
+      mode: link
+base: en
