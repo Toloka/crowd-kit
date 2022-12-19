@@ -13,7 +13,7 @@ from ..utils import get_accuracy, named_series_attrib
 
 @attr.s
 class Wawa(BaseClassificationAggregator):
-    r"""The $\boldsymbol{Worker Agreement with Aggregate}$ (Wawa) algorithm consists of three steps:
+    r"""The **Worker Agreement with Aggregate** (Wawa) algorithm consists of three steps:
         1. calculates the majority vote label;
         2. estimates workers' skills as a fraction of responses that are equal to the majority vote;
         3. calculates the weigthed majority vote based on skills from the previous step.
@@ -25,17 +25,13 @@ class Wawa(BaseClassificationAggregator):
             >>> result = Wawa().fit_predict(df)
 
         Attributes:
-            labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
-            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
-            is the most likely true label of tasks.
+            labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
 
-            skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills.
-            The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill.
+            skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill.
 
             probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is the probability that the `task` true label is equal to `label`. Each
-            probability is in the range from 0 to 1, all task probabilities must sum up to 1.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
         """
 
     skills_: Optional[pd.Series] = named_series_attrib(name='skill')
@@ -54,8 +50,7 @@ class Wawa(BaseClassificationAggregator):
         """Fits the model to the training data.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Wawa: self.
@@ -71,8 +66,7 @@ class Wawa(BaseClassificationAggregator):
         """Predicts the true labels of tasks when the model is fitted.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Series: The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
@@ -84,14 +78,12 @@ class Wawa(BaseClassificationAggregator):
         """Returns probability distributions of labels for each task when the model is fitted.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is the probability that the `task` true label is equal to `label`. Each
-            probability is in he range from 0 to 1, all task probabilities must sum up to 1.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self._apply(data).probas_
@@ -100,8 +92,7 @@ class Wawa(BaseClassificationAggregator):
         """Fits the model to the training data and returns the aggregated results.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Series: The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
@@ -113,14 +104,12 @@ class Wawa(BaseClassificationAggregator):
         """Fits the model to the training data and returns probability distributions of labels for each task.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is the probability that the `task` true label is equal to `label`. Each
-            probability is in he range from 0 to 1, all task probabilities must sum up to 1.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self.fit(data).predict_proba(data)

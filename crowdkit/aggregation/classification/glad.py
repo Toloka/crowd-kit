@@ -23,7 +23,7 @@ from ..utils import named_series_attrib
 
 @attr.s
 class GLAD(BaseClassificationAggregator):
-    r"""The $\boldsymbol{GLAD}$ (Generative model of Labels, Abilities, and Difficulties) model is a probabilistic model that parametrizes the abilities of workers and the difficulty of tasks.
+    r"""The **GLAD** (Generative model of Labels, Abilities, and Difficulties) model is a probabilistic model that parametrizes the abilities of workers and the difficulty of tasks.
 
     Let's consider a case of $K$ class classification. Let $p$ be a vector of prior class probabilities,
     $\alpha_i \in (-\infty, +\infty)$ be a worker ability parameter, $\beta_j \in (0, +\infty)$ be
@@ -50,9 +50,9 @@ class GLAD(BaseClassificationAggregator):
     $$
 
     Parameters $p$, $\alpha$, $\beta$, and latent variables $z$ are optimized with the Expectation-Minimization algorithm:
-    1. $\boldsymbol{E-step}$. Estimates the true task label probabilities using the alpha parameters of workers' abilities,
+    1. **E-step**. Estimates the true task label probabilities using the alpha parameters of workers' abilities,
         the prior label probabilities, and the beta parameters of task difficulty.
-    2. $\boldsymbol{M-step}$. Optimizes the alpha and beta parameters using the conjugate gradient method.
+    2. **M-step**. Optimizes the alpha and beta parameters using the conjugate gradient method.
 
 
     J. Whitehill, P. Ruvolo, T. Wu, J. Bergsma, and J. Movellan.
@@ -63,14 +63,15 @@ class GLAD(BaseClassificationAggregator):
 
 
     Args:
-        n_iter: The number of EM iterations.
-        tol: The convergence threshold.
+        n_iter: The maximum number of EM iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+        The algorithm converges when the loss change is less than the `tol` parameter.
         silent: Specifies if the progress bar will be shown (false) or not (true).
         labels_priors: The prior label probabilities.
         alphas_priors_mean: The prior mean value of the alpha parameters.
         betas_priors_mean: The prior mean value of the beta parameters.
         m_step_max_iter: The maximum number of iterations of the conjugate gradient method in the M-step.
-        m_step_tol: The threshold for convergence criterion of the conjugate gradient method in the M-step.
+        m_step_tol: The tolerance stopping criterion of the conjugate gradient method in the M-step.
 
     Examples:
         >>> from crowdkit.aggregation import GLAD
@@ -80,20 +81,15 @@ class GLAD(BaseClassificationAggregator):
         >>> result = glad.fit_predict(df)
 
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
-            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
-            is the most likely true label of tasks.
+        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
 
         probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is the probability that the `task` true label is equal to `label`. Each
-            probability is in the range from 0 to 1, all task probabilities must sum up to 1.
+        The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+        Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
-        alphas_ (Series): The alpha parameters of workers' abilities.
-            The `pandas.Series` data is indexed by `worker` that contains the estimated alpha parameters.
+        alphas_ (Series): The alpha parameters of workers' abilities. The `pandas.Series` data is indexed by `worker` that contains the estimated alpha parameters.
 
-        betas_ (Series): The beta parameters of task difficulty.
-            The `pandas.Series` data is indexed by `task` that contains the estimated beta parameters.
+        betas_ (Series): The beta parameters of task difficulty. The `pandas.Series` data is indexed by `task` that contains the estimated beta parameters.
 
         loss_history_ (List[float]): A list of loss values during training.
     """
@@ -282,8 +278,7 @@ class GLAD(BaseClassificationAggregator):
         """Fits the model to the training data with the EM algorithm.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             GLAD: self.
@@ -322,25 +317,22 @@ class GLAD(BaseClassificationAggregator):
         """Fits the model to the training data and returns probability distributions of labels for each task.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is the probability that the `task` true label is equal to `label`. Each
-            probability is in he range from 0 to 1, all task probabilities must sum up to 1.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self.fit(data).probas_
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """
-        Fits the model to the training data and returns the aggregated results.
+        """Fits the model to the training data and returns the aggregated results.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+
         Returns:
             Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """

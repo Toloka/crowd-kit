@@ -66,7 +66,7 @@ def decode_distribution(gold_label_marginals: pd.DataFrame) -> pd.DataFrame:
 
 @attr.s
 class MACE(BaseClassificationAggregator):
-    r"""The $\boldsymbol{Multi-Annotator Competence Estimation}$ (MACE) model is a probabilistic model that associates each worker with a label probability distribution.
+    r"""The **Multi-Annotator Competence Estimation** (MACE) model is a probabilistic model that associates each worker with a label probability distribution.
     A worker can be spamming on each task. If the worker is not spamming, they label a task correctly. If the worker is spamming, they answer according
     to their probability distribution.
 
@@ -76,15 +76,15 @@ class MACE(BaseClassificationAggregator):
     Thus, if the worker is not spamming on the task, i.e. $S_{ij} = 0$, their response is the true label, i.e. $A_{ij} = T_i$.
     Otherwise, their response $A_{ij}$ is drawn from a multinomial distribution with parameter vector $\xi_j$.
 
-    ![MACE latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/mace_llm.png)
+    ![MACE latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/mace_llm.png =500x630)
 
     The model can be enhanced by adding the Beta prior on $\theta_j$ and the Diriclet
     prior on $\xi_j$.
 
     The marginal data likelihood is maximized with the Expectation-Maximization algorithm:
-    1. $\boldsymbol{E-step}$. Performs `n_restarts` random restarts, and keeps the model with the best marginal data likelihood.
-    2. $\boldsymbol{M-step}$. Smooths parameters by adding a fixed value `smoothing` to the fractional counts before normalizing.
-    3. $\boldsymbol{Variational M-step}$. Employs Variational-Bayes (VB) training with symmetric Beta priors on $\theta_j$ and symmetric Dirichlet priors on the strategy parameters $\xi_j.
+    1. **E-step**. Performs `n_restarts` random restarts, and keeps the model with the best marginal data likelihood.
+    2. **M-step**. Smooths parameters by adding a fixed value `smoothing` to the fractional counts before normalizing.
+    3. **Variational M-step**. Employs Variational-Bayes (VB) training with symmetric Beta priors on $\theta_j$ and symmetric Dirichlet priors on the strategy parameters $\xi_j.
 
     D. Hovy, T. Berg-Kirkpatrick, A. Vaswani and E. Hovy. Learning Whom to Trust with MACE.
     In *Proceedings of NAACL-HLT*, Atlanta, GA, USA (2013), 1120–1130.
@@ -92,18 +92,18 @@ class MACE(BaseClassificationAggregator):
     <https://aclanthology.org/N13-1132.pdf>
 
     Args:
-        n_restarts (int): The number of optimization runs of the algorithms. The final parameters are those
-            that gave the best log likelihood. If one run takes too long, this parameter can be set to 1. Default: 10.
-        n_iter (int): The number of EM iterations for each optimization run. Default: 50.
-        method (str): The method which is used for the M-step. Either 'vb' or 'em'. 'vb' means
-            optimization with Variational Bayes using priors. 'em' means standard Expectation-Maximization algorithm. Default: 'vb'.
+        n_restarts (int): The number of optimization runs of the algorithms. The final parameters are those that gave the best log likelihood.
+        If one run takes too long, this parameter can be set to 1. Default: 10.
+        n_iter (int): The maximum number of EM iterations for each optimization run. Default: 50.
+        method (str): The method which is used for the M-step. Either 'vb' or 'em'. 'vb' means optimization with Variational Bayes using priors.
+        'em' means standard Expectation-Maximization algorithm. Default: 'vb'.
         smoothing (float): The smoothing parameter for the normalization. Default: 0.1.
         default_noise (float): The default noise parameter for the initialization. Default: 0.5.
         alpha (float): The prior parameter for the Beta distribution on $\theta_j$. Default: 0.5.
         beta (float): The prior parameter for the Beta distribution on $\theta_j$. Default: 0.5.
         random_state (int): The state of the random number generator. Default: 0.
         verbose (int): Specifies if the progress will be printed or not: 0 — no progress bar, 1 — only for restarts,
-         2 — for both restarts and optimization. Default: 0.
+        2 — for both restarts and optimization. Default: 0.
 
     Examples:
         >>> from crowdkit.aggregation import MACE
@@ -113,14 +113,11 @@ class MACE(BaseClassificationAggregator):
         >>> result = mace.fit_predict(df)
 
     Attributes:
-        labels_ (Optional[pd.Series]): The task labels.
-            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
-            is the most likely true label of tasks.
+        labels_ (Optional[pd.Series]): The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
 
         probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is the probability that the `task` true label is equal to `label`. Each
-            probability is in the range from 0 to 1, all task probabilities must sum up to 1.
+        The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+        Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
         spamming_ (np.ndarray): The posterior distribution of workers' spamming states.
 
@@ -152,8 +149,7 @@ class MACE(BaseClassificationAggregator):
         """Fits the model to the training data.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             MACE: The fitted MACE model.
@@ -242,8 +238,7 @@ class MACE(BaseClassificationAggregator):
         Fits the model to the training data and returns the aggregated results.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
@@ -255,14 +250,12 @@ class MACE(BaseClassificationAggregator):
         Fits the model to the training data and returns probability distributions of labels for each task.
 
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is the probability that the `task` true label is equal to `label`. Each
-            probability is in he range from 0 to 1, all task probabilities must sum up to 1.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
         return self.fit(data).probas_
 
@@ -309,8 +302,7 @@ class MACE(BaseClassificationAggregator):
         """Performs E-step of the MACE algorithm.
 
         Args:
-            annotation (DataFrame): The workers' labeling results.
-                The `pandas.DataFrame` data contains `task`, `worker`, and `label` columns.
+            annotation (DataFrame): The workers' labeling results. The `pandas.DataFrame` data contains `task`, `worker`, and `label` columns.
             task_names (List[Any]): The task names.
             worker_names (List[Any]): The workers' names.
             label_names (List[Any]): The label names.
@@ -319,8 +311,7 @@ class MACE(BaseClassificationAggregator):
             labels (np.ndarray): The label IDs in the annotation.
 
         Returns:
-            Tuple[float, pd.DataFrame, pd.DataFrame, pd.DataFrame]: The log marginal likelihood,
-                gold label marginals, strategy expected counts, and knowing expected counts.
+            Tuple[float, pd.DataFrame, pd.DataFrame, pd.DataFrame]: The log marginal likelihood, gold label marginals, strategy expected counts, and knowing expected counts.
         """
         gold_label_marginals = pd.DataFrame(
             np.zeros((len(task_names), len(label_names))),

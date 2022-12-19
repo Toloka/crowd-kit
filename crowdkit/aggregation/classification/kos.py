@@ -13,7 +13,7 @@ _MAX = np.float_power(10, 300)
 
 @attr.s
 class KOS(BaseClassificationAggregator):
-    r"""The $\boldsymbol{KOS}$ (Karger, Oh, and Shah 2011) aggregation model is an iterative algorithm that calculates the log-likelihood of the task being positive while modeling
+    r"""The **KOS** (Karger, Oh, and Shah 2011) aggregation model is an iterative algorithm that calculates the log-likelihood of the task being positive while modeling
     the worker reliability.
 
     Let $A_{ij}$ be a matrix of the responses of a worker $j$ on a task $i$.
@@ -35,7 +35,7 @@ class KOS(BaseClassificationAggregator):
     <https://arxiv.org/abs/1110.3564>
 
     Args:
-        n_iter: The number of iterations.
+        n_iter: The maximum number of iterations.
         random_state: The state of the random number generator.
 
     Examples:
@@ -46,9 +46,7 @@ class KOS(BaseClassificationAggregator):
         >>> result = ds.fit_predict(df)
 
     Attributes:
-        labels_ (Optional[pd.Series]): The task labels.
-            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
-            is the most likely true label of tasks.
+        labels_ (Optional[pd.Series]): The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
 
     """
 
@@ -58,8 +56,8 @@ class KOS(BaseClassificationAggregator):
     def fit(self, data: pd.DataFrame) -> 'KOS':
         """Fits the model to the training data.
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+
         Returns:
             KOS: self.
         """
@@ -107,8 +105,8 @@ class KOS(BaseClassificationAggregator):
     def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
         """Fits the model to the training data and returns the aggregated results.
         Args:
-            data (DataFrame): The training dataset of workers' labeling results which is represented as
-                the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+
         Returns:
             Series: The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
