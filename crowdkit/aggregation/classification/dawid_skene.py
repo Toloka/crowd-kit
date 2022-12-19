@@ -119,6 +119,7 @@ class DawidSkene(BaseClassificationAggregator):
         joined = data.join(np.log2(errors), on=['worker', 'label'])
         joined.drop(columns=['worker', 'label'], inplace=True)
         log_likelihoods = np.log2(priors) + joined.groupby('task', sort=False).sum()
+        log_likelihoods.rename_axis('label', axis=1, inplace=True)
 
         # Exponentiating log_likelihoods 'as is' may still get us beyond our precision.
         # So we shift every row of log_likelihoods by a constant (which is equivalent to

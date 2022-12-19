@@ -52,10 +52,18 @@ jobs:
       - name: Set up YFM
         run: |
           npm install @doc-tools/docs --location=global
-          wget https://raw.githubusercontent.com/Toloka/docs/main/.yfm
-      - name: Install Stubmaker
-        run: pip install https://github.com/Toloka/stubmaker/archive/refs/heads/main.zip
       - name: Generate markdowns
-        run: ./misc/make_markdowns.py --module-root crowdkit --src-root crowdkit --output-dir docs/reference --described-objects misc/described_objects_crowdkit.py
+        run: ./misc/make_markdowns.py --module-root crowdkit --src-root crowdkit --output-dir docs/en/crowd-kit/reference --described-objects misc/described_objects_crowdkit.py
+      - name: Checkout docs repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'Toloka/docs'
+          path: 'docs-repo'
+      - name: Update docs repository
+        run: |
+          rm -rf docs-repo/en/crowd-kit/reference/*.md
+          rsync -a docs/ docs-repo/
       - name: Generate docs
-        run: yfm -c .yfm -i ./docs -o /tmp/crowd-kit-docs
+        run: |
+          cd docs-repo
+          yfm -c .yfm -i . -o /tmp/crowd-kit-docs
