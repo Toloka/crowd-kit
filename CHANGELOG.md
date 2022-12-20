@@ -1,3 +1,8 @@
+1.2.0
+-------------------
+* Crowd-Kit Learning subpackage introducing implementations of deep learning from crowds methods: CoNAL and CrowdLayer
+* Added Multi-Binary aggregation
+
 1.1.0
 -------------------
 * New aggregation methods: One-Coin Dawid Skene, MACE, and KOS
