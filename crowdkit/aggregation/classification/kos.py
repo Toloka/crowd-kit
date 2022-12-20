@@ -47,7 +47,7 @@ class KOS(BaseClassificationAggregator):
 
     Attributes:
         labels_ (Optional[pd.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-        so that `labels.loc[task]` is the most likely true label of tasks.
+            so that `labels.loc[task]` is the most likely true label of tasks.
 
     """
 
@@ -58,7 +58,7 @@ class KOS(BaseClassificationAggregator):
         """Fits the model to the training data.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             KOS: self.
@@ -108,11 +108,11 @@ class KOS(BaseClassificationAggregator):
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Series: The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
+                so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).labels_

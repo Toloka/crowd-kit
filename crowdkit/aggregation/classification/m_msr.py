@@ -42,7 +42,7 @@ class MMSR(BaseClassificationAggregator):
     Args:
         n_iter: The maximum number of iterations.
         tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-        The algorithm converges when the loss change is less than the `tol` parameter.
+            The algorithm converges when the loss change is less than the `tol` parameter.
         random_state: The seed number for the random initialization.
         _observation_matrix: The matrix representing which workers give responses to which tasks.
         _covariation_matrix: The matrix representing the covariance between workers.
@@ -62,13 +62,13 @@ class MMSR(BaseClassificationAggregator):
         >>> result = mmsr.fit_predict(df)
     Attributes:
         labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-        so that `labels.loc[task]` is the most likely true label of tasks.
+            so that `labels.loc[task]` is the most likely true label of tasks.
 
         skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker`
-        and has the corresponding worker skill.
+            and has the corresponding worker skill.
 
         scores_ (typing.Optional[pandas.core.frame.DataFrame]): The task label scores. The `pandas.DataFrame` data is indexed by `task`
-        so that `result.loc[task, label]` is a score of `label` for `task`.
+            so that `result.loc[task, label]` is a score of `label` for `task`.
 
         loss_history_ (List[float]): A list of loss values during training.
     """
@@ -106,7 +106,7 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             MMSR: self.
@@ -122,11 +122,11 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Series: The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
+                so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self._apply(data).labels_
@@ -136,11 +136,11 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: The task label scores. The `pandas.DataFrame` data is indexed by `task`
-            so that `result.loc[task, label]` is a score of `label` for `task`.
+                so that `result.loc[task, label]` is a score of `label` for `task`.
         """
 
         return self._apply(data).scores_
@@ -150,11 +150,11 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Series: The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
+                so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).predict(data)
@@ -164,11 +164,11 @@ class MMSR(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: The task label scores. The `pandas.DataFrame` data is indexed by `task`
-            so that `result.loc[task, label]` is a score of `label` for `task`.
+                so that `result.loc[task, label]` is a score of `label` for `task`.
         """
 
         return self.fit(data).predict_score(data)

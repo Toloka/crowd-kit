@@ -93,17 +93,17 @@ class MACE(BaseClassificationAggregator):
 
     Args:
         n_restarts (int): The number of optimization runs of the algorithms. The final parameters are those that gave the best log likelihood.
-        If one run takes too long, this parameter can be set to 1. Default: 10.
+            If one run takes too long, this parameter can be set to 1. Default: 10.
         n_iter (int): The maximum number of EM iterations for each optimization run. Default: 50.
         method (str): The method which is used for the M-step. Either 'vb' or 'em'. 'vb' means optimization with Variational Bayes using priors.
-        'em' means standard Expectation-Maximization algorithm. Default: 'vb'.
+            'em' means standard Expectation-Maximization algorithm. Default: 'vb'.
         smoothing (float): The smoothing parameter for the normalization. Default: 0.1.
         default_noise (float): The default noise parameter for the initialization. Default: 0.5.
         alpha (float): The prior parameter for the Beta distribution on $\theta_j$. Default: 0.5.
         beta (float): The prior parameter for the Beta distribution on $\theta_j$. Default: 0.5.
         random_state (int): The state of the random number generator. Default: 0.
         verbose (int): Specifies if the progress will be printed or not: 0 — no progress bar, 1 — only for restarts,
-        2 — for both restarts and optimization. Default: 0.
+            2 — for both restarts and optimization. Default: 0.
 
     Examples:
         >>> from crowdkit.aggregation import MACE
@@ -114,11 +114,11 @@ class MACE(BaseClassificationAggregator):
 
     Attributes:
         labels_ (Optional[pd.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-        so that `labels.loc[task]` is the most likely true label of tasks.
+            so that `labels.loc[task]` is the most likely true label of tasks.
 
         probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-        The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-        Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
         spamming_ (np.ndarray): The posterior distribution of workers' spamming states.
 
@@ -151,7 +151,7 @@ class MACE(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             MACE: The fitted MACE model.
@@ -241,11 +241,11 @@ class MACE(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             Series: Task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
+                so that `labels.loc[task]` is the most likely true label of tasks.
         """
         return self.fit(data).labels_
 
@@ -255,12 +255,12 @@ class MACE(BaseClassificationAggregator):
 
         Args:
             data (DataFrame): The training dataset of workers' labeling results
-            which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             DataFrame: Probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-            Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+                Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
         return self.fit(data).probas_
 
@@ -317,7 +317,7 @@ class MACE(BaseClassificationAggregator):
 
         Returns:
             Tuple[float, pd.DataFrame, pd.DataFrame, pd.DataFrame]: The log marginal likelihood, gold label marginals,
-            strategy expected counts, and knowing expected counts.
+                strategy expected counts, and knowing expected counts.
         """
         gold_label_marginals = pd.DataFrame(
             np.zeros((len(task_names), len(label_names))),
