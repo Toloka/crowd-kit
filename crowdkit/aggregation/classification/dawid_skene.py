@@ -49,7 +49,7 @@ class DawidSkene(BaseClassificationAggregator):
 
     Args:
         n_iter: The maximum number of EM iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps. 
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
             The algorithm converges when the loss change is less than the `tol` parameter.
 
     Examples:
