@@ -13,30 +13,43 @@ from ..utils import get_accuracy, named_series_attrib
 
 @attr.attrs(auto_attribs=True)
 class ZeroBasedSkill(BaseClassificationAggregator):
-    """The Zero-Based Skill aggregation model aka ZBS.
-
-    Performs weighted majority voting on tasks. After processing a pool of tasks,
-    re-estimates workers' skills through a gradient descend step of optimization
-    of the mean squared error of current skills and the fraction of responses that
+    r"""The **Zero-Based Skill** (ZBS) aggregation model performs weighted majority voting on tasks. After processing a pool of tasks,
+    it re-estimates the workers' skills with a gradient descend step to optimize
+    the mean squared error of the current skills and the fraction of responses that
     are equal to the aggregated labels.
 
-    Repeats this process until labels do not change or the number of iterations exceeds.
+    This process is repeated until the labels change or exceed the number of iterations.
 
-    It's necessary that all workers in a dataset that send to 'predict' existed in answers
-    the dataset that was sent to 'fit'.
+    {% note info %}
+
+    It is necessary that all workers in the dataset that is sent to `predict` exist in responses to
+    the dataset that was sent to `fit`.
+
+    {% endnote %}
 
     Args:
-        n_iter: A number of iterations to perform.
-        lr_init: A starting learning rate.
-        lr_steps_to_reduce: A number of steps necessary to decrease the learning rate.
-        lr_reduce_factor: A factor that the learning rate will be multiplied by every `lr_steps_to_reduce` steps.
-        eps: A convergence threshold.
+        n_iter: The maximum number of iterations.
+        lr_init: The initial learning rate.
+        lr_steps_to_reduce: The number of steps required to reduce the learning rate.
+        lr_reduce_factor: The factor by which the learning rate will be multiplied every `lr_steps_to_reduce` step.
+        eps: The convergence threshold.
 
     Examples:
         >>> from crowdkit.aggregation import ZeroBasedSkill
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> result = ZeroBasedSkill().fit_predict(df)
+
+    Attributes:
+        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker`
+            and has the corresponding worker skill.
+
+        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
+            so that `labels.loc[task]` is the most likely true label of tasks.
+
+        probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
     """
 
     n_iter: int = 100
@@ -65,11 +78,11 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         return self
 
     def fit(self, data: pd.DataFrame) -> 'ZeroBasedSkill':
-        """Fit the model.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
             ZeroBasedSkill: self.
@@ -94,59 +107,54 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         return self
 
     def predict(self, data: pd.DataFrame) -> pd.Series:
-        """Infer the true labels when the model is fitted.
+        """Predicts the true labels of tasks when the model is fitted.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
+            Series: The task labels. The `pandas.Series` data is indexed by `task`
+                so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self._apply(data).labels_
 
     def predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Return probability distributions on labels for each task when the model is fitted.
+        """Returns probability distributions of labels for each task when the model is fitted.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
         Returns:
-            DataFrame: Tasks' label probability distributions.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the probability of `task`'s true label to be equal to `label`. Each
-                probability is between 0 and 1, all task's probabilities should sum up to 1
+            DataFrame: The probability distributions of task labels.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+                Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self._apply(data).probas_
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """Fit the model and return aggregated results.
+        """Fits the model to the training data and returns the aggregated results.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
+            Series: The task labels. The `pandas.Series` data is indexed by `task`
+                so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).predict(data)
 
-    def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Fit the model and return probability distributions on labels for each task.
+    def fit_predict_proba(self, data: pd.DataFrame) -> pd.Series:
+        """Fits the model to the training data and returns the aggregated results.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
         Returns:
-            DataFrame: Tasks' label probability distributions.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the probability of `task`'s true label to be equal to `label`. Each
-                probability is between 0 and 1, all task's probabilities should sum up to 1
+            Series: The task labels. The `pandas.Series` data is indexed by `task`
+                so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).predict_proba(data)

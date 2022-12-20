@@ -43,6 +43,14 @@ items:
         href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.predict.md
       - name: predict_proba
         href: ../crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.predict_proba.md
+    - name: KOS
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.kos.KOS.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.kos.KOS.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.classification.kos.KOS.fit_predict.md
     - name: MMSR
       items:
       - name: Overview

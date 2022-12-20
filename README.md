@@ -17,17 +17,17 @@
 
 Currently, Crowd-Kit contains:
 
-* implementations of commonly-used aggregation methods for categorical, pairwise, textual, and segmentation responses
-* metrics of uncertainty, consistency, and agreement with aggregate
-* loaders for popular crowdsourced datasets
+* implementations of commonly-used aggregation methods for categorical, pairwise, textual, and segmentation responses;
+* metrics of uncertainty, consistency, and agreement with aggregate;
+* loaders for popular crowdsourced datasets.
 
 Also, the `learning` subpackage contains PyTorch implementations of deep learning from crowds methods and advanced aggregation algorithms.
 
 ## Installing
 
-Installing Crowd-Kit is as easy as `pip install crowd-kit`. If you also want to use the `learning` subpackage, type `pip instal crowd-kit[learning]`.
+To install Crowd-Kit, run the following command: `pip install crowd-kit`. If you also want to use the `learning` subpackage, type `pip instal crowd-kit[learning]`.
 
-Those who are interested in contributing to Crowd-Kit can use [Pipenv](https://pipenv.pypa.io/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://pytest.org/) for testing.
+If you are interested in contributing to Crowd-Kit, use [Pipenv](https://pipenv.pypa.io/en/latest/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://docs.pytest.org/en/7.1.x/) for testing.
 
 ## Getting Started
 
@@ -42,14 +42,14 @@ from crowdkit.datasets import load_dataset
 import pandas as pd
 ````
 
-Then, you need to read your annotations into Pandas DataFrame with columns `task`, `worker`, `label`. Alternatively, you can download an example dataset.
+Then, you need to read your annotations into Pandas DataFrame with columns `task`, `worker`, `label`. Alternatively, you can download an example dataset:
 
 ````python
 df = pd.read_csv('results.csv')  # should contain columns: task, worker, label
 # df, ground_truth = load_dataset('relevance-2')  # or download an example dataset
 ````
 
-Then you can aggregate the worker responses as easily as in scikit-learn:
+Then, you can aggregate the workers' responses using the `fit_predict` method from the **scikit-learn** library:
 
 ````python
 aggregated_labels = DawidSkene(n_iter=100).fit_predict(df)
@@ -63,55 +63,55 @@ Below is the list of currently implemented methods, including the already availa
 
 ### Categorical Responses
 
-|Method|Status|
-|-|:-:|
-|Majority Vote|✅|
-|One-coin Dawid-Skene|✅|
-|[Dawid-Skene](https://doi.org/10.2307/2346806)|✅|
-|Gold Majority Vote|✅|
-|[M-MSR](https://proceedings.neurips.cc/paper/2020/hash/f86890095c957e9b949d11d15f0d0cd5-Abstract.html)|✅|
-|Wawa|✅|
-|Zero-Based Skill|✅|
-|[GLAD](https://papers.nips.cc/paper/3644-whose-vote-should-count-more-optimal-integration-of-labels-from-labelers-of-unknown-expertise.pdf)|✅|
-|[KOS](https://papers.nips.cc/paper/2011/file/c667d53acd899a97a85de0c201ba99be-Paper.pdf)|✅|
-|[MACE](https://aclanthology.org/N13-1132.pdf)|✅|
-|BCC|🟡|
+| Method | Status |
+| ------------- | :-------------: |
+| [Majority Vote](reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.md) | ✅ |
+| [One-coin Dawid-Skene](reference/crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene.md) | ✅ |
+| [Dawid-Skene](reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.md) | ✅ |
+| [Gold Majority Vote](reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.md) | ✅ |
+| [M-MSR](reference/crowdkit.aggregation.classification.m_msr.MMSR.md) | ✅ |
+| [Wawa](reference/crowdkit.aggregation.classification.wawa.Wawa.md) | ✅ |
+| [Zero-Based Skill](reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.md) | ✅ |
+| [GLAD](reference/crowdkit.aggregation.classification.glad.GLAD.md) | ✅ |
+| [KOS](reference/crowdkit.aggregation.classification.kos.KOS.md) | ✅ |
+| [MACE](reference/crowdkit.aggregation.classification.mace.MACE.md) | ✅ |
+| BCC | 🟡 |
 
 ### Multi-Label Responses
+
 |Method|Status|
 |-|:-:|
-|Binary Relevance|✅|
+|[Binary Relevance](reference/crowdkit.aggregation.multilabel.binary_relevance.BinaryRelevance.md)|✅|
 
 ### Textual Responses
 
-|Method|Status|
-|-|:-:|
-|[RASA](https://doi.org/10.18653/v1/D19-5904)|✅|
-|[HRRASA](https://doi.org/10.1145/3397271.3401239)|✅|
-|[ROVER](https://ieeexplore.ieee.org/document/659110)|✅|
-|[Language Model-Based](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/65ded5353c5ee48d0b7d48c591b8f430-Abstract-round1.html)|✅|
+| Method | Status |
+| ------------- | :-------------: |
+| [RASA](reference/crowdkit.aggregation.embeddings.rasa.RASA.md) | ✅ |
+| [HRRASA](reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA.md) | ✅ |
+| [ROVER](reference/crowdkit.aggregation.texts.rover.ROVER.md) | ✅ |
 
 ### Image Segmentation
 
-|Method|Status|
-|-|:-:|
-|Segmentation MV|✅|
-|Segmentation RASA|✅|
-|Segmentation EM|✅|
+| Method | Status |
+| ------------------ | :------------------: |
+| [Segmentation MV](reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.md) | ✅ |
+| [Segmentation RASA](reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.md) | ✅ |
+| [Segmentation EM](reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.md) | ✅ |
 
 ### Pairwise Comparisons
 
-|Method|Status|
-|-|:-:|
-|[Bradley-Terry](https://doi.org/10.2307/2334029)|✅|
-|Noisy Bradley-Terry|✅|
+| Method | Status |
+| -------------- | :---------------------: |
+| [Bradley-Terry](reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md) | ✅ |
+| [Noisy Bradley-Terry](reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.md) | ✅ |
 
 ### Learning from Crowds
 
 |Method|Status|
 |-|:-:|
-|[CrowdLayer](https://doi.org/10.1609/aaai.v32i1.11506)|✅|
-|[CoNAL](https://doi.org/10.1609/aaai.v35i7.16730)|✅|
+|[CrowdLayer](reference/crowdkit.learning.crowd_layer.CrowdLayer.md)|✅|
+|[CoNAL](reference/crowdkit.learning.conal.Conal.md)|✅|
 
 ## Citation
 
@@ -134,8 +134,8 @@ Below is the list of currently implemented methods, including the already availa
 
 ## Questions and Bug Reports
 
-* For reporting bugs please use the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
-* Join our English-speaking [slack community](https://toloka.ai/community) for both tech and abstract questions.
+* To report a bug, post an issue on the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
+* To find answers to common questions or start a new discussion, join our English-speaking [Slack community](https://toloka.ai/community).
 
 ## License
 

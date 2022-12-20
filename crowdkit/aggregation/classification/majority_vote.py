@@ -11,32 +11,30 @@ from ..utils import normalize_rows, get_most_probable_labels, get_accuracy, add_
 
 @attr.s
 class MajorityVote(BaseClassificationAggregator):
-    """Majority Vote aggregation algorithm.
-
-    Majority vote is a straightforward approach for categorical aggregation: for each task,
-    it outputs a label which has the largest number of responses. Additionaly, the majority vote
-    can be used when different weights assigned for workers' votes. In this case, the
-    resulting label will be the one with the largest sum of weights.
+    r"""The **Majority Vote** aggregation algorithm is a straightforward approach for categorical aggregation: for each task,
+    it outputs a label with the largest number of responses. Additionaly, the Majority Vote
+    can be used when different weights are assigned to workers' votes. In this case, the
+    resulting label will have the largest sum of weights.
 
 
     {% note info %}
 
-     In case when two or more labels have the largest number of votes, the resulting
-     label will be the same for all tasks which have the same set of labels with equal count of votes.
+     If two or more labels have the largest number of votes, the resulting
+     label will be the same for all tasks that have the same set of labels with the same number of votes.
 
      {% endnote %}
 
     Args:
-        default_skill: Defualt worker's weight value.
+        default_skill: Default worker weight value.
 
     Examples:
-        Basic majority voting:
+        Basic Majority Vote:
         >>> from crowdkit.aggregation import MajorityVote
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> result = MajorityVote().fit_predict(df)
 
-        Weighted majority vote:
+        Weighted Majority Vote:
         >>> import pandas as pd
         >>> from crowdkit.aggregation import MajorityVote
         >>> df = pd.DataFrame(
@@ -54,23 +52,23 @@ class MajorityVote(BaseClassificationAggregator):
         >>> result = MajorityVote.fit_predict(df, skills)
 
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's most likely true label.
+        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
+            so that `labels.loc[task]` is the most likely true label of tasks.
 
-        skills_ (typing.Optional[pandas.core.series.Series]): workers' skills.
-            A pandas.Series index by workers and holding corresponding worker's skill
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
-            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-            is the probability of `task`'s true label to be equal to `label`. Each
-            probability is between 0 and 1, all task's probabilities should sum up to 1
+        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker`
+            and has the corresponding worker skill.
 
-        on_missing_skill (str): How to handle assignments done by workers with unknown skill.
+        probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
+
+        on_missing_skill (str): A value which specifies how to handle assignments performed by workers with an unknown skill.
+
             Possible values:
-                    * "error" — raise an exception if there is at least one assignment done by user with unknown skill;
-                    * "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no
-                    assignments with known skill for any task;
-                    * value — default value will be used if skill is missing.
+                    * "error" — raises an exception if there is at least one assignment performed by a worker with an unknown skill;
+                    * "ignore" — drops assignments performed by workers with an unknown skill during prediction. Raises an exception if there are no
+                    assignments with a known skill for any task;
+                    * value — the default value will be used if a skill is missing.
     """
 
     # TODO: remove skills_
@@ -81,13 +79,14 @@ class MajorityVote(BaseClassificationAggregator):
     default_skill: Optional[float] = attr.ib(default=None)
 
     def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> 'MajorityVote':
-        """Fit the model.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
-            skills (Series): workers' skills.
-                A pandas.Series index by workers and holding corresponding worker's skill
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+
+            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker
+                and has the corresponding worker skill.
 
         Returns:
             MajorityVote: self.
@@ -108,36 +107,36 @@ class MajorityVote(BaseClassificationAggregator):
         return self
 
     def fit_predict_proba(self, data: pd.DataFrame, skills: Optional[pd.Series] = None) -> pd.DataFrame:
-        """Fit the model and return probability distributions on labels for each task.
+        """Fits the model to the training data and returns probability distributions of labels for each task.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
-            skills (Series): workers' skills.
-                A pandas.Series index by workers and holding corresponding worker's skill
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+
+            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
+                and has the corresponding worker skill.
 
         Returns:
-            DataFrame: Tasks' label probability distributions.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the probability of `task`'s true label to be equal to `label`. Each
-                probability is between 0 and 1, all task's probabilities should sum up to 1
+            DataFrame: The probability distributions of task labels.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+                Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self.fit(data, skills).probas_
 
     def fit_predict(self, data: pd.DataFrame, skills: pd.Series = None) -> pd.Series:
-        """Fit the model and return aggregated results.
+        """Fits the model to the training data and returns the aggregated results.
 
          Args:
-             data (DataFrame): Workers' labeling results.
-                 A pandas.DataFrame containing `task`, `worker` and `label` columns.
-             skills (Series): workers' skills.
-                 A pandas.Series index by workers and holding corresponding worker's skill
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+
+            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
+                and has the corresponding worker skill.
 
          Returns:
-             Series: Tasks' labels.
-                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                 is the tasks's most likely true label.
+            Series: The task labels. The `pandas.Series` data is indexed by `task`
+                so that `labels.loc[task]` is the most likely true label of tasks.
          """
 
         return self.fit(data, skills).labels_

@@ -18,13 +18,11 @@ _EPS = np.float_power(10, -10)
 
 @attr.s
 class DawidSkene(BaseClassificationAggregator):
-    r"""Dawid-Skene aggregation model.
+    r"""The **Dawid-Skene** aggregation model is a probabilistic model that parametrizes the expertise level of workers with confusion matrices.
 
-    Probabilistic model that parametrizes workers' level of expertise through confusion matrices.
-
-    Let $e^w$ be a worker's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
-    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a worker's
-    answer for the task $j$. The relationships between these parameters are represented by the following latent
+    Let $e^w$ be a worker confusion (error) matrix of size $K \times K$ in case of the $K$ class classification,
+    $p$ be a vector of prior class probabilities, $z_j$ be a true task label, and $y^w_j$ be a worker
+    response to the task $j$. The relationship between these parameters is represented by the following latent
     label model.
 
     ![Dawid-Skene latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
@@ -33,13 +31,16 @@ class DawidSkene(BaseClassificationAggregator):
     $$
     \operatorname{Pr}(z_j = c) = p[c],
     $$
-    and the distribution on the worker's responses given the true label $c$ is represented by the
+    and the probability distribution of the worker responses with the true label $c$ is represented by the
     corresponding column of the error matrix:
     $$
     \operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c].
     $$
 
-    Parameters $p$ and $e^w$ and latent variables $z$ are optimized through the Expectation-Maximization algorithm.
+    Parameters $p$, $e^w$, and latent variables $z$ are optimized with the Expectation-Maximization algorithm:
+    1. **E-step**. Estimates the true task label probabilities using the specified workers' responses,
+        the prior label probabilities, and the workers' error probability matrix.
+    2. **M-step**. Estimates the workers' error probability matrix using the specified workers' responses and the true task label probabilities.
 
     A. Philip Dawid and Allan M. Skene. Maximum Likelihood Estimation of Observer Error-Rates Using the EM Algorithm.
     *Journal of the Royal Statistical Society. Series C (Applied Statistics), Vol. 28*, 1 (1979), 20–28.
@@ -47,7 +48,9 @@ class DawidSkene(BaseClassificationAggregator):
     <https://doi.org/10.2307/2346806>
 
     Args:
-        n_iter: The number of EM iterations.
+        n_iter: The maximum number of EM iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
 
     Examples:
         >>> from crowdkit.aggregation import DawidSkene
@@ -57,25 +60,24 @@ class DawidSkene(BaseClassificationAggregator):
         >>> result = ds.fit_predict(df)
 
     Attributes:
-        labels_ (Optional[pd.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's most likely true label.
+        labels_ (Optional[pd.Series]): The task labels.
+            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
 
-        probas_ (Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
-            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-            is the probability of `task`'s true label to be equal to `label`. Each
-            probability is between 0 and 1, all task's probabilities should sum up to 1
+        probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
-        priors_ (Optional[pd.Series]): A prior label distribution.
-            A pandas.Series indexed by labels and holding corresponding label's
-            probability of occurrence. Each probability is between 0 and 1,
-            all probabilities should sum up to 1
+        priors_ (Optional[pd.Series]): The prior label distribution.
+            The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label
+            occurrence. Each probability is in the range from 0 to 1,
+            all probabilities must sum up to 1.
 
-        errors_ (Optional[pandas.core.frame.DataFrame]): Workers' error matrices.
-            A pandas.DataFrame indexed by `worker` and `label` with a column for every
-            label_id found in `data` such that `result.loc[worker, observed_label, true_label]`
-            is the probability of `worker` producing an `observed_label` given that a task's
-            true label is `true_label`
+        errors_ (Optional[pandas.core.frame.DataFrame]): The workers' error matrices.
+            The `pandas.DataFrame` data is indexed by `worker` and `label` with a column for every
+            `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the probability
+            that `worker` produces `observed_label`, given that the task true label is `true_label`.
+
+        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=100)
@@ -89,10 +91,9 @@ class DawidSkene(BaseClassificationAggregator):
 
     @staticmethod
     def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> pd.DataFrame:
-        """Perform M-step of Dawid-Skene algorithm.
+        """Performs M-step of the Dawid-Skene algorithm.
 
-        Given workers' answers and tasks' true labels probabilities estimates
-        worker's errors probabilities matrix.
+        Estimates the workers' error probability matrix using the specified workers' responses and the true task label probabilities.
         """
         joined = data.join(probas, on='task')
         joined.drop(columns=['task'], inplace=True)
@@ -106,10 +107,10 @@ class DawidSkene(BaseClassificationAggregator):
     @staticmethod
     def _e_step(data: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame) -> pd.DataFrame:
         """
-        Perform E-step of Dawid-Skene algorithm.
+        Performs E-step of the Dawid-Skene algorithm.
 
-        Given worker's answers, labels' prior probabilities and worker's worker's
-        errors probabilities matrix estimates tasks' true labels probabilities.
+        Estimates the true task label probabilities using the specified workers' responses,
+        the prior label probabilities, and the workers' error probability matrix.
         """
 
         # We have to multiply lots of probabilities and such products are known to converge
@@ -145,10 +146,10 @@ class DawidSkene(BaseClassificationAggregator):
         return float(joint_expectation + entropy)
 
     def fit(self, data: pd.DataFrame) -> 'DawidSkene':
-        """Fit the model through the EM-algorithm.
+        """Fits the model to the training data with the EM algorithm.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
         Returns:
             DawidSkene: self.
         """
@@ -192,28 +193,25 @@ class DawidSkene(BaseClassificationAggregator):
         return self
 
     def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Fit the model and return probability distributions on labels for each task.
+        """Fits the model to the training data and returns probability distributions of labels for each task.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
         Returns:
-            DataFrame: Tasks' label probability distributions.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the probability of `task`'s true label to be equal to `label`. Each
-                probability is between 0 and 1, all task's probabilities should sum up to 1
+            DataFrame: Probability distributions of task labels.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+                Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self.fit(data).probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Fit the model and return aggregated results.
+    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+        """Fits the model to the training data and returns the aggregated results.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
         Returns:
-            Series: Tasks' labels.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's most likely true label.
+            Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
         return self.fit(data).labels_
@@ -221,24 +219,40 @@ class DawidSkene(BaseClassificationAggregator):
 
 @attr.s
 class OneCoinDawidSkene(DawidSkene):
-    r"""One-coin Dawid-Skene aggregation model.
+    r"""The **one-coin Dawid-Skene** aggregation model works exactly the same as the original Dawid-Skene model based on the EM algorithm, except for calculating the workers' errors
+    at the M-step of the algorithm.
 
-    This model works exactly like original Dawid-Skene model based on EM Algorithm except for workers' error calculation
-    on M-step of the algorithm.
-
-    First the workers' skills are calculated as their accuracy in accordance with labels probability.
-    Let $e^w$ be a worker's confusion (error) matrix of size $K \times K$ in case of $K$ class classification,
-    $p$ be a vector of prior classes probabilities, $z_j$ be a true task's label, and $y^w_j$ be a worker's
-    answer for the task $j$. Let s_{w} be a worker's skill (accuracy). Then the error
+    For the one-coin model, a worker confusion (error) matrix is parameterized by a single parameter $s_w$:
     $$
     e^w_{j,z_j}  = \begin{cases}
         s_{w} & y^w_j = z_j \\
         \frac{1 - s_{w}}{K - 1} & y^w_j \neq z_j
     \end{cases}
     $$
+    where $e^w$ is a worker confusion (error) matrix of size $K \times K$ in case of the $K$ class classification,
+    $z_j$ be a true task label, $y^w_j$ is a worker
+    response to the task $j$, and $s_w$ is a worker skill (accuracy).
+
+    In other words, the worker $w$ uses a single coin flip to decide their assignment. No matter what the true label is, the worker has the $s_w$ probability to assign the correct label, and
+    has the $1 − s_w$ probability to randomly assign an incorrect label. For the one-coin model, it
+    suffices to estimate $s_w$ for every worker $w$ and estimate $y^w_j$ for every task $j$. Because of its
+    simplicity, the one-coin model is easier to estimate and enjoys better convergence properties.
+
+    Parameters $p$, $e^w$, and latent variables $z$ are optimized with the Expectation-Maximization algorithm:
+    1. **E-step**. Estimates the true task label probabilities using the specified workers' responses,
+    the prior label probabilities, and the workers' error probability matrix.
+    2. **M-step**. Calculates a worker skill as their accuracy according to the label probability.
+    Then estimates the workers' error probability matrix by assigning user skills to error matrix row by row.
+
+    Y. Zhang, X. Chen, D. Zhou, and M. I. Jordan. Spectral methods meet EM: A provably optimal algorithm for crowdsourcing.
+    *Journal of Machine Learning Research. Vol. 17*, (2016), 1-44.
+
+    <https://doi.org/10.48550/arXiv.1406.3824>
 
     Args:
-        n_iter: The number of EM iterations.
+        n_iter: The maximum number of EM iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
 
     Examples:
         >>> from crowdkit.aggregation import OneCoinDawidSkene
@@ -246,44 +260,42 @@ class OneCoinDawidSkene(DawidSkene):
         >>> df, gt = load_dataset('relevance-2')
         >>> hds = OneCoinDawidSkene(100)
         >>> result = hds.fit_predict(df)
+
     Attributes:
-        labels_ (Optional[pd.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's most likely true label.
+        labels_ (Optional[pd.Series]): The task labels.
+            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
 
-        probas_ (Optional[pandas.core.frame.DataFrame]): Tasks' label probability distributions.
-            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-            is the probability of `task`'s true label to be equal to `label`. Each
-            probability is between 0 and 1, all task's probabilities should sum up to 1
+        probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
 
-        priors_ (Optional[pd.Series]): A prior label distribution.
-            A pandas.Series indexed by labels and holding corresponding label's
-            probability of occurrence. Each probability is between 0 and 1,
-            all probabilities should sum up to 1
+        priors_ (Optional[pd.Series]): The prior label distribution.
+            The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label
+            occurrence. Each probability is in the range from 0 to 1, all probabilities must sum up to 1.
 
-        errors_ (Optional[pandas.core.frame.DataFrame]): Workers' error matrices.
-            A pandas.DataFrame indexed by `worker` and `label` with a column for every
-            label_id found in `data` such that `result.loc[worker, observed_label, true_label]`
-            is the probability of `worker` producing an `observed_label` given that a task's
-            true label is `true_label`
+        errors_ (Optional[pandas.core.frame.DataFrame]): The workers' error matrices.
+            The `pandas.DataFrame` data is indexed by `worker` and `label` with a column for every
+            `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the probability
+            that `worker` produces `observed_label`, given that the task true label is `true_label`.
 
-        skills_ (Optional[pd.Series]): workers' skills.
-            A pandas.Series index by workers and holding corresponding worker's skill
+        skills_ (Optional[pd.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill.
+
+        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=100)
     tol: float = attr.ib(default=1e-5)
 
-    probas_: pd.DataFrame = attr.ib(init=False)
-    priors_: pd.Series = named_series_attrib(name='prior')
-    errors_: pd.DataFrame = attr.ib(init=False)
-    skills_: pd.Series = attr.ib(init=False)
+    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    priors_: Optional[pd.Series] = named_series_attrib(name='prior')
+    errors_: Optional[pd.DataFrame] = attr.ib(init=False)
+    skills_: Optional[pd.Series] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
     def _assign_skills(row: pd.Series, skills: pd.DataFrame) -> pd.DataFrame:
         """
-        Assign user skills to error matrix row by row.
+        Assigns user skills to error matrix row by row.
         """
         num_categories = len(row)
         for column_name, _ in row.items():
@@ -304,10 +316,9 @@ class OneCoinDawidSkene(DawidSkene):
 
     @staticmethod
     def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> pd.Series:
-        """Perform M-step of Homogeneous Dawid-Skene algorithm.
+        """Performs M-step of Homogeneous Dawid-Skene algorithm.
 
-        Given workers' answers and tasks' true labels probabilities estimates
-        worker's errors probabilities matrix.
+        Calculates a worker skill as their accuracy according to the label probability.
         """
         skilled_data = data.copy()
         idx_cols, cols = pd.factorize(data['label'])
@@ -317,10 +328,10 @@ class OneCoinDawidSkene(DawidSkene):
         return skills
 
     def fit(self, data: pd.DataFrame) -> 'OneCoinDawidSkene':
-        """Fit the model through the EM-algorithm.
+        """Fits the model to the training data with the EM algorithm.
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
         Returns:
             DawidSkene: self.
         """
