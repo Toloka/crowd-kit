@@ -51,7 +51,7 @@ jobs:
           node-version: "16"
       - name: Set up YFM
         run: |
-          npm install @doc-tools/docs --location=global
+          npm install @doc-tools/docs@1.31.1 --location=global
       - name: Generate markdowns
         run: ./misc/make_markdowns.py --module-root crowdkit --src-root crowdkit --output-dir docs/en/crowd-kit/reference --described-objects misc/described_objects_crowdkit.py
       - name: Checkout docs repository
