@@ -32,7 +32,7 @@ class HRRASA(BaseClassificationAggregator):
 
     **Step 2**. Estimate the *local* workers' reliabilities that represent how well a
     worker responds to one particular task. The local reliability of the worker $k$ on the task $i$ is
-    denoted by $\gamma_i^k$ and is calculated by incorporating both two types of representations:
+    denoted by $\gamma_i^k$ and is calculated by incorporating both types of representations:
     $$
     \gamma_i^k = \lambda_{emb}\gamma_{i,emb}^k + \lambda_{seq}\gamma_{i,seq}^k, \; \lambda_{emb} + \lambda_{seq} = 1,
     $$
@@ -75,7 +75,7 @@ class HRRASA(BaseClassificationAggregator):
         n_iter: The maximum number of iterations.
         tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
             The algorithm converges when the loss change is less than the `tol` parameter.
-        lambda_emb: The weight of reliability calculated on embeddigs.
+        lambda_emb: The weight of reliability calculated on embeddings.
         lambda_out: The weight of reliability calculated on outputs.
         alpha: The significance level of the chi-squared distribution quantiles in the $\beta$ parameter formula.
         calculate_ranks: Specifies if the additional `ranks_` attribute will be calculated (true) or not (false).
