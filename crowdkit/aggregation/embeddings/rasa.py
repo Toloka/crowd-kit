@@ -20,29 +20,30 @@ _EPS = 1e-5
 
 @attr.s
 class RASA(BaseEmbeddingsAggregator):
-    r"""Reliability Aware Sequence Aggregation.
+    r"""The **Reliability Aware Sequence Aggregation** (RASA) algorithm consists of three steps.
 
-    RASA estimates *global* workers' reliabilities $\beta$ that are initialized by ones.
+    **Step 1**. Encode the worker answers into embeddings.
 
-    Next, the algorithm iteratively performs two steps:
+    **Step 2**. Estimate the *global* workers' reliabilities $\beta$ by iteratively performing two steps:
     1. For each task, estimate the aggregated embedding: $\hat{e}_i = \frac{\sum_k
     \beta_k e_i^k}{\sum_k \beta_k}$
     2. For each worker, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
     |\mathcal{V}_k|)}}{\sum_i\left(\|e_i^k - \hat{e}_i\|^2\right)}$, where $\mathcal{V}_k$
-    is a set of tasks completed by the worker $k$
+    is a set of tasks completed by the worker $k$.
 
-    Finally, the aggregated result is the output which embedding is
-    the closest one to the $\hat{e}_i$.
+    **Step 3**. Estimate the aggregated result. It is the output which embedding is
+    the closest one to $\hat{e}_i$.
 
-    Jiyi Li.
-    A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
-    *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
-    pages 24–28 Hong Kong, China, November 3, 2019.
+    Jiyi Li, Fumiyo Fukumoto. A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
+    In *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
+    Hong Kong, China (November 3, 2019), 24–28.
     <https://doi.org/10.18653/v1/D19-5904>
 
     Args:
-        n_iter: A number of iterations.
-        alpha: Confidence level of chi-squared distribution quantiles in beta parameter formula.
+        n_iter: The maximum number of iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
+        alpha: The significance level of the chi-squared distribution quantiles in the $\beta$ parameter formula.
 
     Examples:
         >>> import numpy as np
@@ -59,8 +60,9 @@ class RASA(BaseEmbeddingsAggregator):
         >>> result = RASA().fit_predict(df)
 
     Attributes:
-        embeddings_and_outputs_ (DataFrame): Tasks' embeddings and outputs.
-            A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+        embeddings_and_outputs_ (DataFrame): The task embeddings and outputs.
+            The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
+        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=100)
@@ -72,7 +74,7 @@ class RASA(BaseEmbeddingsAggregator):
     @staticmethod
     def _aggregate_embeddings(data: pd.DataFrame, skills: pd.Series,
                               true_embeddings: pd.Series = None) -> pd.Series:
-        """Calculates weighted average of embeddings for each task."""
+        """Calculates the weighted average of embeddings for each task."""
         data = data.join(skills.rename('skill'), on='worker')
         data['weighted_embedding'] = data.skill * data.embedding
         group = data.groupby('task')
@@ -83,7 +85,7 @@ class RASA(BaseEmbeddingsAggregator):
     @staticmethod
     def _update_skills(data: pd.DataFrame, aggregated_embeddings: pd.Series,
                        prior_skills: pd.Series) -> pd.Series:
-        """Estimates global reliabilities by aggregated embeddings."""
+        """Estimates the global reliabilities by aggregated embeddings."""
         data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
         data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
         total_distances = data.groupby('worker').distance.apply(np.sum)
@@ -104,13 +106,14 @@ class RASA(BaseEmbeddingsAggregator):
         return self
 
     def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'RASA':
-        """Fit the model.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            true_embeddings (Series): The embeddings of the true task responses.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding embeddings.
+                The multiple true embeddings are not supported for a single task.
 
         Returns:
             RASA: self.
@@ -147,34 +150,36 @@ class RASA(BaseEmbeddingsAggregator):
 
     def fit_predict_scores(self, data: pd.DataFrame,
                            true_embeddings: pd.Series = None) -> pd.DataFrame:
-        """Fit the model and return scores.
+        """Fits the model to the training data and returns the estimated scores.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            true_embeddings (Series): The embeddings of the true task responses.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding embeddings.
+                The multiple true embeddings are not supported for a single task.
 
         Returns:
-            DataFrame: Tasks' label scores.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the score of `label` for `task`.
+            DataFrame: The task label scores.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
+                is a score of `label` for `task`.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
     def fit_predict(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> pd.DataFrame:
-        """Fit the model and return aggregated outputs.
+        """Fits the model to the training data and returns the aggregated outputs.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            true_embeddings (Series): The embeddings of the true task responses.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding embeddings.
+                The multiple true embeddings are not supported for a single task.
 
         Returns:
-            DataFrame: Tasks' embeddings and outputs.
-                A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+            DataFrame: The task embeddings and outputs.
+                The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_

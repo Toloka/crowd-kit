@@ -26,57 +26,65 @@ def glue_similarity(hyp: str, ref: List[List[str]]) -> float:
 
 @attr.s
 class HRRASA(BaseClassificationAggregator):
-    r"""Hybrid Reliability and Representation Aware Sequence Aggregation.
+    r"""The **Hybrid Reliability and Representation Aware Sequence Aggregation** (HRRASA) algorithm consists of four steps.
 
+    **Step 1**. Encode the worker answers into embeddings.
 
-    At the first step, the HRRASA estimates *local* workers reliabilities that represent how good is a
-    worker's answer to *one particular task*. The local reliability of the worker $k$ on the task $i$ is
-    denoted by $\gamma_i^k$ and is calculated as a sum of two terms:
+    **Step 2**. Estimate the *local* workers' reliabilities that represent how well a
+    worker responds to one particular task. The local reliability of the worker $k$ on the task $i$ is
+    denoted by $\gamma_i^k$ and is calculated by incorporating both two types of representations:
     $$
-    \gamma_i^k = \lambda_{emb}\gamma_{i,emb}^k + \lambda_{out}\gamma_{i,out}^k, \; \lambda_{emb} + \lambda_{out} = 1.
+    \gamma_i^k = \lambda_{emb}\gamma_{i,emb}^k + \lambda_{seq}\gamma_{i,seq}^k, \; \lambda_{emb} + \lambda_{seq} = 1,
     $$
-    The $\gamma_{i,emb}^k$ is a reliability calculated on `embedding` and the $\gamma_{i,seq}^k$ is a
+    where the $\gamma_{i,emb}^k$ value is a reliability calculated on `embedding`, and the $\gamma_{i,seq}^k$ value is a
     reliability calculated on `output`.
 
-    The $\gamma_{i,emb}^k$ is calculated by the following equation:
+    The $\gamma_{i,emb}^k$ value is calculated by the following equation:
     $$
     \gamma_{i,emb}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}
     \exp\left(\frac{\|e_i^k-e_i^{k'}\|^2}{\|e_i^k\|^2\|e_i^{k'}\|^2}\right),
     $$
-    where $\mathcal{U_i}$ is a set of workers' responses on task $i$. The $\gamma_{i,out}^k$ makes use
-    of some similarity measure $sim$ on the `output` data, e.g. GLUE similarity on texts:
+    where $\mathcal{U_i}$ is a set of workers' responses on task $i$.
+
+    The $\gamma_{i,seq}^k$ value uses some similarity measure $sim$ on the `output` data, e.g. GLEU similarity on texts:
     $$
-    \gamma_{i,out}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}sim(a_i^k, a_i^{k'}).
+    \gamma_{i,seq}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}sim(a_i^k, a_i^{k'}).
     $$
 
-    The HRRASA also estimates *global* workers' reliabilities $\beta$ that are initialized by ones.
-
-    Next, the algorithm iteratively performs two steps:
+    **Step 3**. Estimate the *global* workers' reliabilities $\beta$ by iteratively performing two steps:
     1. For each task, estimate the aggregated embedding: $\hat{e}_i = \frac{\sum_k \gamma_i^k
-    \beta_k e_i^k}{\sum_k \gamma_i^k \beta_k}$
+    \beta_k e_i^k}{\sum_k \gamma_i^k \beta_k}$.
     2. For each worker, estimate the global reliability: $\beta_k = \frac{\chi^2_{(\alpha/2,
     |\mathcal{V}_k|)}}{\sum_i\left(\|e_i^k - \hat{e}_i\|^2/\gamma_i^k\right)}$, where $\mathcal{V}_k$
-    is a set of tasks completed by the worker $k$
+    is a set of tasks completed by the worker $k$.
 
-    Finally, the aggregated result is the output which embedding is
-    the closest one to the $\hat{e}_i$. If `calculate_ranks` is true, the method also calculates ranks for
-    each workers' response as
+    **Step 4**. Estimate the aggregated result. It is the output which embedding is
+    the closest one to $\hat{e}_i$. If `calculate_ranks` is true, the method also calculates ranks for
+    each worker response as
     $$
     s_i^k = \beta_k \exp\left(-\frac{\|e_i^k - \hat{e}_i\|^2}{\|e_i^k\|^2\|\hat{e}_i\|^2}\right) + \gamma_i^k.
     $$
 
     Jiyi Li. Crowdsourced Text Sequence Aggregation based on Hybrid Reliability and Representation.
-    *Proceedings of the 43rd International ACM SIGIR Conference on Research and Development
-    in Information Retrieval (SIGIR ’20)*, July 25–30, 2020, Virtual Event, China. ACM, New York, NY, USA,
+    In *Proceedings of the 43rd International ACM SIGIR Conference on Research and Development
+    in Information Retrieval (SIGIR '20)*, China (July 25–30, 2020), 1761-1764.
 
     <https://doi.org/10.1145/3397271.3401239>
 
     Args:
-        n_iter: A number of iterations.
-        lambda_emb: A weight of reliability calculated on embeddigs.
-        lambda_out: A weight of reliability calculated on outputs.
-        alpha: Confidence level of chi-squared distribution quantiles in beta parameter formula.
-        calculate_ranks: If true, calculate additional attribute `ranks_`.
+        n_iter: The maximum number of iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
+        lambda_emb: The weight of reliability calculated on embeddigs.
+        lambda_out: The weight of reliability calculated on outputs.
+        alpha: The significance level of the chi-squared distribution quantiles in the $\beta$ parameter formula.
+        calculate_ranks: Specifies if the additional `ranks_` attribute will be calculated (true) or not (false).
+        _output_similarity: The similarity measure $sim$ of the `output` data. By default, it is equal to the GLEU similarity.
+
+    Attributes:
+        embeddings_and_outputs_ (DataFrame): The task embeddings and outputs.
+            The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
+        loss_history_ (List[float]): A list of loss values during training.
 
     Examples:
         >>> import numpy as np
@@ -104,13 +112,14 @@ class HRRASA(BaseClassificationAggregator):
     loss_history_: List[float] = attr.ib(init=False)
 
     def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'HRRASA':
-        """Fit the model.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            true_embeddings (Series): The embeddings of the true task responses.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding embeddings.
+                The multiple true embeddings are not supported for a single task.
 
         Returns:
             HRRASA: self.
@@ -158,34 +167,36 @@ class HRRASA(BaseClassificationAggregator):
         return self
 
     def fit_predict_scores(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> pd.DataFrame:
-        """Fit the model and return scores.
+        """Fits the model to the training data and returns the estimated scores.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            true_embeddings (Series): The embeddings of the true task responses.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding embeddings.
+                The multiple true embeddings are not supported for a single task.
 
         Returns:
-            DataFrame: Tasks' label scores.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the score of `label` for `task`.
+            DataFrame: The task label scores.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
+                is a score of `label` for `task`.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
     def fit_predict(self, data: pd.DataFrame, true_embeddings: Optional[pd.Series] = None) -> pd.DataFrame:
-        """Fit the model and return aggregated outputs.
+        """Fits the model to the training data and returns the aggregated outputs.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            true_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            true_embeddings (Series): The embeddings of the true task responses.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding embeddings.
+                The multiple true embeddings are not supported for a single task.
 
         Returns:
-            DataFrame: Tasks' embeddings and outputs.
-                A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+            DataFrame: The task embeddings and outputs.
+                The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
         """
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_
@@ -206,7 +217,7 @@ class HRRASA(BaseClassificationAggregator):
     @staticmethod
     def _aggregate_embeddings(data: pd.DataFrame, weights: pd.DataFrame,
                               true_embeddings: Optional[pd.Series] = None) -> pd.Series:
-        """Calculates weighted average of embeddings for each task."""
+        """Calculates the weighted average of embeddings for each task."""
         data = data.join(weights, on=['task', 'worker'])
         data['weighted_embedding'] = data.weight * data.embedding
         group = data.groupby('task', group_keys=False)
@@ -218,7 +229,7 @@ class HRRASA(BaseClassificationAggregator):
         return aggregated_embeddings
 
     def _distance_from_aggregated(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Calculates the square of Euclidian distance from aggregated embedding for each answer.
+        """Calculates the square of Euclidian distance from the aggregated embedding for each answer.
         """
         with_task_aggregate = answers.set_index('task')
         with_task_aggregate['task_aggregate'] = self.aggregated_embeddings_
@@ -228,7 +239,7 @@ class HRRASA(BaseClassificationAggregator):
         return with_task_aggregate.reset_index()
 
     def _rank_outputs(self, data: pd.DataFrame, skills: pd.Series) -> pd.DataFrame:
-        """Returns ranking score for each record in `data` data frame.
+        """Returns the ranking score for each record in the `data` data frame.
         """
 
         if not data.size:
@@ -252,7 +263,7 @@ class HRRASA(BaseClassificationAggregator):
 
     @staticmethod
     def _update_skills(data: pd.DataFrame, aggregated_embeddings: pd.Series, prior_skills: pd.Series) -> pd.Series:
-        """Estimates global reliabilities by aggregated embeddings."""
+        """Estimates the global reliabilities by aggregated embeddings."""
         data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
         data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
         data['distance'] = data['distance'] / data['local_skill']
@@ -261,7 +272,7 @@ class HRRASA(BaseClassificationAggregator):
         return prior_skills / total_distances
 
     def _get_local_skills(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Computes local (relative) skills for each task's answer.
+        """Computes the local (relative) skills for each task answer.
         """
         index = []
         local_skills = []
@@ -307,7 +318,7 @@ class HRRASA(BaseClassificationAggregator):
             yield worker, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
 
     def _filter_single_overlap(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """Filter skills, embeddings, weights and ranks for single overlap tasks that couldn't be processed by HRASSA
+        """Filter skills, embeddings, weights, and ranks for single overlap tasks that couldn't be processed by HRRASA.
         """
 
         single_overlap_task_ids = []
@@ -318,7 +329,7 @@ class HRRASA(BaseClassificationAggregator):
         return data.drop(single_overlap_task_ids).reset_index(), data.loc[single_overlap_task_ids].reset_index()
 
     def _fill_single_overlap_tasks_info(self, single_overlap_tasks: pd.DataFrame) -> None:
-        """Fill skills, embeddings, weights and ranks for single overlap tasks
+        """Fill skills, embeddings, weights, and ranks for single overlap tasks.
         """
 
         workers_to_append = []

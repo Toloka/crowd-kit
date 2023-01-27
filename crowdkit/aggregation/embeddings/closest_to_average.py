@@ -12,24 +12,24 @@ from ..base import BaseEmbeddingsAggregator
 
 @attr.s
 class ClosestToAverage(BaseEmbeddingsAggregator):
-    """Closest to Average - chooses the output with the embedding closest to the average embedding.
+    """The **Closest to Average** aggregation model chooses the output with the embedding that's closest to the average embedding.
 
     This method takes a `DataFrame` containing four columns: `task`, `worker`, `output`, and `embedding`.
-    Here the `embedding` is a vector containing a representation of the `output`. The `output` might be any
-    type of data such as text, images, NumPy arrays, etc. As the result, the method returns the output which
-    embedding is the closest one to the average embedding of the task's responses.
+    Here the `embedding` is a vector containing a representation of the `output` which might be any
+    type of data such as text, images, NumPy arrays, etc. As a result, the method returns the output which
+    embedding is the closest one to the average embedding of the task responses.
 
     Args:
-        distance: A callable that takes two NumPy arrays and returns a single `float` number — the distance
+        distance: A callable that takes two NumPy arrays (the task embedding and the aggregated embedding) and returns a single `float` number — the distance
             between these two vectors.
 
     Attributes:
-        embeddings_and_outputs_ (DataFrame): Tasks' embeddings and outputs.
-            A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+        embeddings_and_outputs_ (DataFrame): The task embeddings and outputs.
+            The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
 
-        scores_ (DataFrame): Tasks' label scores.
-            A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-            is the score of `label` for `task`.
+        scores_ (DataFrame): The task label scores.
+            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
+            is a score of `label` for `task`.
     """
 
     # embeddings_and_outputs_
@@ -39,15 +39,16 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
 
     def fit(self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None,
             true_embeddings: pd.Series = None) -> 'ClosestToAverage':
-        """Fits the model.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            aggregated_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
-            true_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            aggregated_embeddings (Series): The task aggregated embeddings.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding aggregated embeddings.
+            true_embeddings (Series): The embeddings of the true task responses.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding embeddings.
+                The multiple true embeddings are not supported for a single task.
 
         Returns:
             ClosestToAverage: self.
@@ -85,36 +86,35 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         return self
 
     def fit_predict_scores(self, data: pd.DataFrame, aggregated_embeddings: pd.Series = None) -> pd.DataFrame:
-        """Fit the model and return the estimated scores.
+        """Fits the model to the training data and returns the estimated scores.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            aggregated_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            aggregated_embeddings (Series): The task aggregated embeddings.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding aggregated embeddings.
 
         Returns:
-            DataFrame: Tasks' label probability distributions.
-                A pandas.DataFrame indexed by `task` such that `result.loc[task, label]`
-                is the probability of `task`'s true label to be equal to `label`. Each
-                probability is between 0 and 1, all task's probabilities should sum up to 1
+            DataFrame: The task label scores.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
+                is a score of `label` for `task`.
         """
 
         return self.fit(data, aggregated_embeddings).scores_
 
     def fit_predict(self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None) -> pd.DataFrame:
         """
-        Fit the model and return the aggregated results.
+        Fits the model to the training data and returns the aggregated outputs.
 
         Args:
-            data (DataFrame): Workers' outputs with their embeddings.
-                A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
-            aggregated_embeddings (Series): Tasks' embeddings.
-                A pandas.Series indexed by `task` and holding corresponding embeddings.
+            data (DataFrame): The workers' outputs with their embeddings.
+                The `pandas.DataFrame` data contains the `task`, `worker`, `output`, and `embedding` columns.
+            aggregated_embeddings (Series): The task aggregated embeddings.
+                The `pandas.Series` data is indexed by `task` and contains the corresponding aggregated embeddings.
 
         Returns:
-            DataFrame: Tasks' embeddings and outputs.
-                A pandas.DataFrame indexed by `task` with `embedding` and `output` columns.
+            DataFrame: The task embeddings and outputs.
+                The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
         """
 
         return self.fit(data, aggregated_embeddings).embeddings_and_outputs_
