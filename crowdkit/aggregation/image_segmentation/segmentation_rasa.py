@@ -21,7 +21,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     for texts.
 
     Jiyi Li.
-    A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
+    A [Dataset](https://toloka.ai/datasets) of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
     *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
     pages 24–28 Hong Kong, China, November 3, 2019.
     <https://doi.org/10.18653/v1/D19-5904>

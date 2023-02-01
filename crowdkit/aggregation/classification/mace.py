@@ -66,7 +66,8 @@ def decode_distribution(gold_label_marginals: pd.DataFrame) -> pd.DataFrame:
 
 @attr.s
 class MACE(BaseClassificationAggregator):
-    r"""The **Multi-Annotator Competence Estimation** (MACE) model is a probabilistic model that associates each worker with a label probability distribution.
+    r"""The **Multi-[Annotator](https://toloka.ai/blog/what-does-a-data-annotator-do) Competence Estimation** (MACE) model
+    is a probabilistic model that associates each worker with a label probability distribution.
     A worker can be spamming on each task. If the worker is not spamming, they label a task correctly. If the worker is spamming, they answer according
     to their probability distribution.
 

@@ -11,7 +11,7 @@ from ._loaders import DATA_LOADERS
 
 
 def load_dataset(dataset: str, data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
-    """Downloads a dataset from remote and loads it into Pandas objects.
+    """Downloads a [dataset](https://toloka.ai/datasets) from remote and loads it into Pandas objects.
     If a dataset is already downloaded, loads it from cache.
 
     Parameters:
@@ -31,6 +31,6 @@ def load_dataset(dataset: str, data_dir: Optional[str] = None) -> Tuple[pd.DataF
 
 
 def get_datasets_list() -> List[Tuple[str, str]]:
-    """Returns a list of available datasets in format [(name, description)]."""
+    """Returns a list of available [datasets](https://toloka.ai/datasets) in format [(name, description)]."""
     return cast(List[Tuple[str, str]],
                 [(dataset, info['description']) for dataset, info in DATA_LOADERS.items()])

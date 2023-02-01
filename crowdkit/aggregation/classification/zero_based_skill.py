@@ -22,7 +22,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
 
     {% note info %}
 
-    It is necessary that all workers in the dataset that is sent to `predict` exist in responses to
+    It is necessary that all workers in the [dataset](https://toloka.ai/datasets) that is sent to `predict` exist in responses to
     the dataset that was sent to `fit`.
 
     {% endnote %}

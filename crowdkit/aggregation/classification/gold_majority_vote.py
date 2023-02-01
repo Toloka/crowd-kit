@@ -13,7 +13,7 @@ from ..utils import get_accuracy, named_series_attrib
 
 @attr.s
 class GoldMajorityVote(BaseClassificationAggregator):
-    r"""The **Gold Majority Vote** model is used when a golden dataset (ground truth) exists for some tasks.
+    r"""The **Gold Majority Vote** model is used when a golden [dataset](https://toloka.ai/datasets) (ground truth) exists for some tasks.
     It calculates the probability of a correct label for each worker based on the golden set.
     After that, the sum of the probabilities of each label is calculated for each task.
     The correct label is the one with the greatest sum of the probabilities.

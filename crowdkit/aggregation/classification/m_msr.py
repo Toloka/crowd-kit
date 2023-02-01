@@ -34,8 +34,8 @@ class MMSR(BaseClassificationAggregator):
     And the aggregation is weighted majority voting with weights equal to
     $\log \frac{(M-1)s_i}{1-s_i}$.
 
-    Q. Ma and Alex Olshevsky. Adversarial Crowdsourcing Through Robust Rank-One Matrix Completion.
-    *34th Conference on Neural Information Processing Systems (NeurIPS 2020)*
+    Q. Ma and Alex Olshevsky. Adversarial [Crowdsourcing](https://toloka.ai/knowledgebase/crowdsourcing-concepts/) Through Robust Rank-One Matrix Completion.
+    *34th Conference on Neural Information Processing Systems ([NeurIPS](https://toloka.ai/blog/six-papers-from-neurips/) 2020)*
 
     <https://arxiv.org/abs/2010.12181>
 

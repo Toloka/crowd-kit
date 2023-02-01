@@ -209,7 +209,7 @@ def uncertainty(
 
 def alpha_krippendorff(answers: pd.DataFrame,
                        distance: Callable[[Hashable, Hashable], float] = binary_distance) -> float:
-    """Inter-annotator agreement coefficient (Krippendorff 1980).
+    """Inter-[annotator](https://toloka.ai/blog/what-does-a-data-annotator-do) agreement coefficient (Krippendorff 1980).
 
     Amount that annotators agreed on label assignments beyond what is expected by chance.
     The value of alpha should be interpreted as follows.

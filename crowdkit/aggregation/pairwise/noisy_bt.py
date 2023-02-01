@@ -22,7 +22,7 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
 
     Examples:
         The following example shows how to aggregate results of comparisons **grouped by some column**.
-        In the example the two questions `q1` and `q2` are used to group the labeled data.
+        In the example the two questions `q1` and `q2` are used to group the [labeled data](https://toloka.ai/data-labeling-platform).
         Temporary data structure is created and the model is applied to it.
         The results are splitted in two arrays, and each array contains scores for one of the initial groups.
 
