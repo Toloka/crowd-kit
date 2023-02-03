@@ -174,6 +174,16 @@ items:
         href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.fit.md
       - name: fit_predict
         href: ../crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.fit_predict.md
+  - name: Multilabel
+    items:
+    - name: BinaryRelevance
+      items:
+      - name: Overview
+        href: ../crowd-kit/reference/crowdkit.aggregation.multilabel.binary_relevance.BinaryRelevance.md
+      - name: fit
+        href: ../crowd-kit/reference/crowdkit.aggregation.multilabel.binary_relevance.BinaryRelevance.fit.md
+      - name: fit_predict
+        href: ../crowd-kit/reference/crowdkit.aggregation.multilabel.binary_relevance.BinaryRelevance.fit_predict.md
   - name: Pairwise
     items:
     - name: BradleyTerry
@@ -220,12 +230,6 @@ items:
         href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_rasa.TextRASA.fit_predict.md
       - name: fit_predict_scores
         href: ../crowd-kit/reference/crowdkit.aggregation.texts.text_rasa.TextRASA.fit_predict_scores.md
-    - name: TextSummarization
-      items:
-      - name: Overview
-        href: ../crowd-kit/reference/crowdkit.learning.text_summarization.TextSummarization.md
-      - name: fit_predict
-        href: ../crowd-kit/reference/crowdkit.learning.text_summarization.TextSummarization.fit_predict.md
   - name: utils
     items:
     - name: get_accuracy
@@ -307,6 +311,28 @@ items:
     href: ../crowd-kit/reference/crowdkit.datasets.load_dataset.get_datasets_list.md
   - name: load_dataset
     href: ../crowd-kit/reference/crowdkit.datasets.load_dataset.load_dataset.md
+- name: Learning
+  items:
+  - name: CoNAL
+    items:
+    - name: Overview
+      href: ../crowd-kit/reference/crowdkit.learning.conal.CoNAL.md
+    - name: forward
+      href: ../crowd-kit/reference/crowdkit.learning.conal.CoNAL.forward.md
+    - name: simple_common_module
+      href: ../crowd-kit/reference/crowdkit.learning.conal.CoNAL.simple_common_module.md
+  - name: CrowdLayer
+    items:
+    - name: Overview
+      href: ../crowd-kit/reference/crowdkit.learning.crowd_layer.CrowdLayer.md
+    - name: forward
+      href: ../crowd-kit/reference/crowdkit.learning.crowd_layer.CrowdLayer.forward.md
+  - name: TextSummarization
+    items:
+    - name: Overview
+      href: ../crowd-kit/reference/crowdkit.learning.text_summarization.TextSummarization.md
+    - name: fit_predict
+      href: ../crowd-kit/reference/crowdkit.learning.text_summarization.TextSummarization.fit_predict.md
 - name: Metrics
   items:
   - name: Data
