@@ -139,4 +139,4 @@ Below is the list of currently implemented methods, including the already availa
 
 ## License
 
-© YANDEX LLC, 2020-2022. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
+&copy; Crowd-Kit team authors, 2020&ndash;2023. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
