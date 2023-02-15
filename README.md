@@ -115,19 +115,18 @@ Below is the list of currently implemented methods, including the already availa
 
 ## Citation
 
-* Ustalov D., Pavlichenko N., Losev V., Giliazev I., and Tulin E. [A General-Purpose Crowdsourcing Computational Quality Control Toolkit for Python](https://www.humancomputation.com/2021/assets/wips_demos/HCOMP_2021_paper_85.pdf). *The Ninth AAAI Conference on Human Computation and Crowdsourcing: Works-in-Progress and Demonstration Track.* HCOMP 2021. 2021. arXiv: [2109.08584 [cs.HC]](https://arxiv.org/abs/2109.08584).
+* Ustalov D., Pavlichenko N., Tseitlin B. [Learning from Crowds with Crowd-Kit](https://arxiv.org/abs/2109.08584). 2023. arXiv: [2109.08584 [cs.HC]](https://arxiv.org/abs/2109.08584).
 
-```(bibtex)
-@inproceedings{HCOMP2021/CrowdKit,
-  author    = {Ustalov, Dmitry and Pavlichenko, Nikita and Losev, Vladimir and Giliazev, Iulian and Tulin, Evgeny},
-  title     = {{A General-Purpose Crowdsourcing Computational Quality Control Toolkit for Python}},
-  year      = {2021},
-  booktitle = {The Ninth AAAI Conference on Human Computation and Crowdsourcing: Works-in-Progress and Demonstration Track},
-  series    = {HCOMP~2021},
+```bibtex
+@misc{CrowdKit,
+  author    = {Ustalov, Dmitry and Pavlichenko, Nikita and Tseitlin, Boris},
+  title     = {{Learning from Crowds with Crowd-Kit}},
+  year      = {2023},
+  publisher = {arXiv},
   eprint    = {2109.08584},
   eprinttype = {arxiv},
   eprintclass = {cs.HC},
-  url       = {https://www.humancomputation.com/2021/assets/wips_demos/HCOMP_2021_paper_85.pdf},
+  url       = {https://arxiv.org/abs/2109.08584},
   language  = {english},
 }
 ```
