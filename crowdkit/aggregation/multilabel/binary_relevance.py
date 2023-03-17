@@ -98,7 +98,10 @@ class BinaryRelevance(BaseClassificationAggregator):
                         task_to_labels[task] = list()
                     if label_value:
                         task_to_labels[task].append(label)
-        self.labels_ = pd.Series(task_to_labels)
+        if not task_to_labels:
+            self.labels_ = pd.Series(task_to_labels, dtype=float)
+        else:
+            self.labels_ = pd.Series(task_to_labels)
         if len(self.labels_):
             self.labels_.index.name = 'task'
         return self

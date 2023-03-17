@@ -34,6 +34,7 @@ def binary_relevance_toy_result() -> pd.Series:
 @pytest.mark.parametrize(
     'aggregator', [MajorityVote(), DawidSkene(), Wawa(), GLAD()]
 )
+@pytest.mark.filterwarnings('ignore:In a future version')
 def test_binary_relevance_aggregation_on_toy_data(aggregator: BaseClassificationAggregator,
                                                   binary_relevance_toy_result: pd.Series,
                                                   data_toy_binary_relevance: pd.DataFrame) -> None:
