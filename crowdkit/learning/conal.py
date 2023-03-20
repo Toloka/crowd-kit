@@ -112,7 +112,7 @@ class CoNAL(nn.Module):  # type: ignore
         user_feature = self.user_feature_1(self.user_feature_vec[workers])
         user_feature = F.normalize(user_feature)
         common_rate = torch.sum(instance_difficulty * user_feature, dim=1)
-        common_rate = torch.nn.functional.sigmoid(common_rate).unsqueeze(1)
+        common_rate = torch.sigmoid(common_rate).unsqueeze(1)
         return common_rate
 
     def forward(
