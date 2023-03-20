@@ -93,7 +93,7 @@ class BinaryRelevance(BaseClassificationAggregator):
             label_aggregator.fit_predict(single_label_df)
             self.aggregators_[label] = label_aggregator
             if label_aggregator.labels_ is not None:  # for mypy correct work
-                for task, label_value in label_aggregator.labels_.iteritems():
+                for task, label_value in label_aggregator.labels_.items():
                     if task not in task_to_labels:
                         task_to_labels[task] = list()
                     if label_value:
