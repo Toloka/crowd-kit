@@ -183,7 +183,7 @@ class DawidSkene(BaseClassificationAggregator):
                 break
             loss = new_loss
 
-        probas.columns = pd.Index(probas.columns, name='label')
+        probas.columns = pd.Index(probas.columns, name='label', dtype=probas.columns.dtype)
         # Saving results
         self.probas_ = probas
         self.priors_ = priors
