@@ -15,4 +15,4 @@ build = "*"
 codecov = "*"
 notebook = "*"
 ipywidgets = "*"
-stubmaker = {file = "https://github.com/Toloka/stubmaker/archive/refs/heads/main.zip"}
+stubmaker = {git = "https://github.com/Toloka/stubmaker"}
