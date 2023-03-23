@@ -32,7 +32,7 @@ class TextHRRASA(BaseTextsAggregator):
         >>> encoder = SentenceTransformer('all-mpnet-base-v2')
         >>> hrrasa = TextHRRASA(encoder=encoder.encode)
         >>> df, gt = load_dataset('crowdspeech-test-clean')
-        >>> df['text'] = df['text'].apply(lambda s: s.lower())
+        >>> df['text'] = df['text'].str.lower()
         >>> result = hrrasa.fit_predict(df)
     """
 
