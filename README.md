@@ -65,53 +65,53 @@ Below is the list of currently implemented methods, including the already availa
 
 | Method | Status |
 | ------------- | :-------------: |
-| [Majority Vote](reference/crowdkit.aggregation.classification.majority_vote.MajorityVote.md) | ✅ |
-| [One-coin Dawid-Skene](reference/crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene.md) | ✅ |
-| [Dawid-Skene](reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene.md) | ✅ |
-| [Gold Majority Vote](reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote.md) | ✅ |
-| [M-MSR](reference/crowdkit.aggregation.classification.m_msr.MMSR.md) | ✅ |
-| [Wawa](reference/crowdkit.aggregation.classification.wawa.Wawa.md) | ✅ |
-| [Zero-Based Skill](reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill.md) | ✅ |
-| [GLAD](reference/crowdkit.aggregation.classification.glad.GLAD.md) | ✅ |
-| [KOS](reference/crowdkit.aggregation.classification.kos.KOS.md) | ✅ |
-| [MACE](reference/crowdkit.aggregation.classification.mace.MACE.md) | ✅ |
+| [Majority Vote](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.majority_vote.MajorityVote) | ✅ |
+| [One-coin Dawid-Skene](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.OneCoinDawidSkene) | ✅ |
+| [Dawid-Skene](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.dawid_skene.DawidSkene) | ✅ |
+| [Gold Majority Vote](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.gold_majority_vote.GoldMajorityVote) | ✅ |
+| [M-MSR](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.m_msr.MMSR) | ✅ |
+| [Wawa](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.wawa.Wawa) | ✅ |
+| [Zero-Based Skill](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.zero_based_skill.ZeroBasedSkill) | ✅ |
+| [GLAD](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.glad.GLAD) | ✅ |
+| [KOS](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.kos.KOS) | ✅ |
+| [MACE](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.mace.MACE) | ✅ |
 | BCC | 🟡 |
 
 ### Multi-Label Responses
 
 |Method|Status|
 |-|:-:|
-|[Binary Relevance](reference/crowdkit.aggregation.multilabel.binary_relevance.BinaryRelevance.md)|✅|
+|[Binary Relevance](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.multilabel.binary_relevance.BinaryRelevance)|✅|
 
 ### Textual Responses
 
 | Method | Status |
 | ------------- | :-------------: |
-| [RASA](reference/crowdkit.aggregation.embeddings.rasa.RASA.md) | ✅ |
-| [HRRASA](reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA.md) | ✅ |
-| [ROVER](reference/crowdkit.aggregation.texts.rover.ROVER.md) | ✅ |
+| [RASA](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.embeddings.rasa.RASA) | ✅ |
+| [HRRASA](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.embeddings.hrrasa.HRRASA) | ✅ |
+| [ROVER](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.texts.rover.ROVER) | ✅ |
 
 ### Image Segmentation
 
 | Method | Status |
 | ------------------ | :------------------: |
-| [Segmentation MV](reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote.md) | ✅ |
-| [Segmentation RASA](reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA.md) | ✅ |
-| [Segmentation EM](reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM.md) | ✅ |
+| [Segmentation MV](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_majority_vote.SegmentationMajorityVote) | ✅ |
+| [Segmentation RASA](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_rasa.SegmentationRASA) | ✅ |
+| [Segmentation EM](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.image_segmentation.segmentation_em.SegmentationEM) | ✅ |
 
 ### Pairwise Comparisons
 
 | Method | Status |
 | -------------- | :---------------------: |
-| [Bradley-Terry](reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md) | ✅ |
-| [Noisy Bradley-Terry](reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry.md) | ✅ |
+| [Bradley-Terry](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry) | ✅ |
+| [Noisy Bradley-Terry](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry) | ✅ |
 
 ### Learning from Crowds
 
 |Method|Status|
 |-|:-:|
-|[CrowdLayer](reference/crowdkit.learning.crowd_layer.CrowdLayer.md)|✅|
-|[CoNAL](reference/crowdkit.learning.conal.Conal.md)|✅|
+|[CrowdLayer](https://toloka.ai/docs/crowd-kit/reference/crowdkit.learning.crowd_layer.CrowdLayer)|✅|
+|[CoNAL](https://toloka.ai/docs/crowd-kit/reference/crowdkit.learning.conal.CoNAL)|✅|
 
 ## Citation
 
