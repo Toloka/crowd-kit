@@ -111,7 +111,7 @@ Below is the list of currently implemented methods, including the already availa
 |Method|Status|
 |-|:-:|
 |[CrowdLayer](https://toloka.ai/docs/crowd-kit/reference/crowdkit.learning.crowd_layer.CrowdLayer)|✅|
-|[CoNAL](https://toloka.ai/docs/crowd-kit/reference/crowdkit.learning.conal.Conal)|✅|
+|[CoNAL](https://toloka.ai/docs/crowd-kit/reference/crowdkit.learning.conal.CoNAL)|✅|
 
 ## Citation
 
