@@ -102,7 +102,7 @@ class TextRASA(BaseTextsAggregator):
         return self.texts_
 
     def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
-        data = data[['task', 'worker', 'output']].rename(columns={'text': 'output'})
+        data = data[['task', 'worker', 'text']].rename(columns={'text': 'output'})
         data['embedding'] = data.output.apply(self.encoder)
         return data
 
