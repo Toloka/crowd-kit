@@ -60,11 +60,11 @@ class TextHRRASA(BaseTextsAggregator):
         """Fit the model and return scores.
 
         Args:
-            data (DataFrame): Workers' outputs.
-                A pandas.DataFrame containing `task`, `worker` and `output` columns.
-            true_objects (Series): Tasks' ground truth labels.
+            data (DataFrame): Workers' responses.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
+            true_objects (Series): Tasks' ground truth texts.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's ground truth label.
+                is the tasks's ground truth text.
 
         Returns:
             DataFrame: Tasks' label scores.
@@ -78,11 +78,11 @@ class TextHRRASA(BaseTextsAggregator):
         """Fit the model and return aggregated texts.
 
         Args:
-            data (DataFrame): Workers' outputs.
-                A pandas.DataFrame containing `task`, `worker` and `output` columns.
-            true_objects (Series): Tasks' ground truth labels.
+            data (DataFrame): Workers' responses.
+                A pandas.DataFrame containing `task`, `worker` and `text` columns.
+            true_objects (Series): Tasks' ground truth texts.
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's ground truth label.
+                is the tasks's ground truth text.
 
         Returns:
             Series: Tasks' texts.
@@ -91,11 +91,11 @@ class TextHRRASA(BaseTextsAggregator):
         """
 
         hrrasa_results = self._hrrasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))
-        self.texts_ = hrrasa_results.reset_index()[['task', 'output']].set_index('task')
+        self.texts_ = hrrasa_results.reset_index()[['task', 'output']].rename(columns={'output': 'text'}).set_index('task')
         return self.texts_
 
     def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
-        data = data[['task', 'worker', 'output']]
+        data = data[['task', 'worker', 'text']].rename(columns={'text': 'output'})
         data['embedding'] = data.output.apply(self.encoder)
         return data
 
