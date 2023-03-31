@@ -1,3 +1,7 @@
+1.2.1
+-------------------
+* Bug fixes in RASA, HRRASA, and documentation
+
 1.2.0
 -------------------
 * Crowd-Kit Learning subpackage introducing implementations of deep learning from crowds methods: CoNAL and CrowdLayer
