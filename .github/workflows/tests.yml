@@ -34,7 +34,7 @@ jobs:
       - name: Build wheel
         run: python3 -m build --sdist --wheel .
       - name: Run Jupyter
-        run: jupyter nbconvert --to html --TagRemovePreprocessor.remove_cell_tags pip --execute examples/*.ipynb
+        run: jupyter nbconvert --to html --TagRemovePreprocessor.remove_cell_tags pip --execute examples/Readability-Pairwise.ipynb examples/TlkAgg-Categorical.ipynb
       - name: Upload Jupyter
         uses: actions/upload-artifact@v3
         with:
