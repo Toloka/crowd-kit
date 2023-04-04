@@ -48,4 +48,4 @@ def test_binary_relevance_aggregation_on_toy_data(aggregator: BaseClassification
 def test_binary_relevance_aggregation_on_empty(aggregator: BaseClassificationAggregator) -> None:
     mb = BinaryRelevance(aggregator)
     result = mb.fit_predict(pd.DataFrame([], columns=['task', 'worker', 'label']))
-    assert_series_equal(pd.Series(dtype=float, name='agg_label'), result)
+    assert_series_equal(pd.Series(dtype=float, name='agg_label'), result, check_index_type=False)
