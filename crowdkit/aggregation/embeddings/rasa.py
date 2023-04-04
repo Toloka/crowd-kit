@@ -79,6 +79,8 @@ class RASA(BaseEmbeddingsAggregator):
         data['weighted_embedding'] = data.skill * data.embedding
         group = data.groupby('task')
         aggregated_embeddings = (group.weighted_embedding.apply(np.sum) / group.skill.sum())
+        if true_embeddings is None:
+            true_embeddings = pd.Series([], dtype=np.float64)
         aggregated_embeddings.update(true_embeddings)
         return aggregated_embeddings
 
