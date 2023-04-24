@@ -33,6 +33,10 @@ jobs:
         if: matrix.python-version == '3.8'
       - name: Build wheel
         run: python3 -m build --sdist --wheel .
+      - name: Syntax Check Jupyter
+        run: |
+          jupyter nbconvert examples/*.ipynb --to python
+          python3 -m compileall examples
       - name: Run Jupyter
         run: jupyter nbconvert --to html --TagRemovePreprocessor.remove_cell_tags pip --execute examples/Readability-Pairwise.ipynb examples/TlkAgg-Categorical.ipynb
       - name: Upload Jupyter

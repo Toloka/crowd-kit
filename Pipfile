@@ -7,12 +7,4 @@ name = "pypi"
 crowd-kit = {editable = true, path = ".", extras = ["learning"]}
 
 [dev-packages]
-mypy = "*"
-pytest = "*"
-twine = "*"
-flake8 = "*"
-build = "*"
-codecov = "*"
-notebook = "*"
-ipywidgets = "*"
-stubmaker = {git = "https://github.com/Toloka/stubmaker"}
+crowd-kit = {editable = true, path = ".", extras = ["dev", "learning"]}
