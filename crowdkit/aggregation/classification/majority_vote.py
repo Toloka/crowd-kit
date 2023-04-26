@@ -85,7 +85,7 @@ class MajorityVote(BaseClassificationAggregator):
             data (DataFrame): The training dataset of workers' labeling results
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
-            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker
+            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
                 and has the corresponding worker skill.
 
         Returns:

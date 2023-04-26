@@ -14,20 +14,26 @@ _EPS = 1e-5
 
 @attr.s
 class SegmentationRASA(BaseImageSegmentationAggregator):
-    """Segmentation RASA - chooses a pixel if sum of weighted votes of each workers' more than 0.5.
+    r"""The **Segmentation RASA** (Reliability Aware Sequence Aggregation) algorithm chooses a pixel if the sum of the weighted votes of each worker is more than 0.5.
 
-    Algorithm works iteratively, at each step, the workers are reweighted in proportion to their distances
-    to the current answer estimation. The distance is considered as $1 - IOU$. Modification of the RASA method
-    for texts.
+    The Segmentation RASA algorithm consists of three steps:
+    1. performs the weighted Majority Vote algorithm;
+    2. calculates weights for each worker from the current Majority Vote estimation;
+    3. performs the Segmentation RASA algorithm for a single image.
 
-    Jiyi Li.
-    A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
-    *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*,
-    pages 24–28 Hong Kong, China, November 3, 2019.
+    The algorithm works iteratively. At each step, the workers are reweighted in proportion to their distances
+    from the current answer estimation. The distance is calculated as $1 - IOU$, where `IOU` (Intersection over Union) is an extent of overlap of two boxes.
+    This algorithm is a modification of the RASA method for texts.
+
+    J. Li, F. Fukumoto. A Dataset of Crowdsourced Word Sequences: Collections and Answer Aggregation for Ground Truth Creation.
+    *Proceedings of the First Workshop on Aggregating and Analysing Crowdsourced Annotations for NLP*, (2019), 24-28.
+
     <https://doi.org/10.18653/v1/D19-5904>
 
     Args:
-        n_iter: A number of iterations.
+        n_iter: The maximum number of iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
 
     Examples:
         >>> import numpy as np
@@ -44,9 +50,15 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         >>> result = SegmentationRASA().fit_predict(df)
 
     Attributes:
-        segmentations_ (Series): Tasks' segmentations.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's aggregated segmentation.
+        segmentations_ (Series): The task segmentations.
+            The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
+            is the task aggregated segmentation.
+
+        weights_ (npt.NDArray[Any]): A list of workers' weights.
+
+        mv_ (npt.NDArray[Any]): The weighted task segmentations calculated with the Majority Vote algorithm.
+
+        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=10)
@@ -57,10 +69,10 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     @staticmethod
     def _segmentation_weighted(segmentations: pd.Series, weights: npt.NDArray[Any]) -> npt.NDArray[Any]:
         """
-        Performs weighted majority vote algorithm.
+        Performs the weighted Majority Vote algorithm.
 
-        From the weights of all workers and their segmentation, performs a
-        weighted majority vote for the inclusion of each pixel in the answer.
+        From the weights of all workers and their segmentation, performs the
+        weighted Majority Vote for the inclusion of each pixel in the answer.
         """
         weighted_segmentations = (weights * segmentations.T).T
         return cast(npt.NDArray[Any], weighted_segmentations.sum(axis=0))
@@ -68,7 +80,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     @staticmethod
     def _calculate_weights(segmentations: pd.Series, mv: npt.NDArray[Any]) -> npt.NDArray[Any]:
         """
-        Calculates weights of each workers, from current majority vote estimation.
+        Calculates weights for each workers from the current Majority Vote estimation.
         """
         intersection = (segmentations & mv).astype(float)
         union = (segmentations | mv).astype(float)
@@ -109,11 +121,11 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         return mv
 
     def fit(self, data: pd.DataFrame) -> 'SegmentationRASA':
-        """Fit the model.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' segmentations.
-                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+            data (DataFrame): The training dataset of workers' segmentations
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
 
         Returns:
             SegmentationRASA: self.
@@ -131,16 +143,15 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """Fit the model and return the aggregated segmentations.
+        """Fits the model to the training data and returns the aggregated segmentations.
 
         Args:
-            data (DataFrame): Workers' segmentations.
-                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+            data (DataFrame): The training dataset of workers' segmentations
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
 
         Returns:
-            Series: Tasks' segmentations.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's aggregated segmentation.
+            Series: Task segmentations. The `pandas.Series` data is indexed by `task`
+                so that `segmentations.loc[task]` is the task aggregated segmentation.
         """
 
         return self.fit(data).segmentations_

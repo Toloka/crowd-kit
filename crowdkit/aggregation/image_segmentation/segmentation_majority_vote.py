@@ -12,21 +12,23 @@ from ..utils import add_skills_to_data
 
 @attr.s
 class SegmentationMajorityVote(BaseImageSegmentationAggregator):
-    """Segmentation Majority Vote - chooses a pixel if more than half of workers voted.
+    r"""The **Segmentation Majority Vote** algorithm chooses a pixel if and only if the pixel has "yes" votes
+    from at least half of all workers.
 
-    This method implements a straightforward approach to the image segmentations aggregation:
-    it assumes that if pixel is not inside in the worker's segmentation, this vote counts
-    as 0, otherwise, as 1. Next, the `SegmentationEM` aggregates these categorical values
-    for each pixel by the Majority Vote.
+    This method implements a straightforward approach to the image segmentation aggregation:
+    it assumes that if a pixel is not inside the worker's segmentation, this vote is considered to be equal to 0.
+    Otherwise, it is equal to 1. Then the `SegmentationEM` algorithm aggregates these categorical values
+    for each pixel by the Majority Vote algorithm.
 
-    The method also supports weighted majority voting if `skills` were provided to `fit` method.
+    The method also supports the weighted majority voting if the `skills` parameter is provided for the `fit` method.
 
-    Doris Jung-Lin Lee. 2018.
-    Quality Evaluation Methods for Crowdsourced Image Segmentation
-    <https://ilpubs.stanford.edu:8090/1161/1/main.pdf>
+    D. Jung-Lin Lee, A. Das Sarma and A. Parameswaran. Aggregating Crowdsourced Image Segmentations.
+    *CEUR Workshop Proceedings. Vol. 2173*, (2018), 1-44.
+
+    <https://ceur-ws.org/Vol-2173/paper10.pdf>
 
     Args:
-        default_skill: A default skill value for missing skills.
+        default_skill: Default worker weight value.
 
     Examples:
         >>> import numpy as np
@@ -43,26 +45,41 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         >>> result = SegmentationMajorityVote().fit_predict(df)
 
     Attributes:
-        segmentations_ (Series): Tasks' segmentations.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's aggregated segmentation.
+        segmentations_ (Series): The task segmentations.
+            The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
+            is the task aggregated segmentation.
 
-        on_missing_skill (str): How to handle assignments done by workers with unknown skill.
+        skills_ (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
+            and has the corresponding worker skill.
+
+        on_missing_skill (str): A value which specifies how to handle assignments performed by workers with an unknown skill.
+
             Possible values:
-                    * "error" — raise an exception if there is at least one assignment done by user with unknown skill;
-                    * "ignore" — drop assignments with unknown skill values during prediction. Raise an exception if there is no
-                    assignments with known skill for any task;
-                    * value — default value will be used if skill is missing.
+                    * "error" — raises an exception if there is at least one assignment performed by a worker with an unknown skill;
+                    * "ignore" — drops assignments performed by workers with an unknown skill during prediction. Raises an exception if there are no
+                    assignments with a known skill for any task;
+                    * value — the default value will be used if a skill is missing.
     """
 
     # segmentations_
+    # skills_
 
     on_missing_skill: str = attr.ib(default='error')
     default_skill: Optional[float] = attr.ib(default=None)
 
     def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> 'SegmentationMajorityVote':
         """
-        Fit the model.
+        Fits the model to the training data.
+        
+        Args:
+            data (DataFrame): The training dataset of workers' segmentations
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
+
+            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
+                and has the corresponding worker skill.
+
+        Returns:
+            SegmentationMajorityVote: self.
         """
 
         data = data[['task', 'worker', 'segmentation']]
@@ -80,7 +97,18 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
 
     def fit_predict(self, data: pd.DataFrame, skills: Optional[pd.Series] = None) -> pd.Series:
         """
-        Fit the model and return the aggregated segmentations.
+        Fits the model to the training data and returns the aggregated segmentations.
+        
+        Args:
+            data (DataFrame): The training dataset of workers' segmentations
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
+
+            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
+                and has the corresponding worker skill.
+
+        Returns:
+            Series: Task segmentations. The `pandas.Series` data is indexed by `task`
+                so that `segmentations.loc[task]` is the task aggregated segmentation.
         """
 
         return self.fit(data, skills).segmentations_
