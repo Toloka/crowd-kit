@@ -70,7 +70,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> 'SegmentationMajorityVote':
         """
         Fits the model to the training data.
-        
+
         Args:
             data (DataFrame): The training dataset of workers' segmentations
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
@@ -98,7 +98,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     def fit_predict(self, data: pd.DataFrame, skills: Optional[pd.Series] = None) -> pd.Series:
         """
         Fits the model to the training data and returns the aggregated segmentations.
-        
+
         Args:
             data (DataFrame): The training dataset of workers' segmentations
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
