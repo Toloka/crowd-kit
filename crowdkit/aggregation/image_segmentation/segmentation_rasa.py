@@ -17,9 +17,9 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     r"""The **Segmentation RASA** (Reliability Aware Sequence Aggregation) algorithm chooses a pixel if the sum of the weighted votes of each worker is more than 0.5.
 
     The Segmentation RASA algorithm consists of three steps:
-    1. performs the weighted Majority Vote algorithm;
-    2. calculates weights for each worker from the current Majority Vote estimation;
-    3. performs the Segmentation RASA algorithm for a single image.
+    1. Performs the weighted Majority Vote algorithm.
+    2. Calculates weights for each worker from the current Majority Vote estimation.
+    3. Performs the Segmentation RASA algorithm for a single image.
 
     The algorithm works iteratively. At each step, the workers are reweighted in proportion to their distances
     from the current answer estimation. The distance is calculated as $1 - IOU$, where `IOU` (Intersection over Union) is an extent of overlap of two boxes.
@@ -80,7 +80,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     @staticmethod
     def _calculate_weights(segmentations: pd.Series, mv: npt.NDArray[Any]) -> npt.NDArray[Any]:
         """
-        Calculates weights for each workers from the current Majority Vote estimation.
+        Calculates weights for each worker from the current Majority Vote estimation.
         """
         intersection = (segmentations & mv).astype(float)
         union = (segmentations | mv).astype(float)
