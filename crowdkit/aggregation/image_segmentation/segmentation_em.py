@@ -12,22 +12,28 @@ from ..base import BaseImageSegmentationAggregator
 
 @attr.s
 class SegmentationEM(BaseImageSegmentationAggregator):
-    """The EM algorithm for the image segmentation task.
+    r"""The **Segmentation EM-algorithm** performs a categorical
+    aggregation task for each pixel: should it be included in the resulting aggregate or not.
+    This task is solved by the single-coin Dawid-Skene algorithm.
+    Each worker has a latent parameter `skill` that shows the probability of this worker to answer correctly.
 
-    This method performs a categorical aggregation task for each pixel: should
-    it be included to the resulting aggregate or no. This task is solved by
-    the single coin Dawid-Skene algorithm. Each worker has a latent parameter
-    "skill" that shows the probability of this worker to answer correctly.
-    Skills and true pixels' labels are optimized by the Expectation-Maximization
-    algorithm.
+    Skills and true pixel labels are optimized by the Expectation-Maximization algorithm:
+    1. **E-step**. Estimates the posterior probabilities using the specified workers' segmentations, the prior probabilities for each pixel,
+    and the workers' error probability vector.
+    2. **M-step**. Estimates the probability of a worker answering correctly using the specified workers' segmentations and the posterior probabilities for each pixel.
 
 
-    Doris Jung-Lin Lee. 2018.
-    Quality Evaluation Methods for Crowdsourced Image Segmentation
-    <https://ilpubs.stanford.edu:8090/1161/1/main.pdf>
+    D. Jung-Lin Lee, A. Das Sarma and A. Parameswaran. Aggregating Crowdsourced Image Segmentations.
+    *CEUR Workshop Proceedings. Vol. 2173*, (2018), 1-44.
+
+    <https://ceur-ws.org/Vol-2173/paper10.pdf>
+
 
     Args:
-        n_iter: A number of EM iterations.
+        n_iter: The maximum number of EM iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
+        eps: The convergence threshold.
 
     Examples:
         >>> import numpy as np
@@ -44,15 +50,34 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         >>> result = SegmentationEM().fit_predict(df)
 
     Attributes:
-        segmentations_ (Series): Tasks' segmentations.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks's aggregated segmentation.
+        segmentations_ (Series): The task segmentations.
+            The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
+            is the task aggregated segmentation.
+
+        segmentation_region_size_ (int): Segmentation region size.
+
+        segmentations_sizes_ (npt.NDArray[Any]): Sizes of image segmentations.
+
+        priors_ (Union[float, npt.NDArray[Any]]): The prior probabilities for each pixel to be included in the resulting aggregate.
+            Each probability is in the range from 0 to 1, all probabilities must sum up to 1.
+
+        posteriors_ (npt.NDArray[Any]): The posterior probabilities for each pixel to be included in the resulting aggregate.
+            Each probability is in the range from 0 to 1, all probabilities must sum up to 1.
+
+        errors_ (npt.NDArray[Any]): The workers' error probability vector.
+
+        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=10)
     tol: float = attr.ib(default=1e-5)
     eps: float = 1e-15
+    # segmentation_region_size_
+    # segmentations_sizes_
     # segmentations_
+    # errors_
+    # priors_
+    # posteriors_
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
@@ -62,9 +87,9 @@ class SegmentationEM(BaseImageSegmentationAggregator):
             priors: Union[float, npt.NDArray[Any]],
     ) -> npt.NDArray[Any]:
         """
-        Perform E-step of algorithm.
-        Given workers' segmentations and error vector and priors
-        for each pixel calculates posteriori probabilities.
+        Performs E-step of the algorithm.
+        Estimates the posterior probabilities using the specified workers' segmentations, the prior probabilities for each pixel,
+        and the workers' error probability vector.
         """
 
         weighted_seg = np.multiply(errors, segmentations.T.astype(float)).T + \
@@ -86,9 +111,8 @@ class SegmentationEM(BaseImageSegmentationAggregator):
     def _m_step(segmentations: pd.Series, posteriors: npt.NDArray[Any],
                 segmentation_region_size: int, segmentations_sizes: npt.NDArray[Any]) -> npt.NDArray[Any]:
         """
-        Perform M-step of algorithm.
-        Given a priori probabilities for each pixel and the segmentation of the workers,
-        it estimates worker's errors probabilities vector.
+        Performs M-step of the algorithm.
+        Estimates the probability of a worker answering correctly using the specified workers' segmentations and the posterior probabilities for each pixel.
         """
 
         mean_errors_expectation: npt.NDArray[Any] = (segmentations_sizes + posteriors.sum() -
@@ -115,7 +139,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     def _aggregate_one(self, segmentations: pd.Series) -> npt.NDArray[np.bool_]:
         """
-        Performs an expectation maximization algorithm for a single image.
+        Performs the Expectation-Maximization algorithm for a single image.
         """
         priors = sum(segmentations) / len(segmentations)
         segmentations = np.stack(segmentations.values)
@@ -144,11 +168,11 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         return cast(npt.NDArray[np.bool_], priors > 0.5)
 
     def fit(self, data: pd.DataFrame) -> 'SegmentationEM':
-        """Fit the model.
+        """Fits the model to the training data with the EM algorithm.
 
         Args:
-            data (DataFrame): Workers' segmentations.
-                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+            data (DataFrame): The training dataset of workers' segmentations
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
 
         Returns:
             SegmentationEM: self.
@@ -162,16 +186,14 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """Fit the model and return the aggregated segmentations.
+        """Fits the model to the training data and returns the aggregated segmentations.
 
         Args:
-            data (DataFrame): Workers' segmentations.
-                A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
+            data (DataFrame): The training dataset of workers' segmentations
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `segmentation` columns.
 
         Returns:
-            Series: Tasks' segmentations.
-                A pandas.Series indexed by `task` such that `labels.loc[task]`
-                is the tasks's aggregated segmentation.
+            Series: Task segmentations. The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]` is the task aggregated segmentation.
         """
 
         return self.fit(data).segmentations_
