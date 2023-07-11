@@ -45,10 +45,10 @@ body:
       description: What is your python version? If it's not in the list that it's not supported by Crowd-Kit.
       multiple: false
       options:
-        - 3.7
         - 3.8
         - 3.9
         - 3.10
+        - 3.11
     validations:
       required: true
   - type: input
