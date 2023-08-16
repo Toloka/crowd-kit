@@ -25,7 +25,7 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
             The algorithm converges when the loss change is less than the `tol` parameter.
         random_state: The seed number for the random initialization.
         regularization_ratio: The regularization ratio.
-    
+
     Examples:
         The following example shows how to aggregate results of comparisons **grouped by some column**.
         In the example, two questions `q1` and `q2` are used to group the labeled data.
