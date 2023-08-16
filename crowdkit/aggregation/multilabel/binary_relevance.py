@@ -13,23 +13,35 @@ from ..utils import clone_aggregator
 
 @attr.s
 class BinaryRelevance(BaseClassificationAggregator):
-    r"""Simple aggregation algorithm for multi-label classification.
+    r"""The **Binary Relevance** algorithm is a simple aggregation algorithm for the multi-label classification.
 
-    Binary Relevance is a straightforward approach for multi-label classification aggregation:
-    each label is treated as a class in binary classification problem and aggregated separately using
-    aggregation algorithms for classification, e.g. Majority Vote or Dawid Skene.
+    Binary Relevance is a straightforward approach for the multi-label classification aggregation:
+    each label is represented as a class in the binary classification problem and aggregated separately using
+    aggregation algorithms for classification (e.g., Majority Vote or Dawid-Skene). Specifically,
+    for each class label $λ_j$, Binary Relevance derives a binary training set $D_j$ from the original
+    multi-label training set $D$ in the following way:
+    $$
+    D_j = {(x^i, y_j^i) | 1 <= i <= m}.
+    $$
+    In other words, each multi-label training example $(x^i, y^i)$ is transformed into a binary training example
+    based on its relevancy to $λ_j$.
 
     {% note info %}
 
-    If this method is used for single-label classification, the output of the BinaryRelevance method may differ
-    from the output of the basic aggregator used for its intended purpose, since each class generates a binary
+    If this method is used for the single-label classification, the output of the Binary Relevance method may differ
+    from the output of the basic aggregator used for its intended purpose since each class generates a binary
     classification task, and therefore it is considered separately. For example, some objects may not have labels.
 
     {% endnote %}
 
+    M-L. Zhang, Y-K. Li, X-Y. Liu, X. Geng. Binary Relevance for Multi-Label Learning: An Overview.
+    *Frontiers of Computer Science. Vol. 12*, 2 (2018), 191-202.
+
+    <http://palm.seu.edu.cn/zhangml/files/FCS'17.pdf>
+
     Args:
-        base_aggregator: Aggregator instance that will be used for each binary classification. All class parameters
-         will be copied, except for the results of previous fit.
+        base_aggregator: The aggregator instance that will be used for each binary classification. All class parameters
+         will be copied, except for the results of the previous fit.
 
     Examples:
         >>> import pandas as pd
@@ -48,15 +60,14 @@ class BinaryRelevance(BaseClassificationAggregator):
         >>> result = BinaryRelevance(DawidSkene(n_iter=10)).fit_predict(df)
 
     Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks' aggregated labels.
+        labels_ (typing.Optional[pandas.core.series.Series]): The task labels.
+            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is a list of the task aggregated labels.
 
-        aggregators_ (dict[str, BaseClassificationAggregator]): Labels' aggregators matched to classes.
-            A dictionary that matches aggregators to classes.
-            The key is the class found in the source data,
-            and the value is the aggregator used for this class.
-            The set of keys is all the classes that are in the input data.
+        aggregators_ (dict[str, BaseClassificationAggregator]): The label aggregators matched to the classes.
+            It is represented as a dictionary that matches the aggregators to the classes.
+            The key is a class found in the source data,
+            and the value is an aggregator used for this class.
+            The set of keys is all the classes that are used in the input data.
     """
     base_aggregator: BaseClassificationAggregator = attr.ib(
         # validator=attr.validators.instance_of(BaseClassificationAggregator),
@@ -69,12 +80,12 @@ class BinaryRelevance(BaseClassificationAggregator):
             "Aggregator argument should be a classification aggregator"
 
     def fit(self, data: pd.DataFrame) -> 'BinaryRelevance':
-        """Fit the aggregators.
+        """Fits the model to the training data.
 
         Args:
-            data (DataFrame): Workers' labeling results.
-                A pandas.DataFrame containing `task`, `worker` and `label` columns.
-                'label' column should contain list of labels, e.g. ['tree', 'house', 'car']
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+                The `label` column should contain a list of labels (e.g., ['tree', 'house', 'car']).
 
         Returns:
             BinaryRelevance: self.
@@ -107,15 +118,15 @@ class BinaryRelevance(BaseClassificationAggregator):
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """Fit the model and return aggregated results.
+        """Fits the model to the training data and returns the aggregated results.
 
          Args:
-             data (DataFrame): Workers' labeling results.
-                 A pandas.DataFrame containing `task`, `worker` and `label` columns.
+             data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
          Returns:
-             Series: Tasks' labels.
-                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                 is a list with the task's aggregated labels.
+             Series: Task labels.
+                 The `pandas.Series` data is indexed by `task` so that `labels.loc[task]`
+                 is a list of the task aggregated labels.
          """
         return self.fit(data).labels_

@@ -14,43 +14,45 @@ _EPS = np.float_power(10, -10)
 
 @attr.s
 class BradleyTerry(BasePairwiseAggregator):
-    r"""Bradley-Terry model for pairwise comparisons.
-
-    The model implements the classic algorithm for aggregating pairwise comparisons.
-    The algorithm constructs an items' ranking based on pairwise comparisons. Given
-    a pair of two items $i$ and $j$, the probability of $i$ to be ranked higher is,
-    according to the Bradley-Terry's probabilistic model,
+    r"""The **Bradley-Terry model for paired comparisons** implements the classic algorithm
+    for aggregating paired comparisons. The algorithm constructs the ranking of items based on paired comparisons.
+    Given a pair of two items $i$ and $j$, the probability that $i$ is ranked higher than $j$,
+    according to the probabilistic Bradley-Terry model, is
     $$
-    P(i > j) = \frac{p_i}{p_i + p_j}.
+    P(i > j) = \frac{p_i}{p_i + p_j},
     $$
-    Here $\boldsymbol{p}$ is a vector of positive real-valued parameters that the algorithm optimizes. These
-    optimization process maximizes the log-likelihood of observed comparisons outcomes by the MM-algorithm:
+    where $\boldsymbol{p}$ is a vector of the positive real-valued parameters that the algorithm optimizes. These
+    optimization process maximizes the log-likelihood of the outcomes of the observed comparisons using the MM algorithm:
     $$
     L(\boldsymbol{p}) = \sum_{i=1}^n\sum_{j=1}^n[w_{ij}\ln p_i - w_{ij}\ln (p_i + p_j)],
     $$
-    where $w_{ij}$ denotes the number of comparisons of $i$ and $j$ "won" by $i$.
+    where $w_{ij}$ denotes the number of times individual $i$ has beaten individual $j$ and we assume $w_{ij} = 0$ by convention.
 
     {% note info %}
 
-    The Bradley-Terry model needs the comparisons graph to be **strongly connected**.
+    The Bradley-Terry model requires the comparison graph to be **strongly connected**.
 
     {% endnote %}
 
-    David R. Hunter.
-    MM algorithms for generalized Bradley-Terry models
-    *Ann. Statist.*, Vol. 32, 1 (2004): 384–406.
+    David R. Hunter. MM Algorithms for Generalized Bradley-Terry Models.
+    *Ann. Statist. Vol. 32*, 1 (2004), 384–406.
 
-    Bradley, R. A. and Terry, M. E.
-    Rank analysis of incomplete block designs. I. The method of paired comparisons.
-    *Biometrika*, Vol. 39 (1952): 324–345.
+    <https://projecteuclid.org/journals/annals-of-statistics/volume-32/issue-1/MM-algorithms-for-generalized-Bradley-Terry-models/10.1214/aos/1079120141.full>
+
+    R. A. Bradley, M. E. Terry. Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons.
+    *Biometrika. Vol. 39*, 3/4 (1952), 324–345.
+
+    <https://doi.org/10.2307/2334029>
 
     Args:
-        n_iter: A number of optimization iterations.
+        n_iter: The maximum number of optimization iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
 
     Examples:
-        The Bradley-Terry model needs the data to be a `DataFrame` containing columns
-        `left`, `right`, and `label`. `left` and `right` contain identifiers of left and
-        right items respectively, `label` contains identifiers of items that won these
+        The Bradley-Terry model requires the `DataFrame` data containing columns
+        `left`, `right`, and `label`. `left` and `right` contain the identifiers of the left and
+        right items respectively, `label` contains the identifiers of the items that won these
         comparisons.
 
         >>> import pandas as pd
@@ -64,8 +66,9 @@ class BradleyTerry(BasePairwiseAggregator):
         >>> )
 
     Attributes:
-        scores_ (Series): 'Labels' scores.
-            A pandas.Series index by labels and holding corresponding label's scores
+        scores_ (Series): The label scores.
+            The `pandas.Series` data is indexed by `label` and contains the corresponding label scores.
+        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib()
@@ -74,10 +77,11 @@ class BradleyTerry(BasePairwiseAggregator):
     loss_history_: List[float] = attr.ib(init=False)
 
     def fit(self, data: pd.DataFrame) -> 'BradleyTerry':
-        """Args:
-            data (DataFrame): Workers' pairwise comparison results.
-                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
-                For each row `label` must be equal to either `left` column or `right` column.
+        """Fits the model to the training data.
+        Args:
+            data (DataFrame): The training dataset of workers' paired comparison results
+                which is represented as the `pandas.DataFrame` data containing `worker`, `left`, `right`, and `label` columns.
+                Each row `label` must be equal to either the `left` or `right` column.
 
         Returns:
             BradleyTerry: self.
@@ -126,14 +130,15 @@ class BradleyTerry(BasePairwiseAggregator):
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """Args:
-            data (DataFrame): Workers' pairwise comparison results.
-                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
-                For each row `label` must be equal to either `left` column or `right` column.
+        """Fits the model to the training data and returns the aggregated results.
+        Args:
+            data (DataFrame): The training dataset of workers' paired comparison results
+                which is represented as the `pandas.DataFrame` data containing `worker`, `left`, `right`, and `label` columns.
+                Each row `label` must be equal to either the `left` or `right` column.
 
         Returns:
-            Series: 'Labels' scores.
-                A pandas.Series index by labels and holding corresponding label's scores
+            Series: The label scores.
+                The `pandas.Series` data is indexed by `label` and contains the corresponding label scores.
         """
         return self.fit(data).scores_
 

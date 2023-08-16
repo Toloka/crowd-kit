@@ -15,16 +15,22 @@ from ..utils import factorize, named_series_attrib
 
 @attr.s
 class NoisyBradleyTerry(BasePairwiseAggregator):
-    r"""Bradley-Terry model for pairwise comparisons with additional parameters.
+    r"""The **Bradley-Terry model for paired comparisons with the additional parameters** is a modification
+    of the [Bradley-Terry model](crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md)
+    with the parameters for the workers' skills (reliability) and biases.
 
-    This model is a modification of the [Bradley-Terry model](crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md)
-    with parameters for workers' skills (reliability) and biases.
-
+    Args:
+        n_iter: The maximum number of optimization iterations.
+        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
+            The algorithm converges when the loss change is less than the `tol` parameter.
+        random_state: The seed number for the random initialization.
+        regularization_ratio: The regularization ratio.
+    
     Examples:
         The following example shows how to aggregate results of comparisons **grouped by some column**.
-        In the example the two questions `q1` and `q2` are used to group the labeled data.
-        Temporary data structure is created and the model is applied to it.
-        The results are splitted in two arrays, and each array contains scores for one of the initial groups.
+        In the example, two questions `q1` and `q2` are used to group the labeled data.
+        The temporary data structure is created and the model is applied to it.
+        The results are divided into two arrays, and each array contains scores for one of the initial groups.
 
         >>> import pandas as pd
         >>> from crowdkit.aggregation import NoisyBradleyTerry
@@ -39,9 +45,9 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         >>>     ],
         >>>     columns=['question', 'worker', 'left', 'right', 'label']
         >>> )
-        >>> # Append question to other columns. After that the data looks like:
-        >>> #   question worker     left    right    label
-        >>> # 0       q1     w1  (q1, a)  (q1, b)  (q1, a)
+        >>> # Append question to other columns. After that, the data looks like:
+        >>> #    question worker     left    right    label
+        >>> # 0     q1     w1      (q1, a)  (q1, b)  (q1, a)
         >>> for col in 'left', 'right', 'label':
         >>>     data[col] = list(zip(data['question'], data[col]))
         >>> result = NoisyBradleyTerry(n_iter=10).fit_predict(data)
@@ -51,12 +57,12 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         >>> print(result['q2']['b']) # Score for the item b in the q2 question
 
     Attributes:
-        scores_ (Series): 'Labels' scores.
-            A pandas.Series index by labels and holding corresponding label's scores
-        skills_ (Series): workers' skills.
-            A pandas.Series index by workers and holding corresponding worker's skill
-        biases_ (Series): Predicted biases for each worker. Indicates the probability of a worker to choose the left item..
-            A series of workers' biases indexed by workers
+        scores_ (Series): The label scores.
+            The `pandas.Series` data is indexed by `label` and contains the corresponding label scores.
+        skills_ (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
+            and has the corresponding worker skill.
+        biases_ (Series): The predicted biases for each worker. Indicates the probability of a worker to choose the left item.
+            The `pandas.Series` data is indexed by `worker` and has the corresponding worker bias.
     """
     n_iter: int = attr.ib(default=100)
     tol: float = attr.ib(default=1e-5)
@@ -68,10 +74,11 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
     # scores_
 
     def fit(self, data: pd.DataFrame) -> 'NoisyBradleyTerry':
-        """Args:
-            data (DataFrame): Workers' pairwise comparison results.
-                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
-                For each row `label` must be equal to either `left` column or `right` column.
+        """Fits the model to the training data.
+        Args:
+            data (DataFrame): The training dataset of workers' paired comparison results
+                which is represented as the `pandas.DataFrame` data containing `worker`, `left`, `right`, and `label` columns.
+                Each row `label` must be equal to either the `left` or `right` column.
 
         Returns:
             NoisyBradleyTerry: self.
@@ -97,14 +104,15 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
-        """Args:
-            data (DataFrame): Workers' pairwise comparison results.
-                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
-                For each row `label` must be equal to either `left` column or `right` column.
+        """Fits the model to the training data and returns the aggregated results.
+        Args:
+            data (DataFrame): The training dataset of workers' paired comparison results
+                which is represented as the `pandas.DataFrame` data containing `worker`, `left`, `right`, and `label` columns.
+                Each row `label` must be equal to either the `left` or `right` column.
 
         Returns:
-            Series: 'Labels' scores.
-                A pandas.Series index by labels and holding corresponding label's scores
+            Series: The label scores.
+                The `pandas.Series` data is indexed by `label` and contains the corresponding label scores.
         """
         return self.fit(data).scores_
 
