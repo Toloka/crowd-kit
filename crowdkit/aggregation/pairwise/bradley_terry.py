@@ -26,7 +26,7 @@ class BradleyTerry(BasePairwiseAggregator):
     $$
     L(\boldsymbol{p}) = \sum_{i=1}^n\sum_{j=1}^n[w_{ij}\ln p_i - w_{ij}\ln (p_i + p_j)],
     $$
-    where $w_{ij}$ denotes the number of times individual $i$ has beaten individual $j$ and we assume $w_{ij} = 0$ by convention.
+    where $w_{ij}$ denotes the number of times object $i$ has beaten object $j$.
 
     {% note info %}
 

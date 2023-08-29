@@ -17,8 +17,18 @@ class BinaryRelevance(BaseClassificationAggregator):
 
     Binary Relevance is a straightforward approach for the multi-label classification aggregation:
     each label is represented as a class in the binary classification problem and aggregated separately using
-    aggregation algorithms for classification (e.g., Majority Vote or Dawid-Skene). Specifically,
-    for each class label $λ_j$, Binary Relevance derives a binary training set $D_j$ from the original
+    aggregation algorithms for classification (e.g., Majority Vote or Dawid-Skene).
+
+    The multi-label training set $D$ is specified in the following way:
+    $$
+    D = {(x^i, y^i) | 1 <= i <= m},
+    $$
+    where $m$ is a number of multi-label training examples.
+    For each multi-label training example $(x^i, y^i)$, $x^i \in X$ is a d-dimensional feature vector $[x_1^i, x_2^i, ..., x_d^i]^T$
+    and $y^i \in {-1, +1}^q$ is a q-bits binary vector $[y_1^i, y_2^i, ..., y_q^i]^T$ where $y_j^i$ is a relevant (irrelevant) label
+    for $x^i$ ($1 <= j <= q$ where $q$ is a number of class labels).
+
+    For each class label $λ_j$, Binary Relevance derives a binary training set $D_j$ from the original
     multi-label training set $D$ in the following way:
     $$
     D_j = {(x^i, y_j^i) | 1 <= i <= m}.
