@@ -19,7 +19,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           pip install pipenv==2023.7.9
-          pipenv install --python "${{ matrix.python-version }}" --dev --system --skip-lock
+          pipenv install -v --python "${{ matrix.python-version }}" --dev --system --skip-lock
       - name: Lint with Mypy
         run: mypy crowdkit tests
       - name: Lint with flake8
