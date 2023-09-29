@@ -127,7 +127,10 @@ class DawidSkene(BaseClassificationAggregator):
         # row is equal to 0. This trick ensures proper scaling after exponentiating and
         # does not affect the result of E-step
         scaled_likelihoods = np.exp2(log_likelihoods.sub(log_likelihoods.max(axis=1), axis=0))
-        return scaled_likelihoods.div(scaled_likelihoods.sum(axis=1), axis=0)
+        scaled_likelihoods = scaled_likelihoods.div(scaled_likelihoods.sum(axis=1), axis=0)
+        # Convert columns types to label type
+        scaled_likelihoods.columns = pd.Index(scaled_likelihoods.columns, name='label', dtype=data.label.dtype)
+        return scaled_likelihoods
 
     def _evidence_lower_bound(self, data: pd.DataFrame, probas: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame) -> float:
         # calculate joint probability log-likelihood expectation over probas
