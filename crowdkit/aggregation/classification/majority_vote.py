@@ -49,7 +49,7 @@ class MajorityVote(BaseClassificationAggregator):
         >>>     columns=['task', 'worker', 'label']
         >>> )
         >>> skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
-        >>> result = MajorityVote.fit_predict(df, skills)
+        >>> result = MajorityVote().fit_predict(df, skills)
 
     Attributes:
         labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
