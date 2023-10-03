@@ -1,11 +1,12 @@
-__all__ = ['MACE']
+__all__ = ["MACE"]
 
 from typing import Any, List, Optional, Tuple
+
 import attr
 import numpy as np
-from numpy.typing import NDArray
 import pandas as pd
 import scipy.stats as sps
+from numpy.typing import NDArray
 from scipy.special import digamma
 from tqdm.auto import trange
 
@@ -31,7 +32,9 @@ def normalize(x: NDArray[np.float64], smoothing: float) -> NDArray[np.float64]:
     )
 
 
-def variational_normalize(x: NDArray[np.float64], hparams: NDArray[np.float64]) -> NDArray[np.float64]:
+def variational_normalize(
+    x: NDArray[np.float64], hparams: NDArray[np.float64]
+) -> NDArray[np.float64]:
     """Normalizes the rows of the matrix using the MACE priors.
 
     Args:
@@ -146,7 +149,7 @@ class MACE(BaseClassificationAggregator):
     smoothing_: float = attr.ib(init=False)
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
 
-    def fit(self, data: pd.DataFrame) -> 'MACE':
+    def fit(self, data: pd.DataFrame) -> "MACE":
         """Fits the model to the training data.
 
         Args:
@@ -157,9 +160,9 @@ class MACE(BaseClassificationAggregator):
             MACE: The fitted MACE model.
         """
 
-        workers, worker_names = pd.factorize(data['worker'])
-        labels, label_names = pd.factorize(data['label'])
-        tasks, task_names = pd.factorize(data['task'])
+        workers, worker_names = pd.factorize(data["worker"])
+        labels, label_names = pd.factorize(data["label"])
+        tasks, task_names = pd.factorize(data["task"])
 
         n_workers = len(worker_names)
         n_labels = len(label_names)
@@ -173,7 +176,7 @@ class MACE(BaseClassificationAggregator):
             trange(self.n_restarts) if self.verbose > 0 else range(self.n_restarts)
         )
         if self.verbose > 0:
-            restarts_progress.set_description('Restarts')
+            restarts_progress.set_description("Restarts")
         for _ in restarts_progress:
             self._initialize(n_workers, n_labels)
             (
@@ -194,7 +197,7 @@ class MACE(BaseClassificationAggregator):
                 trange(self.n_iter) if self.verbose > 1 else range(self.n_iter)
             )
             for _ in iter_progress:
-                if self.method == 'vb':
+                if self.method == "vb":
                     self._variational_m_step(
                         knowing_expected_counts, strategy_expected_counts
                     )
@@ -216,7 +219,7 @@ class MACE(BaseClassificationAggregator):
                 )
                 if self.verbose > 1:
                     iter_progress.set_postfix(
-                        {'log_marginal_likelihood': round(log_marginal_likelihood, 5)}
+                        {"log_marginal_likelihood": round(log_marginal_likelihood, 5)}
                     )
             if log_marginal_likelihood > best_log_marginal_likelihood:
                 best_log_marginal_likelihood = log_marginal_likelihood
@@ -230,8 +233,8 @@ class MACE(BaseClassificationAggregator):
         )
 
         self.probas_ = decode_distribution(gold_label_marginals)
-        self.labels_ = self.probas_.idxmax(axis='columns')
-        self.labels_.index.name = 'task'
+        self.labels_ = self.probas_.idxmax(axis="columns")
+        self.labels_.index.name = "task"
 
         return self
 
@@ -280,14 +283,13 @@ class MACE(BaseClassificationAggregator):
             random_state=self.random_state,
         )
         self.thetas_ = sps.uniform(1, 1 + self.default_noise).rvs(
-            size=(n_workers, n_labels),
-            random_state=self.random_state
+            size=(n_workers, n_labels), random_state=self.random_state
         )
 
         self.spamming_ = self.spamming_ / self.spamming_.sum(axis=1, keepdims=True)
         self.thetas_ = self.thetas_ / self.thetas_.sum(axis=1, keepdims=True)
 
-        if self.method == 'vb':
+        if self.method == "vb":
             self.theta_priors_ = np.empty((n_workers, 2))
             self.theta_priors_[:, 0] = self.alpha
             self.theta_priors_[:, 1] = self.beta
@@ -328,52 +330,55 @@ class MACE(BaseClassificationAggregator):
         knowing_expected_counts = pd.DataFrame(
             np.zeros((len(worker_names), 2)),
             index=worker_names,
-            columns=['knowing_expected_count_0', 'knowing_expected_count_1'],
+            columns=["knowing_expected_count_0", "knowing_expected_count_1"],
         )
 
         for label_idx, label in enumerate(label_names):
-            annotation['gold_marginal'] = self.spamming_[workers, 0] * self.thetas_[
+            annotation["gold_marginal"] = self.spamming_[workers, 0] * self.thetas_[
                 workers, labels
             ] + self.spamming_[workers, 1] * (label_idx == labels)
-            gold_label_marginals[label] = annotation.groupby('task').prod(numeric_only=True)[
-                'gold_marginal'
-            ] / len(label_names)
+            gold_label_marginals[label] = annotation.groupby("task").prod(
+                numeric_only=True
+            )["gold_marginal"] / len(label_names)
 
         instance_marginals = gold_label_marginals.sum(axis=1)
         log_marginal_likelihood = np.log(instance_marginals + 1e-8).sum()
 
-        annotation['strategy_marginal'] = 0.0
+        annotation["strategy_marginal"] = 0.0
         for label in range(len(label_names)):
-            annotation['strategy_marginal'] += gold_label_marginals.values[
+            annotation["strategy_marginal"] += gold_label_marginals.values[
                 tasks, label
             ] / (
                 self.spamming_[workers, 0] * self.thetas_[workers, labels]
                 + self.spamming_[workers, 1] * (labels == label)
             )
 
-        annotation['strategy_marginal'] = (
-            annotation['strategy_marginal']
+        annotation["strategy_marginal"] = (
+            annotation["strategy_marginal"]
             * self.spamming_[workers, 0]
             * self.thetas_[workers, labels]
         )
 
-        annotation.set_index('task', inplace=True)
-        annotation['instance_marginal'] = instance_marginals
+        annotation.set_index("task", inplace=True)
+        annotation["instance_marginal"] = instance_marginals
         annotation.reset_index(inplace=True)
 
-        annotation['strategy_marginal'] = (
-            annotation['strategy_marginal'] / annotation['instance_marginal']
+        annotation["strategy_marginal"] = (
+            annotation["strategy_marginal"] / annotation["instance_marginal"]
         )
 
         strategy_expected_counts = (
-            annotation.groupby(['worker', 'label']).sum(numeric_only=True)['strategy_marginal'].unstack().fillna(0.0)
+            annotation.groupby(["worker", "label"])
+            .sum(numeric_only=True)["strategy_marginal"]
+            .unstack()
+            .fillna(0.0)
         )
 
-        knowing_expected_counts['knowing_expected_count_0'] = annotation.groupby(
-            'worker'
-        ).sum(numeric_only=True)['strategy_marginal']
+        knowing_expected_counts["knowing_expected_count_0"] = annotation.groupby(
+            "worker"
+        ).sum(numeric_only=True)["strategy_marginal"]
 
-        annotation['knowing_expected_counts'] = (
+        annotation["knowing_expected_counts"] = (
             gold_label_marginals.values[tasks, labels].ravel()
             * self.spamming_[workers, 1]
             / (
@@ -381,9 +386,9 @@ class MACE(BaseClassificationAggregator):
                 + self.spamming_[workers, 1]
             )
         ) / instance_marginals.values[tasks]
-        knowing_expected_counts['knowing_expected_count_1'] = annotation.groupby(
-            'worker'
-        ).sum(numeric_only=True)['knowing_expected_counts']
+        knowing_expected_counts["knowing_expected_count_1"] = annotation.groupby(
+            "worker"
+        ).sum(numeric_only=True)["knowing_expected_counts"]
 
         return (
             log_marginal_likelihood,

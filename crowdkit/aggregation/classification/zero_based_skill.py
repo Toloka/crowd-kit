@@ -1,4 +1,4 @@
-__all__ = ['ZeroBasedSkill']
+__all__ = ["ZeroBasedSkill"]
 
 from typing import Optional
 
@@ -6,9 +6,9 @@ import attr
 import pandas as pd
 from sklearn.utils.validation import check_is_fitted
 
-from .majority_vote import MajorityVote
 from ..base import BaseClassificationAggregator
 from ..utils import get_accuracy, named_series_attrib
+from .majority_vote import MajorityVote
 
 
 @attr.attrs(auto_attribs=True)
@@ -59,7 +59,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
     eps: float = 1e-5
 
     # Available after fit
-    skills_: Optional[pd.Series] = named_series_attrib(name='skill')
+    skills_: Optional[pd.Series] = named_series_attrib(name="skill")
 
     # Available after predict or predict_proba
     # labels_
@@ -67,17 +67,17 @@ class ZeroBasedSkill(BaseClassificationAggregator):
 
     def _init_skills(self, data: pd.DataFrame) -> pd.Series:
         skill_value = 1 / data.label.unique().size + self.eps
-        skill_index = pd.Index(data.worker.unique(), name='worker')
+        skill_index = pd.Index(data.worker.unique(), name="worker")
         return pd.Series(skill_value, index=skill_index)
 
-    def _apply(self, data: pd.DataFrame) -> 'ZeroBasedSkill':
-        check_is_fitted(self, attributes='skills_')
+    def _apply(self, data: pd.DataFrame) -> "ZeroBasedSkill":
+        check_is_fitted(self, attributes="skills_")
         mv = MajorityVote().fit(data, self.skills_)
         self.labels_ = mv.labels_
         self.probas_ = mv.probas_
         return self
 
-    def fit(self, data: pd.DataFrame) -> 'ZeroBasedSkill':
+    def fit(self, data: pd.DataFrame) -> "ZeroBasedSkill":
         """Fits the model to the training data.
 
         Args:
@@ -89,7 +89,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         """
 
         # Initialization
-        data = data[['task', 'worker', 'label']]
+        data = data[["task", "worker", "label"]]
         skills = self._init_skills(data)
         mv = MajorityVote()
 
@@ -99,7 +99,9 @@ class ZeroBasedSkill(BaseClassificationAggregator):
             if iteration % self.lr_steps_to_reduce == 0:
                 learning_rate *= self.lr_reduce_factor
             mv.fit(data, skills=skills)
-            skills = skills + learning_rate * (get_accuracy(data, mv.labels_, by='worker') - skills)
+            skills = skills + learning_rate * (
+                get_accuracy(data, mv.labels_, by="worker") - skills
+            )
 
         # Saving results
         self.skills_ = skills

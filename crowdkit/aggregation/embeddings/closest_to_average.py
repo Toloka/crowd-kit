@@ -1,6 +1,6 @@
-__all__ = ['ClosestToAverage']
+__all__ = ["ClosestToAverage"]
 
-from typing import Callable, Optional, Any
+from typing import Any, Callable, Optional
 
 import attr
 import numpy as np
@@ -37,8 +37,12 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
 
     distance: Callable[[npt.NDArray[Any], npt.NDArray[Any]], float] = attr.ib()
 
-    def fit(self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None,
-            true_embeddings: pd.Series = None) -> 'ClosestToAverage':
+    def fit(
+        self,
+        data: pd.DataFrame,
+        aggregated_embeddings: Optional[pd.Series] = None,
+        true_embeddings: pd.Series = None,
+    ) -> "ClosestToAverage":
         """Fits the model to the training data.
 
         Args:
@@ -56,12 +60,12 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
             raise ValueError(
-                'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
+                "Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported."
             )
 
-        data = data[['task', 'worker', 'output', 'embedding']]
+        data = data[["task", "worker", "output", "embedding"]]
         if aggregated_embeddings is None:
-            group = data.groupby('task')
+            group = data.groupby("task")
             # we don't use .mean() because it does not work with np.array in older pandas versions
             avg_embeddings = group.embedding.apply(np.sum) / group.worker.count()
             avg_embeddings.update(true_embeddings)
@@ -69,23 +73,29 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
             avg_embeddings = aggregated_embeddings
 
         # Calculating distances (scores)
-        data = data.join(avg_embeddings.rename('avg_embedding'), on='task')
+        data = data.join(avg_embeddings.rename("avg_embedding"), on="task")
         # TODO: native Python functions are slow
-        data['score'] = data.apply(lambda row: self.distance(row.embedding, row.avg_embedding), axis=1)
+        data["score"] = data.apply(
+            lambda row: self.distance(row.embedding, row.avg_embedding), axis=1
+        )
 
         # Selecting best scores and outputs
-        scores = data[['task', 'output', 'score', 'embedding']]
+        scores = data[["task", "output", "score", "embedding"]]
         # TODO: process cases when we actually have an answer in true_embeddings
         # TODO: to do that we must make true_embeddings a DataFrame with `output` column
-        embeddings_and_outputs = scores[['task', 'output', 'embedding']].loc[scores.groupby('task')['score'].idxmin()]
+        embeddings_and_outputs = scores[["task", "output", "embedding"]].loc[
+            scores.groupby("task")["score"].idxmin()
+        ]
 
         #
-        self.scores_ = scores.set_index('task')
-        self.embeddings_and_outputs_ = embeddings_and_outputs.set_index('task')
+        self.scores_ = scores.set_index("task")
+        self.embeddings_and_outputs_ = embeddings_and_outputs.set_index("task")
 
         return self
 
-    def fit_predict_scores(self, data: pd.DataFrame, aggregated_embeddings: pd.Series = None) -> pd.DataFrame:
+    def fit_predict_scores(
+        self, data: pd.DataFrame, aggregated_embeddings: pd.Series = None
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns the estimated scores.
 
         Args:
@@ -102,7 +112,9 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
 
         return self.fit(data, aggregated_embeddings).scores_
 
-    def fit_predict(self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None) -> pd.DataFrame:
+    def fit_predict(
+        self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None
+    ) -> pd.DataFrame:
         """
         Fits the model to the training data and returns the aggregated outputs.
 

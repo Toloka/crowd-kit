@@ -1,6 +1,4 @@
-__all__ = [
-    'KOS'
-]
+__all__ = ["KOS"]
 
 import attr
 import numpy as np
@@ -54,7 +52,7 @@ class KOS(BaseClassificationAggregator):
     n_iter: int = attr.ib(default=100)
     random_state: int = attr.ib(default=0)
 
-    def fit(self, data: pd.DataFrame) -> 'KOS':
+    def fit(self, data: pd.DataFrame) -> "KOS":
         """Fits the model to the training data.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -68,38 +66,48 @@ class KOS(BaseClassificationAggregator):
 
         # Early exit
         if not data.size:
-            self.labels_ = pd.Series([], dtype='O')
+            self.labels_ = pd.Series([], dtype="O")
             return self
 
         # Initialization
         kos_data = data.copy()
         labels = kos_data.label.unique()
         if len(labels) != 2:
-            raise ValueError('KOS aggregation method is for binary classification only.')
+            raise ValueError(
+                "KOS aggregation method is for binary classification only."
+            )
         mapping = {labels[0]: 1, labels[1]: -1}
         kos_data.label = kos_data.label.apply(lambda x: mapping[x])
-        kos_data['reliabilities'] = np.random.normal(loc=1, scale=1, size=len(kos_data))
+        kos_data["reliabilities"] = np.random.normal(loc=1, scale=1, size=len(kos_data))
 
         # Updating reliabilities
         for _ in range(self.n_iter):
             # Update inferred labels for (task, worker)
-            kos_data['multiplied'] = kos_data.label * kos_data.reliabilities
-            kos_data['summed'] = list(kos_data.groupby('task')['multiplied'].sum()[kos_data.task])
+            kos_data["multiplied"] = kos_data.label * kos_data.reliabilities
+            kos_data["summed"] = list(
+                kos_data.groupby("task")["multiplied"].sum()[kos_data.task]
+            )
             # Early exit to prevent NaN
-            if (np.abs(kos_data['summed']) > _MAX).any():
+            if (np.abs(kos_data["summed"]) > _MAX).any():
                 break
-            kos_data['inferred'] = (kos_data['summed'] - kos_data['multiplied']).astype(float)
+            kos_data["inferred"] = (kos_data["summed"] - kos_data["multiplied"]).astype(
+                float
+            )
 
             # Update reliabilities for (task, worker)
-            kos_data['multiplied'] = kos_data.label * kos_data.inferred
-            kos_data['summed'] = list(kos_data.groupby('worker')['multiplied'].sum()[kos_data.worker])
+            kos_data["multiplied"] = kos_data.label * kos_data.inferred
+            kos_data["summed"] = list(
+                kos_data.groupby("worker")["multiplied"].sum()[kos_data.worker]
+            )
             # Early exit to prevent NaN
-            if (np.abs(kos_data['summed']) > _MAX).any():
+            if (np.abs(kos_data["summed"]) > _MAX).any():
                 break
-            kos_data['reliabilities'] = (kos_data.summed - kos_data.multiplied).astype('float')
+            kos_data["reliabilities"] = (kos_data.summed - kos_data.multiplied).astype(
+                "float"
+            )
 
-        kos_data['inferred'] = kos_data.label * kos_data.reliabilities
-        inferred_labels = np.sign(kos_data.groupby('task')['inferred'].sum())
+        kos_data["inferred"] = kos_data.label * kos_data.reliabilities
+        inferred_labels = np.sign(kos_data.groupby("task")["inferred"].sum())
         back_mapping = {v: k for k, v in mapping.items()}
         self.labels_ = inferred_labels.apply(lambda x: back_mapping[x])
         return self

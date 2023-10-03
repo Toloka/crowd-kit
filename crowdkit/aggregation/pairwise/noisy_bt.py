@@ -1,4 +1,4 @@
-__all__ = ['NoisyBradleyTerry']
+__all__ = ["NoisyBradleyTerry"]
 
 from typing import Any
 
@@ -62,12 +62,12 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
     tol: float = attr.ib(default=1e-5)
     regularization_ratio: float = attr.ib(default=1e-5)
     random_state: int = attr.ib(default=0)
-    skills_: pd.Series = named_series_attrib(name='skill')
-    biases_: pd.Series = named_series_attrib(name='bias')
+    skills_: pd.Series = named_series_attrib(name="skill")
+    biases_: pd.Series = named_series_attrib(name="bias")
 
     # scores_
 
-    def fit(self, data: pd.DataFrame) -> 'NoisyBradleyTerry':
+    def fit(self, data: pd.DataFrame) -> "NoisyBradleyTerry":
         """Args:
             data (DataFrame): Workers' pairwise comparison results.
                 A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
@@ -77,21 +77,38 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
             NoisyBradleyTerry: self.
         """
 
-        unique_labels, np_data = factorize(data[['left', 'right', 'label']].values)
+        unique_labels, np_data = factorize(data[["left", "right", "label"]].values)
         unique_workers, np_workers = factorize(data.worker.values)
         np.random.seed(self.random_state)
         x_0 = np.random.rand(1 + unique_labels.size + 2 * unique_workers.size)
         np_data += 1
 
-        x = minimize(self._compute_log_likelihood, x_0, jac=self._compute_gradient,
-                     args=(np_data, np_workers, unique_labels.size, unique_workers.size, self.regularization_ratio),
-                     method='L-BFGS-B', options={'maxiter': self.n_iter, 'ftol': np.float32(self.tol)})
+        x = minimize(
+            self._compute_log_likelihood,
+            x_0,
+            jac=self._compute_gradient,
+            args=(
+                np_data,
+                np_workers,
+                unique_labels.size,
+                unique_workers.size,
+                self.regularization_ratio,
+            ),
+            method="L-BFGS-B",
+            options={"maxiter": self.n_iter, "ftol": np.float32(self.tol)},
+        )
 
         biases_begin = unique_labels.size + 1
         workers_begin = biases_begin + unique_workers.size
 
-        self.scores_ = pd.Series(expit(x.x[1:biases_begin]), index=pd.Index(unique_labels, name='label'), name='score')
-        self.biases_ = pd.Series(expit(x.x[biases_begin:workers_begin]), index=unique_workers)
+        self.scores_ = pd.Series(
+            expit(x.x[1:biases_begin]),
+            index=pd.Index(unique_labels, name="label"),
+            name="score",
+        )
+        self.biases_ = pd.Series(
+            expit(x.x[biases_begin:workers_begin]), index=unique_workers
+        )
         self.skills_ = pd.Series(expit(x.x[workers_begin:]), index=unique_workers)
 
         return self
@@ -109,9 +126,14 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         return self.fit(data).scores_
 
     @staticmethod
-    def _compute_log_likelihood(x: npt.NDArray[Any], np_data: npt.NDArray[Any],
-                                np_workers: npt.NDArray[Any], labels: int, workers: int,
-                                regularization_ratio: float) -> float:
+    def _compute_log_likelihood(
+        x: npt.NDArray[Any],
+        np_data: npt.NDArray[Any],
+        np_workers: npt.NDArray[Any],
+        labels: int,
+        workers: int,
+        regularization_ratio: float,
+    ) -> float:
         s_i = x[np_data[:, 0]]
         s_j = x[np_data[:, 1]]
         y = np.zeros_like(np_data[:, 2])
@@ -120,15 +142,27 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         q = x[1 + np_workers + labels]
         gamma = x[1 + np_workers + labels + workers]
 
-        total = np.sum(np.log(expit(gamma) * expit(y * (s_i - s_j)) + (1 - expit(gamma)) * expit(y * q)))
-        reg = np.sum(np.log(expit(x[0] - x[1:labels + 1]))) + np.sum(np.log(expit(x[1:labels + 1] - x[0])))
+        total = np.sum(
+            np.log(
+                expit(gamma) * expit(y * (s_i - s_j))
+                + (1 - expit(gamma)) * expit(y * q)
+            )
+        )
+        reg = np.sum(np.log(expit(x[0] - x[1 : labels + 1]))) + np.sum(
+            np.log(expit(x[1 : labels + 1] - x[0]))
+        )
 
         return float(-total + regularization_ratio * reg)
 
     @staticmethod
-    def _compute_gradient(x: npt.NDArray[Any], np_data: npt.NDArray[Any],
-                          np_workers: npt.NDArray[Any], labels: int, workers: int,
-                          regularization_ratio: float) -> npt.NDArray[Any]:
+    def _compute_gradient(
+        x: npt.NDArray[Any],
+        np_data: npt.NDArray[Any],
+        np_workers: npt.NDArray[Any],
+        labels: int,
+        workers: int,
+        regularization_ratio: float,
+    ) -> npt.NDArray[Any]:
         gradient = np.zeros_like(x)
 
         for worker_idx, (left_idx, right_idx, label) in zip(np_workers, np_data):
@@ -139,11 +173,52 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
             gamma = x[1 + labels + workers + worker_idx]
 
             # We'll use autograd in the future
-            gradient[left_idx] += (y * np.exp(y * (-(s_i - s_j)))) / ((np.exp(-gamma) + 1) * (np.exp(y * (-(s_i - s_j))) + 1) ** 2 * (1 / ((np.exp(-gamma) + 1) * (np.exp(y * (-(s_i - s_j))) + 1)) + (1 - 1 / (np.exp(-gamma) + 1)) / (np.exp(-q * y) + 1)))  # noqa
-            gradient[right_idx] += -(y * (np.exp(q * y) + 1) * np.exp(y * (s_i - s_j) + gamma)) / ((np.exp(y * (s_i - s_j)) + 1) * (np.exp(y * (s_i - s_j) + gamma + q * y) + np.exp(y * (s_i - s_j) + gamma) + np.exp(y * (s_i - s_j) + q * y) + np.exp(q * y)))  # noqa
-            gradient[labels + worker_idx] = (y * np.exp(q * y) * (np.exp(s_i * y) + np.exp(s_j * y))) / ((np.exp(q * y) + 1) * (np.exp(y * (s_i + q) + gamma) + np.exp(s_i * y + gamma) + np.exp(y * (s_i + q)) + np.exp(y * (s_j + q))))  # noqa #dq
-            gradient[labels + workers + worker_idx] = (np.exp(gamma) * (np.exp(s_i * y) - np.exp(y * (s_j + q)))) / ((np.exp(gamma) + 1) * (np.exp(y * (s_i + q) + gamma) + np.exp(s_i * y + gamma) + np.exp(y * (s_i + q)) + np.exp(y * (s_j + q))))  # noqa #dgamma
+            gradient[left_idx] += (y * np.exp(y * (-(s_i - s_j)))) / (
+                (np.exp(-gamma) + 1)
+                * (np.exp(y * (-(s_i - s_j))) + 1) ** 2
+                * (
+                    1 / ((np.exp(-gamma) + 1) * (np.exp(y * (-(s_i - s_j))) + 1))
+                    + (1 - 1 / (np.exp(-gamma) + 1)) / (np.exp(-q * y) + 1)
+                )
+            )  # noqa
+            gradient[right_idx] += -(
+                y * (np.exp(q * y) + 1) * np.exp(y * (s_i - s_j) + gamma)
+            ) / (
+                (np.exp(y * (s_i - s_j)) + 1)
+                * (
+                    np.exp(y * (s_i - s_j) + gamma + q * y)
+                    + np.exp(y * (s_i - s_j) + gamma)
+                    + np.exp(y * (s_i - s_j) + q * y)
+                    + np.exp(q * y)
+                )
+            )  # noqa
+            gradient[labels + worker_idx] = (
+                y * np.exp(q * y) * (np.exp(s_i * y) + np.exp(s_j * y))
+            ) / (
+                (np.exp(q * y) + 1)
+                * (
+                    np.exp(y * (s_i + q) + gamma)
+                    + np.exp(s_i * y + gamma)
+                    + np.exp(y * (s_i + q))
+                    + np.exp(y * (s_j + q))
+                )
+            )  # noqa #dq
+            gradient[labels + workers + worker_idx] = (
+                np.exp(gamma) * (np.exp(s_i * y) - np.exp(y * (s_j + q)))
+            ) / (
+                (np.exp(gamma) + 1)
+                * (
+                    np.exp(y * (s_i + q) + gamma)
+                    + np.exp(s_i * y + gamma)
+                    + np.exp(y * (s_i + q))
+                    + np.exp(y * (s_j + q))
+                )
+            )  # noqa #dgamma
 
-        gradient[1:labels + 1] -= regularization_ratio * np.tanh((x[1:labels + 1] - x[0]) / 2.)
-        gradient[0] += regularization_ratio * np.sum(np.tanh((x[1:labels + 1] - x[0]) / 2.))
+        gradient[1 : labels + 1] -= regularization_ratio * np.tanh(
+            (x[1 : labels + 1] - x[0]) / 2.0
+        )
+        gradient[0] += regularization_ratio * np.sum(
+            np.tanh((x[1 : labels + 1] - x[0]) / 2.0)
+        )
         return -gradient

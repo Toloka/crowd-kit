@@ -1,17 +1,20 @@
 import pytest
 import torch
+
 from crowdkit.learning import CoNAL
 
 from .data_learning import toy_logits, toy_workers  # noqa F401
 
 
-@pytest.mark.filterwarnings('ignore:Lazy modules are a new feature')
-def test_conal(toy_logits: torch.Tensor, toy_workers: torch.Tensor) -> None:  # noqa F811
+@pytest.mark.filterwarnings("ignore:Lazy modules are a new feature")
+def test_conal(
+    toy_logits: torch.Tensor, toy_workers: torch.Tensor  # noqa F811
+) -> None:
     embeddings = torch.tensor(
         [
-            [1., 1.],
-            [2., 1.],
-            [1., 2.],
+            [1.0, 1.0],
+            [2.0, 1.0],
+            [1.0, 2.0],
         ]
     )
     conal = CoNAL(5, 2, com_emb_size=20, user_feature=None)

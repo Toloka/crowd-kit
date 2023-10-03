@@ -1,4 +1,4 @@
-__all__ = ['SegmentationMajorityVote']
+__all__ = ["SegmentationMajorityVote"]
 
 from typing import Optional
 
@@ -64,10 +64,12 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     # segmentations_
     # skills_
 
-    on_missing_skill: str = attr.ib(default='error')
+    on_missing_skill: str = attr.ib(default="error")
     default_skill: Optional[float] = attr.ib(default=None)
 
-    def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> 'SegmentationMajorityVote':
+    def fit(
+        self, data: pd.DataFrame, skills: pd.Series = None
+    ) -> "SegmentationMajorityVote":
         """
         Fits the model to the training data.
 
@@ -82,20 +84,26 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
             SegmentationMajorityVote: self.
         """
 
-        data = data[['task', 'worker', 'segmentation']]
+        data = data[["task", "worker", "segmentation"]]
 
         if skills is None:
-            data['skill'] = 1
+            data["skill"] = 1
         else:
-            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
+            data = add_skills_to_data(
+                data, skills, self.on_missing_skill, self.default_skill
+            )
 
-        data['pixel_scores'] = data.segmentation * data.skill
-        group = data.groupby('task')
+        data["pixel_scores"] = data.segmentation * data.skill
+        group = data.groupby("task")
 
-        self.segmentations_ = (2 * group.pixel_scores.apply(np.sum) - group.skill.apply(np.sum)).apply(lambda x: x >= 0)
+        self.segmentations_ = (
+            2 * group.pixel_scores.apply(np.sum) - group.skill.apply(np.sum)
+        ).apply(lambda x: x >= 0)
         return self
 
-    def fit_predict(self, data: pd.DataFrame, skills: Optional[pd.Series] = None) -> pd.Series:
+    def fit_predict(
+        self, data: pd.DataFrame, skills: Optional[pd.Series] = None
+    ) -> pd.Series:
         """
         Fits the model to the training data and returns the aggregated segmentations.
 

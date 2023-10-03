@@ -1,9 +1,9 @@
 __all__ = [
-    'BaseClassificationAggregator',
-    'BaseImageSegmentationAggregator',
-    'BaseEmbeddingsAggregator',
-    'BaseTextsAggregator',
-    'BasePairwiseAggregator',
+    "BaseClassificationAggregator",
+    "BaseImageSegmentationAggregator",
+    "BaseEmbeddingsAggregator",
+    "BaseTextsAggregator",
+    "BasePairwiseAggregator",
 ]
 
 from typing import Optional
@@ -24,9 +24,9 @@ class BaseClassificationAggregator:
             is the tasks's most likely true label.
     """
 
-    labels_: Optional[pd.Series] = named_series_attrib(name='agg_label')
+    labels_: Optional[pd.Series] = named_series_attrib(name="agg_label")
 
-    def fit(self, data: pd.DataFrame) -> 'BaseClassificationAggregator':
+    def fit(self, data: pd.DataFrame) -> "BaseClassificationAggregator":
         """Args:
             data (DataFrame): Workers' labeling results.
                 A pandas.DataFrame containing `task`, `worker` and `label` columns.
@@ -58,9 +58,9 @@ class BaseImageSegmentationAggregator:
             is the tasks's aggregated segmentation.
     """
 
-    segmentations_: pd.Series = named_series_attrib(name='agg_segmentation')
+    segmentations_: pd.Series = named_series_attrib(name="agg_segmentation")
 
-    def fit(self, data: pd.DataFrame) -> 'BaseImageSegmentationAggregator':
+    def fit(self, data: pd.DataFrame) -> "BaseImageSegmentationAggregator":
         """Args:
             data (DataFrame): Workers' segmentations.
                 A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
@@ -93,7 +93,7 @@ class BaseEmbeddingsAggregator:
 
     embeddings_and_outputs_: pd.DataFrame = attr.ib(init=False)
 
-    def fit(self, data: pd.DataFrame) -> 'BaseEmbeddingsAggregator':
+    def fit(self, data: pd.DataFrame) -> "BaseEmbeddingsAggregator":
         """Args:
             data (DataFrame): Workers' outputs with their embeddings.
                 A pandas.DataFrame containing `task`, `worker`, `output` and `embedding` columns.
@@ -122,9 +122,9 @@ class BaseTextsAggregator:
             is the task's text.
     """
 
-    texts_: pd.Series = named_series_attrib(name='agg_text')
+    texts_: pd.Series = named_series_attrib(name="agg_text")
 
-    def fit(self, data: pd.DataFrame) -> 'BaseTextsAggregator':
+    def fit(self, data: pd.DataFrame) -> "BaseTextsAggregator":
         """Args:
             data (DataFrame): Workers' text outputs.
                 A pandas.DataFrame containing `task`, `worker` and `text` columns.
@@ -153,9 +153,9 @@ class BasePairwiseAggregator:
             A pandas.Series index by labels and holding corresponding label's scores
     """
 
-    scores_: pd.Series = named_series_attrib(name='agg_score')
+    scores_: pd.Series = named_series_attrib(name="agg_score")
 
-    def fit(self, data: pd.DataFrame) -> 'BasePairwiseAggregator':
+    def fit(self, data: pd.DataFrame) -> "BasePairwiseAggregator":
         """Args:
             data (DataFrame): Workers' pairwise comparison results.
                 A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
@@ -168,12 +168,12 @@ class BasePairwiseAggregator:
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
         """Args:
-                    data (DataFrame): Workers' pairwise comparison results.
-                        A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
-                        For each row `label` must be equal to either `left` column or `right` column.
+            data (DataFrame): Workers' pairwise comparison results.
+                A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
+                For each row `label` must be equal to either `left` column or `right` column.
 
-                Returns:
-                    Series: 'Labels' scores.
-                        A pandas.Series index by labels and holding corresponding label's scores
-                """
+        Returns:
+            Series: 'Labels' scores.
+                A pandas.Series index by labels and holding corresponding label's scores
+        """
         raise NotImplementedError()

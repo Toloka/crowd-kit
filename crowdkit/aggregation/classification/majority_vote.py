@@ -1,4 +1,4 @@
-__all__ = ['MajorityVote']
+__all__ = ["MajorityVote"]
 
 from typing import Optional
 
@@ -6,7 +6,13 @@ import attr
 import pandas as pd
 
 from ..base import BaseClassificationAggregator
-from ..utils import normalize_rows, get_most_probable_labels, get_accuracy, add_skills_to_data, named_series_attrib
+from ..utils import (
+    add_skills_to_data,
+    get_accuracy,
+    get_most_probable_labels,
+    named_series_attrib,
+    normalize_rows,
+)
 
 
 @attr.s
@@ -72,13 +78,13 @@ class MajorityVote(BaseClassificationAggregator):
     """
 
     # TODO: remove skills_
-    skills_: Optional[pd.Series] = named_series_attrib(name='skill')
+    skills_: Optional[pd.Series] = named_series_attrib(name="skill")
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
     # labels_
-    on_missing_skill: str = attr.ib(default='error')
+    on_missing_skill: str = attr.ib(default="error")
     default_skill: Optional[float] = attr.ib(default=None)
 
-    def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> 'MajorityVote':
+    def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> "MajorityVote":
         """Fits the model to the training data.
 
         Args:
@@ -92,21 +98,25 @@ class MajorityVote(BaseClassificationAggregator):
             MajorityVote: self.
         """
 
-        data = data[['task', 'worker', 'label']]
+        data = data[["task", "worker", "label"]]
 
         if skills is None:
-            scores = data[['task', 'label']].value_counts()
+            scores = data[["task", "label"]].value_counts()
         else:
-            data = add_skills_to_data(data, skills, self.on_missing_skill, self.default_skill)
-            scores = data.groupby(['task', 'label'])['skill'].sum()
+            data = add_skills_to_data(
+                data, skills, self.on_missing_skill, self.default_skill
+            )
+            scores = data.groupby(["task", "label"])["skill"].sum()
 
-        self.probas_ = normalize_rows(scores.unstack('label', fill_value=0))
+        self.probas_ = normalize_rows(scores.unstack("label", fill_value=0))
         self.labels_ = get_most_probable_labels(self.probas_)
-        self.skills_ = get_accuracy(data, self.labels_, by='worker')
+        self.skills_ = get_accuracy(data, self.labels_, by="worker")
 
         return self
 
-    def fit_predict_proba(self, data: pd.DataFrame, skills: Optional[pd.Series] = None) -> pd.DataFrame:
+    def fit_predict_proba(
+        self, data: pd.DataFrame, skills: Optional[pd.Series] = None
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns probability distributions of labels for each task.
 
         Args:
@@ -127,16 +137,16 @@ class MajorityVote(BaseClassificationAggregator):
     def fit_predict(self, data: pd.DataFrame, skills: pd.Series = None) -> pd.Series:
         """Fits the model to the training data and returns the aggregated results.
 
-         Args:
-            data (DataFrame): The training dataset of workers' labeling results
-                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+        Args:
+           data (DataFrame): The training dataset of workers' labeling results
+               which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
 
-            skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
-                and has the corresponding worker skill.
+           skills (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
+               and has the corresponding worker skill.
 
-         Returns:
-            Series: The task labels. The `pandas.Series` data is indexed by `task`
-                so that `labels.loc[task]` is the most likely true label of tasks.
-         """
+        Returns:
+           Series: The task labels. The `pandas.Series` data is indexed by `task`
+               so that `labels.loc[task]` is the most likely true label of tasks.
+        """
 
         return self.fit(data, skills).labels_

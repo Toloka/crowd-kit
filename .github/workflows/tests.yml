@@ -22,8 +22,8 @@ jobs:
           pipenv install --python "${{ matrix.python-version }}" --dev --system --skip-lock
       - name: Lint with Mypy
         run: mypy crowdkit tests
-      - name: Lint with flake8
-        run: flake8
+      - name: Pre-Commit Check
+        uses: pre-commit/action@v3.0.0
       - name: Test with pytest
         run: coverage run --source crowdkit -m pytest
       - name: Codecov

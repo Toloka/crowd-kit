@@ -1,9 +1,9 @@
 __all__ = [
-    'RASA',
+    "RASA",
 ]
 
-from typing import Any, List
 from functools import partial
+from typing import Any, List
 
 import attr
 import numpy as np
@@ -12,8 +12,8 @@ import pandas as pd
 import scipy.stats as sps
 from scipy.spatial import distance
 
-from .closest_to_average import ClosestToAverage
 from ..base import BaseEmbeddingsAggregator
+from .closest_to_average import ClosestToAverage
 
 _EPS = 1e-5
 
@@ -72,42 +72,56 @@ class RASA(BaseEmbeddingsAggregator):
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
-    def _aggregate_embeddings(data: pd.DataFrame, skills: pd.Series,
-                              true_embeddings: pd.Series = None) -> pd.Series:
+    def _aggregate_embeddings(
+        data: pd.DataFrame, skills: pd.Series, true_embeddings: pd.Series = None
+    ) -> pd.Series:
         """Calculates the weighted average of embeddings for each task."""
-        data = data.join(skills.rename('skill'), on='worker')
-        data['weighted_embedding'] = data.skill * data.embedding
-        group = data.groupby('task')
-        aggregated_embeddings = (group.weighted_embedding.apply(np.sum) / group.skill.sum())
+        data = data.join(skills.rename("skill"), on="worker")
+        data["weighted_embedding"] = data.skill * data.embedding
+        group = data.groupby("task")
+        aggregated_embeddings = (
+            group.weighted_embedding.apply(np.sum) / group.skill.sum()
+        )
         if true_embeddings is None:
             true_embeddings = pd.Series([], dtype=np.float64)
         aggregated_embeddings.update(true_embeddings)
         return aggregated_embeddings
 
     @staticmethod
-    def _update_skills(data: pd.DataFrame, aggregated_embeddings: pd.Series,
-                       prior_skills: pd.Series) -> pd.Series:
+    def _update_skills(
+        data: pd.DataFrame, aggregated_embeddings: pd.Series, prior_skills: pd.Series
+    ) -> pd.Series:
         """Estimates the global reliabilities by aggregated embeddings."""
-        data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
-        data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
-        total_distances = data.groupby('worker').distance.apply(np.sum)
+        data = data.join(
+            aggregated_embeddings.rename("aggregated_embedding"), on="task"
+        )
+        data["distance"] = ((data.embedding - data.aggregated_embedding) ** 2).apply(
+            np.sum
+        )
+        total_distances = data.groupby("worker").distance.apply(np.sum)
         total_distances.clip(lower=_EPS, inplace=True)
         return prior_skills / total_distances
 
     @staticmethod
-    def _cosine_distance(embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]) -> float:
+    def _cosine_distance(
+        embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]
+    ) -> float:
         if not embedding.any() or not avg_embedding.any():
-            return float('inf')
+            return float("inf")
         return float(distance.cosine(embedding, avg_embedding))
 
-    def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'RASA':
+    def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> "RASA":
         cta = ClosestToAverage(distance=self._cosine_distance)
-        cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
+        cta.fit(
+            data,
+            aggregated_embeddings=self.aggregated_embeddings_,
+            true_embeddings=true_embeddings,
+        )
         self.scores_ = cta.scores_
         self.embeddings_and_outputs_ = cta.embeddings_and_outputs_
         return self
 
-    def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'RASA':
+    def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> "RASA":
         """Fits the model to the training data.
 
         Args:
@@ -121,26 +135,32 @@ class RASA(BaseEmbeddingsAggregator):
             RASA: self.
         """
 
-        data = data[['task', 'worker', 'embedding']]
+        data = data[["task", "worker", "embedding"]]
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
             raise ValueError(
-                'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
+                "Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported."
             )
 
         # What we call skills here is called reliabilities in the paper
-        prior_skills = data.worker.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
+        prior_skills = data.worker.value_counts().apply(
+            partial(sps.chi2.isf, self.alpha / 2)
+        )
         skills = pd.Series(1.0, index=data.worker.unique())
         aggregated_embeddings = None
         last_aggregated = None
 
         for _ in range(self.n_iter):
-            aggregated_embeddings = self._aggregate_embeddings(data, skills, true_embeddings)
+            aggregated_embeddings = self._aggregate_embeddings(
+                data, skills, true_embeddings
+            )
             skills = self._update_skills(data, aggregated_embeddings, prior_skills)
 
             if last_aggregated is not None:
                 delta = aggregated_embeddings - last_aggregated
-                loss = (delta * delta).sum().sum() / (aggregated_embeddings * aggregated_embeddings).sum().sum()
+                loss = (delta * delta).sum().sum() / (
+                    aggregated_embeddings * aggregated_embeddings
+                ).sum().sum()
                 if loss < self.tol:
                     break
             last_aggregated = aggregated_embeddings
@@ -150,8 +170,9 @@ class RASA(BaseEmbeddingsAggregator):
         self.aggregated_embeddings_ = aggregated_embeddings
         return self
 
-    def fit_predict_scores(self, data: pd.DataFrame,
-                           true_embeddings: pd.Series = None) -> pd.DataFrame:
+    def fit_predict_scores(
+        self, data: pd.DataFrame, true_embeddings: pd.Series = None
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns the estimated scores.
 
         Args:
@@ -169,7 +190,9 @@ class RASA(BaseEmbeddingsAggregator):
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
-    def fit_predict(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> pd.DataFrame:
+    def fit_predict(
+        self, data: pd.DataFrame, true_embeddings: pd.Series = None
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns the aggregated outputs.
 
         Args:
@@ -184,4 +207,8 @@ class RASA(BaseEmbeddingsAggregator):
                 The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
         """
 
-        return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_
+        return (
+            self.fit(data, true_embeddings)
+            ._apply(data, true_embeddings)
+            .embeddings_and_outputs_
+        )

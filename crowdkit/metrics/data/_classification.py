@@ -1,7 +1,7 @@
 __all__ = [
-    'consistency',
-    'uncertainty',
-    'alpha_krippendorff',
+    "consistency",
+    "uncertainty",
+    "alpha_krippendorff",
 ]
 
 from typing import Any, Callable, Hashable, List, Optional, Tuple, Union
@@ -18,33 +18,33 @@ from crowdkit.aggregation.base import BaseClassificationAggregator
 
 def _check_answers(answers: pd.DataFrame) -> None:
     if not isinstance(answers, pd.DataFrame):
-        raise TypeError('Working only with pandas DataFrame')
-    assert 'task' in answers, 'There is no "task" column in answers'
-    assert 'worker' in answers, 'There is no "worker" column in answers'
-    assert 'label' in answers, 'There is no "label" column in answers'
+        raise TypeError("Working only with pandas DataFrame")
+    assert "task" in answers, 'There is no "task" column in answers'
+    assert "worker" in answers, 'There is no "worker" column in answers'
+    assert "label" in answers, 'There is no "label" column in answers'
 
 
 def _label_probability(row: pd.Series, label: Any, n_labels: int) -> float:
     """Numerator in the Bayes formula"""
-    if row['label'] == label:
-        return float(row['skill'])
+    if row["label"] == label:
+        return float(row["skill"])
     else:
-        return (1. - float(row['skill'])) / (n_labels - 1)
+        return (1.0 - float(row["skill"])) / (n_labels - 1)
 
 
 def _task_consistency(row: pd.Series) -> float:
     """Posterior probability for a single task"""
-    if row['denominator'] != 0:
-        return float(row[row['aggregated_label']]) / float(row['denominator'])
+    if row["denominator"] != 0:
+        return float(row[row["aggregated_label"]]) / float(row["denominator"])
     else:
-        return 0.
+        return 0.0
 
 
 def consistency(
-        answers: pd.DataFrame,
-        workers_skills: Optional[pd.Series] = None,
-        aggregator: BaseClassificationAggregator = MajorityVote(),
-        by_task: bool = False
+    answers: pd.DataFrame,
+    workers_skills: Optional[pd.Series] = None,
+    aggregator: BaseClassificationAggregator = MajorityVote(),
+    by_task: bool = False,
 ) -> Union[float, pd.Series]:
     """
     Consistency metric: posterior probability of aggregated label given workers skills
@@ -63,24 +63,28 @@ def consistency(
     _check_answers(answers)
     aggregated = aggregator.fit_predict(answers)
     if workers_skills is None:
-        if hasattr(aggregator, 'skills_'):
+        if hasattr(aggregator, "skills_"):
             workers_skills = aggregator.skills_  # type: ignore
         else:
-            raise AssertionError('This aggregator is not supported. Please, provide workers skills.')
+            raise AssertionError(
+                "This aggregator is not supported. Please, provide workers skills."
+            )
 
     answers = answers.copy(deep=False)
-    answers.set_index('task', inplace=True)
-    answers = answers.reset_index().set_index('worker')
-    answers['skill'] = workers_skills
+    answers.set_index("task", inplace=True)
+    answers = answers.reset_index().set_index("worker")
+    answers["skill"] = workers_skills
     answers.reset_index(inplace=True)
 
     labels = pd.unique(answers.label)
     for label in labels:
-        answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
+        answers[label] = answers.apply(
+            lambda row: _label_probability(row, label, len(labels)), axis=1
+        )
 
-    labels_proba = answers.groupby('task').prod(numeric_only=True)
-    labels_proba['aggregated_label'] = aggregated
-    labels_proba['denominator'] = labels_proba[list(labels)].sum(axis=1)
+    labels_proba = answers.groupby("task").prod(numeric_only=True)
+    labels_proba["aggregated_label"] = aggregated
+    labels_proba["denominator"] = labels_proba[list(labels)].sum(axis=1)
 
     consistencies = labels_proba.apply(_task_consistency, axis=1)
 
@@ -91,21 +95,21 @@ def consistency(
 
 
 def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
-    if row['denominator'] == 0:
+    if row["denominator"] == 0:
         row[labels] = 1 / len(labels)
     else:
-        row[labels] /= row['denominator']
+        row[labels] /= row["denominator"]
     softmax = row[labels]
     log_softmax = np.log(row[list(labels)])
     return float(-np.sum(softmax * log_softmax))
 
 
 def uncertainty(
-        answers: pd.DataFrame,
-        workers_skills: Optional[pd.Series] = None,
-        aggregator: Optional[BaseClassificationAggregator] = None,
-        compute_by: str = 'task',
-        aggregate: bool = True
+    answers: pd.DataFrame,
+    workers_skills: Optional[pd.Series] = None,
+    aggregator: Optional[BaseClassificationAggregator] = None,
+    compute_by: str = "task",
+    aggregate: bool = True,
 ) -> Union[float, pd.Series]:
     r"""Label uncertainty metric: entropy of labels probability distribution.
     Computed as Shannon's Entropy with label probabilities computed either for tasks or workers:
@@ -183,32 +187,42 @@ def uncertainty(
 
     if workers_skills is None and aggregator is not None:
         aggregator.fit(answers)
-        if hasattr(aggregator, 'skills_'):
+        if hasattr(aggregator, "skills_"):
             workers_skills = aggregator.skills_  # type: ignore
         else:
-            raise AssertionError('This aggregator is not supported. Please, provide workers skills.')
+            raise AssertionError(
+                "This aggregator is not supported. Please, provide workers skills."
+            )
 
     answers = answers.copy(deep=False)
-    answers = answers.set_index('worker')
-    answers['skill'] = workers_skills if workers_skills is not None else 1
-    if answers['skill'].isnull().any():
+    answers = answers.set_index("worker")
+    answers["skill"] = workers_skills if workers_skills is not None else 1
+    if answers["skill"].isnull().any():
         missing_workers = set(answers[answers.skill.isnull()].index.tolist())
-        raise AssertionError(f'Did not provide skills for workers: {missing_workers}.'
-                             f'Please provide workers skills.')
+        raise AssertionError(
+            f"Did not provide skills for workers: {missing_workers}."
+            f"Please provide workers skills."
+        )
     answers.reset_index(inplace=True)
     labels = pd.unique(answers.label)
     for label in labels:
-        answers[label] = answers.apply(lambda row: _label_probability(row, label, len(labels)), axis=1)
+        answers[label] = answers.apply(
+            lambda row: _label_probability(row, label, len(labels)), axis=1
+        )
 
     labels_proba = answers.groupby(compute_by).sum(numeric_only=True)
-    uncertainties = labels_proba.apply(lambda row: entropy(row[labels] / (sum(row[labels]) + 1e-6)), axis=1)
+    uncertainties = labels_proba.apply(
+        lambda row: entropy(row[labels] / (sum(row[labels]) + 1e-6)), axis=1
+    )
     if aggregate:
         return uncertainties.mean()
     return uncertainties
 
 
-def alpha_krippendorff(answers: pd.DataFrame,
-                       distance: Callable[[Hashable, Hashable], float] = binary_distance) -> float:
+def alpha_krippendorff(
+    answers: pd.DataFrame,
+    distance: Callable[[Hashable, Hashable], float] = binary_distance,
+) -> float:
     """Inter-annotator agreement coefficient (Krippendorff 1980).
 
     Amount that annotators agreed on label assignments beyond what is expected by chance.
@@ -250,5 +264,7 @@ def alpha_krippendorff(answers: pd.DataFrame,
         0.4444444444444444
     """
     _check_answers(answers)
-    data: List[Tuple[Any, Hashable, Hashable]] = answers[['worker', 'task', 'label']].values.tolist()
+    data: List[Tuple[Any, Hashable, Hashable]] = answers[
+        ["worker", "task", "label"]
+    ].values.tolist()
     return float(AnnotationTask(data, distance).alpha())
