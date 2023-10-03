@@ -254,6 +254,8 @@ class GLAD(BaseClassificationAggregator):
         if self.priors_ is None:
             self.prior_labels_ = pd.unique(data['label'])
             self.priors_ = pd.Series(1. / len(self.prior_labels_), index=self.prior_labels_)
+        else:
+            self.prior_labels_ = self.priors_.index
         self.alphas_priors_mean_ = self.alphas_priors_mean
         if self.alphas_priors_mean_ is None:
             self.alphas_priors_mean_ = pd.Series(1., index=self.alphas_.index)
