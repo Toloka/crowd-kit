@@ -1,5 +1,5 @@
 __all__ = [
-    'CrowdLayer',
+    "CrowdLayer",
 ]
 
 from typing import Optional
@@ -132,7 +132,9 @@ class CrowdLayer(nn.Module):  # type: ignore
         self.n_workers = n_workers
         if conn_type == "mw":
             self.weight = nn.Parameter(
-                batch_identity_matrices(n_workers, num_labels, dtype=dtype, device=device)
+                batch_identity_matrices(
+                    n_workers, num_labels, dtype=dtype, device=device
+                )
             )
         elif conn_type == "vw":
             self.weight = nn.Parameter(

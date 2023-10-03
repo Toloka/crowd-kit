@@ -1,15 +1,15 @@
 # Adapted from:
 # https://github.com/zdchu/CoNAL/blob/main/conal.py
 __all__ = [
-    'CoNAL',
+    "CoNAL",
 ]
 
 from typing import Optional, Tuple, Union
-from numpy.typing import NDArray
 
 import numpy as np
 import torch
 import torch.nn.functional as F
+from numpy.typing import NDArray
 from torch import nn
 
 from crowdkit.learning.utils import differentiable_ds

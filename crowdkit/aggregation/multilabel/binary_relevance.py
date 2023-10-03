@@ -1,13 +1,13 @@
-__all__ = ['BinaryRelevance']
+__all__ = ["BinaryRelevance"]
 
-from typing import Dict, List, Union, Any
+from typing import Any, Dict, List, Union
 
 import attr
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
-from ..classification import MajorityVote
 
 from ..base import BaseClassificationAggregator
+from ..classification import MajorityVote
 from ..utils import clone_aggregator
 
 
@@ -60,15 +60,19 @@ class BinaryRelevance(BaseClassificationAggregator):
     """
     base_aggregator: BaseClassificationAggregator = attr.ib(
         # validator=attr.validators.instance_of(BaseClassificationAggregator),
-        default=MajorityVote())
+        default=MajorityVote()
+    )
     aggregators_: Dict[str, BaseClassificationAggregator] = dict()
 
     @base_aggregator.validator
-    def _any_name_except_a_name_of_an_attribute(self, attribute: Any, value: Any) -> None:
-        assert issubclass(value.__class__, BaseClassificationAggregator), \
-            "Aggregator argument should be a classification aggregator"
+    def _any_name_except_a_name_of_an_attribute(
+        self, attribute: Any, value: Any
+    ) -> None:
+        assert issubclass(
+            value.__class__, BaseClassificationAggregator
+        ), "Aggregator argument should be a classification aggregator"
 
-    def fit(self, data: pd.DataFrame) -> 'BinaryRelevance':
+    def fit(self, data: pd.DataFrame) -> "BinaryRelevance":
         """Fit the aggregators.
 
         Args:
@@ -80,14 +84,14 @@ class BinaryRelevance(BaseClassificationAggregator):
             BinaryRelevance: self.
         """
 
-        data = data[['task', 'worker', 'label']]
+        data = data[["task", "worker", "label"]]
         mlb = MultiLabelBinarizer()
-        binarized_labels = mlb.fit_transform(data['label'])
+        binarized_labels = mlb.fit_transform(data["label"])
         task_to_labels: Dict[Union[str, float], List[Union[str, float]]] = dict()
 
         for i, label in enumerate(mlb.classes_):
-            single_label_df = data[['task', 'worker']]
-            single_label_df['label'] = binarized_labels[:, i]
+            single_label_df = data[["task", "worker"]]
+            single_label_df["label"] = binarized_labels[:, i]
 
             label_aggregator = clone_aggregator(self.base_aggregator)
             label_aggregator.fit_predict(single_label_df)
@@ -103,19 +107,19 @@ class BinaryRelevance(BaseClassificationAggregator):
         else:
             self.labels_ = pd.Series(task_to_labels)
         if len(self.labels_):
-            self.labels_.index.name = 'task'
+            self.labels_.index.name = "task"
         return self
 
     def fit_predict(self, data: pd.DataFrame) -> pd.Series:
         """Fit the model and return aggregated results.
 
-         Args:
-             data (DataFrame): Workers' labeling results.
-                 A pandas.DataFrame containing `task`, `worker` and `label` columns.
+        Args:
+            data (DataFrame): Workers' labeling results.
+                A pandas.DataFrame containing `task`, `worker` and `label` columns.
 
-         Returns:
-             Series: Tasks' labels.
-                 A pandas.Series indexed by `task` such that `labels.loc[task]`
-                 is a list with the task's aggregated labels.
-         """
+        Returns:
+            Series: Tasks' labels.
+                A pandas.Series indexed by `task` such that `labels.loc[task]`
+                is a list with the task's aggregated labels.
+        """
         return self.fit(data).labels_

@@ -1,7 +1,4 @@
-__all__ = [
-    'DawidSkene',
-    'OneCoinDawidSkene'
-]
+__all__ = ["DawidSkene", "OneCoinDawidSkene"]
 
 from typing import List, Optional
 
@@ -9,9 +6,9 @@ import attr
 import numpy as np
 import pandas as pd
 
-from .majority_vote import MajorityVote
 from ..base import BaseClassificationAggregator
 from ..utils import get_most_probable_labels, named_series_attrib
+from .majority_vote import MajorityVote
 
 _EPS = np.float_power(10, -10)
 
@@ -84,7 +81,7 @@ class DawidSkene(BaseClassificationAggregator):
     tol: float = attr.ib(default=1e-5)
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    priors_: Optional[pd.Series] = named_series_attrib(name='prior')
+    priors_: Optional[pd.Series] = named_series_attrib(name="prior")
     # labels_
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
@@ -95,17 +92,19 @@ class DawidSkene(BaseClassificationAggregator):
 
         Estimates the workers' error probability matrix using the specified workers' responses and the true task label probabilities.
         """
-        joined = data.join(probas, on='task')
-        joined.drop(columns=['task'], inplace=True)
+        joined = data.join(probas, on="task")
+        joined.drop(columns=["task"], inplace=True)
 
-        errors = joined.groupby(['worker', 'label'], sort=False).sum()
+        errors = joined.groupby(["worker", "label"], sort=False).sum()
         errors.clip(lower=_EPS, inplace=True)
-        errors /= errors.groupby('worker', sort=False).sum()
+        errors /= errors.groupby("worker", sort=False).sum()
 
         return errors
 
     @staticmethod
-    def _e_step(data: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame) -> pd.DataFrame:
+    def _e_step(
+        data: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame
+    ) -> pd.DataFrame:
         """
         Performs E-step of the Dawid-Skene algorithm.
 
@@ -116,39 +115,53 @@ class DawidSkene(BaseClassificationAggregator):
         # We have to multiply lots of probabilities and such products are known to converge
         # to zero exponentially fast. To avoid floating-point precision problems we work with
         # logs of original values
-        joined = data.join(np.log2(errors), on=['worker', 'label'])
-        joined.drop(columns=['worker', 'label'], inplace=True)
-        log_likelihoods = np.log2(priors) + joined.groupby('task', sort=False).sum()
-        log_likelihoods.rename_axis('label', axis=1, inplace=True)
+        joined = data.join(np.log2(errors), on=["worker", "label"])
+        joined.drop(columns=["worker", "label"], inplace=True)
+        log_likelihoods = np.log2(priors) + joined.groupby("task", sort=False).sum()
+        log_likelihoods.rename_axis("label", axis=1, inplace=True)
 
         # Exponentiating log_likelihoods 'as is' may still get us beyond our precision.
         # So we shift every row of log_likelihoods by a constant (which is equivalent to
         # multiplying likelihoods rows by a constant) so that max log_likelihood in each
         # row is equal to 0. This trick ensures proper scaling after exponentiating and
         # does not affect the result of E-step
-        scaled_likelihoods = np.exp2(log_likelihoods.sub(log_likelihoods.max(axis=1), axis=0))
-        scaled_likelihoods = scaled_likelihoods.div(scaled_likelihoods.sum(axis=1), axis=0)
+        scaled_likelihoods = np.exp2(
+            log_likelihoods.sub(log_likelihoods.max(axis=1), axis=0)
+        )
+        scaled_likelihoods = scaled_likelihoods.div(
+            scaled_likelihoods.sum(axis=1), axis=0
+        )
         # Convert columns types to label type
-        scaled_likelihoods.columns = pd.Index(scaled_likelihoods.columns, name='label', dtype=data.label.dtype)
+        scaled_likelihoods.columns = pd.Index(
+            scaled_likelihoods.columns, name="label", dtype=data.label.dtype
+        )
         return scaled_likelihoods
 
-    def _evidence_lower_bound(self, data: pd.DataFrame, probas: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame) -> float:
+    def _evidence_lower_bound(
+        self,
+        data: pd.DataFrame,
+        probas: pd.DataFrame,
+        priors: pd.Series,
+        errors: pd.DataFrame,
+    ) -> float:
         # calculate joint probability log-likelihood expectation over probas
-        joined = data.join(np.log(errors), on=['worker', 'label'])
+        joined = data.join(np.log(errors), on=["worker", "label"])
 
         # escape boolean index/column names to prevent confusion between indexing by boolean array and iterable of names
-        joined = joined.rename(columns={True: 'True', False: 'False'}, copy=False)
-        priors = priors.rename(index={True: 'True', False: 'False'}, copy=False)
+        joined = joined.rename(columns={True: "True", False: "False"}, copy=False)
+        priors = priors.rename(index={True: "True", False: "False"}, copy=False)
 
         joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))
 
-        joined.set_index(['task', 'worker'], inplace=True)
-        joint_expectation = (probas.rename(columns={True: 'True', False: 'False'}) * joined).sum().sum()
+        joined.set_index(["task", "worker"], inplace=True)
+        joint_expectation = (
+            (probas.rename(columns={True: "True", False: "False"}) * joined).sum().sum()
+        )
 
         entropy = -(np.log(probas) * probas).sum().sum()
         return float(joint_expectation + entropy)
 
-    def fit(self, data: pd.DataFrame) -> 'DawidSkene':
+    def fit(self, data: pd.DataFrame) -> "DawidSkene":
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -157,7 +170,7 @@ class DawidSkene(BaseClassificationAggregator):
             DawidSkene: self.
         """
 
-        data = data[['task', 'worker', 'label']]
+        data = data[["task", "worker", "label"]]
 
         # Early exit
         if not data.size:
@@ -179,14 +192,18 @@ class DawidSkene(BaseClassificationAggregator):
             probas = self._e_step(data, priors, errors)
             priors = probas.mean()
             errors = self._m_step(data, probas)
-            new_loss = self._evidence_lower_bound(data, probas, priors, errors) / len(data)
+            new_loss = self._evidence_lower_bound(data, probas, priors, errors) / len(
+                data
+            )
             self.loss_history_.append(new_loss)
 
             if new_loss - loss < self.tol:
                 break
             loss = new_loss
 
-        probas.columns = pd.Index(probas.columns, name='label', dtype=probas.columns.dtype)
+        probas.columns = pd.Index(
+            probas.columns, name="label", dtype=probas.columns.dtype
+        )
         # Saving results
         self.probas_ = probas
         self.priors_ = priors
@@ -290,7 +307,7 @@ class OneCoinDawidSkene(DawidSkene):
     tol: float = attr.ib(default=1e-5)
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    priors_: Optional[pd.Series] = named_series_attrib(name='prior')
+    priors_: Optional[pd.Series] = named_series_attrib(name="prior")
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
     skills_: Optional[pd.Series] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
@@ -309,7 +326,9 @@ class OneCoinDawidSkene(DawidSkene):
         return row
 
     @staticmethod
-    def _process_skills_to_errors(data: pd.DataFrame, probas: pd.DataFrame, skills: pd.Series) -> pd.DataFrame:
+    def _process_skills_to_errors(
+        data: pd.DataFrame, probas: pd.DataFrame, skills: pd.Series
+    ) -> pd.DataFrame:
         errors = DawidSkene._m_step(data, probas)
 
         errors = errors.apply(OneCoinDawidSkene._assign_skills, args=(skills,), axis=1)
@@ -324,13 +343,17 @@ class OneCoinDawidSkene(DawidSkene):
         Calculates a worker skill as their accuracy according to the label probability.
         """
         skilled_data = data.copy()
-        idx_cols, cols = pd.factorize(data['label'])
-        idx_rows, rows = pd.factorize(data['task'])
-        skilled_data['skill'] = probas.reindex(rows, axis=0).reindex(cols, axis=1).to_numpy()[idx_rows, idx_cols]
-        skills = skilled_data.groupby(['worker'], sort=False)['skill'].mean()
+        idx_cols, cols = pd.factorize(data["label"])
+        idx_rows, rows = pd.factorize(data["task"])
+        skilled_data["skill"] = (
+            probas.reindex(rows, axis=0)
+            .reindex(cols, axis=1)
+            .to_numpy()[idx_rows, idx_cols]
+        )
+        skills = skilled_data.groupby(["worker"], sort=False)["skill"].mean()
         return skills
 
-    def fit(self, data: pd.DataFrame) -> 'OneCoinDawidSkene':
+    def fit(self, data: pd.DataFrame) -> "OneCoinDawidSkene":
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -339,7 +362,7 @@ class OneCoinDawidSkene(DawidSkene):
             DawidSkene: self.
         """
 
-        data = data[['task', 'worker', 'label']]
+        data = data[["task", "worker", "label"]]
 
         # Early exit
         if not data.size:
@@ -363,7 +386,9 @@ class OneCoinDawidSkene(DawidSkene):
             priors = probas.mean()
             skills = self._m_step(data, probas)
             errors = self._process_skills_to_errors(data, probas, skills)
-            new_loss = self._evidence_lower_bound(data, probas, priors, errors) / len(data)
+            new_loss = self._evidence_lower_bound(data, probas, priors, errors) / len(
+                data
+            )
             self.loss_history_.append(new_loss)
 
             if new_loss - loss < self.tol:

@@ -1,10 +1,10 @@
 __all__ = [
-    'glue_similarity',
-    'HRRASA',
+    "glue_similarity",
+    "HRRASA",
 ]
 
 from functools import partial
-from typing import Any, Tuple, List, Optional, Callable, Generator
+from typing import Any, Callable, Generator, List, Optional, Tuple
 
 import attr
 import nltk.translate.gleu_score as gleu
@@ -14,8 +14,8 @@ import pandas as pd
 import scipy.stats as sps
 from scipy.spatial import distance
 
-from .closest_to_average import ClosestToAverage
 from ..base import BaseClassificationAggregator
+from .closest_to_average import ClosestToAverage
 
 _EPS = 1e-5
 
@@ -107,11 +107,13 @@ class HRRASA(BaseClassificationAggregator):
     lambda_out: float = attr.ib(default=0.5)
     alpha: float = attr.ib(default=0.05)
     calculate_ranks: bool = attr.ib(default=False)
-    _output_similarity: Callable[[str, List[List[str]]], float] = attr.ib(default=glue_similarity)
+    _output_similarity: Callable[[str, List[List[str]]], float] = attr.ib(
+        default=glue_similarity
+    )
     # embeddings_and_outputs_
     loss_history_: List[float] = attr.ib(init=False)
 
-    def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'HRRASA':
+    def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> "HRRASA":
         """Fits the model to the training data.
 
         Args:
@@ -127,29 +129,37 @@ class HRRASA(BaseClassificationAggregator):
 
         if true_embeddings is not None and not true_embeddings.index.is_unique:
             raise ValueError(
-                'Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported.'
+                "Incorrect data in true_embeddings: multiple true embeddings for a single task are not supported."
             )
 
-        data = data[['task', 'worker', 'embedding', 'output']]
+        data = data[["task", "worker", "embedding", "output"]]
         data, single_overlap_tasks = self._filter_single_overlap(data)
         data = self._get_local_skills(data)
 
-        prior_skills = data.worker.value_counts().apply(partial(sps.chi2.isf, self.alpha / 2))
+        prior_skills = data.worker.value_counts().apply(
+            partial(sps.chi2.isf, self.alpha / 2)
+        )
         skills = pd.Series(1.0, index=data.worker.unique())
         weights = self._calc_weights(data, skills)
-        aggregated_embeddings = self._aggregate_embeddings(data, weights, true_embeddings)
+        aggregated_embeddings = self._aggregate_embeddings(
+            data, weights, true_embeddings
+        )
         self.loss_history_ = []
         last_aggregated = None
 
         if len(data) > 0:
             for _ in range(self.n_iter):
-                aggregated_embeddings = self._aggregate_embeddings(data, weights, true_embeddings)
+                aggregated_embeddings = self._aggregate_embeddings(
+                    data, weights, true_embeddings
+                )
                 skills = self._update_skills(data, aggregated_embeddings, prior_skills)
                 weights = self._calc_weights(data, skills)
 
                 if last_aggregated is not None:
                     delta = aggregated_embeddings - last_aggregated
-                    loss = (delta * delta).sum().sum() / (aggregated_embeddings * aggregated_embeddings).sum().sum()
+                    loss = (delta * delta).sum().sum() / (
+                        aggregated_embeddings * aggregated_embeddings
+                    ).sum().sum()
                     self.loss_history_.append(loss)
                     if loss < self.tol:
                         break
@@ -166,7 +176,9 @@ class HRRASA(BaseClassificationAggregator):
             self._fill_single_overlap_tasks_info(single_overlap_tasks)
         return self
 
-    def fit_predict_scores(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> pd.DataFrame:
+    def fit_predict_scores(
+        self, data: pd.DataFrame, true_embeddings: pd.Series = None
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns the estimated scores.
 
         Args:
@@ -184,7 +196,9 @@ class HRRASA(BaseClassificationAggregator):
 
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
-    def fit_predict(self, data: pd.DataFrame, true_embeddings: Optional[pd.Series] = None) -> pd.DataFrame:
+    def fit_predict(
+        self, data: pd.DataFrame, true_embeddings: Optional[pd.Series] = None
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns the aggregated outputs.
 
         Args:
@@ -199,138 +213,173 @@ class HRRASA(BaseClassificationAggregator):
                 The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
         """
 
-        return self.fit(data, true_embeddings)._apply(data, true_embeddings).embeddings_and_outputs_
+        return (
+            self.fit(data, true_embeddings)
+            ._apply(data, true_embeddings)
+            .embeddings_and_outputs_
+        )
 
     @staticmethod
-    def _cosine_distance(embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]) -> float:
+    def _cosine_distance(
+        embedding: npt.NDArray[Any], avg_embedding: npt.NDArray[Any]
+    ) -> float:
         if not embedding.any() or not avg_embedding.any():
-            return float('inf')
+            return float("inf")
         return float(distance.cosine(embedding, avg_embedding))
 
-    def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> 'HRRASA':
+    def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> "HRRASA":
         cta = ClosestToAverage(distance=self._cosine_distance)
-        cta.fit(data, aggregated_embeddings=self.aggregated_embeddings_, true_embeddings=true_embeddings)
+        cta.fit(
+            data,
+            aggregated_embeddings=self.aggregated_embeddings_,
+            true_embeddings=true_embeddings,
+        )
         self.scores_ = cta.scores_
         self.embeddings_and_outputs_ = cta.embeddings_and_outputs_
         return self
 
     @staticmethod
-    def _aggregate_embeddings(data: pd.DataFrame, weights: pd.DataFrame,
-                              true_embeddings: Optional[pd.Series] = None) -> pd.Series:
+    def _aggregate_embeddings(
+        data: pd.DataFrame,
+        weights: pd.DataFrame,
+        true_embeddings: Optional[pd.Series] = None,
+    ) -> pd.Series:
         """Calculates the weighted average of embeddings for each task."""
-        data = data.join(weights, on=['task', 'worker'])
-        data['weighted_embedding'] = data.weight * data.embedding
-        group = data.groupby('task', group_keys=False)
-        aggregated_embeddings = pd.Series((group.weighted_embedding.apply(np.sum) / group.weight.sum()),
-                                          dtype=np.float64)
+        data = data.join(weights, on=["task", "worker"])
+        data["weighted_embedding"] = data.weight * data.embedding
+        group = data.groupby("task", group_keys=False)
+        aggregated_embeddings = pd.Series(
+            (group.weighted_embedding.apply(np.sum) / group.weight.sum()),
+            dtype=np.float64,
+        )
         if true_embeddings is None:
             true_embeddings = pd.Series([], dtype=np.float64)
         aggregated_embeddings.update(true_embeddings)
         return aggregated_embeddings
 
     def _distance_from_aggregated(self, answers: pd.DataFrame) -> pd.DataFrame:
-        """Calculates the square of Euclidian distance from the aggregated embedding for each answer.
-        """
-        with_task_aggregate = answers.set_index('task')
-        with_task_aggregate['task_aggregate'] = self.aggregated_embeddings_
-        with_task_aggregate['distance'] = with_task_aggregate.apply(
-            lambda row: np.sum((row['embedding'] - row['task_aggregate']) ** 2), axis=1)
-        with_task_aggregate['distance'] = with_task_aggregate['distance'].replace({0.0: 1e-5})  # avoid division by zero
+        """Calculates the square of Euclidian distance from the aggregated embedding for each answer."""
+        with_task_aggregate = answers.set_index("task")
+        with_task_aggregate["task_aggregate"] = self.aggregated_embeddings_
+        with_task_aggregate["distance"] = with_task_aggregate.apply(
+            lambda row: np.sum((row["embedding"] - row["task_aggregate"]) ** 2), axis=1
+        )
+        with_task_aggregate["distance"] = with_task_aggregate["distance"].replace(
+            {0.0: 1e-5}
+        )  # avoid division by zero
         return with_task_aggregate.reset_index()
 
     def _rank_outputs(self, data: pd.DataFrame, skills: pd.Series) -> pd.DataFrame:
-        """Returns the ranking score for each record in the `data` data frame.
-        """
+        """Returns the ranking score for each record in the `data` data frame."""
 
         if not data.size:
-            return pd.DataFrame(columns=['task', 'output', 'rank'])
+            return pd.DataFrame(columns=["task", "output", "rank"])
 
         data = self._distance_from_aggregated(data)
-        data['norms_prod'] = data.apply(lambda row: np.sum(row['embedding'] ** 2) * np.sum(row['task_aggregate'] ** 2),
-                                        axis=1)
-        data['rank'] = skills * np.exp(-data.distance / data.norms_prod) + data.local_skill
-        return data[['task', 'output', 'rank']]
+        data["norms_prod"] = data.apply(
+            lambda row: np.sum(row["embedding"] ** 2)
+            * np.sum(row["task_aggregate"] ** 2),
+            axis=1,
+        )
+        data["rank"] = (
+            skills * np.exp(-data.distance / data.norms_prod) + data.local_skill
+        )
+        return data[["task", "output", "rank"]]
 
     @staticmethod
     def _calc_weights(data: pd.DataFrame, worker_skills: pd.Series) -> pd.DataFrame:
-        """Calculates the weight for every embedding according to its local and global skills.
-        """
-        data = data.set_index('worker')
-        data['worker_skill'] = worker_skills
+        """Calculates the weight for every embedding according to its local and global skills."""
+        data = data.set_index("worker")
+        data["worker_skill"] = worker_skills
         data = data.reset_index()
-        data['weight'] = data['worker_skill'] * data['local_skill']
-        return data[['task', 'worker', 'weight']].set_index(['task', 'worker'])
+        data["weight"] = data["worker_skill"] * data["local_skill"]
+        return data[["task", "worker", "weight"]].set_index(["task", "worker"])
 
     @staticmethod
-    def _update_skills(data: pd.DataFrame, aggregated_embeddings: pd.Series, prior_skills: pd.Series) -> pd.Series:
+    def _update_skills(
+        data: pd.DataFrame, aggregated_embeddings: pd.Series, prior_skills: pd.Series
+    ) -> pd.Series:
         """Estimates the global reliabilities by aggregated embeddings."""
-        data = data.join(aggregated_embeddings.rename('aggregated_embedding'), on='task')
-        data['distance'] = ((data.embedding - data.aggregated_embedding) ** 2).apply(np.sum)
-        data['distance'] = data['distance'] / data['local_skill']
-        total_distances = data.groupby('worker').distance.apply(np.sum)
+        data = data.join(
+            aggregated_embeddings.rename("aggregated_embedding"), on="task"
+        )
+        data["distance"] = ((data.embedding - data.aggregated_embedding) ** 2).apply(
+            np.sum
+        )
+        data["distance"] = data["distance"] / data["local_skill"]
+        total_distances = data.groupby("worker").distance.apply(np.sum)
         total_distances.clip(lower=_EPS, inplace=True)
         return prior_skills / total_distances
 
     def _get_local_skills(self, data: pd.DataFrame) -> pd.DataFrame:
-        """Computes the local (relative) skills for each task answer.
-        """
+        """Computes the local (relative) skills for each task answer."""
         index = []
         local_skills = []
         processed_pairs = set()
-        for task, task_answers in data.groupby('task'):
+        for task, task_answers in data.groupby("task"):
             for worker, skill in self._local_skills_on_task(task_answers):
                 if (task, worker) not in processed_pairs:
                     local_skills.append(skill)
                     index.append((task, worker))
                     processed_pairs.add((task, worker))
-        data = data.set_index(['task', 'worker'])
-        local_skills = pd.Series(local_skills, index=pd.MultiIndex.from_tuples(index, names=['task', 'worker']),
-                                 dtype=float)
-        data['local_skill'] = local_skills
+        data = data.set_index(["task", "worker"])
+        local_skills = pd.Series(
+            local_skills,
+            index=pd.MultiIndex.from_tuples(index, names=["task", "worker"]),
+            dtype=float,
+        )
+        data["local_skill"] = local_skills
         return data.reset_index()
 
-    def _local_skills_on_task(self, task_answers: pd.DataFrame) -> Generator[Tuple[Any, float], None, None]:
+    def _local_skills_on_task(
+        self, task_answers: pd.DataFrame
+    ) -> Generator[Tuple[Any, float], None, None]:
         overlap = len(task_answers)
 
         for _, cur_row in task_answers.iterrows():
-            worker = cur_row['worker']
+            worker = cur_row["worker"]
             emb_sum = 0.0
             seq_sum = 0.0
-            emb = cur_row['embedding']
-            seq = cur_row['output']
-            emb_norm = np.sum(emb ** 2)
+            emb = cur_row["embedding"]
+            seq = cur_row["output"]
+            emb_norm = np.sum(emb**2)
             for __, other_row in task_answers.iterrows():
-                if other_row['worker'] == worker:
+                if other_row["worker"] == worker:
                     continue
-                other_emb = other_row['embedding']
-                other_seq = other_row['output']
+                other_emb = other_row["embedding"]
+                other_seq = other_row["output"]
 
                 # embeddings similarity
                 diff_norm = np.sum((emb - other_emb) ** 2)
-                other_norm = np.sum(other_emb ** 2)
+                other_norm = np.sum(other_emb**2)
                 emb_sum += np.exp(-diff_norm / (emb_norm * other_norm))
 
                 # sequence similarity
                 seq_sum += self._output_similarity(seq, other_seq)
-            emb_sum /= (overlap - 1)
-            seq_sum /= (overlap - 1)
+            emb_sum /= overlap - 1
+            seq_sum /= overlap - 1
 
             yield worker, self.lambda_emb * emb_sum + self.lambda_out * seq_sum
 
-    def _filter_single_overlap(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """Filter skills, embeddings, weights, and ranks for single overlap tasks that couldn't be processed by HRRASA.
-        """
+    def _filter_single_overlap(
+        self, data: pd.DataFrame
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Filter skills, embeddings, weights, and ranks for single overlap tasks that couldn't be processed by HRRASA."""
 
         single_overlap_task_ids = []
-        for task, task_answers in data.groupby('task'):
+        for task, task_answers in data.groupby("task"):
             if len(task_answers) == 1:
                 single_overlap_task_ids.append(task)
-        data = data.set_index('task')
-        return data.drop(single_overlap_task_ids).reset_index(), data.loc[single_overlap_task_ids].reset_index()
+        data = data.set_index("task")
+        return (
+            data.drop(single_overlap_task_ids).reset_index(),
+            data.loc[single_overlap_task_ids].reset_index(),
+        )
 
-    def _fill_single_overlap_tasks_info(self, single_overlap_tasks: pd.DataFrame) -> None:
-        """Fill skills, embeddings, weights, and ranks for single overlap tasks.
-        """
+    def _fill_single_overlap_tasks_info(
+        self, single_overlap_tasks: pd.DataFrame
+    ) -> None:
+        """Fill skills, embeddings, weights, and ranks for single overlap tasks."""
 
         workers_to_append = []
         aggregated_embeddings_to_append = {}
@@ -341,13 +390,22 @@ class HRRASA(BaseClassificationAggregator):
                 workers_to_append.append(row.worker)
             if row.task not in self.aggregated_embeddings_:
                 aggregated_embeddings_to_append[row.task] = row.embedding
-                weights_to_append.append({'task': row.task, 'worker': row.worker, 'weight': np.nan})
-                ranks_to_append.append({'task': row.task, 'output': row.output, 'rank': np.nan})
+                weights_to_append.append(
+                    {"task": row.task, "worker": row.worker, "weight": np.nan}
+                )
+                ranks_to_append.append(
+                    {"task": row.task, "output": row.output, "rank": np.nan}
+                )
 
-        self.prior_skills_ = pd.concat([self.prior_skills_, pd.Series(np.nan, index=workers_to_append)])
-        self.skills_ = pd.concat([self.skills_, pd.Series(np.nan, index=workers_to_append)])
+        self.prior_skills_ = pd.concat(
+            [self.prior_skills_, pd.Series(np.nan, index=workers_to_append)]
+        )
+        self.skills_ = pd.concat(
+            [self.skills_, pd.Series(np.nan, index=workers_to_append)]
+        )
         self.aggregated_embeddings_ = pd.concat(
-            [self.aggregated_embeddings_, pd.Series(aggregated_embeddings_to_append)])
+            [self.aggregated_embeddings_, pd.Series(aggregated_embeddings_to_append)]
+        )
         self.weights_ = pd.concat([self.weights_, pd.DataFrame(weights_to_append)])
-        if hasattr(self, 'ranks_'):
+        if hasattr(self, "ranks_"):
             self.ranks_ = self.ranks_.append(pd.DataFrame(ranks_to_append))

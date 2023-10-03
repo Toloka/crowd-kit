@@ -1,28 +1,31 @@
 __all__ = [
-    'evaluate_in',
-    'evaluate_equal',
-    'evaluate',
-    'factorize',
-    'get_most_probable_labels',
-    'normalize_rows',
-    'manage_data',
-    'get_accuracy',
-    'add_skills_to_data',
-    'named_series_attrib',
-    'clone_aggregator',
+    "evaluate_in",
+    "evaluate_equal",
+    "evaluate",
+    "factorize",
+    "get_most_probable_labels",
+    "normalize_rows",
+    "manage_data",
+    "get_accuracy",
+    "add_skills_to_data",
+    "named_series_attrib",
+    "clone_aggregator",
 ]
 
-from typing import Tuple, Union, Callable, Optional, Any
+from typing import Any, Callable, Optional, Tuple, Union
 
 import attr
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+
 from . import base
 
 
-def clone_aggregator(aggregator: 'base.BaseClassificationAggregator') -> 'base.BaseClassificationAggregator':
-    """ Construct a new unfitted aggregator with the same parameters.
+def clone_aggregator(
+    aggregator: "base.BaseClassificationAggregator",
+) -> "base.BaseClassificationAggregator":
+    """Construct a new unfitted aggregator with the same parameters.
     Args:
         aggregator (BaseClassificationAggregator): aggregator instance to be cloned
 
@@ -30,13 +33,14 @@ def clone_aggregator(aggregator: 'base.BaseClassificationAggregator') -> 'base.B
         BaseClassificationAggregator: cloned aggregator's instance. Its params are same to input,
             except for the results of previous fit (private attributes).
     """
-    assert isinstance(aggregator, base.BaseClassificationAggregator), \
-        'Can\'t clone object that is not inherit BaseClassificationAggregator'
+    assert isinstance(
+        aggregator, base.BaseClassificationAggregator
+    ), "Can't clone object that is not inherit BaseClassificationAggregator"
     aggregator_class = aggregator.__class__
     new_object_params = dict()
     for attr_name in aggregator.__dict__:
         # if attribute is not private
-        if not (attr_name.startswith('_') or attr_name.endswith('_')):
+        if not (attr_name.startswith("_") or attr_name.endswith("_")):
             new_object_params[attr_name] = getattr(aggregator, attr_name)
     new_object = aggregator_class(**new_object_params)
     return new_object
@@ -49,21 +53,26 @@ def _argmax_random_ties(array: npt.NDArray[Any]) -> int:
 
 
 def evaluate_in(row: pd.Series) -> int:
-    return int(row['label_pred'] in row['label_true'])
+    return int(row["label_pred"] in row["label_true"])
 
 
 def evaluate_equal(row: pd.Series) -> int:
-    return int(row['label_pred'] == row['label_true'])
+    return int(row["label_pred"] == row["label_true"])
 
 
-def evaluate(df_true: pd.DataFrame, df_pred: pd.DataFrame,
-             evaluate_func: Callable[[pd.Series], int] = evaluate_in) -> Union[str, float]:
-    df = df_true.merge(df_pred, on='task', suffixes=('_true', '_pred'))
+def evaluate(
+    df_true: pd.DataFrame,
+    df_pred: pd.DataFrame,
+    evaluate_func: Callable[[pd.Series], int] = evaluate_in,
+) -> Union[str, float]:
+    df = df_true.merge(df_pred, on="task", suffixes=("_true", "_pred"))
 
-    assert len(df_true) == len(df), f'Dataset length mismatch, expected {len(df_true):d}, got {len(df):d}'
+    assert len(df_true) == len(
+        df
+    ), f"Dataset length mismatch, expected {len(df_true):d}, got {len(df):d}"
 
-    df['evaluation'] = df.apply(evaluate_func, axis=1)
-    return float(df['evaluation'].mean())
+    df["evaluation"] = df.apply(evaluate_func, axis=1)
+    return float(df["evaluation"].mean())
 
 
 def factorize(data: npt.NDArray[Any]) -> Tuple[npt.NDArray[Any], npt.NDArray[Any]]:
@@ -82,8 +91,8 @@ def get_most_probable_labels(proba: pd.DataFrame) -> pd.Series:
     """
     # patch for pandas<=1.1.5
     if not proba.size:
-        return pd.Series([], dtype='O')
-    return proba.idxmax(axis='columns')
+        return pd.Series([], dtype="O")
+    return proba.idxmax(axis="columns")
 
 
 def normalize_rows(scores: pd.DataFrame) -> pd.DataFrame:
@@ -103,8 +112,9 @@ def normalize_rows(scores: pd.DataFrame) -> pd.DataFrame:
     return scores.div(scores.sum(axis=1), axis=0)
 
 
-def manage_data(data: pd.DataFrame, weights: Optional[pd.Series] = None,
-                skills: pd.Series = None) -> pd.DataFrame:
+def manage_data(
+    data: pd.DataFrame, weights: Optional[pd.Series] = None, skills: pd.Series = None
+) -> pd.DataFrame:
     """
     Args:
         data (DataFrame): Workers' labeling results.
@@ -112,22 +122,24 @@ def manage_data(data: pd.DataFrame, weights: Optional[pd.Series] = None,
         skills (Series): workers' skills.
             A pandas.Series index by workers and holding corresponding worker's skill
     """
-    data = data[['task', 'worker', 'label']]
+    data = data[["task", "worker", "label"]]
 
     if weights is None:
-        data['weight'] = 1
+        data["weight"] = 1
     else:
-        data = data.join(weights.rename('weight'), on='task')
+        data = data.join(weights.rename("weight"), on="task")
 
     if skills is None:
-        data['skill'] = 1
+        data["skill"] = 1
     else:
-        data = data.join(skills.rename('skill'), on='task')
+        data = data.join(skills.rename("skill"), on="task")
 
     return data
 
 
-def get_accuracy(data: pd.DataFrame, true_labels: pd.Series, by: Optional[str] = None) -> pd.Series:
+def get_accuracy(
+    data: pd.DataFrame, true_labels: pd.Series, by: Optional[str] = None
+) -> pd.Series:
     """
     Args:
         data (DataFrame): Workers' labeling results.
@@ -140,23 +152,25 @@ def get_accuracy(data: pd.DataFrame, true_labels: pd.Series, by: Optional[str] =
         Series: workers' skills.
             A pandas.Series index by workers and holding corresponding worker's skill
     """
-    if 'weight' in data.columns:
-        data = data[['task', 'worker', 'label', 'weight']]
+    if "weight" in data.columns:
+        data = data[["task", "worker", "label", "weight"]]
     else:
-        data = data[['task', 'worker', 'label']]
+        data = data[["task", "worker", "label"]]
 
     if data.empty:
-        data['true_label'] = []
+        data["true_label"] = []
     else:
-        data = data.join(pd.Series(true_labels, name='true_label'), on='task')
+        data = data.join(pd.Series(true_labels, name="true_label"), on="task")
 
     data = data[data.true_label.notna()]
 
-    if 'weight' not in data.columns:
-        data['weight'] = 1
-    data.eval('score = weight * (label == true_label)', inplace=True)
+    if "weight" not in data.columns:
+        data["weight"] = 1
+    data.eval("score = weight * (label == true_label)", inplace=True)
 
-    data = data.sort_values('score').drop_duplicates(['task', 'worker', 'label'], keep='last')
+    data = data.sort_values("score").drop_duplicates(
+        ["task", "worker", "label"], keep="last"
+    )
 
     if by is not None:
         data = data.groupby(by)
@@ -174,8 +188,12 @@ def named_series_attrib(name: str) -> pd.Series:
     return attr.ib(init=False, converter=converter, on_setattr=attr.setters.convert)
 
 
-def add_skills_to_data(data: pd.DataFrame, skills: pd.Series, on_missing_skill: str,
-                       default_skill: Optional[float]) -> pd.DataFrame:
+def add_skills_to_data(
+    data: pd.DataFrame,
+    skills: pd.Series,
+    on_missing_skill: str,
+    default_skill: Optional[float],
+) -> pd.DataFrame:
     """
     Args:
         skills (Series): workers' skills.
@@ -187,20 +205,20 @@ def add_skills_to_data(data: pd.DataFrame, skills: pd.Series, on_missing_skill: 
                     assignments with known skill for any task;
                     * value — default value will be used if skill is missing.
     """
-    data = data.join(skills.rename('skill'), on='worker')
+    data = data.join(skills.rename("skill"), on="worker")
 
-    if on_missing_skill != 'value' and default_skill is not None:
+    if on_missing_skill != "value" and default_skill is not None:
         raise ValueError('default_skill is used but on_missing_skill is not "value"')
 
-    if on_missing_skill == 'error':
-        missing_skills_count = data['skill'].isna().sum()
+    if on_missing_skill == "error":
+        missing_skills_count = data["skill"].isna().sum()
         if missing_skills_count > 0:
             raise ValueError(
                 f"Skill value is missing in {missing_skills_count} assignments. Specify skills for every"
                 f"used worker or use different 'on_unknown_skill' value."
             )
-    elif on_missing_skill == 'ignore':
-        data.set_index('task', inplace=True)
+    elif on_missing_skill == "ignore":
+        data.set_index("task", inplace=True)
         index_before_drop = data.index
         data.dropna(inplace=True)
         dropped_tasks_count = len(index_before_drop.difference(data.index))
@@ -210,10 +228,14 @@ def add_skills_to_data(data: pd.DataFrame, skills: pd.Series, on_missing_skill: 
                 f"skill for every task or use different 'on_unknown_skill' value."
             )
         data.reset_index(inplace=True)
-    elif on_missing_skill == 'value':
+    elif on_missing_skill == "value":
         if default_skill is None:
-            raise ValueError('Default skill value must be specified when using on_missing_skill="value"')
-        data.loc[data['skill'].isna(), 'skill'] = default_skill
+            raise ValueError(
+                'Default skill value must be specified when using on_missing_skill="value"'
+            )
+        data.loc[data["skill"].isna(), "skill"] = default_skill
     else:
-        raise ValueError(f'Unknown option {on_missing_skill!r} of "on_missing_skill" argument.')
+        raise ValueError(
+            f'Unknown option {on_missing_skill!r} of "on_missing_skill" argument.'
+        )
     return data

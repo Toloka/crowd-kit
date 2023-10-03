@@ -1,16 +1,18 @@
 __all__ = [
-    'load_dataset',
-    'get_datasets_list',
+    "load_dataset",
+    "get_datasets_list",
 ]
 
-from typing import Optional, List, Tuple, Callable, Dict, cast
+from typing import Callable, Dict, List, Optional, Tuple, cast
 
 import pandas as pd
 
 from ._loaders import DATA_LOADERS
 
 
-def load_dataset(dataset: str, data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+def load_dataset(
+    dataset: str, data_dir: Optional[str] = None
+) -> Tuple[pd.DataFrame, pd.Series]:
     """Downloads a dataset from remote and loads it into Pandas objects.
     If a dataset is already downloaded, loads it from cache.
 
@@ -24,13 +26,17 @@ def load_dataset(dataset: str, data_dir: Optional[str] = None) -> Tuple[pd.DataF
     """
 
     if dataset not in DATA_LOADERS:
-        raise ValueError('This dataset does not exist')
+        raise ValueError("This dataset does not exist")
 
-    return cast(Dict[str, Callable[[Optional[str]], Tuple[pd.DataFrame, pd.Series]]],
-                DATA_LOADERS[dataset])['loader'](data_dir)
+    return cast(
+        Dict[str, Callable[[Optional[str]], Tuple[pd.DataFrame, pd.Series]]],
+        DATA_LOADERS[dataset],
+    )["loader"](data_dir)
 
 
 def get_datasets_list() -> List[Tuple[str, str]]:
     """Returns a list of available datasets in format [(name, description)]."""
-    return cast(List[Tuple[str, str]],
-                [(dataset, info['description']) for dataset, info in DATA_LOADERS.items()])
+    return cast(
+        List[Tuple[str, str]],
+        [(dataset, info["description"]) for dataset, info in DATA_LOADERS.items()],
+    )

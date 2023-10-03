@@ -1,4 +1,4 @@
-__all__ = ['SegmentationRASA']
+__all__ = ["SegmentationRASA"]
 
 from typing import Any, List, cast
 
@@ -67,7 +67,9 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
-    def _segmentation_weighted(segmentations: pd.Series, weights: npt.NDArray[Any]) -> npt.NDArray[Any]:
+    def _segmentation_weighted(
+        segmentations: pd.Series, weights: npt.NDArray[Any]
+    ) -> npt.NDArray[Any]:
         """
         Performs the weighted Majority Vote algorithm.
 
@@ -78,7 +80,9 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         return cast(npt.NDArray[Any], weighted_segmentations.sum(axis=0))
 
     @staticmethod
-    def _calculate_weights(segmentations: pd.Series, mv: npt.NDArray[Any]) -> npt.NDArray[Any]:
+    def _calculate_weights(
+        segmentations: pd.Series, mv: npt.NDArray[Any]
+    ) -> npt.NDArray[Any]:
         """
         Calculates weights for each worker from the current Majority Vote estimation.
         """
@@ -120,7 +124,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
         return mv
 
-    def fit(self, data: pd.DataFrame) -> 'SegmentationRASA':
+    def fit(self, data: pd.DataFrame) -> "SegmentationRASA":
         """Fits the model to the training data.
 
         Args:
@@ -131,14 +135,14 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
             SegmentationRASA: self.
         """
 
-        data = data[['task', 'worker', 'segmentation']]
+        data = data[["task", "worker", "segmentation"]]
 
         # The latest pandas version installable under Python3.7 is pandas 1.1.5.
         # This version fails to accept a method with an error but works fine with lambdas
         # >>> TypeError: unhashable type: 'SegmentationRASA'duito an inner logic that tries
         aggregate_one = lambda arg: self._aggregate_one(arg)
 
-        self.segmentations_ = data.groupby('task').segmentation.apply(aggregate_one)
+        self.segmentations_ = data.groupby("task").segmentation.apply(aggregate_one)
 
         return self
 

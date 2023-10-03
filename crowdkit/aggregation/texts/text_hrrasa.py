@@ -1,6 +1,6 @@
-__all__ = ['TextHRRASA']
+__all__ = ["TextHRRASA"]
 
-from typing import Callable, List, Any
+from typing import Any, Callable, List
 
 import numpy.typing as npt
 import pandas as pd
@@ -43,20 +43,34 @@ class TextHRRASA(BaseTextsAggregator):
         return self._hrrasa.loss_history_
 
     def __init__(
-            self,
-            encoder: Callable[[str], npt.ArrayLike],
-            n_iter: int = 100, tol: float = 1e-5, lambda_emb: float = 0.5, lambda_out: float = 0.5,
-            alpha: float = 0.05, calculate_ranks: bool = False,
-            output_similarity: Callable[[str, List[List[str]]], float] = glue_similarity
+        self,
+        encoder: Callable[[str], npt.ArrayLike],
+        n_iter: int = 100,
+        tol: float = 1e-5,
+        lambda_emb: float = 0.5,
+        lambda_out: float = 0.5,
+        alpha: float = 0.05,
+        calculate_ranks: bool = False,
+        output_similarity: Callable[[str, List[List[str]]], float] = glue_similarity,
     ) -> None:
         super().__init__()
         self.encoder = encoder
-        self._hrrasa = HRRASA(n_iter, tol, lambda_emb, lambda_out, alpha, calculate_ranks, output_similarity)
+        self._hrrasa = HRRASA(
+            n_iter,
+            tol,
+            lambda_emb,
+            lambda_out,
+            alpha,
+            calculate_ranks,
+            output_similarity,
+        )
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._hrrasa, name)
 
-    def fit_predict_scores(self, data: pd.DataFrame, true_objects: pd.Series = None) -> pd.DataFrame:
+    def fit_predict_scores(
+        self, data: pd.DataFrame, true_objects: pd.Series = None
+    ) -> pd.DataFrame:
         """Fit the model and return scores.
 
         Args:
@@ -72,9 +86,13 @@ class TextHRRASA(BaseTextsAggregator):
                 is the score of `label` for `task`.
         """
 
-        return self._hrrasa.fit_predict_scores(self._encode_data(data), self._encode_true_objects(true_objects))
+        return self._hrrasa.fit_predict_scores(
+            self._encode_data(data), self._encode_true_objects(true_objects)
+        )
 
-    def fit_predict(self, data: pd.DataFrame, true_objects: pd.Series = None) -> pd.Series:
+    def fit_predict(
+        self, data: pd.DataFrame, true_objects: pd.Series = None
+    ) -> pd.Series:
         """Fit the model and return aggregated texts.
 
         Args:
@@ -90,13 +108,19 @@ class TextHRRASA(BaseTextsAggregator):
                 is the task's text.
         """
 
-        hrrasa_results = self._hrrasa.fit_predict(self._encode_data(data), self._encode_true_objects(true_objects))
-        self.texts_ = hrrasa_results.reset_index()[['task', 'output']].rename(columns={'output': 'text'}).set_index('task')
+        hrrasa_results = self._hrrasa.fit_predict(
+            self._encode_data(data), self._encode_true_objects(true_objects)
+        )
+        self.texts_ = (
+            hrrasa_results.reset_index()[["task", "output"]]
+            .rename(columns={"output": "text"})
+            .set_index("task")
+        )
         return self.texts_
 
     def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
-        data = data[['task', 'worker', 'text']].rename(columns={'text': 'output'})
-        data['embedding'] = data.output.apply(self.encoder)
+        data = data[["task", "worker", "text"]].rename(columns={"text": "output"})
+        data["embedding"] = data.output.apply(self.encoder)
         return data
 
     def _encode_true_objects(self, true_objects: pd.Series) -> pd.Series:

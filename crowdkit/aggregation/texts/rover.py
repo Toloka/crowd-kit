@@ -1,10 +1,10 @@
 __all__ = [
-    'ROVER',
+    "ROVER",
 ]
 
 from copy import deepcopy
 from enum import Enum, unique
-from typing import List, Callable, Dict, Optional, Tuple, cast
+from typing import Callable, Dict, List, Optional, Tuple, cast
 
 import attr
 import numpy as np
@@ -16,10 +16,10 @@ from ..base import BaseTextsAggregator
 
 @unique
 class AlignmentAction(Enum):
-    DELETION = 'DELETION'
-    SUBSTITUTION = 'SUBSTITUTION'
-    INSERTION = 'INSERTION'
-    CORRECT = 'CORRECT'
+    DELETION = "DELETION"
+    SUBSTITUTION = "SUBSTITUTION"
+    INSERTION = "INSERTION"
+    CORRECT = "CORRECT"
 
 
 @attr.s
@@ -69,7 +69,7 @@ class ROVER(BaseTextsAggregator):
     # Available after fit
     # texts_
 
-    def fit(self, data: pd.DataFrame) -> 'ROVER':
+    def fit(self, data: pd.DataFrame) -> "ROVER":
         """Fits the model. The aggregated results are saved to the `texts_` attribute.
 
         Args:
@@ -81,19 +81,21 @@ class ROVER(BaseTextsAggregator):
         """
 
         result = {}
-        grouped_tasks = data.groupby('task') if self.silent else tqdm(data.groupby('task'))
+        grouped_tasks = (
+            data.groupby("task") if self.silent else tqdm(data.groupby("task"))
+        )
         for task, df in grouped_tasks:
-            hypotheses = [self.tokenizer(text) for i, text in enumerate(df['text'])]
+            hypotheses = [self.tokenizer(text) for i, text in enumerate(df["text"])]
 
             edges = self._build_word_transition_network(hypotheses)
             rover_result = self._get_result(edges)
 
-            text = self.detokenizer([value for value in rover_result if value != ''])
+            text = self.detokenizer([value for value in rover_result if value != ""])
 
             result[task] = text
 
-        texts = pd.Series(result, name='text')
-        texts.index.name = 'task'
+        texts = pd.Series(result, name="text")
+        texts.index.name = "task"
         self.texts_ = texts
 
         return self
@@ -114,8 +116,12 @@ class ROVER(BaseTextsAggregator):
         self.fit(data)
         return self.texts_
 
-    def _build_word_transition_network(self, hypotheses: List[List[str]]) -> List[Dict[str, AlignmentEdge]]:
-        edges = [{edge.value: edge} for edge in self._get_edges_for_words(hypotheses[0])]
+    def _build_word_transition_network(
+        self, hypotheses: List[List[str]]
+    ) -> List[Dict[str, AlignmentEdge]]:
+        edges = [
+            {edge.value: edge} for edge in self._get_edges_for_words(hypotheses[0])
+        ]
 
         for sources_count, hyp in enumerate(hypotheses[1:], start=1):
             edges = self._align(edges, self._get_edges_for_words(hyp), sources_count)
@@ -128,9 +134,9 @@ class ROVER(BaseTextsAggregator):
 
     @staticmethod
     def _align(
-            ref_edges_sets: List[Dict[str, AlignmentEdge]],
-            hyp_edges: List[AlignmentEdge],
-            sources_count: int
+        ref_edges_sets: List[Dict[str, AlignmentEdge]],
+        hyp_edges: List[AlignmentEdge],
+        sources_count: int,
     ) -> List[Dict[str, AlignmentEdge]]:
         """Sequence alignment algorithm implementation.
 
@@ -148,21 +154,25 @@ class ROVER(BaseTextsAggregator):
         distance[:, 0] = np.arange(len(hyp_edges) + 1)
         distance[0, :] = np.arange(len(ref_edges_sets) + 1)
 
-        memoization: List[List[Optional[Tuple[AlignmentAction, Dict[str, AlignmentEdge], AlignmentEdge]]]] = [
-            [None] * (len(ref_edges_sets) + 1) for _ in range(len(hyp_edges) + 1)
-        ]
+        memoization: List[
+            List[
+                Optional[
+                    Tuple[AlignmentAction, Dict[str, AlignmentEdge], AlignmentEdge]
+                ]
+            ]
+        ] = [[None] * (len(ref_edges_sets) + 1) for _ in range(len(hyp_edges) + 1)]
 
         for i, hyp_edge in enumerate(hyp_edges, start=1):
             memoization[i][0] = (
                 AlignmentAction.INSERTION,
-                {'': AlignmentEdge('', sources_count)},
+                {"": AlignmentEdge("", sources_count)},
                 hyp_edge,
             )
         for i, ref_edges in enumerate(ref_edges_sets, start=1):
             memoization[0][i] = (
                 AlignmentAction.DELETION,
                 ref_edges,
-                AlignmentEdge('', 1),
+                AlignmentEdge("", 1),
             )
 
         # find alignment minimal cost using dynamic programming algorithm
@@ -175,39 +185,47 @@ class ROVER(BaseTextsAggregator):
                 options = []
 
                 if is_hyp_word_in_ref:
-                    options.append((
-                        distance[i - 1, j - 1],
+                    options.append(
                         (
-                            AlignmentAction.CORRECT,
-                            ref_edges,
-                            hyp_edge,
+                            distance[i - 1, j - 1],
+                            (
+                                AlignmentAction.CORRECT,
+                                ref_edges,
+                                hyp_edge,
+                            ),
                         )
-                    ))
+                    )
                 else:
-                    options.append((
-                        distance[i - 1, j - 1] + 1,
+                    options.append(
                         (
-                            AlignmentAction.SUBSTITUTION,
-                            ref_edges,
-                            hyp_edge,
+                            distance[i - 1, j - 1] + 1,
+                            (
+                                AlignmentAction.SUBSTITUTION,
+                                ref_edges,
+                                hyp_edge,
+                            ),
                         )
-                    ))
-                options.append((
-                    distance[i, j - 1] + ('' not in ref_edges),
-                    (
-                        AlignmentAction.DELETION,
-                        ref_edges,
-                        AlignmentEdge('', 1),
                     )
-                ))
-                options.append((
-                    distance[i - 1, j] + 1,
+                options.append(
                     (
-                        AlignmentAction.INSERTION,
-                        {'': AlignmentEdge('', sources_count)},
-                        hyp_edge,
+                        distance[i, j - 1] + ("" not in ref_edges),
+                        (
+                            AlignmentAction.DELETION,
+                            ref_edges,
+                            AlignmentEdge("", 1),
+                        ),
                     )
-                ))
+                )
+                options.append(
+                    (
+                        distance[i - 1, j] + 1,
+                        (
+                            AlignmentAction.INSERTION,
+                            {"": AlignmentEdge("", sources_count)},
+                            hyp_edge,
+                        ),
+                    )
+                )
 
                 distance[i, j], memoization[i][j] = min(options, key=lambda t: t[0])  # type: ignore
 
@@ -217,8 +235,10 @@ class ROVER(BaseTextsAggregator):
 
         # reconstruct answer from dp array
         while i != 0 or j != 0:
-            action, ref_edges, hyp_edge = cast(Tuple[AlignmentAction, Dict[str, AlignmentEdge], AlignmentEdge],
-                                               memoization[i][j])
+            action, ref_edges, hyp_edge = cast(
+                Tuple[AlignmentAction, Dict[str, AlignmentEdge], AlignmentEdge],
+                memoization[i][j],
+            )
             joined_edges = deepcopy(ref_edges)
             hyp_edge_word = hyp_edge.value
             if hyp_edge_word not in joined_edges:
@@ -227,7 +247,10 @@ class ROVER(BaseTextsAggregator):
                 # if word is already in set increment sources count for future score calculation
                 joined_edges[hyp_edge_word].sources_count += 1  # type: ignore
             alignment.append(joined_edges)
-            if action == AlignmentAction.CORRECT or action == AlignmentAction.SUBSTITUTION:
+            if (
+                action == AlignmentAction.CORRECT
+                or action == AlignmentAction.SUBSTITUTION
+            ):
                 i -= 1
                 j -= 1
             elif action == AlignmentAction.INSERTION:
@@ -242,6 +265,8 @@ class ROVER(BaseTextsAggregator):
     def _get_result(edges: List[Dict[str, AlignmentEdge]]) -> List[str]:
         result = []
         for edges_set in edges:
-            _, _, value = max((x.sources_count, len(x.value), x.value) for x in edges_set.values())
+            _, _, value = max(
+                (x.sources_count, len(x.value), x.value) for x in edges_set.values()
+            )
             result.append(value)
         return result

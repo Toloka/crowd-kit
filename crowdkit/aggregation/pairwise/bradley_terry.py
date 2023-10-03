@@ -1,6 +1,6 @@
-__all__ = ['BradleyTerry']
+__all__ = ["BradleyTerry"]
 
-from typing import Tuple, List
+from typing import List, Tuple
 
 import attr
 import numpy as np
@@ -73,7 +73,7 @@ class BradleyTerry(BasePairwiseAggregator):
     # scores_
     loss_history_: List[float] = attr.ib(init=False)
 
-    def fit(self, data: pd.DataFrame) -> 'BradleyTerry':
+    def fit(self, data: pd.DataFrame) -> "BradleyTerry":
         """Args:
             data (DataFrame): Workers' pairwise comparison results.
                 A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
@@ -138,8 +138,10 @@ class BradleyTerry(BasePairwiseAggregator):
         return self.fit(data).scores_
 
     @staticmethod
-    def _build_win_matrix(data: pd.DataFrame) -> Tuple[npt.NDArray[np.int_], npt.NDArray[np.int_]]:
-        data = data[['left', 'right', 'label']]
+    def _build_win_matrix(
+        data: pd.DataFrame,
+    ) -> Tuple[npt.NDArray[np.int_], npt.NDArray[np.int_]]:
+        data = data[["left", "right", "label"]]
 
         unique_labels, np_data = np.unique(data.values, return_inverse=True)  # type: ignore
         np_data = np_data.reshape(data.shape)
@@ -147,7 +149,7 @@ class BradleyTerry(BasePairwiseAggregator):
         left_wins = np_data[np_data[:, 0] == np_data[:, 2], :2].T
         right_wins = np_data[np_data[:, 1] == np_data[:, 2], 1::-1].T
 
-        win_matrix = np.zeros((unique_labels.size, unique_labels.size), dtype='int')
+        win_matrix = np.zeros((unique_labels.size, unique_labels.size), dtype="int")
 
         np.add.at(win_matrix, tuple(left_wins), 1)
         np.add.at(win_matrix, tuple(right_wins), 1)

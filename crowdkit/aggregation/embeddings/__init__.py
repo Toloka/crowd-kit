@@ -3,7 +3,7 @@ from .hrrasa import HRRASA
 from .rasa import RASA
 
 __all__ = [
-    'ClosestToAverage',
-    'HRRASA',
-    'RASA',
+    "ClosestToAverage",
+    "HRRASA",
+    "RASA",
 ]

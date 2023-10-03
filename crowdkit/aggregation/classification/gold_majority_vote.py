@@ -1,4 +1,4 @@
-__all__ = ['GoldMajorityVote']
+__all__ = ["GoldMajorityVote"]
 
 from typing import Optional
 
@@ -6,9 +6,9 @@ import attr
 import pandas as pd
 from sklearn.utils.validation import check_is_fitted
 
-from .majority_vote import MajorityVote
 from ..base import BaseClassificationAggregator
 from ..utils import get_accuracy, named_series_attrib
+from .majority_vote import MajorityVote
 
 
 @attr.s
@@ -58,20 +58,20 @@ class GoldMajorityVote(BaseClassificationAggregator):
     """
 
     # Available after fit
-    skills_: Optional[pd.Series] = named_series_attrib(name='skill')
+    skills_: Optional[pd.Series] = named_series_attrib(name="skill")
 
     # Available after predict or predict_proba
     # labels_
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
 
-    def _apply(self, data: pd.DataFrame) -> 'GoldMajorityVote':
-        check_is_fitted(self, attributes='skills_')
+    def _apply(self, data: pd.DataFrame) -> "GoldMajorityVote":
+        check_is_fitted(self, attributes="skills_")
         mv = MajorityVote().fit(data, self.skills_)
         self.labels_ = mv.labels_
         self.probas_ = mv.probas_
         return self
 
-    def fit(self, data: pd.DataFrame, true_labels: pd.Series) -> 'GoldMajorityVote':  # type: ignore
+    def fit(self, data: pd.DataFrame, true_labels: pd.Series) -> "GoldMajorityVote":  # type: ignore
         """Fits the model to the training data.
 
         Args:
@@ -85,8 +85,8 @@ class GoldMajorityVote(BaseClassificationAggregator):
             GoldMajorityVote: self.
         """
 
-        data = data[['task', 'worker', 'label']]
-        self.skills_ = get_accuracy(data, true_labels=true_labels, by='worker')
+        data = data[["task", "worker", "label"]]
+        self.skills_ = get_accuracy(data, true_labels=true_labels, by="worker")
         return self
 
     def predict(self, data: pd.DataFrame) -> pd.Series:
@@ -134,7 +134,9 @@ class GoldMajorityVote(BaseClassificationAggregator):
 
         return self.fit(data, true_labels).predict(data)
 
-    def fit_predict_proba(self, data: pd.DataFrame, true_labels: pd.Series) -> pd.DataFrame:
+    def fit_predict_proba(
+        self, data: pd.DataFrame, true_labels: pd.Series
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns probability distributions of labels for each task.
 
         Args:

@@ -8,7 +8,16 @@ import pandas as pd
 import pytest
 
 # from sklearn.exceptions import NotFittedError
-from crowdkit.aggregation import MajorityVote, Wawa, GoldMajorityVote, ZeroBasedSkill, MMSR, DawidSkene, GLAD
+from crowdkit.aggregation import (
+    GLAD,
+    MMSR,
+    DawidSkene,
+    GoldMajorityVote,
+    MajorityVote,
+    Wawa,
+    ZeroBasedSkill,
+)
+
 from .data_gold_mv import *  # noqa: F401, F403
 
 # less field in all crowd datasets
@@ -16,56 +25,56 @@ from .data_gold_mv import *  # noqa: F401, F403
 
 @pytest.fixture
 def answers_no_task() -> pd.DataFrame:
-    return pd.DataFrame({'worker': ['w1'], 'label': ['no']})
+    return pd.DataFrame({"worker": ["w1"], "label": ["no"]})
 
 
 @pytest.fixture
 def answers_no_label() -> pd.DataFrame:
-    return pd.DataFrame({'worker': ['w1'], 'task': ['t1']})
+    return pd.DataFrame({"worker": ["w1"], "task": ["t1"]})
 
 
 @pytest.fixture
 def answers_no_worker() -> pd.DataFrame:
-    return pd.DataFrame({'task': ['t1'], 'label': ['no']})
+    return pd.DataFrame({"task": ["t1"], "label": ["no"]})
 
 
 @pytest.fixture
 def gold_no_task() -> pd.DataFrame:
-    return pd.DataFrame({'label': ['no']})
+    return pd.DataFrame({"label": ["no"]})
 
 
 @pytest.fixture
 def gold_no_label() -> pd.DataFrame:
-    return pd.DataFrame({'task': ['t1']})
+    return pd.DataFrame({"task": ["t1"]})
 
 
 @pytest.mark.parametrize(
-    'agg_class, predict_method, exception, answers_dataset',
+    "agg_class, predict_method, exception, answers_dataset",
     [
-        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_task'),
-        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_label'),
-        (MajorityVote, 'fit_predict',       KeyError, 'answers_no_worker'),
-        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_task'),
-        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_label'),
-        (MajorityVote, 'fit_predict_proba', KeyError, 'answers_no_worker'),
-        (MMSR, 'fit_predict',       KeyError, 'answers_no_task'),
-        (MMSR, 'fit_predict',       KeyError, 'answers_no_label'),
-        (MMSR, 'fit_predict',       KeyError, 'answers_no_worker'),
-        (MMSR, 'fit_predict_score', KeyError, 'answers_no_task'),
-        (MMSR, 'fit_predict_score', KeyError, 'answers_no_label'),
-        (MMSR, 'fit_predict_score', KeyError, 'answers_no_worker'),
-        (Wawa,         'fit_predict',       KeyError, 'answers_no_task'),
-        (Wawa,         'fit_predict',       KeyError, 'answers_no_label'),
-        (Wawa,         'fit_predict',       KeyError, 'answers_no_worker'),
-        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_task'),
-        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_label'),
-        (Wawa,         'fit_predict_proba', KeyError, 'answers_no_worker'),
-        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_task'),
-        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_label'),
-        (ZeroBasedSkill,         'fit_predict',       KeyError, 'answers_no_worker'),
-        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_task'),
-        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_label'),
-        (ZeroBasedSkill,         'fit_predict_proba', KeyError, 'answers_no_worker'),
+        (MajorityVote, "fit_predict", KeyError, "answers_no_task"),
+        (MajorityVote, "fit_predict", KeyError, "answers_no_label"),
+        (MajorityVote, "fit_predict", KeyError, "answers_no_worker"),
+        (MajorityVote, "fit_predict_proba", KeyError, "answers_no_task"),
+        (MajorityVote, "fit_predict_proba", KeyError, "answers_no_label"),
+        (MajorityVote, "fit_predict_proba", KeyError, "answers_no_worker"),
+        (MMSR, "fit_predict", KeyError, "answers_no_task"),
+        (MMSR, "fit_predict", KeyError, "answers_no_label"),
+        (MMSR, "fit_predict", KeyError, "answers_no_worker"),
+        (MMSR, "fit_predict_score", KeyError, "answers_no_task"),
+        (MMSR, "fit_predict_score", KeyError, "answers_no_label"),
+        (MMSR, "fit_predict_score", KeyError, "answers_no_worker"),
+        (Wawa, "fit_predict", KeyError, "answers_no_task"),
+        (Wawa, "fit_predict", KeyError, "answers_no_label"),
+        (Wawa, "fit_predict", KeyError, "answers_no_worker"),
+        (Wawa, "fit_predict_proba", KeyError, "answers_no_task"),
+        (Wawa, "fit_predict_proba", KeyError, "answers_no_label"),
+        (Wawa, "fit_predict_proba", KeyError, "answers_no_worker"),
+        (ZeroBasedSkill, "fit_predict", KeyError, "answers_no_task"),
+        (ZeroBasedSkill, "fit_predict", KeyError, "answers_no_label"),
+        (ZeroBasedSkill, "fit_predict", KeyError, "answers_no_worker"),
+        (ZeroBasedSkill, "fit_predict_proba", KeyError, "answers_no_task"),
+        (ZeroBasedSkill, "fit_predict_proba", KeyError, "answers_no_label"),
+        (ZeroBasedSkill, "fit_predict_proba", KeyError, "answers_no_worker"),
     ],
     ids=[
         'Majority Vote predict raises on no "task"',
@@ -94,8 +103,13 @@ def gold_no_label() -> pd.DataFrame:
         'ZBS predict_proba raises on no "worker"',
     ],
 )
-def test_agg_raise_on_less_columns(request: Any, agg_class: Any, predict_method: str,
-                                   exception: Type[Exception], answers_dataset: str) -> None:
+def test_agg_raise_on_less_columns(
+    request: Any,
+    agg_class: Any,
+    predict_method: str,
+    exception: Type[Exception],
+    answers_dataset: str,
+) -> None:
     """
     Tests all aggregation methods raises basik exceptions
     """
@@ -106,14 +120,14 @@ def test_agg_raise_on_less_columns(request: Any, agg_class: Any, predict_method:
 
 
 @pytest.mark.parametrize(
-    'exception, answers_on_gold_dataset',
+    "exception, answers_on_gold_dataset",
     [
         # test raises in fit
-        (KeyError, 'answers_no_task'),
-        (KeyError, 'answers_no_label'),
-        (KeyError, 'answers_no_worker'),
-        (KeyError, 'gold_no_task'),
-        (KeyError, 'gold_no_label'),
+        (KeyError, "answers_no_task"),
+        (KeyError, "answers_no_label"),
+        (KeyError, "answers_no_worker"),
+        (KeyError, "gold_no_task"),
+        (KeyError, "gold_no_label"),
         # raises on mismatch datasets
         # TODO: check
         # (NotFittedError, 'toy_answers_on_gold_df_cannot_fit'),
@@ -129,8 +143,13 @@ def test_agg_raise_on_less_columns(request: Any, agg_class: Any, predict_method:
         # 'cannot compute workers skills',
     ],
 )
-def test_gold_mv_raise_in_fit(request: Any, not_random: Callable[[], None], toy_gold_df: pd.Series,
-                              exception: Type[Exception], answers_on_gold_dataset: str) -> None:
+def test_gold_mv_raise_in_fit(
+    request: Any,
+    not_random: Callable[[], None],
+    toy_gold_df: pd.Series,
+    exception: Type[Exception],
+    answers_on_gold_dataset: str,
+) -> None:
     """
     Tests Gold MajorityVote on raises basik exceptions
     """
@@ -142,16 +161,16 @@ def test_gold_mv_raise_in_fit(request: Any, not_random: Callable[[], None], toy_
 
 
 @pytest.mark.parametrize(
-    'predict_method, exception, answers_on_gold_dataset, answers_dataset',
+    "predict_method, exception, answers_on_gold_dataset, answers_dataset",
     [
         # test raises in predict
-        ('predict', KeyError, 'toy_answers_df', 'answers_no_task'),
-        ('predict', KeyError, 'toy_answers_df', 'answers_no_label'),
-        ('predict', KeyError, 'toy_answers_df', 'answers_no_worker'),
+        ("predict", KeyError, "toy_answers_df", "answers_no_task"),
+        ("predict", KeyError, "toy_answers_df", "answers_no_label"),
+        ("predict", KeyError, "toy_answers_df", "answers_no_worker"),
         # test raises in predict_proba
-        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_task'),
-        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_label'),
-        ('predict_proba', KeyError, 'toy_answers_df', 'answers_no_worker'),
+        ("predict_proba", KeyError, "toy_answers_df", "answers_no_task"),
+        ("predict_proba", KeyError, "toy_answers_df", "answers_no_label"),
+        ("predict_proba", KeyError, "toy_answers_df", "answers_no_worker"),
         # raises on mismatch datasets
         # ('predict', NotFittedError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
         # ('predict_proba', NotFittedError, 'toy_answers_on_gold_df_cannot_predict', 'toy_answers_df'),
@@ -171,8 +190,13 @@ def test_gold_mv_raise_in_fit(request: Any, not_random: Callable[[], None], toy_
     ],
 )
 def test_gold_mv_raise_in_predict(
-    request: Any, not_random: Callable[[], None], toy_gold_df: pd.Series,
-    predict_method: str, exception: Type[Exception], answers_on_gold_dataset: str, answers_dataset: str
+    request: Any,
+    not_random: Callable[[], None],
+    toy_gold_df: pd.Series,
+    predict_method: str,
+    exception: Type[Exception],
+    answers_on_gold_dataset: str,
+    answers_dataset: str,
 ) -> None:
     """
     Tests Gold MajorityVote on raises basic exceptions
@@ -189,18 +213,15 @@ def test_gold_mv_raise_in_predict(
 def test_gold_mv_empty() -> None:
     aggregator = GoldMajorityVote()
     probas = aggregator.fit_predict_proba(
-        pd.DataFrame({'task': [], 'worker': [], 'label': []}),
-        pd.Series(dtype=float)
+        pd.DataFrame({"task": [], "worker": [], "label": []}), pd.Series(dtype=float)
     )
     assert probas.empty
 
 
-@pytest.mark.parametrize(
-    'agg_class',
-    [MMSR, ZeroBasedSkill, DawidSkene, GLAD]
-)
-def test_zero_iter(agg_class: Any, simple_answers_df: pd.DataFrame,
-                   simple_ground_truth: pd.Series) -> None:
+@pytest.mark.parametrize("agg_class", [MMSR, ZeroBasedSkill, DawidSkene, GLAD])
+def test_zero_iter(
+    agg_class: Any, simple_answers_df: pd.DataFrame, simple_ground_truth: pd.Series
+) -> None:
     aggregator = agg_class(n_iter=0)
     answers = aggregator.fit_predict(simple_answers_df)
     assert len(answers.index.difference(simple_ground_truth.index)) == 0

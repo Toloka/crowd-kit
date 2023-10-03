@@ -1,5 +1,5 @@
 __all__ = [
-    'TextSummarization',
+    "TextSummarization",
 ]
 
 import itertools
@@ -8,7 +8,7 @@ from typing import Optional, cast
 import attr
 import numpy as np
 import pandas as pd
-from transformers import PreTrainedTokenizer, PreTrainedModel  # type: ignore
+from transformers import PreTrainedModel, PreTrainedTokenizer  # type: ignore
 
 from crowdkit.aggregation.base import BaseTextsAggregator
 
@@ -64,13 +64,14 @@ class TextSummarization(BaseTextsAggregator):
             A pandas.Series indexed by `task` such that `result.loc[task, text]`
             is the task's text.
     """
+
     tokenizer: PreTrainedTokenizer = attr.ib()
     model: PreTrainedModel = attr.ib()
-    concat_token: str = attr.ib(default=' | ')
+    concat_token: str = attr.ib(default=" | ")
     num_beams: int = attr.ib(default=16)
     n_permutations: Optional[int] = attr.ib(default=None)
     permutation_aggregator: Optional[BaseTextsAggregator] = attr.ib(default=None)
-    device: str = attr.ib(default='cpu')
+    device: str = attr.ib(default="cpu")
 
     # texts_
 
@@ -85,10 +86,10 @@ class TextSummarization(BaseTextsAggregator):
                 is the task's text.
         """
 
-        data = data[['task', 'worker', 'text']]
+        data = data[["task", "worker", "text"]]
 
         self.model = self.model.to(self.device)  # type: ignore
-        self.texts_ = data.groupby('task')['text'].apply(self._aggregate_one)
+        self.texts_ = data.groupby("task")["text"].apply(self._aggregate_one)
         return self.texts_
 
     def _aggregate_one(self, outputs: pd.Series) -> str:
@@ -99,20 +100,26 @@ class TextSummarization(BaseTextsAggregator):
 
         # TODO: generate only `n_permutations` permutations
         permutations = list(itertools.permutations(outputs))
-        permutations_idx = np.random.choice(len(permutations), size=self.n_permutations, replace=False)
+        permutations_idx = np.random.choice(
+            len(permutations), size=self.n_permutations, replace=False
+        )
         permutations = [permutations[i] for i in permutations_idx]
         for permutation in permutations:
             generated_outputs.append(self._generate_output(permutation))
 
-        data = pd.DataFrame({'task': [''] * len(generated_outputs), 'text': generated_outputs})
+        data = pd.DataFrame(
+            {"task": [""] * len(generated_outputs), "text": generated_outputs}
+        )
 
         if self.permutation_aggregator is not None:
-            return cast(str, self.permutation_aggregator.fit_predict(data)[''])
+            return cast(str, self.permutation_aggregator.fit_predict(data)[""])
 
         return cast(str, data.text.mode())
 
     def _generate_output(self, permutation: pd.Series) -> str:
         input_text = self.concat_token.join(permutation)
-        input_ids = self.tokenizer.encode(input_text, return_tensors='pt').to(self.device)
+        input_ids = self.tokenizer.encode(input_text, return_tensors="pt").to(
+            self.device
+        )
         outputs = self.model.generate(input_ids, num_beams=self.num_beams)  # type: ignore
         return cast(str, self.tokenizer.decode(outputs[0], skip_special_tokens=True))

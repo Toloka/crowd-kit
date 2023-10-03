@@ -1,14 +1,17 @@
 __all__ = [
-    'differentiable_ds',
-    'batch_identity_matrices',
+    "differentiable_ds",
+    "batch_identity_matrices",
 ]
+
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from typing import Optional
 
 
-def differentiable_ds(outputs: torch.Tensor, confusion_matrices: torch.Tensor) -> torch.Tensor:
+def differentiable_ds(
+    outputs: torch.Tensor, confusion_matrices: torch.Tensor
+) -> torch.Tensor:
     """
     Differentiable Dawid-Skene logit transformation.
     Args:
@@ -29,10 +32,11 @@ def differentiable_ds(outputs: torch.Tensor, confusion_matrices: torch.Tensor) -
 
 
 def batch_identity_matrices(
-        batch_size: int,
-        dim_size: int,
-        device: Optional[torch.device] = None,
-        dtype: Optional[torch.dtype] = None) -> torch.Tensor:
+    batch_size: int,
+    dim_size: int,
+    device: Optional[torch.device] = None,
+    dtype: Optional[torch.dtype] = None,
+) -> torch.Tensor:
     """
     Creates a batch of identity matrices.
     Args:
