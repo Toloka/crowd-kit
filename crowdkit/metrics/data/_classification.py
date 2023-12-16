@@ -4,7 +4,7 @@ __all__ = [
     "alpha_krippendorff",
 ]
 
-from typing import Any, Callable, Hashable, List, Optional, Tuple, Union
+from typing import Any, Callable, Hashable, List, Optional, Tuple, Union, Iterable, cast
 
 import numpy as np
 import pandas as pd
@@ -24,7 +24,7 @@ def _check_answers(answers: pd.DataFrame) -> None:
     assert "label" in answers, 'There is no "label" column in answers'
 
 
-def _label_probability(row: pd.Series, label: Any, n_labels: int) -> float:
+def _label_probability(row: 'pd.Series[Any]', label: Any, n_labels: int) -> float:
     """Numerator in the Bayes formula"""
     if row["label"] == label:
         return float(row["skill"])
@@ -32,7 +32,7 @@ def _label_probability(row: pd.Series, label: Any, n_labels: int) -> float:
         return (1.0 - float(row["skill"])) / (n_labels - 1)
 
 
-def _task_consistency(row: pd.Series) -> float:
+def _task_consistency(row: 'pd.Series[Any]') -> float:
     """Posterior probability for a single task"""
     if row["denominator"] != 0:
         return float(row[row["aggregated_label"]]) / float(row["denominator"])
@@ -42,13 +42,13 @@ def _task_consistency(row: pd.Series) -> float:
 
 def consistency(
     answers: pd.DataFrame,
-    workers_skills: Optional[pd.Series] = None,
+    workers_skills: Optional['pd.Series[Any]'] = None,
     aggregator: BaseClassificationAggregator = MajorityVote(),
     by_task: bool = False,
-) -> Union[float, pd.Series]:
+) -> Union[float, 'pd.Series[Any]']:
     """
     Consistency metric: posterior probability of aggregated label given workers skills
-    calculated using standard Dawid-Skene model.
+    calculated using the standard Dawid-Skene model.
 
     Args:
         answers (pandas.DataFrame): A data frame containing `task`, `worker` and `label` columns.
@@ -64,7 +64,7 @@ def consistency(
     aggregated = aggregator.fit_predict(answers)
     if workers_skills is None:
         if hasattr(aggregator, "skills_"):
-            workers_skills = aggregator.skills_  # type: ignore
+            workers_skills = aggregator.skills_
         else:
             raise AssertionError(
                 "This aggregator is not supported. Please, provide workers skills."
@@ -94,7 +94,7 @@ def consistency(
         return consistencies.mean()
 
 
-def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
+def _task_uncertainty(row: 'pd.Series[Any]', labels: List[str]) -> float:
     if row["denominator"] == 0:
         row[labels] = 1 / len(labels)
     else:
@@ -106,11 +106,11 @@ def _task_uncertainty(row: pd.Series, labels: List[Hashable]) -> float:
 
 def uncertainty(
     answers: pd.DataFrame,
-    workers_skills: Optional[pd.Series] = None,
+    workers_skills: Optional['pd.Series[Any]'] = None,
     aggregator: Optional[BaseClassificationAggregator] = None,
     compute_by: str = "task",
     aggregate: bool = True,
-) -> Union[float, pd.Series]:
+) -> Union[float, 'pd.Series[Any]']:
     r"""Label uncertainty metric: entropy of labels probability distribution.
     Computed as Shannon's Entropy with label probabilities computed either for tasks or workers:
     $$H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))$$
@@ -188,7 +188,7 @@ def uncertainty(
     if workers_skills is None and aggregator is not None:
         aggregator.fit(answers)
         if hasattr(aggregator, "skills_"):
-            workers_skills = aggregator.skills_  # type: ignore
+            workers_skills = aggregator.skills_
         else:
             raise AssertionError(
                 "This aggregator is not supported. Please, provide workers skills."
@@ -214,9 +214,11 @@ def uncertainty(
     uncertainties = labels_proba.apply(
         lambda row: entropy(row[labels] / (sum(row[labels]) + 1e-6)), axis=1
     )
+
     if aggregate:
-        return uncertainties.mean()
-    return uncertainties
+        return cast(float, uncertainties.mean())
+
+    return cast('pd.Series[Any]', uncertainties)
 
 
 def alpha_krippendorff(

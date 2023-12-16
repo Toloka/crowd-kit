@@ -87,7 +87,7 @@ class MMSR(BaseClassificationAggregator):
     _tasks_mapping: Dict[Any, int] = attr.ib(factory=dict)
 
     # Available after fit
-    skills_: Optional[pd.Series] = named_series_attrib(name="skill")
+    skills_: Optional['pd.Series[Any]'] = named_series_attrib(name="skill")
 
     # Available after predict or predict_score
     # labels_
@@ -117,7 +117,7 @@ class MMSR(BaseClassificationAggregator):
         self._m_msr()
         return self
 
-    def predict(self, data: pd.DataFrame) -> pd.Series:
+    def predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Predicts the true labels of tasks when the model is fitted.
 
         Args:
@@ -129,7 +129,9 @@ class MMSR(BaseClassificationAggregator):
                 so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        return self._apply(data).labels_
+        self._apply(data)
+        assert self.labels_ is not None, 'no labels_'
+        return self.labels_
 
     def predict_score(self, data: pd.DataFrame) -> pd.DataFrame:
         """Returns the total sum of weights for each label when the model is fitted.
@@ -143,9 +145,11 @@ class MMSR(BaseClassificationAggregator):
                 so that `result.loc[task, label]` is a score of `label` for `task`.
         """
 
-        return self._apply(data).scores_
+        self._apply(data)
+        assert self.scores_ is not None, 'no scores_'
+        return self.scores_
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Fits the model to the training data and returns the aggregated results.
 
         Args:
@@ -182,8 +186,8 @@ class MMSR(BaseClassificationAggregator):
         X = np.abs(self._covariation_matrix)
         self.loss_history_ = []
         for _ in range(self.n_iter):
-            v_prev = np.copy(v)  # type: ignore
-            u_prev = np.copy(u)  # type: ignore
+            v_prev = np.copy(v)
+            u_prev = np.copy(u)
             for j in range(n):
                 target_v = X[:, j].reshape(-1, 1)
                 target_v = target_v[observed_entries[:, j]] / u[observed_entries[:, j]]
@@ -207,12 +211,12 @@ class MMSR(BaseClassificationAggregator):
                 else:
                     u[i][0] = y.mean()
 
-            loss = np.linalg.norm(u @ v.T - u_prev @ v_prev.T, ord="fro")  # type: ignore
+            loss = np.linalg.norm(u @ v.T - u_prev @ v_prev.T, ord="fro")
             self.loss_history_.append(float(loss))
             if loss < self.tol:
                 break
 
-        k = np.sqrt(np.linalg.norm(u) / np.linalg.norm(v))  # type: ignore
+        k = np.sqrt(np.linalg.norm(u) / np.linalg.norm(v))
         x_track_1 = u / k
         x_track_2 = self._sign_determination_valid(self._covariation_matrix, x_track_1)
         x_track_3 = np.minimum(x_track_2, 1 - 1.0 / np.sqrt(self._n_tasks))
@@ -228,7 +232,7 @@ class MMSR(BaseClassificationAggregator):
 
         self.skills_ = self._get_skills_from_array(skills)
 
-    def _get_skills_from_array(self, array: npt.NDArray[Any]) -> pd.Series:
+    def _get_skills_from_array(self, array: npt.NDArray[Any]) -> 'pd.Series[Any]':
         inverse_workers_mapping = {
             ind: worker for worker, ind in self._workers_mapping.items()
         }
@@ -245,7 +249,7 @@ class MMSR(BaseClassificationAggregator):
         valid_idx = np.where(np.sum(C, axis=1) != 0)[0]
         S_valid = S[valid_idx[:, None], valid_idx]
         k = S_valid.shape[0]
-        upper_idx = np.triu(np.ones(shape=(k, k)))  # type: ignore
+        upper_idx = np.triu(np.ones(shape=(k, k)))
         S_valid_upper = S_valid * upper_idx
         new_node_end_I, new_node_end_J = np.where(S_valid_upper == 1)
         S_valid[S_valid == 1] = 0
@@ -283,7 +287,7 @@ class MMSR(BaseClassificationAggregator):
         if np.sum(y > a) < F:
             y = y[y[:, 0] <= a]
         else:
-            y = np.concatenate((y[: m - F], y[m:]), axis=0)  # type: ignore
+            y = np.concatenate((y[: m - F], y[m:]), axis=0)
         if len(y) == 1 and y[0][0] == 0:
             y[0][0] = 1 / np.sqrt(n_tasks)
         return y
@@ -310,8 +314,8 @@ class MMSR(BaseClassificationAggregator):
         self._n_common_tasks = (
             np.sign(self._observation_matrix) @ np.sign(self._observation_matrix).T
         )
-        self._n_common_tasks -= np.diag(np.diag(self._n_common_tasks))  # type: ignore
-        self._sparsity = np.min(np.sign(self._n_common_tasks).sum(axis=0))  # type: ignore
+        self._n_common_tasks -= np.diag(np.diag(self._n_common_tasks))
+        self._sparsity = np.min(np.sign(self._n_common_tasks).sum(axis=0))
 
         # Can we rewrite it in matrix operations?
         self._covariation_matrix = np.zeros(shape=(self._n_workers, self._n_workers))

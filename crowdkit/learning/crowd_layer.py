@@ -2,7 +2,7 @@ __all__ = [
     "CrowdLayer",
 ]
 
-from typing import Optional
+from typing import Optional, cast
 
 import torch
 from torch import nn
@@ -11,7 +11,7 @@ from crowdkit.learning.utils import batch_identity_matrices
 
 
 def crowd_layer_mw(
-    outputs: torch.Tensor, workers: torch.Tensor, weight: torch.Tensor
+        outputs: torch.Tensor, workers: torch.Tensor, weight: torch.Tensor
 ) -> torch.Tensor:
     """
     CrowdLayer MW transformation. Defined by multiplication on squared confusion matrix.
@@ -25,13 +25,14 @@ def crowd_layer_mw(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return torch.einsum(
-        "lij,ljk->lik", weight[workers], outputs.unsqueeze(-1)
-    ).squeeze()
+    return cast(
+        torch.Tensor,
+        torch.einsum("lij,ljk->lik", weight[workers], outputs.unsqueeze(-1)).squeeze()
+    )
 
 
 def crowd_layer_vw(
-    outputs: torch.Tensor, workers: torch.Tensor, weight: torch.Tensor
+        outputs: torch.Tensor, workers: torch.Tensor, weight: torch.Tensor
 ) -> torch.Tensor:
     """
     CrowdLayer VW transformation. A linear transformation of the input without the bias.
@@ -44,11 +45,14 @@ def crowd_layer_vw(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return weight[workers] * outputs
+    return cast(
+        torch.Tensor,
+        weight[workers] * outputs
+    )
 
 
 def crowd_layer_vb(
-    outputs: torch.Tensor, workers: torch.Tensor, weight: torch.Tensor
+        outputs: torch.Tensor, workers: torch.Tensor, weight: torch.Tensor
 ) -> torch.Tensor:
     """
     CrowdLayer Vb transformation. Adds a worker-specific bias to the input.
@@ -61,14 +65,17 @@ def crowd_layer_vb(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return outputs + weight[workers]
+    return cast(
+        torch.Tensor,
+        outputs + weight[workers]
+    )
 
 
 def crowd_layer_vw_b(
-    outputs: torch.Tensor,
-    workers: torch.Tensor,
-    scale: torch.Tensor,
-    bias: torch.Tensor,
+        outputs: torch.Tensor,
+        workers: torch.Tensor,
+        scale: torch.Tensor,
+        bias: torch.Tensor,
 ) -> torch.Tensor:
     """
     CrowdLayer VW + b transformation. A linear transformation of the input with the bias.
@@ -82,10 +89,13 @@ def crowd_layer_vw_b(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return scale[workers] * outputs + bias[workers]
+    return cast(
+        torch.Tensor,
+        scale[workers] * outputs + bias[workers]
+    )
 
 
-class CrowdLayer(nn.Module):  # type: ignore
+class CrowdLayer(nn.Module):
     """
     CrowdLayer module for classification tasks.
 
@@ -109,12 +119,12 @@ class CrowdLayer(nn.Module):  # type: ignore
     """
 
     def __init__(
-        self,
-        num_labels: int,
-        n_workers: int,
-        conn_type: str = "mw",
-        device: Optional[torch.device] = None,
-        dtype: Optional[torch.dtype] = None,
+            self,
+            num_labels: int,
+            n_workers: int,
+            conn_type: str = "mw",
+            device: Optional[torch.device] = None,
+            dtype: Optional[torch.dtype] = None,
     ):
         """
         Args:

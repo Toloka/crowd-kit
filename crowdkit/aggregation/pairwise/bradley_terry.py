@@ -1,6 +1,6 @@
 __all__ = ["BradleyTerry"]
 
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import attr
 import numpy as np
@@ -104,7 +104,7 @@ class BradleyTerry(BasePairwiseAggregator):
         self.loss_history_ = []
 
         for _ in range(self.n_iter):
-            P: npt.NDArray[np.float_] = np.broadcast_to(p, M.shape)  # type: ignore
+            P: npt.NDArray[np.float_] = np.broadcast_to(p, M.shape)
 
             Z[active] = T[active] / (P[active] + P.T[active])
 
@@ -125,7 +125,7 @@ class BradleyTerry(BasePairwiseAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Args:
             data (DataFrame): Workers' pairwise comparison results.
                 A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.
@@ -143,7 +143,7 @@ class BradleyTerry(BasePairwiseAggregator):
     ) -> Tuple[npt.NDArray[np.int_], npt.NDArray[np.int_]]:
         data = data[["left", "right", "label"]]
 
-        unique_labels, np_data = np.unique(data.values, return_inverse=True)  # type: ignore
+        unique_labels, np_data = np.unique(data.values, return_inverse=True)
         np_data = np_data.reshape(data.shape)
 
         left_wins = np_data[np_data[:, 0] == np_data[:, 2], :2].T

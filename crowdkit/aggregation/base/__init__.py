@@ -6,7 +6,7 @@ __all__ = [
     "BasePairwiseAggregator",
 ]
 
-from typing import Optional
+from typing import Optional, Any
 
 import attr
 import pandas as pd
@@ -24,7 +24,7 @@ class BaseClassificationAggregator:
             is the tasks's most likely true label.
     """
 
-    labels_: Optional[pd.Series] = named_series_attrib(name="agg_label")
+    labels_: Optional['pd.Series[Any]'] = named_series_attrib(name="agg_label")
 
     def fit(self, data: pd.DataFrame) -> "BaseClassificationAggregator":
         """Args:
@@ -36,7 +36,7 @@ class BaseClassificationAggregator:
         """
         raise NotImplementedError()
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Args:
             data (DataFrame): Workers' labeling results.
                 A pandas.DataFrame containing `task`, `worker` and `label` columns.
@@ -58,7 +58,7 @@ class BaseImageSegmentationAggregator:
             is the tasks's aggregated segmentation.
     """
 
-    segmentations_: pd.Series = named_series_attrib(name="agg_segmentation")
+    segmentations_: 'pd.Series[Any]' = named_series_attrib(name="agg_segmentation")
 
     def fit(self, data: pd.DataFrame) -> "BaseImageSegmentationAggregator":
         """Args:
@@ -70,7 +70,7 @@ class BaseImageSegmentationAggregator:
         """
         raise NotImplementedError()
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Args:
             data (DataFrame): Workers' segmentations.
                 A pandas.DataFrame containing `worker`, `task` and `segmentation` columns'.
@@ -122,7 +122,7 @@ class BaseTextsAggregator:
             is the task's text.
     """
 
-    texts_: pd.Series = named_series_attrib(name="agg_text")
+    texts_: 'pd.Series[Any]' = named_series_attrib(name="agg_text")
 
     def fit(self, data: pd.DataFrame) -> "BaseTextsAggregator":
         """Args:
@@ -133,7 +133,7 @@ class BaseTextsAggregator:
         """
         raise NotImplementedError()
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Args:
             data (DataFrame): Workers' text outputs.
                 A pandas.DataFrame containing `task`, `worker` and `text` columns.
@@ -153,7 +153,7 @@ class BasePairwiseAggregator:
             A pandas.Series index by labels and holding corresponding label's scores
     """
 
-    scores_: pd.Series = named_series_attrib(name="agg_score")
+    scores_: 'pd.Series[Any]' = named_series_attrib(name="agg_score")
 
     def fit(self, data: pd.DataFrame) -> "BasePairwiseAggregator":
         """Args:
@@ -166,7 +166,7 @@ class BasePairwiseAggregator:
         """
         raise NotImplementedError()
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Args:
             data (DataFrame): Workers' pairwise comparison results.
                 A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.

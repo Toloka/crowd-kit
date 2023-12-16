@@ -14,7 +14,7 @@ def test_get_datasets_list() -> None:
 
 
 def collect_stats_for_dataset(
-    crowd_labels: pd.DataFrame, gt: pd.Series
+    crowd_labels: pd.DataFrame, gt: 'pd.Series[Any]'
 ) -> Dict[str, Any]:
     return {
         "rows": len(crowd_labels),

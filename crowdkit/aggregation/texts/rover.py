@@ -4,7 +4,7 @@ __all__ = [
 
 from copy import deepcopy
 from enum import Enum, unique
-from typing import Callable, Dict, List, Optional, Tuple, cast
+from typing import Callable, Dict, List, Optional, Tuple, cast, Any
 
 import attr
 import numpy as np
@@ -100,7 +100,7 @@ class ROVER(BaseTextsAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Fit the model and return the aggregated texts.
 
         Args:
@@ -227,7 +227,7 @@ class ROVER(BaseTextsAggregator):
                     )
                 )
 
-                distance[i, j], memoization[i][j] = min(options, key=lambda t: t[0])  # type: ignore
+                distance[i, j], memoization[i][j] = min(options, key=lambda t: t[0])
 
         alignment = []
         i = len(hyp_edges)

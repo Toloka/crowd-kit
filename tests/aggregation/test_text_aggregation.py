@@ -14,7 +14,7 @@ def test_rasa(
     n_iter: int,
     tol: float,
     simple_text_df: pd.DataFrame,
-    simple_text_true_embeddings: pd.Series,
+    simple_text_true_embeddings: 'pd.Series[Any]',
     simple_text_result_rasa: pd.DataFrame,
 ) -> None:
     output = RASA(n_iter=n_iter, tol=tol).fit_predict(
@@ -28,7 +28,7 @@ def test_hrrasa(
     n_iter: int,
     tol: float,
     simple_text_df: pd.DataFrame,
-    simple_text_true_embeddings: pd.Series,
+    simple_text_true_embeddings: 'pd.Series[Any]',
     simple_text_result_hrrasa: pd.DataFrame,
 ) -> None:
     output = HRRASA(n_iter=n_iter, tol=tol).fit_predict(
@@ -47,7 +47,7 @@ def test_hrrasa_single_overlap(simple_text_df: pd.DataFrame) -> None:
 def test_zero_iter(
     agg_class: Any,
     simple_text_df: pd.DataFrame,
-    simple_text_true_embeddings: pd.Series,
+    simple_text_true_embeddings: 'pd.Series[Any]',
     simple_text_result_hrrasa: pd.DataFrame,
 ) -> None:
     aggregator = agg_class(n_iter=0)

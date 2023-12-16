@@ -1,6 +1,6 @@
 __all__ = ["DawidSkene", "OneCoinDawidSkene"]
 
-from typing import List, Optional
+from typing import List, Optional, Any, cast
 
 import attr
 import numpy as np
@@ -81,7 +81,7 @@ class DawidSkene(BaseClassificationAggregator):
     tol: float = attr.ib(default=1e-5)
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    priors_: Optional[pd.Series] = named_series_attrib(name="prior")
+    priors_: Optional['pd.Series[Any]'] = named_series_attrib(name="prior")
     # labels_
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
@@ -103,7 +103,7 @@ class DawidSkene(BaseClassificationAggregator):
 
     @staticmethod
     def _e_step(
-        data: pd.DataFrame, priors: pd.Series, errors: pd.DataFrame
+        data: pd.DataFrame, priors: 'pd.Series[Any]', errors: pd.DataFrame
     ) -> pd.DataFrame:
         """
         Performs E-step of the Dawid-Skene algorithm.
@@ -115,7 +115,7 @@ class DawidSkene(BaseClassificationAggregator):
         # We have to multiply lots of probabilities and such products are known to converge
         # to zero exponentially fast. To avoid floating-point precision problems we work with
         # logs of original values
-        joined = data.join(np.log2(errors), on=["worker", "label"])
+        joined = data.join(np.log2(errors), on=["worker", "label"])  # type: ignore
         joined.drop(columns=["worker", "label"], inplace=True)
         log_likelihoods = np.log2(priors) + joined.groupby("task", sort=False).sum()
         log_likelihoods.rename_axis("label", axis=1, inplace=True)
@@ -135,23 +135,23 @@ class DawidSkene(BaseClassificationAggregator):
         scaled_likelihoods.columns = pd.Index(
             scaled_likelihoods.columns, name="label", dtype=data.label.dtype
         )
-        return scaled_likelihoods
+        return cast(pd.DataFrame, scaled_likelihoods)
 
     def _evidence_lower_bound(
         self,
         data: pd.DataFrame,
         probas: pd.DataFrame,
-        priors: pd.Series,
+        priors: 'pd.Series[Any]',
         errors: pd.DataFrame,
     ) -> float:
         # calculate joint probability log-likelihood expectation over probas
-        joined = data.join(np.log(errors), on=["worker", "label"])
+        joined = data.join(np.log(errors), on=["worker", "label"])  # type: ignore
 
         # escape boolean index/column names to prevent confusion between indexing by boolean array and iterable of names
         joined = joined.rename(columns={True: "True", False: "False"}, copy=False)
         priors = priors.rename(index={True: "True", False: "False"}, copy=False)
 
-        joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))
+        joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))  # type: ignore
 
         joined.set_index(["task", "worker"], inplace=True)
         joint_expectation = (
@@ -223,9 +223,11 @@ class DawidSkene(BaseClassificationAggregator):
                 Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
-        return self.fit(data).probas_
+        self.fit(data)
+        assert self.probas_ is not None, 'no probas_'
+        return self.probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -234,7 +236,9 @@ class DawidSkene(BaseClassificationAggregator):
             Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        return self.fit(data).labels_
+        self.fit(data)
+        assert self.labels_ is not None, 'no labels_'
+        return self.labels_
 
 
 @attr.s
@@ -307,37 +311,37 @@ class OneCoinDawidSkene(DawidSkene):
     tol: float = attr.ib(default=1e-5)
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    priors_: Optional[pd.Series] = named_series_attrib(name="prior")
+    priors_: Optional['pd.Series[Any]'] = named_series_attrib(name="prior")
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
-    skills_: Optional[pd.Series] = attr.ib(init=False)
+    skills_: Optional['pd.Series[Any]'] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
-    def _assign_skills(row: pd.Series, skills: pd.DataFrame) -> pd.DataFrame:
+    def _assign_skills(row: 'pd.Series[Any]', skills: pd.DataFrame) -> pd.DataFrame:
         """
         Assigns user skills to error matrix row by row.
         """
         num_categories = len(row)
         for column_name, _ in row.items():
-            if column_name == row.name[1]:
-                row[column_name] = skills[row.name[0]]
+            if column_name == row.name[1]:  # type: ignore
+                row[column_name] = skills[row.name[0]]  # type: ignore
             else:
-                row[column_name] = (1 - skills[row.name[0]]) / (num_categories - 1)
-        return row
+                row[column_name] = (1 - skills[row.name[0]]) / (num_categories - 1)  # type: ignore
+        return row  # type: ignore
 
     @staticmethod
     def _process_skills_to_errors(
-        data: pd.DataFrame, probas: pd.DataFrame, skills: pd.Series
+        data: pd.DataFrame, probas: pd.DataFrame, skills: 'pd.Series[Any]'
     ) -> pd.DataFrame:
         errors = DawidSkene._m_step(data, probas)
 
-        errors = errors.apply(OneCoinDawidSkene._assign_skills, args=(skills,), axis=1)
+        errors = errors.apply(OneCoinDawidSkene._assign_skills, args=(skills,), axis=1)  # type: ignore
         errors.clip(lower=_EPS, upper=1 - _EPS, inplace=True)
 
         return errors
 
     @staticmethod
-    def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> pd.Series:
+    def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> 'pd.Series[Any]':  # type: ignore
         """Performs M-step of Homogeneous Dawid-Skene algorithm.
 
         Calculates a worker skill as their accuracy according to the label probability.

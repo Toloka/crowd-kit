@@ -146,7 +146,7 @@ def test_agg_raise_on_less_columns(
 def test_gold_mv_raise_in_fit(
     request: Any,
     not_random: Callable[[], None],
-    toy_gold_df: pd.Series,
+    toy_gold_df: 'pd.Series[Any]',
     exception: Type[Exception],
     answers_on_gold_dataset: str,
 ) -> None:
@@ -192,7 +192,7 @@ def test_gold_mv_raise_in_fit(
 def test_gold_mv_raise_in_predict(
     request: Any,
     not_random: Callable[[], None],
-    toy_gold_df: pd.Series,
+    toy_gold_df: 'pd.Series[Any]',
     predict_method: str,
     exception: Type[Exception],
     answers_on_gold_dataset: str,
@@ -220,7 +220,7 @@ def test_gold_mv_empty() -> None:
 
 @pytest.mark.parametrize("agg_class", [MMSR, ZeroBasedSkill, DawidSkene, GLAD])
 def test_zero_iter(
-    agg_class: Any, simple_answers_df: pd.DataFrame, simple_ground_truth: pd.Series
+    agg_class: Any, simple_answers_df: pd.DataFrame, simple_ground_truth: 'pd.Series[Any]'
 ) -> None:
     aggregator = agg_class(n_iter=0)
     answers = aggregator.fit_predict(simple_answers_df)

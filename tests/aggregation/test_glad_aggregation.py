@@ -19,7 +19,7 @@ def test_aggregate_glad_on_toy_ysda(
     n_iter: int,
     tol: float,
     toy_answers_df: pd.DataFrame,
-    toy_ground_truth_df: pd.Series,
+    toy_ground_truth_df: 'pd.Series[Any]',
 ) -> None:
     np.random.seed(42)
     predict_df = GLAD(n_iter=n_iter, tol=tol).fit_predict(toy_answers_df)
@@ -36,7 +36,7 @@ def test_aggregate_glad_on_simple(
     n_iter: int,
     tol: float,
     simple_answers_df: pd.DataFrame,
-    simple_ground_truth: pd.Series,
+    simple_ground_truth: 'pd.Series[Any]',
 ) -> None:
     np.random.seed(42)
     predict_df = GLAD(n_iter=n_iter, tol=tol).fit_predict(simple_answers_df)
@@ -66,6 +66,9 @@ def single_task_initialized_glad(
 ) -> Tuple[pd.DataFrame, GLAD]:
     glad = GLAD()
     glad._init(single_task_simple_df)
+    assert glad.alphas_ is not None, 'no alphas_'
+    assert glad.betas_ is not None, 'no betas_'
+    assert glad.priors_ is not None, 'no priors_'
     data = glad._join_all(
         single_task_simple_df, glad.alphas_, glad.betas_, glad.priors_
     )
@@ -85,7 +88,7 @@ def test_glad_derivative(
 ) -> None:
     data, glad = single_task_initialized_glad
     glad._current_data = data
-    x_0 = np.concatenate([glad.alphas_.values, glad.betas_.values])  # type: ignore
+    x_0 = np.concatenate([glad.alphas_.values, glad.betas_.values])
 
     def Q_by_alpha_beta(x: npt.NDArray[Any]) -> float:
         glad._update_alphas_betas(*glad._get_alphas_betas_by_point(x))
@@ -96,5 +99,5 @@ def test_glad_derivative(
     eps = np.sqrt(np.finfo(float).eps)
     numerical_grad = np.sort(approx_fprime(x_0, Q_by_alpha_beta, eps))
     dQalpha, dQbeta = glad._gradient_Q(data)
-    analytical_grad = np.sort(np.concatenate([dQalpha.values, dQbeta.values]))  # type: ignore
+    analytical_grad = np.sort(np.concatenate([dQalpha.values, dQbeta.values]))
     assert np.allclose(analytical_grad, numerical_grad)

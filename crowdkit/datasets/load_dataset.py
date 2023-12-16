@@ -3,7 +3,7 @@ __all__ = [
     "get_datasets_list",
 ]
 
-from typing import Callable, Dict, List, Optional, Tuple, cast
+from typing import Callable, Dict, List, Optional, Tuple, cast, Any
 
 import pandas as pd
 
@@ -12,7 +12,7 @@ from ._loaders import DATA_LOADERS
 
 def load_dataset(
     dataset: str, data_dir: Optional[str] = None
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> Tuple[pd.DataFrame, 'pd.Series[Any]']:
     """Downloads a dataset from remote and loads it into Pandas objects.
     If a dataset is already downloaded, loads it from cache.
 
@@ -29,7 +29,7 @@ def load_dataset(
         raise ValueError("This dataset does not exist")
 
     return cast(
-        Dict[str, Callable[[Optional[str]], Tuple[pd.DataFrame, pd.Series]]],
+        Dict[str, Callable[[Optional[str]], Tuple[pd.DataFrame, 'pd.Series[Any]']]],
         DATA_LOADERS[dataset],
     )["loader"](data_dir)
 

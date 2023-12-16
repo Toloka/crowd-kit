@@ -1,5 +1,7 @@
 __all__ = ["KOS"]
 
+from typing import cast, Any
+
 import attr
 import numpy as np
 import pandas as pd
@@ -109,10 +111,10 @@ class KOS(BaseClassificationAggregator):
         kos_data["inferred"] = kos_data.label * kos_data.reliabilities
         inferred_labels = np.sign(kos_data.groupby("task")["inferred"].sum())
         back_mapping = {v: k for k, v in mapping.items()}
-        self.labels_ = inferred_labels.apply(lambda x: back_mapping[x])
+        self.labels_ = cast('pd.Series[Any]', inferred_labels.apply(lambda x: back_mapping[x]))
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.DataFrame:
+    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -123,4 +125,6 @@ class KOS(BaseClassificationAggregator):
                 so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        return self.fit(data).labels_
+        self.fit(data)
+        assert self.labels_ is not None, 'no labels_'
+        return self.labels_

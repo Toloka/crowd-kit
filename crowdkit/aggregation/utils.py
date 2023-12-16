@@ -52,18 +52,18 @@ def _argmax_random_ties(array: npt.NDArray[Any]) -> int:
     return int(np.random.choice(np.flatnonzero(array == array.max())))
 
 
-def evaluate_in(row: pd.Series) -> int:
+def evaluate_in(row: 'pd.Series[Any]') -> int:
     return int(row["label_pred"] in row["label_true"])
 
 
-def evaluate_equal(row: pd.Series) -> int:
+def evaluate_equal(row: 'pd.Series[Any]') -> int:
     return int(row["label_pred"] == row["label_true"])
 
 
 def evaluate(
     df_true: pd.DataFrame,
     df_pred: pd.DataFrame,
-    evaluate_func: Callable[[pd.Series], int] = evaluate_in,
+    evaluate_func: Callable[['pd.Series[Any]'], int] = evaluate_in,
 ) -> Union[str, float]:
     df = df_true.merge(df_pred, on="task", suffixes=("_true", "_pred"))
 
@@ -76,11 +76,11 @@ def evaluate(
 
 
 def factorize(data: npt.NDArray[Any]) -> Tuple[npt.NDArray[Any], npt.NDArray[Any]]:
-    unique_values, coded = np.unique(data, return_inverse=True)  # type: ignore
+    unique_values, coded = np.unique(data, return_inverse=True)
     return unique_values, coded.reshape(data.shape)
 
 
-def get_most_probable_labels(proba: pd.DataFrame) -> pd.Series:
+def get_most_probable_labels(proba: pd.DataFrame) -> 'pd.Series[Any]':
     """Returns most probable labels
 
     Args:
@@ -113,7 +113,7 @@ def normalize_rows(scores: pd.DataFrame) -> pd.DataFrame:
 
 
 def manage_data(
-    data: pd.DataFrame, weights: Optional[pd.Series] = None, skills: pd.Series = None
+    data: pd.DataFrame, weights: Optional['pd.Series[Any]'] = None, skills: Optional['pd.Series[Any]'] = None
 ) -> pd.DataFrame:
     """
     Args:
@@ -138,8 +138,8 @@ def manage_data(
 
 
 def get_accuracy(
-    data: pd.DataFrame, true_labels: pd.Series, by: Optional[str] = None
-) -> pd.Series:
+    data: pd.DataFrame, true_labels: 'pd.Series[Any]', by: Optional[str] = None
+) -> 'pd.Series[Any]':
     """
     Args:
         data (DataFrame): Workers' labeling results.
@@ -173,15 +173,16 @@ def get_accuracy(
     )
 
     if by is not None:
-        data = data.groupby(by)
+        group = data.groupby(by)
+        return group.score.sum() / group.weight.sum()
+    else:
+        return data.score.sum() / data.weight.sum()  # type: ignore
 
-    return data.score.sum() / data.weight.sum()
 
-
-def named_series_attrib(name: str) -> pd.Series:
+def named_series_attrib(name: str) -> 'pd.Series[Any]':
     """Attrs attribute with converter and setter which preserves specified attribute name"""
 
-    def converter(series: pd.Series) -> pd.Series:
+    def converter(series: 'pd.Series[Any]') -> 'pd.Series[Any]':
         series.name = name
         return series
 
@@ -190,7 +191,7 @@ def named_series_attrib(name: str) -> pd.Series:
 
 def add_skills_to_data(
     data: pd.DataFrame,
-    skills: pd.Series,
+    skills: 'pd.Series[Any]',
     on_missing_skill: str,
     default_skill: Optional[float],
 ) -> pd.DataFrame:
