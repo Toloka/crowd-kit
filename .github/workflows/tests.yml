@@ -5,7 +5,7 @@ on: [ push, pull_request ]
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.python-version == "3.12" }}
+    continue-on-error: ${{ matrix.python-version == '3.12' }}
     strategy:
       fail-fast: false
       matrix:
