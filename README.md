@@ -6,8 +6,8 @@
 [![Codecov][codecov_badge]][codecov_link]
 [![Documentation][docs_badge]][docs_link]
 
-[github_tests_badge]: https://github.com/Toloka/crowdlib/workflows/Tests/badge.svg?branch=main
-[github_tests_link]: https://github.com/Toloka/crowdlib/actions?query=workflow:Tests
+[github_tests_badge]: https://github.com/Toloka/crowd-kit/actions/workflows/tests.yml/badge.svg?branch=main
+[github_tests_link]: https://github.com/Toloka/crowd-kit/actions/workflows/tests.yml
 [codecov_badge]: https://codecov.io/gh/Toloka/crowd-kit/branch/main/graph/badge.svg
 [codecov_link]: https://codecov.io/gh/Toloka/crowd-kit
 [docs_badge]: https://img.shields.io/badge/docs-toloka.ai-1E2126
