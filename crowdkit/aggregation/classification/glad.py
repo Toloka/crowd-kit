@@ -350,7 +350,7 @@ class GLAD(BaseClassificationAggregator):
         Returns:
             DataFrame: Probability distributions of task labels.
                 The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-                Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
+                Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
         """
 
         return self.fit(data).probas_
