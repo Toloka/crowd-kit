@@ -11,7 +11,7 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -60,7 +60,7 @@ jobs:
       - name: Generate markdowns
         run: ./misc/make_markdowns.py --module-root crowdkit --src-root crowdkit --output-dir docs/en/crowd-kit/reference --described-objects misc/described_objects_crowdkit.py
       - name: Checkout docs repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'Toloka/docs'
           path: 'docs-repo'
