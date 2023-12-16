@@ -41,7 +41,7 @@ jobs:
       - name: Run Jupyter
         run: jupyter nbconvert --to html --TagRemovePreprocessor.remove_cell_tags pip --execute examples/Readability-Pairwise.ipynb examples/TlkAgg-Categorical.ipynb
       - name: Upload Jupyter
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crowd-kit-jupyter
           path: examples/*.html
