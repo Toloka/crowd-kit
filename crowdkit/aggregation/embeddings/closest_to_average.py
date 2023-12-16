@@ -40,8 +40,8 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     def fit(
         self,
         data: pd.DataFrame,
-        aggregated_embeddings: Optional[pd.Series] = None,
-        true_embeddings: pd.Series = None,
+        aggregated_embeddings: Optional["pd.Series[Any]"] = None,
+        true_embeddings: Optional["pd.Series[Any]"] = None,
     ) -> "ClosestToAverage":
         """Fits the model to the training data.
 
@@ -68,7 +68,7 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
             group = data.groupby("task")
             # we don't use .mean() because it does not work with np.array in older pandas versions
             avg_embeddings = group.embedding.apply(np.sum) / group.worker.count()
-            avg_embeddings.update(true_embeddings)
+            avg_embeddings.update(true_embeddings)  # type: ignore
         else:
             avg_embeddings = aggregated_embeddings
 
@@ -94,7 +94,9 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         return self
 
     def fit_predict_scores(
-        self, data: pd.DataFrame, aggregated_embeddings: pd.Series = None
+        self,
+        data: pd.DataFrame,
+        aggregated_embeddings: Optional["pd.Series[Any]"] = None,
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns the estimated scores.
 
@@ -113,7 +115,9 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         return self.fit(data, aggregated_embeddings).scores_
 
     def fit_predict(
-        self, data: pd.DataFrame, aggregated_embeddings: Optional[pd.Series] = None
+        self,
+        data: pd.DataFrame,
+        aggregated_embeddings: Optional["pd.Series[Any]"] = None,
     ) -> pd.DataFrame:
         """
         Fits the model to the training data and returns the aggregated outputs.

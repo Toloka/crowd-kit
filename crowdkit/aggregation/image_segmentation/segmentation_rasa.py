@@ -68,7 +68,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
     @staticmethod
     def _segmentation_weighted(
-        segmentations: pd.Series, weights: npt.NDArray[Any]
+        segmentations: "pd.Series[Any]", weights: npt.NDArray[Any]
     ) -> npt.NDArray[Any]:
         """
         Performs the weighted Majority Vote algorithm.
@@ -81,36 +81,36 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
     @staticmethod
     def _calculate_weights(
-        segmentations: pd.Series, mv: npt.NDArray[Any]
+        segmentations: "pd.Series[Any]", mv: npt.NDArray[Any]
     ) -> npt.NDArray[Any]:
         """
         Calculates weights for each worker from the current Majority Vote estimation.
         """
         intersection = (segmentations & mv).astype(float)
         union = (segmentations | mv).astype(float)
-        distances = 1 - intersection.sum(axis=(1, 2)) / union.sum(axis=(1, 2))
+        distances = 1 - intersection.sum(axis=(1, 2)) / union.sum(axis=(1, 2))  # type: ignore
         # add a small bias for more
         # numerical stability and correctness of transform.
         weights = np.log(1 / (distances + _EPS) + 1)
         return cast(npt.NDArray[Any], weights / np.sum(weights))
 
-    def _aggregate_one(self, segmentations: pd.Series) -> npt.NDArray[Any]:
+    def _aggregate_one(self, segmentations: "pd.Series[Any]") -> npt.NDArray[Any]:
         """
         Performs Segmentation RASA algorithm for a single image.
         """
         size = len(segmentations)
-        segmentations = np.stack(segmentations.values)
+        segmentations_np = np.stack(segmentations.values)  # type: ignore
         weights = np.full(size, 1 / size)
-        mv = self._segmentation_weighted(segmentations, weights)
+        mv = self._segmentation_weighted(segmentations_np, weights)
 
         last_aggregated = None
 
         self.loss_history_ = []
 
         for _ in range(self.n_iter):
-            weighted = self._segmentation_weighted(segmentations, weights)
+            weighted = self._segmentation_weighted(segmentations_np, weights)
             mv = weighted >= 0.5
-            weights = self._calculate_weights(segmentations, mv)
+            weights = self._calculate_weights(segmentations_np, mv)
 
             if last_aggregated is not None:
                 delta = weighted - last_aggregated
@@ -146,7 +146,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated segmentations.
 
         Args:

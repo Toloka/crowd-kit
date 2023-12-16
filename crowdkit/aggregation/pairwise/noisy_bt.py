@@ -62,8 +62,8 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
     tol: float = attr.ib(default=1e-5)
     regularization_ratio: float = attr.ib(default=1e-5)
     random_state: int = attr.ib(default=0)
-    skills_: pd.Series = named_series_attrib(name="skill")
-    biases_: pd.Series = named_series_attrib(name="bias")
+    skills_: "pd.Series[Any]" = named_series_attrib(name="skill")
+    biases_: "pd.Series[Any]" = named_series_attrib(name="bias")
 
     # scores_
 
@@ -78,7 +78,7 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         """
 
         unique_labels, np_data = factorize(data[["left", "right", "label"]].values)
-        unique_workers, np_workers = factorize(data.worker.values)
+        unique_workers, np_workers = factorize(data.worker.values)  # type: ignore
         np.random.seed(self.random_state)
         x_0 = np.random.rand(1 + unique_labels.size + 2 * unique_workers.size)
         np_data += 1
@@ -113,7 +113,7 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Args:
             data (DataFrame): Workers' pairwise comparison results.
                 A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.

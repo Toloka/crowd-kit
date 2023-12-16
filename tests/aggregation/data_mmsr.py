@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 
@@ -5,7 +7,7 @@ import pytest
 
 
 @pytest.fixture
-def toy_labels_result_mmsr() -> pd.Series:
+def toy_labels_result_mmsr() -> "pd.Series[Any]":
     return pd.Series(
         ["yes", "no", "no", "yes", "no"],
         index=pd.Index(["t1", "t2", "t3", "t4", "t5"], name="task"),
@@ -14,7 +16,7 @@ def toy_labels_result_mmsr() -> pd.Series:
 
 
 @pytest.fixture
-def toy_skills_result_mmsr() -> pd.Series:
+def toy_skills_result_mmsr() -> "pd.Series[Any]":
     return pd.Series(
         [
             -0.9486439852160969,
@@ -47,12 +49,14 @@ def toy_scores_result_mmsr() -> pd.DataFrame:
 
 
 @pytest.fixture
-def simple_labels_result_mmsr(simple_ground_truth: pd.Series) -> pd.Series:
+def simple_labels_result_mmsr(
+    simple_ground_truth: "pd.Series[Any]",
+) -> "pd.Series[Any]":
     return simple_ground_truth
 
 
 @pytest.fixture
-def simple_skills_result_mmsr() -> pd.Series:
+def simple_skills_result_mmsr() -> "pd.Series[Any]":
     skills = pd.Series(
         {
             "0c3eb7d5fcc414db137c4180a654c06e": -0.6268515139467665,

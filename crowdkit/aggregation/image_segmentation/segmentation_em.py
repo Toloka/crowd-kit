@@ -82,7 +82,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     @staticmethod
     def _e_step(
-        segmentations: pd.Series,
+        segmentations: npt.NDArray[Any],
         errors: npt.NDArray[Any],
         priors: Union[float, npt.NDArray[Any]],
     ) -> npt.NDArray[Any]:
@@ -105,7 +105,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
                 # division by the denominator in the Bayes formula
                 posteriors: npt.NDArray[Any] = np.nan_to_num(
                     np.exp(pos_log_prob)
-                    / (np.exp(pos_log_prob) + np.exp(neg_log_prob)),  # type: ignore
+                    / (np.exp(pos_log_prob) + np.exp(neg_log_prob)),
                     nan=0,
                 )
 
@@ -113,7 +113,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     @staticmethod
     def _m_step(
-        segmentations: pd.Series,
+        segmentations: npt.NDArray[Any],
         posteriors: npt.NDArray[Any],
         segmentation_region_size: int,
         segmentations_sizes: npt.NDArray[Any],
@@ -134,7 +134,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     def _evidence_lower_bound(
         self,
-        segmentations: pd.Series,
+        segmentations: npt.NDArray[Any],
         priors: Union[float, npt.NDArray[Any]],
         posteriors: npt.NDArray[Any],
         errors: npt.NDArray[Any],
@@ -147,44 +147,54 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         # we handle log(0) * 0 == 0 case with nan_to_num so warnings are irrelevant here
         with np.errstate(divide="ignore", invalid="ignore"):
             log_likelihood_expectation: float = (
-                np.nan_to_num(  # type: ignore
+                np.nan_to_num(
                     (np.log(weighted_seg) + np.log(priors)[None, ...]) * posteriors,
                     nan=0,
                 ).sum()
-                + np.nan_to_num(  # type: ignore
+                + np.nan_to_num(
                     (np.log(1 - weighted_seg) + np.log(1 - priors)[None, ...])
                     * (1 - posteriors),
                     nan=0,
                 ).sum()
             )
 
-            return log_likelihood_expectation - float(np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum())  # type: ignore
+            return log_likelihood_expectation - float(
+                np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum()
+            )
 
-    def _aggregate_one(self, segmentations: pd.Series) -> npt.NDArray[np.bool_]:
+    def _aggregate_one(self, segmentations: "pd.Series[Any]") -> npt.NDArray[np.bool_]:
         """
         Performs the Expectation-Maximization algorithm for a single image.
         """
         priors = sum(segmentations) / len(segmentations)
-        segmentations = np.stack(segmentations.values)
-        segmentation_region_size = segmentations.any(axis=0).sum()
+        segmentations_np: npt.NDArray[Any] = np.stack(segmentations.values)  # type: ignore
+        segmentation_region_size = segmentations_np.any(axis=0).sum()
 
         if segmentation_region_size == 0:
-            return np.zeros_like(segmentations[0])
+            return np.zeros_like(segmentations_np[0])
 
-        segmentations_sizes = segmentations.sum(axis=(1, 2))
+        segmentations_sizes = segmentations_np.sum(axis=(1, 2))
         # initialize with errors assuming that ground truth segmentation is majority vote
-        errors = self._m_step(segmentations, np.round(priors), segmentation_region_size, segmentations_sizes)  # type: ignore
+        errors = self._m_step(
+            segmentations_np,
+            np.round(priors),
+            segmentation_region_size,
+            segmentations_sizes,
+        )
         loss = -np.inf
         self.loss_history_ = []
         for _ in range(self.n_iter):
-            posteriors = self._e_step(segmentations, errors, priors)
+            posteriors = self._e_step(segmentations_np, errors, priors)
             posteriors[posteriors < self.eps] = 0
             errors = self._m_step(
-                segmentations, posteriors, segmentation_region_size, segmentations_sizes
+                segmentations_np,
+                posteriors,
+                segmentation_region_size,
+                segmentations_sizes,
             )
             new_loss = self._evidence_lower_bound(
-                segmentations, priors, posteriors, errors
-            ) / (len(segmentations) * segmentations[0].size)
+                segmentations_np, priors, posteriors, errors
+            ) / (len(segmentations_np) * segmentations_np[0].size)
             priors = posteriors
             self.loss_history_.append(new_loss)
             if new_loss - loss < self.tol:
@@ -213,7 +223,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         )
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated segmentations.
 
         Args:

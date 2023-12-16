@@ -3,7 +3,7 @@ __all__ = [
 ]
 
 from functools import partial
-from typing import Any, List
+from typing import Any, List, Optional
 
 import attr
 import numpy as np
@@ -73,8 +73,10 @@ class RASA(BaseEmbeddingsAggregator):
 
     @staticmethod
     def _aggregate_embeddings(
-        data: pd.DataFrame, skills: pd.Series, true_embeddings: pd.Series = None
-    ) -> pd.Series:
+        data: pd.DataFrame,
+        skills: "pd.Series[Any]",
+        true_embeddings: Optional["pd.Series[Any]"] = None,
+    ) -> "pd.Series[Any]":
         """Calculates the weighted average of embeddings for each task."""
         data = data.join(skills.rename("skill"), on="worker")
         data["weighted_embedding"] = data.skill * data.embedding
@@ -89,8 +91,10 @@ class RASA(BaseEmbeddingsAggregator):
 
     @staticmethod
     def _update_skills(
-        data: pd.DataFrame, aggregated_embeddings: pd.Series, prior_skills: pd.Series
-    ) -> pd.Series:
+        data: pd.DataFrame,
+        aggregated_embeddings: "pd.Series[Any]",
+        prior_skills: "pd.Series[Any]",
+    ) -> "pd.Series[Any]":
         """Estimates the global reliabilities by aggregated embeddings."""
         data = data.join(
             aggregated_embeddings.rename("aggregated_embedding"), on="task"
@@ -110,7 +114,9 @@ class RASA(BaseEmbeddingsAggregator):
             return float("inf")
         return float(distance.cosine(embedding, avg_embedding))
 
-    def _apply(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> "RASA":
+    def _apply(
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
+    ) -> "RASA":
         cta = ClosestToAverage(distance=self._cosine_distance)
         cta.fit(
             data,
@@ -121,7 +127,9 @@ class RASA(BaseEmbeddingsAggregator):
         self.embeddings_and_outputs_ = cta.embeddings_and_outputs_
         return self
 
-    def fit(self, data: pd.DataFrame, true_embeddings: pd.Series = None) -> "RASA":
+    def fit(
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
+    ) -> "RASA":
         """Fits the model to the training data.
 
         Args:
@@ -171,7 +179,7 @@ class RASA(BaseEmbeddingsAggregator):
         return self
 
     def fit_predict_scores(
-        self, data: pd.DataFrame, true_embeddings: pd.Series = None
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns the estimated scores.
 
@@ -191,7 +199,7 @@ class RASA(BaseEmbeddingsAggregator):
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
     def fit_predict(
-        self, data: pd.DataFrame, true_embeddings: pd.Series = None
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns the aggregated outputs.
 

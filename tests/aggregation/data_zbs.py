@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 
@@ -5,7 +7,7 @@ import pytest
 
 
 @pytest.fixture
-def toy_labels_result_zbs() -> pd.Series:
+def toy_labels_result_zbs() -> "pd.Series[Any]":
     return pd.Series(
         ["no", "yes", "no", "yes", "no"],
         index=pd.Index(["t1", "t2", "t3", "t4", "t5"], name="task"),
@@ -14,7 +16,7 @@ def toy_labels_result_zbs() -> pd.Series:
 
 
 @pytest.fixture
-def toy_skills_result_zbs() -> pd.Series:
+def toy_skills_result_zbs() -> "pd.Series[Any]":
     return pd.Series(
         [0.6, 0.8, 1.0, 0.4, 0.8],
         index=pd.Index(["w1", "w2", "w3", "w4", "w5"], name="worker"),
@@ -41,12 +43,12 @@ def toy_probas_result_zbs() -> pd.DataFrame:
 
 
 @pytest.fixture
-def simple_labels_result_zbs(simple_ground_truth: pd.Series) -> pd.Series:
+def simple_labels_result_zbs(simple_ground_truth: "pd.Series[Any]") -> "pd.Series[Any]":
     return simple_ground_truth
 
 
 @pytest.fixture
-def simple_skills_result_zbs() -> pd.Series:
+def simple_skills_result_zbs() -> "pd.Series[Any]":
     skills = pd.Series(
         {
             "0c3eb7d5fcc414db137c4180a654c06e": 0.333333,

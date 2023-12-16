@@ -100,21 +100,25 @@ class GLAD(BaseClassificationAggregator):
     n_iter: int = attr.ib(default=100)
     tol: float = attr.ib(default=1e-5)
     silent: bool = attr.ib(default=True)
-    labels_priors: Optional[pd.Series] = attr.ib(default=None)
-    alphas_priors_mean: Optional[pd.Series] = attr.ib(default=None)
-    betas_priors_mean: Optional[pd.Series] = attr.ib(default=None)
+    labels_priors: Optional["pd.Series[Any]"] = attr.ib(default=None)
+    alphas_priors_mean: Optional["pd.Series[Any]"] = attr.ib(default=None)
+    betas_priors_mean: Optional["pd.Series[Any]"] = attr.ib(default=None)
     m_step_max_iter: int = attr.ib(default=25)
     m_step_tol: float = attr.ib(default=1e-2)
 
     # Available after fit
     # labels_
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    alphas_: pd.Series = named_series_attrib(name="alpha")
-    betas_: pd.Series = named_series_attrib(name="beta")
+    alphas_: "pd.Series[Any]" = named_series_attrib(name="alpha")
+    betas_: "pd.Series[Any]" = named_series_attrib(name="beta")
     loss_history_: List[float] = attr.ib(init=False)
 
     def _join_all(
-        self, data: pd.DataFrame, alphas: pd.Series, betas: pd.Series, priors: pd.Series
+        self,
+        data: pd.DataFrame,
+        alphas: "pd.Series[Any]",
+        betas: "pd.Series[Any]",
+        priors: "pd.Series[Any]",
     ) -> pd.DataFrame:
         """Makes a data frame with format `(task, worker, label, variable) -> (alpha, beta, posterior, delta)`"""
         labels = list(priors.index)
@@ -152,7 +156,7 @@ class GLAD(BaseClassificationAggregator):
         # sum up by workers
         probas = data.groupby(["task", "variable"]).sum(numeric_only=True)["posterior"]
         # add priors to every label
-        probas = probas.add(np.log(cast(pd.Series, self.priors_)), level=1)
+        probas = probas.add(np.log(cast("pd.Series[Any]", self.priors_)), level=1)
         # exponentiate and normalize
         probas = probas.groupby(["task"]).transform(self._softmax)
         # put posterior in data['posterior']
@@ -166,7 +170,7 @@ class GLAD(BaseClassificationAggregator):
 
     def _gradient_Q(
         self, data: pd.DataFrame
-    ) -> Tuple[npt.NDArray[Any], npt.NDArray[Any]]:
+    ) -> Tuple["pd.Series[Any]", "pd.Series[Any]"]:
         """Computes gradient of loss function"""
 
         sigma = scipy.special.expit(data["alpha"] * np.exp(data["beta"]))
@@ -178,12 +182,17 @@ class GLAD(BaseClassificationAggregator):
             * np.exp(data["beta"])
         )
         dQbeta = data.groupby("task").sum(numeric_only=True)["dQb"]
+
         # gradient of priors on betas
+        assert self.betas_ is not None, "betas_ is None"
+        assert self.betas_priors_mean_ is not None, "betas_priors_mean_ is None"
         dQbeta -= self.betas_ - self.betas_priors_mean_
 
         data["dQa"] = data["posterior"] * (data["delta"] - sigma) * np.exp(data["beta"])
         dQalpha = data.groupby("worker").sum(numeric_only=True)["dQa"]
         # gradient of priors on alphas
+        assert self.alphas_ is not None, "alphas_ is None"
+        assert self.alphas_priors_mean_ is not None, "alphas_priors_mean_ is None"
         dQalpha -= self.alphas_ - self.alphas_priors_mean_
         return dQalpha, dQbeta
 
@@ -201,6 +210,10 @@ class GLAD(BaseClassificationAggregator):
         Q = data["task_expectation"].sum()
 
         # priors on alphas and betas
+        assert self.alphas_ is not None, "alphas_ is None"
+        assert self.alphas_priors_mean_ is not None, "alphas_priors_mean_ is None"
+        assert self.betas_ is not None, "betas_ is None"
+        assert self.betas_priors_mean_ is not None, "betas_priors_mean_ is None"
         Q += np.log(scipy.stats.norm.pdf(self.alphas_ - self.alphas_priors_mean_)).sum()
         Q += np.log(scipy.stats.norm.pdf(self.betas_ - self.betas_priors_mean_)).sum()
         if np.isnan(Q):
@@ -220,11 +233,13 @@ class GLAD(BaseClassificationAggregator):
         dQalpha, dQbeta = self._gradient_Q(self._current_data)
 
         minus_grad = np.zeros_like(x)
-        minus_grad[: len(self.workers_)] = -dQalpha[self.workers_].values
-        minus_grad[len(self.workers_) :] = -dQbeta[self.tasks_].values
+        minus_grad[: len(self.workers_)] = -dQalpha[self.workers_].values  # type: ignore
+        minus_grad[len(self.workers_) :] = -dQbeta[self.tasks_].values  # type: ignore
         return minus_grad
 
-    def _update_alphas_betas(self, alphas: pd.Series, betas: pd.Series) -> None:
+    def _update_alphas_betas(
+        self, alphas: "pd.Series[Any]", betas: "pd.Series[Any]"
+    ) -> None:
         self.alphas_ = alphas
         self.betas_ = betas
         self._current_data.set_index("worker", inplace=True)
@@ -236,16 +251,16 @@ class GLAD(BaseClassificationAggregator):
 
     def _get_alphas_betas_by_point(
         self, x: npt.NDArray[Any]
-    ) -> Tuple[pd.Series, pd.Series]:
-        alphas = pd.Series(x[: len(self.workers_)], index=self.workers_, name="alpha")
+    ) -> Tuple["pd.Series[Any]", "pd.Series[Any]"]:
+        alphas = pd.Series(x[: len(self.workers_)], index=self.workers_, name="alpha")  # type: ignore
         alphas.index.name = "worker"
-        betas = pd.Series(x[len(self.workers_) :], index=self.tasks_, name="beta")
+        betas = pd.Series(x[len(self.workers_) :], index=self.tasks_, name="beta")  # type: ignore
         betas.index.name = "task"
         return alphas, betas
 
     def _m_step(self, data: pd.DataFrame) -> pd.DataFrame:
         """Optimizes the alpha and beta parameters using the conjugate gradient method."""
-        x_0 = np.concatenate([self.alphas_.values, self.betas_.values])  # type: ignore
+        x_0 = np.concatenate([self.alphas_.values, self.betas_.values])
         self._current_data = data
         res = minimize(
             self._optimize_f,
@@ -260,18 +275,18 @@ class GLAD(BaseClassificationAggregator):
         return self._current_data
 
     def _init(self, data: pd.DataFrame) -> None:
-        self.alphas_ = pd.Series(1.0, index=pd.unique(data.worker))
-        self.betas_ = pd.Series(1.0, index=pd.unique(data.task))
+        self.alphas_ = pd.Series(1.0, index=pd.unique(data.worker))  # type: ignore
+        self.betas_ = pd.Series(1.0, index=pd.unique(data.task))  # type: ignore
         self.tasks_ = pd.unique(data["task"])
         self.workers_ = pd.unique(data["worker"])
         self.priors_ = self.labels_priors
         if self.priors_ is None:
             self.prior_labels_ = pd.unique(data["label"])
             self.priors_ = pd.Series(
-                1.0 / len(self.prior_labels_), index=self.prior_labels_
+                1.0 / len(self.prior_labels_), index=self.prior_labels_  # type: ignore
             )
         else:
-            self.prior_labels_ = self.priors_.index
+            self.prior_labels_ = self.priors_.index  # type: ignore
         self.alphas_priors_mean_ = self.alphas_priors_mean
         if self.alphas_priors_mean_ is None:
             self.alphas_priors_mean_ = pd.Series(1.0, index=self.alphas_.index)
@@ -280,7 +295,7 @@ class GLAD(BaseClassificationAggregator):
             self.betas_priors_mean_ = pd.Series(1.0, index=self.betas_.index)
 
     @staticmethod
-    def _softplus(x: pd.Series, limit: int = 30) -> npt.NDArray[Any]:
+    def _softplus(x: "pd.Series[Any]", limit: int = 30) -> npt.NDArray[Any]:
         """log(1 + exp(x)) stable version
 
         For x > 30 or x < -30 error is less than 1e-13
@@ -312,6 +327,11 @@ class GLAD(BaseClassificationAggregator):
         # Initialization
         data = data.filter(["task", "worker", "label"])
         self._init(data)
+
+        assert self.alphas_ is not None, "no alphas_"
+        assert self.betas_ is not None, "no betas_"
+        assert self.priors_ is not None, "no priors_"
+
         data = self._join_all(data, self.alphas_, self.betas_, self.priors_)
         data = self._e_step(data)
         Q = self._compute_Q(data)
@@ -353,9 +373,11 @@ class GLAD(BaseClassificationAggregator):
                 Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
-        return self.fit(data).probas_
+        self.fit(data)
+        assert self.probas_ is not None, "no probas_"
+        return self.probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
 
         Args:
@@ -367,4 +389,6 @@ class GLAD(BaseClassificationAggregator):
                 so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        return self.fit(data).labels_
+        self.fit(data)
+        assert self.labels_ is not None, "no labels_"
+        return self.labels_

@@ -1,5 +1,5 @@
 from os.path import exists, join
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -20,7 +20,7 @@ def _load_dataset(
     return full_data_path
 
 
-def _load_ms_coco_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+def _load_ms_coco_dataframes(data_path: str) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     labels = np.load(join(data_path, "crowd_labels.npz"))
     rows = []
     for key in labels.files:
@@ -39,12 +39,14 @@ def _load_ms_coco_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
     return labels, true_labels
 
 
-def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+def load_relevance2(
+    data_dir: Optional[str] = None,
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "relevance-2"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-2.zip"
     checksum_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-2.md5"
 
-    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
         labels = pd.read_csv(join(data_path, "crowd_labels.csv")).rename(
             columns={"performer": "worker"}
         )
@@ -61,12 +63,14 @@ def load_relevance2(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
     return load_dataframes(full_data_path)
 
 
-def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+def load_relevance5(
+    data_dir: Optional[str] = None,
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "relevance-5"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-5.zip"
     checksum_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/relevance-5.md5"
 
-    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
         labels = pd.read_csv(join(data_path, "crowd_labels.csv")).rename(
             columns={"performer": "worker"}
         )
@@ -83,7 +87,9 @@ def load_relevance5(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Se
     return load_dataframes(full_data_path)
 
 
-def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+def load_mscoco(
+    data_dir: Optional[str] = None,
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "mscoco"
     data_url = "https://huggingface.co/datasets/toloka/crowdkit-datasets/resolve/af2c00549cc026eaea80c18c54a686d98a58fd6e/mscoco.zip"
     checksum_url = "https://huggingface.co/datasets/toloka/crowdkit-datasets/resolve/79d5468d12d233153c0fdcee0dd61b98980ff7a4/mscoco.md5"
@@ -93,7 +99,9 @@ def load_mscoco(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series
     return _load_ms_coco_dataframes(full_data_path)
 
 
-def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.Series]:
+def load_mscoco_small(
+    data_dir: Optional[str] = None,
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "mscoco_small"
     data_url = "https://huggingface.co/datasets/toloka/crowdkit-datasets/resolve/0e0cac7f51869d4b20d83842c578ca3d013af7b7/mscoco_small.zip"
     checksum_url = "https://huggingface.co/datasets/toloka/crowdkit-datasets/resolve/bb48658b78db95845ff2a8d3db3e533a493ab819/mscoco_small.md5"
@@ -103,7 +111,9 @@ def load_mscoco_small(data_dir: Optional[str] = None) -> Tuple[pd.DataFrame, pd.
     return _load_ms_coco_dataframes(full_data_path)
 
 
-def load_crowdspeech_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+def load_crowdspeech_dataframes(
+    data_path: str,
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     labels = pd.read_csv(join(data_path, "crowd_labels.csv")).rename(
         columns={"output": "text", "performer": "worker"}
     )
@@ -118,7 +128,7 @@ def load_crowdspeech_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series
 
 def load_crowdspeech_dev_clean(
     data_dir: Optional[str] = None,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "crowdspeech-dev-clean"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-clean.zip"
     checksum_url = (
@@ -131,7 +141,7 @@ def load_crowdspeech_dev_clean(
 
 def load_crowdspeech_dev_other(
     data_dir: Optional[str] = None,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "crowdspeech-dev-other"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-dev-other.zip"
     checksum_url = (
@@ -144,7 +154,7 @@ def load_crowdspeech_dev_other(
 
 def load_crowdspeech_test_clean(
     data_dir: Optional[str] = None,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "crowdspeech-test-clean"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-clean.zip"
     checksum_url = (
@@ -157,7 +167,7 @@ def load_crowdspeech_test_clean(
 
 def load_crowdspeech_test_other(
     data_dir: Optional[str] = None,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "crowdspeech-test-other"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/crowdspeech-test-other.zip"
     checksum_url = (
@@ -170,12 +180,12 @@ def load_crowdspeech_test_other(
 
 def load_imdb_wiki_sbs(
     data_dir: Optional[str] = None,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "imdb-wiki-sbs"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.zip"
     checksum_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/imdb-wiki-sbs.md5"
 
-    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
         labels = pd.read_csv(join(data_path, "crowd_labels.csv")).rename(
             columns={"performer": "worker"}
         )
@@ -197,12 +207,12 @@ def load_imdb_wiki_sbs(
 
 def load_nist_trec_relevance(
     data_dir: Optional[str] = None,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
     data_name = "nist-trec-relevance"
     data_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/relevance.zip"
     checksum_url = "https://tlk.s3.yandex.net/dataset/crowd-kit/relevance.md5"
 
-    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
         labels = pd.read_csv(join(data_path, "crowd_labels.csv")).rename(
             columns={"performer": "worker"}
         )
@@ -221,7 +231,10 @@ def load_nist_trec_relevance(
 
 DATA_LOADERS: Dict[
     str,
-    Dict[str, Union[str, Callable[[Optional[str]], Tuple[pd.DataFrame, pd.Series]]]],
+    Dict[
+        str,
+        Union[str, Callable[[Optional[str]], Tuple[pd.DataFrame, "pd.Series[Any]"]]],
+    ],
 ] = {
     "relevance-2": {
         "loader": load_relevance2,

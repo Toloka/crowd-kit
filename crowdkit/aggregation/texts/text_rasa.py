@@ -1,6 +1,6 @@
 __all__ = ["TextRASA"]
 
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List
 
 import numpy.typing as npt
 import pandas as pd
@@ -52,8 +52,8 @@ class TextRASA(BaseTextsAggregator):
     def __getattr__(self, name: str) -> Any:
         return getattr(self._rasa, name)
 
-    def fit(
-        self, data: pd.DataFrame, true_objects: Optional[pd.Series] = None
+    def fit(  # type: ignore
+        self, data: pd.DataFrame, true_objects: "pd.Series[Any]"
     ) -> "TextRASA":
         """Fit the model.
         Args:
@@ -71,7 +71,7 @@ class TextRASA(BaseTextsAggregator):
         return self
 
     def fit_predict_scores(
-        self, data: pd.DataFrame, true_objects: Optional[pd.Series] = None
+        self, data: pd.DataFrame, true_objects: "pd.Series[Any]"
     ) -> pd.DataFrame:
         """Fit the model and return scores.
 
@@ -92,9 +92,9 @@ class TextRASA(BaseTextsAggregator):
             self._encode_data(data), self._encode_true_objects(true_objects)
         )
 
-    def fit_predict(
-        self, data: pd.DataFrame, true_objects: Optional[pd.Series] = None
-    ) -> pd.Series:
+    def fit_predict(  # type: ignore
+        self, data: pd.DataFrame, true_objects: "pd.Series[Any]"
+    ) -> "pd.Series[Any]":
         """Fit the model and return aggregated texts.
 
         Args:
@@ -114,7 +114,7 @@ class TextRASA(BaseTextsAggregator):
             self._encode_data(data), self._encode_true_objects(true_objects)
         )
         self.texts_ = (
-            rasa_results.reset_index()[["task", "output"]]
+            rasa_results.reset_index()[["task", "output"]]  # type: ignore
             .rename(columns={"output": "text"})
             .set_index("task")
         )
@@ -122,8 +122,8 @@ class TextRASA(BaseTextsAggregator):
 
     def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data[["task", "worker", "text"]].rename(columns={"text": "output"})
-        data["embedding"] = data.output.apply(self.encoder)
+        data["embedding"] = data.output.apply(self.encoder)  # type: ignore
         return data
 
-    def _encode_true_objects(self, true_objects: pd.Series) -> pd.Series:
-        return true_objects and true_objects.apply(self.encoder)
+    def _encode_true_objects(self, true_objects: "pd.Series[Any]") -> "pd.Series[Any]":
+        return true_objects and true_objects.apply(self.encoder)  # type: ignore

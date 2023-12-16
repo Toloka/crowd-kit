@@ -91,7 +91,7 @@ def test_fit_predict_classification_aggregations_methods(
     fit_method: str,
     predict_method: str,
     dataset: pd.DataFrame,
-    results_dataset: pd.Series,
+    results_dataset: "pd.Series[Any]",
 ) -> None:
     """
     Tests all aggregation methods, that fit->predict chain works well, and at each step we have the correct values for:

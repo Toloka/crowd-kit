@@ -69,7 +69,7 @@ class TextHRRASA(BaseTextsAggregator):
         return getattr(self._hrrasa, name)
 
     def fit_predict_scores(
-        self, data: pd.DataFrame, true_objects: pd.Series = None
+        self, data: pd.DataFrame, true_objects: "pd.Series[Any]"
     ) -> pd.DataFrame:
         """Fit the model and return scores.
 
@@ -90,9 +90,9 @@ class TextHRRASA(BaseTextsAggregator):
             self._encode_data(data), self._encode_true_objects(true_objects)
         )
 
-    def fit_predict(
-        self, data: pd.DataFrame, true_objects: pd.Series = None
-    ) -> pd.Series:
+    def fit_predict(  # type: ignore
+        self, data: pd.DataFrame, true_objects: "pd.Series[Any]"
+    ) -> "pd.Series[Any]":
         """Fit the model and return aggregated texts.
 
         Args:
@@ -112,7 +112,7 @@ class TextHRRASA(BaseTextsAggregator):
             self._encode_data(data), self._encode_true_objects(true_objects)
         )
         self.texts_ = (
-            hrrasa_results.reset_index()[["task", "output"]]
+            hrrasa_results.reset_index()[["task", "output"]]  # type: ignore
             .rename(columns={"output": "text"})
             .set_index("task")
         )
@@ -120,8 +120,8 @@ class TextHRRASA(BaseTextsAggregator):
 
     def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data[["task", "worker", "text"]].rename(columns={"text": "output"})
-        data["embedding"] = data.output.apply(self.encoder)
+        data["embedding"] = data.output.apply(self.encoder)  # type: ignore
         return data
 
-    def _encode_true_objects(self, true_objects: pd.Series) -> pd.Series:
-        return true_objects and true_objects.apply(self.encoder)
+    def _encode_true_objects(self, true_objects: "pd.Series[Any]") -> "pd.Series[Any]":
+        return true_objects and true_objects.apply(self.encoder)  # type: ignore

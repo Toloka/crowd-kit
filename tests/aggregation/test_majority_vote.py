@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Any, Tuple
 
 import pandas as pd
 import pytest
@@ -18,15 +18,18 @@ from .data_mv import simple_skills_result_mv  # noqa F401
 
 
 def test_majority_vote_with_skills(
-    simple_answers_df: pd.DataFrame, simple_skills_result_mv: pd.Series  # noqa F811
+    simple_answers_df: pd.DataFrame,
+    simple_skills_result_mv: "pd.Series[Any]",  # noqa F811
 ) -> None:
     mv = MajorityVote()
     mv.fit_predict(simple_answers_df, skills=simple_skills_result_mv)
+    assert mv.skills_ is not None, "no skills_"
     assert_series_equal(mv.skills_, simple_skills_result_mv)
 
 
 def test_majority_vote_with_missing_skills_value(
-    simple_answers_df: pd.DataFrame, simple_skills_result_mv: pd.Series  # noqa F811
+    simple_answers_df: pd.DataFrame,
+    simple_skills_result_mv: "pd.Series[Any]",  # noqa F811
 ) -> None:
     mv = MajorityVote(on_missing_skill="value", default_skill=1000000)
     simple_skills_result_mv = simple_skills_result_mv.drop(
@@ -42,7 +45,8 @@ def test_majority_vote_with_missing_skills_value(
 
 
 def test_majority_vote_with_missing_skills_error(
-    simple_answers_df: pd.DataFrame, simple_skills_result_mv: pd.Series  # noqa F811
+    simple_answers_df: pd.DataFrame,
+    simple_skills_result_mv: "pd.Series[Any]",  # noqa F811
 ) -> None:
     mv = MajorityVote(on_missing_skill="error")
     simple_skills_result_mv = simple_skills_result_mv.drop(
@@ -53,7 +57,8 @@ def test_majority_vote_with_missing_skills_error(
 
 
 def test_majority_vote_with_missing_skills_ignore(
-    simple_answers_df: pd.DataFrame, simple_skills_result_mv: pd.Series  # noqa F811
+    simple_answers_df: pd.DataFrame,
+    simple_skills_result_mv: "pd.Series[Any]",  # noqa F811
 ) -> None:
     mv = MajorityVote(on_missing_skill="ignore")
     simple_skills_result_mv = simple_skills_result_mv.drop(
@@ -64,7 +69,8 @@ def test_majority_vote_with_missing_skills_ignore(
 
 
 def test_majority_vote_with_missing_skills_ignore_all(
-    simple_answers_df: pd.DataFrame, simple_skills_result_mv: pd.Series  # noqa F811
+    simple_answers_df: pd.DataFrame,
+    simple_skills_result_mv: "pd.Series[Any]",  # noqa F811
 ) -> None:
     mv = MajorityVote(on_missing_skill="ignore")
     with pytest.raises(ValueError):
@@ -72,8 +78,8 @@ def test_majority_vote_with_missing_skills_ignore_all(
 
 
 def test_segmentation_majority_vote_with_missing_skills_value(
-    image_with_skills_df: Tuple[pd.DataFrame, pd.Series],  # noqa F811
-    image_with_skills_mv_result: pd.Series,  # noqa F811
+    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"],  # noqa F811
+    image_with_skills_mv_result: "pd.Series[Any]",  # noqa F811
 ) -> None:
     answers_df, skills = image_with_skills_df
     mv = SegmentationMajorityVote(on_missing_skill="value", default_skill=3)
@@ -84,7 +90,7 @@ def test_segmentation_majority_vote_with_missing_skills_value(
 
 
 def test_segmentation_majority_vote_with_missing_skills_error(
-    image_with_skills_df: Tuple[pd.DataFrame, pd.Series]  # noqa F811
+    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"]  # noqa F811
 ) -> None:
     answers_df, skills = image_with_skills_df
     mv = SegmentationMajorityVote(on_missing_skill="error", default_skill=3)
@@ -94,7 +100,7 @@ def test_segmentation_majority_vote_with_missing_skills_error(
 
 
 def test_segmentation_majority_vote_with_missing_skills_ignore(
-    image_with_skills_df: Tuple[pd.DataFrame, pd.Series]  # noqa F811
+    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"]  # noqa F811
 ) -> None:
     answers_df, skills = image_with_skills_df
     mv = SegmentationMajorityVote(on_missing_skill="ignore")
@@ -106,7 +112,7 @@ def test_segmentation_majority_vote_with_missing_skills_ignore(
 
 
 def test_segmentation_majority_vote_with_missing_skills_ignore_all(
-    image_with_skills_df: Tuple[pd.DataFrame, pd.Series]  # noqa F811
+    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"]  # noqa F811
 ) -> None:
     answers_df, skills = image_with_skills_df
     mv = SegmentationMajorityVote(on_missing_skill="ignore")
@@ -116,12 +122,14 @@ def test_segmentation_majority_vote_with_missing_skills_ignore_all(
 
 def test_gold_mv_multiple_gt(
     multiple_gt_df: pd.DataFrame,  # noqa F811
-    multiple_gt_gt: pd.Series,  # noqa F811
-    multiple_gt_skills: pd.Series,  # noqa F811
-    multiple_gt_aggregated: pd.Series,  # noqa F811
+    multiple_gt_gt: "pd.Series[Any]",  # noqa F811
+    multiple_gt_skills: "pd.Series[Any]",  # noqa F811
+    multiple_gt_aggregated: "pd.Series[Any]",  # noqa F811
 ) -> None:
     gmv = GoldMajorityVote()
     aggregated = gmv.fit_predict(multiple_gt_df, true_labels=multiple_gt_gt)
+    assert aggregated is not None, "no aggregated"
     skills = gmv.skills_
+    assert skills is not None, "no skills"
     assert_series_equal(skills, multiple_gt_skills)
     assert_series_equal(aggregated, multiple_gt_aggregated)

@@ -1,9 +1,11 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 
 
 @pytest.fixture
-def simple_text_result_rover() -> pd.Series:
+def simple_text_result_rover() -> "pd.Series[Any]":
     return pd.Series(
         [
             "as soon as you donned my worst is stocking sweetheart",

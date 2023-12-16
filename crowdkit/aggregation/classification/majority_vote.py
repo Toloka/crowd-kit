@@ -1,6 +1,6 @@
 __all__ = ["MajorityVote"]
 
-from typing import Optional
+from typing import Any, Optional
 
 import attr
 import pandas as pd
@@ -78,13 +78,15 @@ class MajorityVote(BaseClassificationAggregator):
     """
 
     # TODO: remove skills_
-    skills_: Optional[pd.Series] = named_series_attrib(name="skill")
+    skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
     # labels_
     on_missing_skill: str = attr.ib(default="error")
     default_skill: Optional[float] = attr.ib(default=None)
 
-    def fit(self, data: pd.DataFrame, skills: pd.Series = None) -> "MajorityVote":
+    def fit(
+        self, data: pd.DataFrame, skills: Optional["pd.Series[Any]"] = None
+    ) -> "MajorityVote":
         """Fits the model to the training data.
 
         Args:
@@ -115,7 +117,7 @@ class MajorityVote(BaseClassificationAggregator):
         return self
 
     def fit_predict_proba(
-        self, data: pd.DataFrame, skills: Optional[pd.Series] = None
+        self, data: pd.DataFrame, skills: Optional["pd.Series[Any]"] = None
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns probability distributions of labels for each task.
 
@@ -131,10 +133,13 @@ class MajorityVote(BaseClassificationAggregator):
                 The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
                 Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
         """
+        self.fit(data, skills)
+        assert self.probas_ is not None, "no probas_"
+        return self.probas_
 
-        return self.fit(data, skills).probas_
-
-    def fit_predict(self, data: pd.DataFrame, skills: pd.Series = None) -> pd.Series:
+    def fit_predict(
+        self, data: pd.DataFrame, skills: Optional["pd.Series[Any]"] = None
+    ) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
 
         Args:
@@ -149,4 +154,6 @@ class MajorityVote(BaseClassificationAggregator):
                so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        return self.fit(data, skills).labels_
+        self.fit(data, skills)
+        assert self.labels_ is not None, "no labels_"
+        return self.labels_

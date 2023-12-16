@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -60,7 +62,7 @@ class TestUncertaintyMetric:
             == 1.0986122886681096
         )
 
-        np.testing.assert_allclose(  # type: ignore
+        np.testing.assert_allclose(
             uncertainty(
                 pd.DataFrame.from_records(
                     [
@@ -77,7 +79,7 @@ class TestUncertaintyMetric:
             atol=1e-3,
         )
 
-        np.testing.assert_allclose(  # type: ignore
+        np.testing.assert_allclose(
             uncertainty(
                 pd.DataFrame.from_records(
                     [
@@ -139,7 +141,7 @@ class TestUncertaintyMetric:
         )
 
         assert isinstance(entropies, pd.Series)
-        assert sorted(np.unique(entropies.index).tolist()) == ["A", "B", "C"]  # type: ignore
+        assert sorted(np.unique(entropies.index).tolist()) == ["A", "B", "C"]
 
         # B always answers the same, entropy = 0
         np.testing.assert_allclose(entropies["B"], 0, atol=1e-6)  # type: ignore
@@ -185,14 +187,14 @@ class TestUncertaintyMetric:
         )
 
         assert isinstance(entropies, pd.Series)
-        assert sorted(np.unique(entropies.index).tolist()) == ["1", "2", "3", "4", "5"]  # type: ignore
+        assert sorted(np.unique(entropies.index).tolist()) == ["1", "2", "3", "4", "5"]
 
         # Everybody answered same on tasks 2 and 4
         np.testing.assert_allclose(entropies["2"], 0, atol=1e-6)  # type: ignore
         np.testing.assert_allclose(entropies["4"], 0, atol=1e-6)  # type: ignore
 
         # On tasks 1 and 3, 2 workers agreed and one answered differently
-        assert entropies["1"] > 0
+        assert entropies["1"] > 0  # type: ignore
         np.testing.assert_allclose(entropies["1"], entropies["3"], atol=1e-6)  # type: ignore
 
         # Complete disagreement on task 5, max possible entropy
@@ -204,7 +206,7 @@ class TestUncertaintyMetric:
 
 
 def test_golden_set_accuracy(
-    toy_answers_df: pd.DataFrame, toy_gold_df: pd.Series
+    toy_answers_df: pd.DataFrame, toy_gold_df: "pd.Series[Any]"
 ) -> None:
     assert get_accuracy(toy_answers_df, toy_gold_df) == 5 / 9
     assert get_accuracy(toy_answers_df, toy_gold_df, by="worker").equals(
@@ -220,8 +222,9 @@ def test_accuracy_on_aggregates(toy_answers_df: pd.DataFrame) -> None:
         [0.6, 0.8, 1.0, 0.4, 0.8],
         index=pd.Index(["w1", "w2", "w3", "w4", "w5"], name="worker"),
     )
+    assert toy_answers_df is not None, "no toy_answers_df"
     assert_series_equal(
-        accuracy_on_aggregates(toy_answers_df, by="worker"), expected_workers_accuracy
+        accuracy_on_aggregates(toy_answers_df, by="worker"), expected_workers_accuracy  # type: ignore
     )
     assert accuracy_on_aggregates(toy_answers_df) == 0.7083333333333334
 

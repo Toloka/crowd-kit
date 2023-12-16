@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 from pandas.testing import assert_series_equal
@@ -20,13 +22,15 @@ def data_toy() -> pd.DataFrame:
 
 
 @pytest.fixture
-def rover_toy_result() -> pd.Series:
+def rover_toy_result() -> "pd.Series[Any]":
     result = pd.Series(["b c d e"], index=["t1"], name="agg_text")
     result.index.name = "task"
     return result
 
 
-def test_rover_aggregation(rover_toy_result: pd.Series, data_toy: pd.DataFrame) -> None:
+def test_rover_aggregation(
+    rover_toy_result: "pd.Series[Any]", data_toy: pd.DataFrame
+) -> None:
     rover = ROVER(tokenizer=lambda x: x.split(" "), detokenizer=lambda x: " ".join(x))
     assert_series_equal(rover_toy_result, rover.fit_predict(data_toy))
 
@@ -42,14 +46,15 @@ def rover_single_overlap_data() -> pd.DataFrame:
 
 
 @pytest.fixture
-def rover_single_overlap_result() -> pd.Series:
+def rover_single_overlap_result() -> "pd.Series[Any]":
     result = pd.Series(["a b c d"], index=["t1"], name="agg_text")
     result.index.name = "task"
     return result
 
 
 def test_rover_single_overlap(
-    rover_single_overlap_data: pd.DataFrame, rover_single_overlap_result: pd.Series
+    rover_single_overlap_data: pd.DataFrame,
+    rover_single_overlap_result: "pd.Series[Any]",
 ) -> None:
     rover = ROVER(tokenizer=lambda x: x.split(" "), detokenizer=lambda x: " ".join(x))
     assert_series_equal(
@@ -58,7 +63,8 @@ def test_rover_single_overlap(
 
 
 def test_rover_simple_text(
-    simple_text_df: pd.DataFrame, simple_text_result_rover: pd.Series  # noqa F811
+    simple_text_df: pd.DataFrame,
+    simple_text_result_rover: "pd.Series[Any]",  # noqa F811
 ) -> None:
     rover = ROVER(tokenizer=lambda x: x.split(" "), detokenizer=lambda x: " ".join(x))
     predicted = rover.fit_predict(simple_text_df.rename(columns={"output": "text"}))

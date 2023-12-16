@@ -1,6 +1,6 @@
 __all__ = ["MACE"]
 
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
@@ -23,8 +23,8 @@ def normalize(x: NDArray[np.float64], smoothing: float) -> NDArray[np.float64]:
     Returns:
         np.ndarray: Normalized array
     """
-    norm = (x + smoothing).sum(axis=1)  # type: ignore
-    return np.divide(  # type: ignore
+    norm = (x + smoothing).sum(axis=1)
+    return np.divide(
         x + smoothing,
         norm[:, np.newaxis],
         out=np.zeros_like(x),
@@ -44,9 +44,9 @@ def variational_normalize(
     Returns:
         np.ndarray: Normalized array
     """
-    norm = (x + hparams).sum(axis=1)  # type: ignore
+    norm = (x + hparams).sum(axis=1)
     norm = np.exp(digamma(norm))
-    return np.divide(  # type: ignore
+    return np.divide(
         np.exp(digamma(x + hparams)),
         norm[:, np.newaxis],
         out=np.zeros_like(x),
@@ -238,7 +238,7 @@ class MACE(BaseClassificationAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """
         Fits the model to the training data and returns the aggregated results.
 
@@ -250,7 +250,9 @@ class MACE(BaseClassificationAggregator):
             Series: Task labels. The `pandas.Series` data is indexed by `task`
                 so that `labels.loc[task]` is the most likely true label of tasks.
         """
-        return self.fit(data).labels_
+        self.fit(data)
+        assert self.labels_ is not None, "no labels_"
+        return self.labels_
 
     def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
         """
@@ -265,7 +267,9 @@ class MACE(BaseClassificationAggregator):
                 The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
                 Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
-        return self.fit(data).probas_
+        self.fit(data)
+        assert self.probas_ is not None, "no probas_"
+        return self.probas_
 
     def _initialize(self, n_workers: int, n_labels: int) -> None:
         """Initializes the MACE parameters.
@@ -299,9 +303,9 @@ class MACE(BaseClassificationAggregator):
     def _e_step(
         self,
         annotation: pd.DataFrame,
-        task_names: List[Any],
-        worker_names: List[Any],
-        label_names: List[Any],
+        task_names: Union[List[Any], "pd.Index[Any]"],
+        worker_names: Union[List[Any], "pd.Index[Any]"],
+        label_names: Union[List[Any], "pd.Index[Any]"],
         tasks: NDArray[np.int64],
         workers: NDArray[np.int64],
         labels: NDArray[np.int64],

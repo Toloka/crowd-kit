@@ -2,7 +2,7 @@ __all__ = [
     "accuracy_on_aggregates",
 ]
 
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import pandas as pd
 
@@ -14,9 +14,9 @@ from crowdkit.aggregation.utils import get_accuracy
 def accuracy_on_aggregates(
     answers: pd.DataFrame,
     aggregator: Optional[BaseClassificationAggregator] = MajorityVote(),
-    aggregates: Optional[pd.Series] = None,
+    aggregates: Optional["pd.Series[Any]"] = None,
     by: Optional[str] = None,
-) -> Union[float, pd.Series]:
+) -> Union[float, "pd.Series[Any]"]:
     """
     Accuracy on aggregates: a fraction of worker's answers that match the aggregated one.
 

@@ -1,6 +1,6 @@
 __all__ = ["Wawa"]
 
-from typing import Optional
+from typing import Any, Optional
 
 import attr
 import pandas as pd
@@ -36,7 +36,7 @@ class Wawa(BaseClassificationAggregator):
             Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
     """
 
-    skills_: Optional[pd.Series] = named_series_attrib(name="skill")
+    skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
 
     # labels_
@@ -62,10 +62,11 @@ class Wawa(BaseClassificationAggregator):
         # TODO: support weights?
         data = data[["task", "worker", "label"]]
         mv = MajorityVote().fit(data)
+        assert mv.labels_ is not None, "no labels_"
         self.skills_ = get_accuracy(data, true_labels=mv.labels_, by="worker")
         return self
 
-    def predict(self, data: pd.DataFrame) -> pd.Series:
+    def predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Predicts the true labels of tasks when the model is fitted.
 
         Args:
@@ -77,7 +78,9 @@ class Wawa(BaseClassificationAggregator):
                 so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        return self._apply(data).labels_
+        self._apply(data)
+        assert self.labels_ is not None, "no labels_"
+        return self.labels_
 
     def predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
         """Returns probability distributions of labels for each task when the model is fitted.
@@ -92,9 +95,11 @@ class Wawa(BaseClassificationAggregator):
                 Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
 
-        return self._apply(data).probas_
+        self._apply(data)
+        assert self.probas_ is not None, "no probas_"
+        return self.probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
 
         Args:

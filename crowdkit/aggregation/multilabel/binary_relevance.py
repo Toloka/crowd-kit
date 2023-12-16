@@ -1,6 +1,6 @@
 __all__ = ["BinaryRelevance"]
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, cast
 
 import attr
 import pandas as pd
@@ -99,9 +99,9 @@ class BinaryRelevance(BaseClassificationAggregator):
             if label_aggregator.labels_ is not None:  # for mypy correct work
                 for task, label_value in label_aggregator.labels_.items():
                     if task not in task_to_labels:
-                        task_to_labels[task] = list()
+                        task_to_labels[cast(Union[str, float], task)] = list()
                     if label_value:
-                        task_to_labels[task].append(label)
+                        task_to_labels[cast(Union[str, float], task)].append(label)
         if not task_to_labels:
             self.labels_ = pd.Series(task_to_labels, dtype=float)
         else:
@@ -110,7 +110,7 @@ class BinaryRelevance(BaseClassificationAggregator):
             self.labels_.index.name = "task"
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> pd.Series:
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fit the model and return aggregated results.
 
         Args:
@@ -122,4 +122,6 @@ class BinaryRelevance(BaseClassificationAggregator):
                 A pandas.Series indexed by `task` such that `labels.loc[task]`
                 is a list with the task's aggregated labels.
         """
-        return self.fit(data).labels_
+        self.fit(data)
+        assert self.labels_ is not None, "no labels_ produced"
+        return self.labels_
