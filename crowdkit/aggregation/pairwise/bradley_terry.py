@@ -1,6 +1,6 @@
 __all__ = ["BradleyTerry"]
 
-from typing import List, Tuple, Any
+from typing import Any, List, Tuple
 
 import attr
 import numpy as np
@@ -125,7 +125,7 @@ class BradleyTerry(BasePairwiseAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Args:
             data (DataFrame): Workers' pairwise comparison results.
                 A pandas.DataFrame containing `worker`, `left`, `right`, and `label` columns'.

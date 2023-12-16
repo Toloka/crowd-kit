@@ -1,6 +1,6 @@
 __all__ = ["SegmentationMajorityVote"]
 
-from typing import Optional, Any
+from typing import Any, Optional
 
 import attr
 import numpy as np
@@ -68,7 +68,7 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
     default_skill: Optional[float] = attr.ib(default=None)
 
     def fit(
-        self, data: pd.DataFrame, skills: Optional['pd.Series[Any]'] = None
+        self, data: pd.DataFrame, skills: Optional["pd.Series[Any]"] = None
     ) -> "SegmentationMajorityVote":
         """
         Fits the model to the training data.
@@ -102,8 +102,8 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         return self
 
     def fit_predict(
-        self, data: pd.DataFrame, skills: Optional['pd.Series[Any]'] = None
-    ) -> 'pd.Series[Any]':
+        self, data: pd.DataFrame, skills: Optional["pd.Series[Any]"] = None
+    ) -> "pd.Series[Any]":
         """
         Fits the model to the training data and returns the aggregated segmentations.
 

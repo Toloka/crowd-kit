@@ -3,7 +3,7 @@ __all__ = [
 ]
 
 import warnings
-from typing import Optional, cast, Any
+from typing import Any, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -13,7 +13,7 @@ from ..metrics.data import uncertainty
 
 def entropy_threshold(
     answers: pd.DataFrame,
-    workers_skills: Optional['pd.Series[Any]'] = None,
+    workers_skills: Optional["pd.Series[Any]"] = None,
     percentile: int = 10,
     min_answers: int = 2,
 ) -> pd.DataFrame:
@@ -64,7 +64,7 @@ def entropy_threshold(
     answers_for_filtration = answers[answers.worker.isin(answers_per_worker.index)]
 
     uncertainties = cast(
-        'pd.Series[Any]',
+        "pd.Series[Any]",
         uncertainty(
             answers_for_filtration,
             workers_skills,

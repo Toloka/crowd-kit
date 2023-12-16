@@ -19,7 +19,7 @@ def test_aggregate_glad_on_toy_ysda(
     n_iter: int,
     tol: float,
     toy_answers_df: pd.DataFrame,
-    toy_ground_truth_df: 'pd.Series[Any]',
+    toy_ground_truth_df: "pd.Series[Any]",
 ) -> None:
     np.random.seed(42)
     predict_df = GLAD(n_iter=n_iter, tol=tol).fit_predict(toy_answers_df)
@@ -36,7 +36,7 @@ def test_aggregate_glad_on_simple(
     n_iter: int,
     tol: float,
     simple_answers_df: pd.DataFrame,
-    simple_ground_truth: 'pd.Series[Any]',
+    simple_ground_truth: "pd.Series[Any]",
 ) -> None:
     np.random.seed(42)
     predict_df = GLAD(n_iter=n_iter, tol=tol).fit_predict(simple_answers_df)
@@ -66,9 +66,9 @@ def single_task_initialized_glad(
 ) -> Tuple[pd.DataFrame, GLAD]:
     glad = GLAD()
     glad._init(single_task_simple_df)
-    assert glad.alphas_ is not None, 'no alphas_'
-    assert glad.betas_ is not None, 'no betas_'
-    assert glad.priors_ is not None, 'no priors_'
+    assert glad.alphas_ is not None, "no alphas_"
+    assert glad.betas_ is not None, "no betas_"
+    assert glad.priors_ is not None, "no priors_"
     data = glad._join_all(
         single_task_simple_df, glad.alphas_, glad.betas_, glad.priors_
     )

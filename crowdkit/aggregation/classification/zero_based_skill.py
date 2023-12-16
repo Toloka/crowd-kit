@@ -1,6 +1,6 @@
 __all__ = ["ZeroBasedSkill"]
 
-from typing import Optional, Any
+from typing import Any, Optional
 
 import attr
 import pandas as pd
@@ -59,13 +59,13 @@ class ZeroBasedSkill(BaseClassificationAggregator):
     eps: float = 1e-5
 
     # Available after fit
-    skills_: Optional['pd.Series[Any]'] = named_series_attrib(name="skill")
+    skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
 
     # Available after predict or predict_proba
     # labels_
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
 
-    def _init_skills(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def _init_skills(self, data: pd.DataFrame) -> "pd.Series[Any]":
         skill_value = 1 / data.label.unique().size + self.eps
         skill_index = pd.Index(data.worker.unique(), name="worker")
         return pd.Series(skill_value, index=skill_index)
@@ -99,7 +99,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
             if iteration % self.lr_steps_to_reduce == 0:
                 learning_rate *= self.lr_reduce_factor
             mv.fit(data, skills=skills)
-            assert mv.labels_ is not None, 'no labels_'
+            assert mv.labels_ is not None, "no labels_"
             skills = skills + learning_rate * (
                 get_accuracy(data, mv.labels_, by="worker") - skills
             )
@@ -109,7 +109,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
 
         return self
 
-    def predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Predicts the true labels of tasks when the model is fitted.
 
         Args:
@@ -122,7 +122,7 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         """
 
         self._apply(data)
-        assert self.labels_ is not None, 'no labels_'
+        assert self.labels_ is not None, "no labels_"
         return self.labels_
 
     def predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -139,10 +139,10 @@ class ZeroBasedSkill(BaseClassificationAggregator):
         """
 
         self._apply(data)
-        assert self.probas_ is not None, 'no probas_'
+        assert self.probas_ is not None, "no probas_"
         return self.probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results

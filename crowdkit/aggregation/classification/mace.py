@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import scipy.stats as sps
 from numpy.typing import NDArray
-from pandas import Index
 from scipy.special import digamma
 from tqdm.auto import trange
 
@@ -239,7 +238,7 @@ class MACE(BaseClassificationAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """
         Fits the model to the training data and returns the aggregated results.
 
@@ -252,7 +251,7 @@ class MACE(BaseClassificationAggregator):
                 so that `labels.loc[task]` is the most likely true label of tasks.
         """
         self.fit(data)
-        assert self.labels_ is not None, 'no labels_'
+        assert self.labels_ is not None, "no labels_"
         return self.labels_
 
     def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -269,7 +268,7 @@ class MACE(BaseClassificationAggregator):
                 Each probability is in he range from 0 to 1, all task probabilities must sum up to 1.
         """
         self.fit(data)
-        assert self.probas_ is not None, 'no probas_'
+        assert self.probas_ is not None, "no probas_"
         return self.probas_
 
     def _initialize(self, n_workers: int, n_labels: int) -> None:
@@ -304,9 +303,9 @@ class MACE(BaseClassificationAggregator):
     def _e_step(
         self,
         annotation: pd.DataFrame,
-        task_names: Union[List[Any], 'pd.Index[Any]'],
-        worker_names: Union[List[Any], 'pd.Index[Any]'],
-        label_names: Union[List[Any], 'pd.Index[Any]'],
+        task_names: Union[List[Any], "pd.Index[Any]"],
+        worker_names: Union[List[Any], "pd.Index[Any]"],
+        label_names: Union[List[Any], "pd.Index[Any]"],
         tasks: NDArray[np.int64],
         workers: NDArray[np.int64],
         labels: NDArray[np.int64],

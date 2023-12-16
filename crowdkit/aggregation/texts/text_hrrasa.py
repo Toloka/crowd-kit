@@ -1,6 +1,6 @@
 __all__ = ["TextHRRASA"]
 
-from typing import Any, Callable, List, cast, Optional
+from typing import Any, Callable, List
 
 import numpy.typing as npt
 import pandas as pd
@@ -69,7 +69,7 @@ class TextHRRASA(BaseTextsAggregator):
         return getattr(self._hrrasa, name)
 
     def fit_predict_scores(
-        self, data: pd.DataFrame, true_objects: 'pd.Series[Any]'
+        self, data: pd.DataFrame, true_objects: "pd.Series[Any]"
     ) -> pd.DataFrame:
         """Fit the model and return scores.
 
@@ -91,8 +91,8 @@ class TextHRRASA(BaseTextsAggregator):
         )
 
     def fit_predict(  # type: ignore
-        self, data: pd.DataFrame, true_objects: 'pd.Series[Any]'
-    ) -> 'pd.Series[Any]':
+        self, data: pd.DataFrame, true_objects: "pd.Series[Any]"
+    ) -> "pd.Series[Any]":
         """Fit the model and return aggregated texts.
 
         Args:
@@ -123,5 +123,5 @@ class TextHRRASA(BaseTextsAggregator):
         data["embedding"] = data.output.apply(self.encoder)  # type: ignore
         return data
 
-    def _encode_true_objects(self, true_objects: 'pd.Series[Any]') -> 'pd.Series[Any]':
+    def _encode_true_objects(self, true_objects: "pd.Series[Any]") -> "pd.Series[Any]":
         return true_objects and true_objects.apply(self.encoder)  # type: ignore

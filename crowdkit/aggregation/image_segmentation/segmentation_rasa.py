@@ -68,7 +68,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
     @staticmethod
     def _segmentation_weighted(
-        segmentations: 'pd.Series[Any]', weights: npt.NDArray[Any]
+        segmentations: "pd.Series[Any]", weights: npt.NDArray[Any]
     ) -> npt.NDArray[Any]:
         """
         Performs the weighted Majority Vote algorithm.
@@ -81,7 +81,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
     @staticmethod
     def _calculate_weights(
-        segmentations: 'pd.Series[Any]', mv: npt.NDArray[Any]
+        segmentations: "pd.Series[Any]", mv: npt.NDArray[Any]
     ) -> npt.NDArray[Any]:
         """
         Calculates weights for each worker from the current Majority Vote estimation.
@@ -94,7 +94,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         weights = np.log(1 / (distances + _EPS) + 1)
         return cast(npt.NDArray[Any], weights / np.sum(weights))
 
-    def _aggregate_one(self, segmentations: 'pd.Series[Any]') -> npt.NDArray[Any]:
+    def _aggregate_one(self, segmentations: "pd.Series[Any]") -> npt.NDArray[Any]:
         """
         Performs Segmentation RASA algorithm for a single image.
         """
@@ -146,7 +146,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated segmentations.
 
         Args:

@@ -7,12 +7,12 @@ import pytest
 
 
 @pytest.fixture
-def toy_labels_result_gold(toy_ground_truth_df: 'pd.Series[Any]') -> 'pd.Series[Any]':
+def toy_labels_result_gold(toy_ground_truth_df: "pd.Series[Any]") -> "pd.Series[Any]":
     return toy_ground_truth_df
 
 
 @pytest.fixture
-def toy_skills_result_gold() -> 'pd.Series[Any]':
+def toy_skills_result_gold() -> "pd.Series[Any]":
     return pd.Series(
         [0.5, 1.0, 1.0, 0.5, 0.0],
         pd.Index(["w1", "w2", "w3", "w4", "w5"], name="worker"),
@@ -74,12 +74,14 @@ def toy_answers_on_gold_df_cannot_predict() -> pd.DataFrame:
 
 
 @pytest.fixture
-def simple_labels_result_gold(simple_ground_truth: 'pd.Series[Any]') -> 'pd.Series[Any]':
+def simple_labels_result_gold(
+    simple_ground_truth: "pd.Series[Any]",
+) -> "pd.Series[Any]":
     return simple_ground_truth
 
 
 @pytest.fixture
-def simple_skills_result_gold() -> 'pd.Series[Any]':
+def simple_skills_result_gold() -> "pd.Series[Any]":
     skills = pd.Series(
         {
             "0c3eb7d5fcc414db137c4180a654c06e": 0.5,
@@ -147,12 +149,12 @@ def multiple_gt_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def multiple_gt_gt() -> 'pd.Series[Any]':
+def multiple_gt_gt() -> "pd.Series[Any]":
     return pd.Series(["l1", "l2", "l2"], index=["t1", "t1", "t3"])
 
 
 @pytest.fixture
-def multiple_gt_aggregated() -> 'pd.Series[Any]':
+def multiple_gt_aggregated() -> "pd.Series[Any]":
     aggregated = pd.Series(["l2", "l1", "l2"], index=["t1", "t2", "t3"])
     aggregated.index.name = "task"
     aggregated.name = "agg_label"
@@ -160,7 +162,7 @@ def multiple_gt_aggregated() -> 'pd.Series[Any]':
 
 
 @pytest.fixture
-def multiple_gt_skills() -> 'pd.Series[Any]':
+def multiple_gt_skills() -> "pd.Series[Any]":
     skills = pd.Series(
         [0.5, 1.0, 0.0],
         index=["w1", "w2", "w3"],

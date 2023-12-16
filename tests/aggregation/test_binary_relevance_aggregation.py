@@ -27,7 +27,7 @@ def data_toy_binary_relevance() -> pd.DataFrame:
 
 
 @pytest.fixture
-def binary_relevance_toy_result() -> 'pd.Series[Any]':
+def binary_relevance_toy_result() -> "pd.Series[Any]":
     result = pd.Series(
         [["house", "tree"], ["car"]], index=["t1", "t2"], name="agg_label"
     )
@@ -39,7 +39,7 @@ def binary_relevance_toy_result() -> 'pd.Series[Any]':
 @pytest.mark.filterwarnings("ignore:In a future version")
 def test_binary_relevance_aggregation_on_toy_data(
     aggregator: BaseClassificationAggregator,
-    binary_relevance_toy_result: 'pd.Series[Any]',
+    binary_relevance_toy_result: "pd.Series[Any]",
     data_toy_binary_relevance: pd.DataFrame,
 ) -> None:
     mb = BinaryRelevance(aggregator)

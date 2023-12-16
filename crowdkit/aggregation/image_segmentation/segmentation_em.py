@@ -158,9 +158,11 @@ class SegmentationEM(BaseImageSegmentationAggregator):
                 ).sum()
             )
 
-            return log_likelihood_expectation - float(np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum())
+            return log_likelihood_expectation - float(
+                np.nan_to_num(np.log(posteriors) * posteriors, nan=0).sum()
+            )
 
-    def _aggregate_one(self, segmentations: 'pd.Series[Any]') -> npt.NDArray[np.bool_]:
+    def _aggregate_one(self, segmentations: "pd.Series[Any]") -> npt.NDArray[np.bool_]:
         """
         Performs the Expectation-Maximization algorithm for a single image.
         """
@@ -173,14 +175,22 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
         segmentations_sizes = segmentations_np.sum(axis=(1, 2))
         # initialize with errors assuming that ground truth segmentation is majority vote
-        errors = self._m_step(segmentations_np, np.round(priors), segmentation_region_size, segmentations_sizes)
+        errors = self._m_step(
+            segmentations_np,
+            np.round(priors),
+            segmentation_region_size,
+            segmentations_sizes,
+        )
         loss = -np.inf
         self.loss_history_ = []
         for _ in range(self.n_iter):
             posteriors = self._e_step(segmentations_np, errors, priors)
             posteriors[posteriors < self.eps] = 0
             errors = self._m_step(
-                segmentations_np, posteriors, segmentation_region_size, segmentations_sizes
+                segmentations_np,
+                posteriors,
+                segmentation_region_size,
+                segmentations_sizes,
             )
             new_loss = self._evidence_lower_bound(
                 segmentations_np, priors, posteriors, errors
@@ -213,7 +223,7 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         )
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated segmentations.
 
         Args:

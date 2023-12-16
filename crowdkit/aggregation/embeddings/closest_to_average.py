@@ -40,8 +40,8 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     def fit(
         self,
         data: pd.DataFrame,
-        aggregated_embeddings: Optional['pd.Series[Any]'] = None,
-        true_embeddings: Optional['pd.Series[Any]'] = None,
+        aggregated_embeddings: Optional["pd.Series[Any]"] = None,
+        true_embeddings: Optional["pd.Series[Any]"] = None,
     ) -> "ClosestToAverage":
         """Fits the model to the training data.
 
@@ -94,7 +94,9 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         return self
 
     def fit_predict_scores(
-        self, data: pd.DataFrame, aggregated_embeddings: Optional['pd.Series[Any]'] = None
+        self,
+        data: pd.DataFrame,
+        aggregated_embeddings: Optional["pd.Series[Any]"] = None,
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns the estimated scores.
 
@@ -113,7 +115,9 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
         return self.fit(data, aggregated_embeddings).scores_
 
     def fit_predict(
-        self, data: pd.DataFrame, aggregated_embeddings: Optional['pd.Series[Any]'] = None
+        self,
+        data: pd.DataFrame,
+        aggregated_embeddings: Optional["pd.Series[Any]"] = None,
     ) -> pd.DataFrame:
         """
         Fits the model to the training data and returns the aggregated outputs.

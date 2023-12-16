@@ -49,7 +49,7 @@ def toy_answers_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def toy_ground_truth_df() -> 'pd.Series[Any]':
+def toy_ground_truth_df() -> "pd.Series[Any]":
     return pd.Series(
         ["yes", "yes", "no", "yes", "no"],
         pd.Index(["t1", "t2", "t3", "t4", "t5"], name="task"),
@@ -58,7 +58,7 @@ def toy_ground_truth_df() -> 'pd.Series[Any]':
 
 
 @pytest.fixture
-def toy_gold_df() -> 'pd.Series[Any]':
+def toy_gold_df() -> "pd.Series[Any]":
     return pd.Series(
         {
             "t1": "yes",
@@ -248,7 +248,7 @@ def simple_answers_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def simple_ground_truth() -> 'pd.Series[Any]':
+def simple_ground_truth() -> "pd.Series[Any]":
     ground_truth = pd.Series(
         {
             "1231239876--5fac0d234ffb2f3b00893eec": "goose",
@@ -269,7 +269,7 @@ def simple_ground_truth() -> 'pd.Series[Any]':
 
 
 @pytest.fixture
-def simple_gold_df() -> 'pd.Series[Any]':
+def simple_gold_df() -> "pd.Series[Any]":
     true_labels = pd.Series(
         {
             "1231239876--5fac0d234ffb2f3b00893eec": "goose",
@@ -739,7 +739,7 @@ def simple_text_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def simple_text_true_embeddings() -> 'pd.Series[Any]':
+def simple_text_true_embeddings() -> "pd.Series[Any]":
     return pd.Series(
         [np.array([0.8619265, 0.3983395]), np.array([10.686009, 17.633106])],
         index=pd.Index(["1255-74899-0020", "7601-175351-0021"], name="task"),
@@ -762,7 +762,7 @@ def data_with_bool_labels() -> pd.DataFrame:
 
 
 @pytest.fixture
-def bool_labels_ground_truth() -> 'pd.Series[Any]':
+def bool_labels_ground_truth() -> "pd.Series[Any]":
     return pd.Series(
         [True, True], index=pd.Index(["t1", "t2"], name="task"), name="agg_label"
     )

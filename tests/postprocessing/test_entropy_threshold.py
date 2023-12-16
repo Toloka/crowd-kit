@@ -98,7 +98,7 @@ class TestEntropyThreshold:
         assert "C" not in filtered_answers.worker.values
 
     def test_entropy_threshold_simple_answers(
-        self, simple_answers_df: pd.DataFrame, simple_ground_truth: 'pd.Series[Any]'
+        self, simple_answers_df: pd.DataFrame, simple_ground_truth: "pd.Series[Any]"
     ) -> None:
         aggregated = MajorityVote().fit_predict(simple_answers_df)
         base_accuracy = sum(

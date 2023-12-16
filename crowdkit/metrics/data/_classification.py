@@ -4,7 +4,7 @@ __all__ = [
     "alpha_krippendorff",
 ]
 
-from typing import Any, Callable, Hashable, List, Optional, Tuple, Union, Iterable, cast
+from typing import Any, Callable, Hashable, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -24,7 +24,7 @@ def _check_answers(answers: pd.DataFrame) -> None:
     assert "label" in answers, 'There is no "label" column in answers'
 
 
-def _label_probability(row: 'pd.Series[Any]', label: Any, n_labels: int) -> float:
+def _label_probability(row: "pd.Series[Any]", label: Any, n_labels: int) -> float:
     """Numerator in the Bayes formula"""
     if row["label"] == label:
         return float(row["skill"])
@@ -32,7 +32,7 @@ def _label_probability(row: 'pd.Series[Any]', label: Any, n_labels: int) -> floa
         return (1.0 - float(row["skill"])) / (n_labels - 1)
 
 
-def _task_consistency(row: 'pd.Series[Any]') -> float:
+def _task_consistency(row: "pd.Series[Any]") -> float:
     """Posterior probability for a single task"""
     if row["denominator"] != 0:
         return float(row[row["aggregated_label"]]) / float(row["denominator"])
@@ -42,10 +42,10 @@ def _task_consistency(row: 'pd.Series[Any]') -> float:
 
 def consistency(
     answers: pd.DataFrame,
-    workers_skills: Optional['pd.Series[Any]'] = None,
+    workers_skills: Optional["pd.Series[Any]"] = None,
     aggregator: BaseClassificationAggregator = MajorityVote(),
     by_task: bool = False,
-) -> Union[float, 'pd.Series[Any]']:
+) -> Union[float, "pd.Series[Any]"]:
     """
     Consistency metric: posterior probability of aggregated label given workers skills
     calculated using the standard Dawid-Skene model.
@@ -94,7 +94,7 @@ def consistency(
         return consistencies.mean()
 
 
-def _task_uncertainty(row: 'pd.Series[Any]', labels: List[str]) -> float:
+def _task_uncertainty(row: "pd.Series[Any]", labels: List[str]) -> float:
     if row["denominator"] == 0:
         row[labels] = 1 / len(labels)
     else:
@@ -106,11 +106,11 @@ def _task_uncertainty(row: 'pd.Series[Any]', labels: List[str]) -> float:
 
 def uncertainty(
     answers: pd.DataFrame,
-    workers_skills: Optional['pd.Series[Any]'] = None,
+    workers_skills: Optional["pd.Series[Any]"] = None,
     aggregator: Optional[BaseClassificationAggregator] = None,
     compute_by: str = "task",
     aggregate: bool = True,
-) -> Union[float, 'pd.Series[Any]']:
+) -> Union[float, "pd.Series[Any]"]:
     r"""Label uncertainty metric: entropy of labels probability distribution.
     Computed as Shannon's Entropy with label probabilities computed either for tasks or workers:
     $$H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))$$
@@ -218,7 +218,7 @@ def uncertainty(
     if aggregate:
         return cast(float, uncertainties.mean())
 
-    return cast('pd.Series[Any]', uncertainties)
+    return cast("pd.Series[Any]", uncertainties)
 
 
 def alpha_krippendorff(

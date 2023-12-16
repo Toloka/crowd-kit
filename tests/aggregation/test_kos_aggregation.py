@@ -16,11 +16,11 @@ from crowdkit.aggregation import KOS
 def test_aggregate_kos_on_data_with_bool_labels(
     n_iter: int,
     data_with_bool_labels: pd.DataFrame,
-    bool_labels_ground_truth: 'pd.Series[Any]',
+    bool_labels_ground_truth: "pd.Series[Any]",
 ) -> None:
     np.random.seed(42)
     kos = KOS(n_iter=n_iter).fit(data_with_bool_labels)
-    assert kos.labels_ is not None, 'no labels_'
+    assert kos.labels_ is not None, "no labels_"
     assert_series_equal(
         kos.labels_,
         bool_labels_ground_truth,
@@ -29,7 +29,7 @@ def test_aggregate_kos_on_data_with_bool_labels(
 
 def test_kos_on_empty_input() -> None:
     kos = KOS(n_iter=10).fit(pd.DataFrame([], columns=["task", "worker", "label"]))
-    assert kos.labels_ is not None, 'no labels_'
+    assert kos.labels_ is not None, "no labels_"
     assert_series_equal(
         pd.Series([], dtype="O", name="agg_label"), kos.labels_, atol=0.005
     )

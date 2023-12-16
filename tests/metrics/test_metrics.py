@@ -206,7 +206,7 @@ class TestUncertaintyMetric:
 
 
 def test_golden_set_accuracy(
-    toy_answers_df: pd.DataFrame, toy_gold_df: 'pd.Series[Any]'
+    toy_answers_df: pd.DataFrame, toy_gold_df: "pd.Series[Any]"
 ) -> None:
     assert get_accuracy(toy_answers_df, toy_gold_df) == 5 / 9
     assert get_accuracy(toy_answers_df, toy_gold_df, by="worker").equals(
@@ -222,7 +222,7 @@ def test_accuracy_on_aggregates(toy_answers_df: pd.DataFrame) -> None:
         [0.6, 0.8, 1.0, 0.4, 0.8],
         index=pd.Index(["w1", "w2", "w3", "w4", "w5"], name="worker"),
     )
-    assert toy_answers_df is not None, 'no toy_answers_df'
+    assert toy_answers_df is not None, "no toy_answers_df"
     assert_series_equal(
         accuracy_on_aggregates(toy_answers_df, by="worker"), expected_workers_accuracy  # type: ignore
     )

@@ -113,7 +113,9 @@ class HRRASA(BaseClassificationAggregator):
     # embeddings_and_outputs_
     loss_history_: List[float] = attr.ib(init=False)
 
-    def fit(self, data: pd.DataFrame, true_embeddings: Optional['pd.Series[Any]'] = None) -> "HRRASA":
+    def fit(
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
+    ) -> "HRRASA":
         """Fits the model to the training data.
 
         Args:
@@ -177,7 +179,7 @@ class HRRASA(BaseClassificationAggregator):
         return self
 
     def fit_predict_scores(
-        self, data: pd.DataFrame, true_embeddings: Optional['pd.Series[Any]'] = None
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns the estimated scores.
 
@@ -197,7 +199,7 @@ class HRRASA(BaseClassificationAggregator):
         return self.fit(data, true_embeddings)._apply(data, true_embeddings).scores_
 
     def fit_predict(  # type: ignore
-        self, data: pd.DataFrame, true_embeddings: Optional['pd.Series[Any]'] = None
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns the aggregated outputs.
 
@@ -227,7 +229,9 @@ class HRRASA(BaseClassificationAggregator):
             return float("inf")
         return float(distance.cosine(embedding, avg_embedding))
 
-    def _apply(self, data: pd.DataFrame, true_embeddings: Optional['pd.Series[Any]'] = None) -> "HRRASA":
+    def _apply(
+        self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None
+    ) -> "HRRASA":
         cta = ClosestToAverage(distance=self._cosine_distance)
         cta.fit(
             data,
@@ -242,8 +246,8 @@ class HRRASA(BaseClassificationAggregator):
     def _aggregate_embeddings(
         data: pd.DataFrame,
         weights: pd.DataFrame,
-        true_embeddings: Optional['pd.Series[Any]'] = None,
-    ) -> 'pd.Series[Any]':
+        true_embeddings: Optional["pd.Series[Any]"] = None,
+    ) -> "pd.Series[Any]":
         """Calculates the weighted average of embeddings for each task."""
         data = data.join(weights, on=["task", "worker"])
         data["weighted_embedding"] = data.weight * data.embedding
@@ -269,7 +273,9 @@ class HRRASA(BaseClassificationAggregator):
         )  # avoid division by zero
         return with_task_aggregate.reset_index()
 
-    def _rank_outputs(self, data: pd.DataFrame, skills: 'pd.Series[Any]') -> pd.DataFrame:
+    def _rank_outputs(
+        self, data: pd.DataFrame, skills: "pd.Series[Any]"
+    ) -> pd.DataFrame:
         """Returns the ranking score for each record in the `data` data frame."""
 
         if not data.size:
@@ -287,7 +293,9 @@ class HRRASA(BaseClassificationAggregator):
         return data[["task", "output", "rank"]]
 
     @staticmethod
-    def _calc_weights(data: pd.DataFrame, worker_skills: 'pd.Series[Any]') -> pd.DataFrame:
+    def _calc_weights(
+        data: pd.DataFrame, worker_skills: "pd.Series[Any]"
+    ) -> pd.DataFrame:
         """Calculates the weight for every embedding according to its local and global skills."""
         data = data.set_index("worker")
         data["worker_skill"] = worker_skills
@@ -297,8 +305,10 @@ class HRRASA(BaseClassificationAggregator):
 
     @staticmethod
     def _update_skills(
-        data: pd.DataFrame, aggregated_embeddings: 'pd.Series[Any]', prior_skills: 'pd.Series[Any]'
-    ) -> 'pd.Series[Any]':
+        data: pd.DataFrame,
+        aggregated_embeddings: "pd.Series[Any]",
+        prior_skills: "pd.Series[Any]",
+    ) -> "pd.Series[Any]":
         """Estimates the global reliabilities by aggregated embeddings."""
         data = data.join(
             aggregated_embeddings.rename("aggregated_embedding"), on="task"

@@ -17,7 +17,7 @@ def test_aggregate_ds_on_toy_ysda(
     n_iter: int,
     tol: float,
     toy_answers_df: pd.DataFrame,
-    toy_ground_truth_df: 'pd.Series[Any]',
+    toy_ground_truth_df: "pd.Series[Any]",
 ) -> None:
     np.random.seed(42)
     assert_series_equal(
@@ -31,7 +31,7 @@ def test_aggregate_hds_on_toy_ysda(
     n_iter: int,
     tol: float,
     toy_answers_df: pd.DataFrame,
-    toy_ground_truth_df: 'pd.Series[Any]',
+    toy_ground_truth_df: "pd.Series[Any]",
 ) -> None:
     np.random.seed(42)
     assert_series_equal(
@@ -45,7 +45,7 @@ def test_aggregate_ds_on_simple(
     n_iter: int,
     tol: float,
     simple_answers_df: pd.DataFrame,
-    simple_ground_truth: 'pd.Series[Any]',
+    simple_ground_truth: "pd.Series[Any]",
 ) -> None:
     np.random.seed(42)
     assert_series_equal(
@@ -59,7 +59,7 @@ def test_aggregate_hds_on_simple(
     n_iter: int,
     tol: float,
     simple_answers_df: pd.DataFrame,
-    simple_ground_truth: 'pd.Series[Any]',
+    simple_ground_truth: "pd.Series[Any]",
 ) -> None:
     np.random.seed(42)
     assert_series_equal(
@@ -76,11 +76,12 @@ def _make_probas(data: List[List[Any]]) -> pd.DataFrame:
 
 def _make_tasks_labels(data: List[List[Any]]) -> pd.DataFrame:
     # TODO: should task be indexed?
-    return cast(pd.DataFrame,
+    return cast(
+        pd.DataFrame,
         pd.DataFrame(data, columns=["task", "label"])
         .set_index("task")
         .squeeze()
-        .rename("agg_label")
+        .rename("agg_label"),
     )
 
 
@@ -139,7 +140,7 @@ def probas_iter_0() -> pd.DataFrame:
 
 
 @pytest.fixture
-def priors_iter_0() -> 'pd.Series[Any]':
+def priors_iter_0() -> "pd.Series[Any]":
     return pd.Series([0.46, 0.54], pd.Index(["no", "yes"], name="label"), name="prior")
 
 
@@ -188,7 +189,7 @@ def probas_iter_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def priors_iter_1() -> 'pd.Series[Any]':
+def priors_iter_1() -> "pd.Series[Any]":
     return pd.Series([0.49, 0.51], pd.Index(["no", "yes"], name="label"), name="prior")
 
 
@@ -233,10 +234,10 @@ def test_dawid_skene_step_by_step(
     priors = request.getfixturevalue(f"priors_iter_{n_iter}")
 
     ds = DawidSkene(n_iter).fit(data)
-    assert ds.probas_ is not None, 'no probas_'
-    assert ds.errors_ is not None, 'no errors_'
-    assert ds.priors_ is not None, 'no priors_'
-    assert ds.labels_ is not None, 'no labels_'
+    assert ds.probas_ is not None, "no probas_"
+    assert ds.errors_ is not None, "no errors_"
+    assert ds.priors_ is not None, "no priors_"
+    assert ds.labels_ is not None, "no labels_"
     assert_frame_equal(probas, ds.probas_, check_like=True, atol=0.005)
     assert_frame_equal(errors, ds.errors_, check_like=True, atol=0.005)
     assert_series_equal(priors, ds.priors_, atol=0.005)
@@ -245,10 +246,10 @@ def test_dawid_skene_step_by_step(
 
 def test_dawid_skene_on_empty_input(request: Any, data: pd.DataFrame) -> None:
     ds = DawidSkene(10).fit(pd.DataFrame([], columns=["task", "worker", "label"]))
-    assert ds.probas_ is not None, 'no probas_'
-    assert ds.errors_ is not None, 'no errors_'
-    assert ds.priors_ is not None, 'no priors_'
-    assert ds.labels_ is not None, 'no labels_'
+    assert ds.probas_ is not None, "no probas_"
+    assert ds.errors_ is not None, "no errors_"
+    assert ds.priors_ is not None, "no priors_"
+    assert ds.labels_ is not None, "no labels_"
     assert_frame_equal(pd.DataFrame(), ds.probas_, check_like=True, atol=0.005)
     assert_frame_equal(pd.DataFrame(), ds.errors_, check_like=True, atol=0.005)
     assert_series_equal(pd.Series(dtype=float, name="prior"), ds.priors_, atol=0.005)
@@ -277,10 +278,10 @@ def test_dawid_skene_overlap(overlap: int) -> None:
     expected_labels = _make_tasks_labels([[task_id, "yes"] for task_id in range(3)])
 
     # TODO: check errors_
-    assert ds.probas_ is not None, 'no probas_'
-    assert ds.errors_ is not None, 'no errors_'
-    assert ds.priors_ is not None, 'no priors_'
-    assert ds.labels_ is not None, 'no labels_'
+    assert ds.probas_ is not None, "no probas_"
+    assert ds.errors_ is not None, "no errors_"
+    assert ds.priors_ is not None, "no priors_"
+    assert ds.labels_ is not None, "no labels_"
     assert_frame_equal(expected_probas, ds.probas_, check_like=True, atol=0.005)
     assert_series_equal(expected_labels, ds.labels_, atol=0.005)  # type: ignore
     assert_series_equal(
@@ -291,16 +292,16 @@ def test_dawid_skene_overlap(overlap: int) -> None:
 
 
 def test_ds_on_bool_labels(
-    data_with_bool_labels: pd.DataFrame, bool_labels_ground_truth: 'pd.Series[Any]'
+    data_with_bool_labels: pd.DataFrame, bool_labels_ground_truth: "pd.Series[Any]"
 ) -> None:
     ds = DawidSkene(20).fit(data_with_bool_labels)
-    assert ds.labels_ is not None, 'no labels_'
+    assert ds.labels_ is not None, "no labels_"
     assert_series_equal(bool_labels_ground_truth, ds.labels_, atol=0.005)
 
 
 def test_hds_on_bool_labels(
-    data_with_bool_labels: pd.DataFrame, bool_labels_ground_truth: 'pd.Series[Any]'
+    data_with_bool_labels: pd.DataFrame, bool_labels_ground_truth: "pd.Series[Any]"
 ) -> None:
     hds = OneCoinDawidSkene(20).fit(data_with_bool_labels)
-    assert hds.labels_ is not None, 'no labels_'
+    assert hds.labels_ is not None, "no labels_"
     assert_series_equal(bool_labels_ground_truth, hds.labels_, atol=0.005)

@@ -3,7 +3,7 @@ __all__ = [
 ]
 
 import itertools
-from typing import Optional, cast, Any, Union, Iterable
+from typing import Any, Iterable, Optional, Union, cast
 
 import attr
 import numpy as np
@@ -75,7 +75,7 @@ class TextSummarization(BaseTextsAggregator):
 
     # texts_
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Run the aggregation and return the aggregated texts.
         Args:
             data (DataFrame): Workers' text outputs.
@@ -92,7 +92,7 @@ class TextSummarization(BaseTextsAggregator):
         self.texts_ = data.groupby("task")["text"].apply(self._aggregate_one)
         return self.texts_
 
-    def _aggregate_one(self, outputs: 'pd.Series[Any]') -> str:
+    def _aggregate_one(self, outputs: "pd.Series[Any]") -> str:
         if not self.n_permutations:
             return self._generate_output(outputs)
 
@@ -116,7 +116,9 @@ class TextSummarization(BaseTextsAggregator):
 
         return cast(str, data.text.mode())
 
-    def _generate_output(self, permutation: Union[Iterable[Any], 'pd.Series[Any]']) -> str:
+    def _generate_output(
+        self, permutation: Union[Iterable[Any], "pd.Series[Any]"]
+    ) -> str:
         input_text = self.concat_token.join(permutation)
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt").to(
             self.device

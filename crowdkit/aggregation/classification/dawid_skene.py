@@ -1,6 +1,6 @@
 __all__ = ["DawidSkene", "OneCoinDawidSkene"]
 
-from typing import List, Optional, Any, cast
+from typing import Any, List, Optional, cast
 
 import attr
 import numpy as np
@@ -81,7 +81,7 @@ class DawidSkene(BaseClassificationAggregator):
     tol: float = attr.ib(default=1e-5)
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    priors_: Optional['pd.Series[Any]'] = named_series_attrib(name="prior")
+    priors_: Optional["pd.Series[Any]"] = named_series_attrib(name="prior")
     # labels_
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
@@ -103,7 +103,7 @@ class DawidSkene(BaseClassificationAggregator):
 
     @staticmethod
     def _e_step(
-        data: pd.DataFrame, priors: 'pd.Series[Any]', errors: pd.DataFrame
+        data: pd.DataFrame, priors: "pd.Series[Any]", errors: pd.DataFrame
     ) -> pd.DataFrame:
         """
         Performs E-step of the Dawid-Skene algorithm.
@@ -141,7 +141,7 @@ class DawidSkene(BaseClassificationAggregator):
         self,
         data: pd.DataFrame,
         probas: pd.DataFrame,
-        priors: 'pd.Series[Any]',
+        priors: "pd.Series[Any]",
         errors: pd.DataFrame,
     ) -> float:
         # calculate joint probability log-likelihood expectation over probas
@@ -224,10 +224,10 @@ class DawidSkene(BaseClassificationAggregator):
         """
 
         self.fit(data)
-        assert self.probas_ is not None, 'no probas_'
+        assert self.probas_ is not None, "no probas_"
         return self.probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -237,7 +237,7 @@ class DawidSkene(BaseClassificationAggregator):
         """
 
         self.fit(data)
-        assert self.labels_ is not None, 'no labels_'
+        assert self.labels_ is not None, "no labels_"
         return self.labels_
 
 
@@ -311,13 +311,13 @@ class OneCoinDawidSkene(DawidSkene):
     tol: float = attr.ib(default=1e-5)
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    priors_: Optional['pd.Series[Any]'] = named_series_attrib(name="prior")
+    priors_: Optional["pd.Series[Any]"] = named_series_attrib(name="prior")
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
-    skills_: Optional['pd.Series[Any]'] = attr.ib(init=False)
+    skills_: Optional["pd.Series[Any]"] = attr.ib(init=False)
     loss_history_: List[float] = attr.ib(init=False)
 
     @staticmethod
-    def _assign_skills(row: 'pd.Series[Any]', skills: pd.DataFrame) -> pd.DataFrame:
+    def _assign_skills(row: "pd.Series[Any]", skills: pd.DataFrame) -> pd.DataFrame:
         """
         Assigns user skills to error matrix row by row.
         """
@@ -331,7 +331,7 @@ class OneCoinDawidSkene(DawidSkene):
 
     @staticmethod
     def _process_skills_to_errors(
-        data: pd.DataFrame, probas: pd.DataFrame, skills: 'pd.Series[Any]'
+        data: pd.DataFrame, probas: pd.DataFrame, skills: "pd.Series[Any]"
     ) -> pd.DataFrame:
         errors = DawidSkene._m_step(data, probas)
 
@@ -341,7 +341,7 @@ class OneCoinDawidSkene(DawidSkene):
         return errors
 
     @staticmethod
-    def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> 'pd.Series[Any]':  # type: ignore
+    def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> "pd.Series[Any]":  # type: ignore
         """Performs M-step of Homogeneous Dawid-Skene algorithm.
 
         Calculates a worker skill as their accuracy according to the label probability.

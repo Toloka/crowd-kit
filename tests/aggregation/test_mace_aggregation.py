@@ -14,7 +14,7 @@ from crowdkit.aggregation.utils import evaluate, evaluate_equal
 
 @pytest.mark.parametrize("method", ["vb", "em"])
 def test_aggregate_mace_on_toy_ysda(
-    method: str, toy_answers_df: pd.DataFrame, toy_ground_truth_df: 'pd.Series[Any]'
+    method: str, toy_answers_df: pd.DataFrame, toy_ground_truth_df: "pd.Series[Any]"
 ) -> None:
     np.random.seed(42)
     predict_df = MACE(n_restarts=1, n_iter=5, method=method).fit_predict(toy_answers_df)
@@ -28,7 +28,7 @@ def test_aggregate_mace_on_toy_ysda(
 
 @pytest.mark.parametrize("method", ["vb", "em"])
 def test_aggregate_mace_on_simple(
-    method: str, simple_answers_df: pd.DataFrame, simple_ground_truth: 'pd.Series[Any]'
+    method: str, simple_answers_df: pd.DataFrame, simple_ground_truth: "pd.Series[Any]"
 ) -> None:
     np.random.seed(42)
     predict_df = MACE(n_restarts=1, n_iter=5, method=method).fit_predict(

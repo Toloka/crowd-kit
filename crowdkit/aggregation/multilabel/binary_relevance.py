@@ -110,7 +110,7 @@ class BinaryRelevance(BaseClassificationAggregator):
             self.labels_.index.name = "task"
         return self
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fit the model and return aggregated results.
 
         Args:

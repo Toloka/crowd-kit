@@ -87,7 +87,7 @@ class MMSR(BaseClassificationAggregator):
     _tasks_mapping: Dict[Any, int] = attr.ib(factory=dict)
 
     # Available after fit
-    skills_: Optional['pd.Series[Any]'] = named_series_attrib(name="skill")
+    skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
 
     # Available after predict or predict_score
     # labels_
@@ -117,7 +117,7 @@ class MMSR(BaseClassificationAggregator):
         self._m_msr()
         return self
 
-    def predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Predicts the true labels of tasks when the model is fitted.
 
         Args:
@@ -130,7 +130,7 @@ class MMSR(BaseClassificationAggregator):
         """
 
         self._apply(data)
-        assert self.labels_ is not None, 'no labels_'
+        assert self.labels_ is not None, "no labels_"
         return self.labels_
 
     def predict_score(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -146,10 +146,10 @@ class MMSR(BaseClassificationAggregator):
         """
 
         self._apply(data)
-        assert self.scores_ is not None, 'no scores_'
+        assert self.scores_ is not None, "no scores_"
         return self.scores_
 
-    def fit_predict(self, data: pd.DataFrame) -> 'pd.Series[Any]':
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
 
         Args:
@@ -232,7 +232,7 @@ class MMSR(BaseClassificationAggregator):
 
         self.skills_ = self._get_skills_from_array(skills)
 
-    def _get_skills_from_array(self, array: npt.NDArray[Any]) -> 'pd.Series[Any]':
+    def _get_skills_from_array(self, array: npt.NDArray[Any]) -> "pd.Series[Any]":
         inverse_workers_mapping = {
             ind: worker for worker, ind in self._workers_mapping.items()
         }
