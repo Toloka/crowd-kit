@@ -21,7 +21,7 @@ class BaseClassificationAggregator:
     Attributes:
         labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
             A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks' most likely true label.
+            is the task's most likely true label.
     """
 
     labels_: Optional[pd.Series] = named_series_attrib(name="agg_label")
