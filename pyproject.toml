@@ -1,3 +1,94 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "crowd-kit"
+description = "Computational Quality Control for Crowdsourcing"
+keywords = ["crowdsourcing", "quality control", "answer aggregation"]
+license = {text = "Apache 2.0"}
+authors = [{name = "Toloka"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    "Typing :: Typed",
+]
+requires-python = ">= 3.8"
+dependencies = [
+    "attrs",
+    "numpy",
+    "pandas >= 1.1.0",
+    "tqdm",
+    "scikit-learn",
+    "nltk",
+    "transformers",
+]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/Toloka/crowd-kit"
+"Bug Tracker" = "https://github.com/Toloka/crowd-kit/issues"
+Documentation = "https://toloka.ai/en/docs/crowd-kit/"
+"API Reference" = "https://toloka.ai/en/docs/crowd-kit/"
+"Source Code" = "https://github.com/Toloka/crowd-kit"
+"Release Notes" = "https://github.com/Toloka/crowd-kit/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pytest",
+    "twine",
+    "flake8",
+    "black",
+    "isort",
+    "pre-commit",
+    "build",
+    "codecov",
+    "notebook",
+    "ipywidgets",
+    "stubmaker @ git+https://github.com/Toloka/stubmaker.git@main",
+    "pandas-stubs",
+]
+learning = [
+    "torch>=1.6.0",
+    "transformers>=4.0.0",
+]
+
+[tool.setuptools]
+zip-safe = true
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["crowdkit*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.setuptools.dynamic]
+version = {attr = "crowdkit.__version__"}
+
+[tool.mypy]
+ignore_missing_imports = true
+plugins = ["numpy.typing.mypy_plugin"]
+strict = true
+
+[tool.isort]
+profile = "black"
+src_paths = ["crowdkit", "tests"]
