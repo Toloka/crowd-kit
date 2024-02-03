@@ -30,6 +30,7 @@ dependencies = [
     "attrs",
     "numpy",
     "pandas >= 1.1.0",
+    "pyarrow",
     "tqdm",
     "scikit-learn",
     "nltk",
