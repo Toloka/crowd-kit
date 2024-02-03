@@ -84,13 +84,12 @@ class MMSR(BaseClassificationAggregator):
 
     # Available after fit
     skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
-    """The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
-
-    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
-    """The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
+    """The task labels.
+    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
 
     scores_: Optional[pd.DataFrame] = attr.ib(init=False)
-    """The task label scores. The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is a score of `label` for `task`."""
+    """The task label scores.
+    The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is a score of `label` for `task`."""
 
     loss_history_: List[float] = attr.ib(init=False)
     """A list of loss values during training."""

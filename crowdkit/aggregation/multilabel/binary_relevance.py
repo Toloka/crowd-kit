@@ -1,6 +1,6 @@
 __all__ = ["BinaryRelevance"]
 
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Union, cast
 
 import attr
 import pandas as pd
@@ -47,9 +47,6 @@ class BinaryRelevance(BaseClassificationAggregator):
     base_aggregator: BaseClassificationAggregator = attr.ib(default=MajorityVote())
     """Aggregator instance that will be used for each binary classification.
     All class parameters will be copied, except for the results of previous fit."""
-
-    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
-    """Task labels. A pandas.Series indexed by `task` such that `labels.loc[task]` is the tasks' aggregated labels."""
 
     aggregators_: Dict[str, BaseClassificationAggregator] = dict()
     """Label aggregators matched to classes. A dictionary that matches aggregators to classes.

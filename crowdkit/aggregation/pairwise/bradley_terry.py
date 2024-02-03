@@ -9,8 +9,6 @@ import pandas as pd
 
 from ..base import BasePairwiseAggregator
 
-_EPS = np.float_power(10, -10)
-
 
 @attr.s
 class BradleyTerry(BasePairwiseAggregator):

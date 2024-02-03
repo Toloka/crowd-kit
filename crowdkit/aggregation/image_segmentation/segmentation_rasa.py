@@ -52,11 +52,6 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
     """The tolerance stopping criterion for iterative methods with a variable number of steps.
     The algorithm converges when the loss change is less than the `tol` parameter."""
 
-    segmentations_: "pd.Series[Any]" = attr.ib(init=False)
-    """The task segmentations.
-    The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
-    is the task aggregated segmentation."""
-
     weights_: npt.NDArray[Any] = attr.ib(init=False)
     """A list of workers' weights."""
 

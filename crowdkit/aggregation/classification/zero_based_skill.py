@@ -53,10 +53,6 @@ class ZeroBasedSkill(BaseClassificationAggregator):
     """The workers' skills.
     The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
 
-    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
-    """The task labels.
-    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
-
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
     """The probability distributions of task labels.
     The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that

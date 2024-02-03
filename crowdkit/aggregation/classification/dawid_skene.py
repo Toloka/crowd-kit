@@ -69,10 +69,6 @@ class DawidSkene(BaseClassificationAggregator):
     the `task` true label is equal to `label`. Each probability is in the range from 0 to 1, all task probabilities
     must sum up to 1."""
 
-    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
-    """The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label occurrence.
-    Each probability is in the range from 0 to 1, all probabilities must sum up to 1."""
-
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
     """The workers' error matrices. The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
     for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the probability
@@ -238,7 +234,8 @@ class DawidSkene(BaseClassificationAggregator):
 
 @attr.s
 class OneCoinDawidSkene(DawidSkene):
-    r"""The **one-coin Dawid-Skene** aggregation model works exactly the same as the original Dawid-Skene model based on the EM algorithm, except for calculating the workers' errors
+    r"""The **one-coin Dawid-Skene** aggregation model works exactly the same as the original Dawid-Skene model
+    based on the EM algorithm, except for calculating the workers' errors
     at the M-step of the algorithm.
 
     For the one-coin model, a worker confusion (error) matrix is parameterized by a single parameter $s_w$:
@@ -252,7 +249,8 @@ class OneCoinDawidSkene(DawidSkene):
     $z_j$ be a true task label, $y^w_j$ is a worker
     response to the task $j$, and $s_w$ is a worker skill (accuracy).
 
-    In other words, the worker $w$ uses a single coin flip to decide their assignment. No matter what the true label is, the worker has the $s_w$ probability to assign the correct label, and
+    In other words, the worker $w$ uses a single coin flip to decide their assignment. No matter what the true label is,
+    the worker has the $s_w$ probability to assign the correct label, and
     has the $1 − s_w$ probability to randomly assign an incorrect label. For the one-coin model, it
     suffices to estimate $s_w$ for every worker $w$ and estimate $y^w_j$ for every task $j$. Because of its
     simplicity, the one-coin model is easier to estimate and enjoys better convergence properties.
@@ -275,40 +273,6 @@ class OneCoinDawidSkene(DawidSkene):
         >>> hds = OneCoinDawidSkene(100)
         >>> result = hds.fit_predict(df)
     """
-
-    n_iter: int = attr.ib(default=100)
-    """The maximum number of EM iterations."""
-
-    tol: float = attr.ib(default=1e-5)
-    """The tolerance stopping criterion for iterative methods with a variable number of steps.
-    The algorithm converges when the loss change is less than the `tol` parameter."""
-
-    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
-    """The task labels.
-    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
-
-    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    """The probability distributions of task labels.
-    The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that
-    the `task` true label is equal to `label`. Each probability is in the range from 0 to 1, all task probabilities
-    must sum up to 1."""
-
-    priors_: Optional["pd.Series[Any]"] = named_series_attrib(name="prior")
-    """The prior label distribution.
-    The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label occurrence.
-    Each probability is in the range from 0 to 1, all probabilities must sum up to 1."""
-
-    errors_: Optional[pd.DataFrame] = attr.ib(init=False)
-    """The workers' error matrices.
-    The `pandas.DataFrame` data is indexed by `worker` and `label` with a column for every `label_id` found in `data`
-    so that `result.loc[worker, observed_label, true_label]` is the probability that `worker` produces `observed_label`,
-    given that the task true label is `true_label`."""
-
-    skills_: Optional["pd.Series[Any]"] = attr.ib(init=False)
-    """The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
-
-    loss_history_: List[float] = attr.ib(init=False)
-    """A list of loss values during training."""
 
     @staticmethod
     def _assign_skills(row: "pd.Series[Any]", skills: pd.DataFrame) -> pd.DataFrame:

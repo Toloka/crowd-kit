@@ -53,10 +53,6 @@ class SegmentationEM(BaseImageSegmentationAggregator):
     eps: float = 1e-15
     """The convergence threshold."""
 
-    segmentations_: "pd.Series[Any]" = attr.ib(init=False)
-    """The task segmentations.
-    The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]` is the task aggregated segmentation."""
-
     segmentation_region_size_: int = attr.ib(init=False)
     """Segmentation region size."""
 

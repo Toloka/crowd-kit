@@ -64,9 +64,6 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
     random_state: int = attr.ib(default=0)
     """The state of the random number generator."""
 
-    scores_: "pd.Series[Any]" = attr.ib(init=False)
-    """A pandas.Series index by labels and holding corresponding label's scores"""
-
     skills_: "pd.Series[Any]" = named_series_attrib(name="skill")
     """A pandas.Series index by workers and holding corresponding worker's skill"""
 

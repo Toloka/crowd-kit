@@ -58,10 +58,6 @@ class MajorityVote(BaseClassificationAggregator):
     default_skill: Optional[float] = attr.ib(default=None)
     """Default worker weight value."""
 
-    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
-    """The task labels.
-    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
-
     skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
     """The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
 

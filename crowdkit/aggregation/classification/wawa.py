@@ -23,23 +23,17 @@ class Wawa(BaseClassificationAggregator):
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> result = Wawa().fit_predict(df)
-
-    Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
-
-        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker`
-            and has the corresponding worker skill.
-
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
     """
 
     skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
-    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The workers' skills.
+    The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
 
-    # labels_
+    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The probability distributions of task labels.
+    The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that
+    the `task` true label is equal to `label`. Each probability is in the range from 0 to 1,
+    all task probabilities must sum up to 1."""
 
     def _apply(self, data: pd.DataFrame) -> "Wawa":
         check_is_fitted(self, attributes="skills_")

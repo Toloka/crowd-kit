@@ -1,6 +1,6 @@
 __all__ = ["KOS"]
 
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 import attr
 import numpy as np
@@ -47,10 +47,6 @@ class KOS(BaseClassificationAggregator):
 
     random_state: int = attr.ib(default=0)
     """The state of the random number generator."""
-
-    labels_: "Optional[pd.Series[Any]]" = attr.ib(init=False)
-    """The task labels.
-    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
 
     def fit(self, data: pd.DataFrame) -> "KOS":
         """Fits the model to the training data.
