@@ -1,6 +1,6 @@
 __all__ = ["BinaryRelevance"]
 
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 import attr
 import pandas as pd
@@ -27,10 +27,6 @@ class BinaryRelevance(BaseClassificationAggregator):
 
     {% endnote %}
 
-    Args:
-        base_aggregator: Aggregator instance that will be used for each binary classification. All class parameters
-         will be copied, except for the results of previous fit.
-
     Examples:
         >>> import pandas as pd
         >>> from crowdkit.aggregation import BinaryRelevance, DawidSkene
@@ -46,23 +42,19 @@ class BinaryRelevance(BaseClassificationAggregator):
         >>> )
         >>> df.columns = ['task', 'worker', 'label']
         >>> result = BinaryRelevance(DawidSkene(n_iter=10)).fit_predict(df)
-
-    Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): Tasks' labels.
-            A pandas.Series indexed by `task` such that `labels.loc[task]`
-            is the tasks' aggregated labels.
-
-        aggregators_ (dict[str, BaseClassificationAggregator]): Labels' aggregators matched to classes.
-            A dictionary that matches aggregators to classes.
-            The key is the class found in the source data,
-            and the value is the aggregator used for this class.
-            The set of keys is all the classes that are in the input data.
     """
-    base_aggregator: BaseClassificationAggregator = attr.ib(
-        # validator=attr.validators.instance_of(BaseClassificationAggregator),
-        default=MajorityVote()
-    )
+
+    base_aggregator: BaseClassificationAggregator = attr.ib(default=MajorityVote())
+    """Aggregator instance that will be used for each binary classification.
+    All class parameters will be copied, except for the results of previous fit."""
+
+    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
+    """Task labels. A pandas.Series indexed by `task` such that `labels.loc[task]` is the tasks' aggregated labels."""
+
     aggregators_: Dict[str, BaseClassificationAggregator] = dict()
+    """Label aggregators matched to classes. A dictionary that matches aggregators to classes.
+    The key is the class found in the source data, and the value is the aggregator used for this class.
+    The set of keys is all the classes that are in the input data."""
 
     @base_aggregator.validator
     def _any_name_except_a_name_of_an_attribute(

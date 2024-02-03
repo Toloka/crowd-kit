@@ -33,7 +33,6 @@ class GLAD(BaseClassificationAggregator):
 
     ![GLAD latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/glad_llm.png)
 
-
     The prior probability of $z_j$ being equal to $c$ is
     $$
     \operatorname{Pr}(z_j = c) = p[c],
@@ -54,24 +53,11 @@ class GLAD(BaseClassificationAggregator):
         the prior label probabilities, and the beta parameters of task difficulty.
     2. **M-step**. Optimizes the alpha and beta parameters using the conjugate gradient method.
 
-
     J. Whitehill, P. Ruvolo, T. Wu, J. Bergsma, and J. Movellan.
     Whose Vote Should Count More: Optimal Integration of Labels from Labelers of Unknown Expertise.
     *Proceedings of the 22nd International Conference on Neural Information Processing Systems*, 2009
 
     <https://proceedings.neurips.cc/paper/2009/file/f899139df5e1059396431415e770c6dd-Paper.pdf>
-
-
-    Args:
-        n_iter: The maximum number of EM iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-        silent: Specifies if the progress bar will be shown (false) or not (true).
-        labels_priors: The prior label probabilities.
-        alphas_priors_mean: The prior mean value of the alpha parameters.
-        betas_priors_mean: The prior mean value of the beta parameters.
-        m_step_max_iter: The maximum number of iterations of the conjugate gradient method in the M-step.
-        m_step_tol: The tolerance stopping criterion of the conjugate gradient method in the M-step.
 
     Examples:
         >>> from crowdkit.aggregation import GLAD
@@ -79,39 +65,49 @@ class GLAD(BaseClassificationAggregator):
         >>> df, gt = load_dataset('relevance-2')
         >>> glad = GLAD()
         >>> result = glad.fit_predict(df)
-
-    Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
-
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
-
-        alphas_ (Series): The alpha parameters of workers' abilities. The `pandas.Series` data is indexed by `worker`
-            that contains the estimated alpha parameters.
-
-        betas_ (Series): The beta parameters of task difficulty. The `pandas.Series` data is indexed by `task`
-            that contains the estimated beta parameters.
-
-        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=100)
-    tol: float = attr.ib(default=1e-5)
-    silent: bool = attr.ib(default=True)
-    labels_priors: Optional["pd.Series[Any]"] = attr.ib(default=None)
-    alphas_priors_mean: Optional["pd.Series[Any]"] = attr.ib(default=None)
-    betas_priors_mean: Optional["pd.Series[Any]"] = attr.ib(default=None)
-    m_step_max_iter: int = attr.ib(default=25)
-    m_step_tol: float = attr.ib(default=1e-2)
+    """The maximum number of EM iterations."""
 
-    # Available after fit
-    # labels_
+    tol: float = attr.ib(default=1e-5)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
+
+    silent: bool = attr.ib(default=True)
+    """Specifies if the progress bar will be shown (false) or not (true)."""
+
+    labels_priors: Optional["pd.Series[Any]"] = attr.ib(default=None)
+    """The prior label probabilities."""
+
+    alphas_priors_mean: Optional["pd.Series[Any]"] = attr.ib(default=None)
+    """The prior mean value of the alpha parameters."""
+
+    betas_priors_mean: Optional["pd.Series[Any]"] = attr.ib(default=None)
+    """The prior mean value of the beta parameters."""
+
+    m_step_max_iter: int = attr.ib(default=25)
+    """The maximum number of iterations of the conjugate gradient method in the M-step."""
+
+    m_step_tol: float = attr.ib(default=1e-2)
+    """The tolerance stopping criterion of the conjugate gradient method in the M-step."""
+
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The probability distributions of task labels.
+    The data frame is indexed by `task` so that `result.loc[task, label]` is the probability that the `task`
+    true label is equal to `label`. Each probability is in the range from 0 to 1, all task probabilities
+    must sum up to 1."""
+
     alphas_: "pd.Series[Any]" = named_series_attrib(name="alpha")
+    """The alpha parameters of workers' abilities.
+    The `pandas.Series` data is indexed by `worker` that contains the estimated alpha parameters."""
+
     betas_: "pd.Series[Any]" = named_series_attrib(name="beta")
+    """The beta parameters of task difficulty.
+    The `pandas.Series` data is indexed by `task` that contains the estimated beta parameters."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     def _join_all(
         self,

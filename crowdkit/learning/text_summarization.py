@@ -35,20 +35,6 @@ class TextSummarization(BaseTextsAggregator):
     Proceedings of the 2nd Crowd Science Workshop: Trust, Ethics, and Excellence in Crowdsourced Data Management at Scale, 2021, pp. 15-20.
     <https://ceur-ws.org/Vol-2932/short2.pdf>
 
-    Args:
-        tokenizer: [Pre-trained tokenizer](https://huggingface.co/transformers/main_classes/tokenizer.html#pretrainedtokenizer).
-        model: [Pre-trained model](https://huggingface.co/transformers/main_classes/model.html#pretrainedmodel) for text summarization.
-        concat_token: Token used for the workers' texts concatenation.
-            Default value: ` | `.
-        num_beams: Number of beams for beam search. 1 means no beam search.
-            Default value: `16`.
-        n_permutations: Number of input permutations to use. If `None`, use a single permutation according to the input's order.
-            Default value: `None`.
-        permutation_aggregator: Text aggregation method to use for aggregating outputs of multiple input permutations if `use_permutations` flag is set.
-            Default value: `None`.
-        device: Device to use such as `cpu` or `cuda`.
-            Default value: `cpu`.
-
     Examples:
         >>> import torch
         >>> from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, AutoConfig
@@ -60,22 +46,28 @@ class TextSummarization(BaseTextsAggregator):
         >>> agg = TextSummarization(tokenizer, model, device=device)
         >>> result = agg.fit_predict(df)
         ...
-
-    Attributes:
-        texts_ (Series): Tasks' texts.
-            A pandas.Series indexed by `task` such that `result.loc[task, text]`
-            is the task's text.
     """
 
     tokenizer: PreTrainedTokenizer = attr.ib()
-    model: PreTrainedModel = attr.ib()
-    concat_token: str = attr.ib(default=" | ")
-    num_beams: int = attr.ib(default=16)
-    n_permutations: Optional[int] = attr.ib(default=None)
-    permutation_aggregator: Optional[BaseTextsAggregator] = attr.ib(default=None)
-    device: str = attr.ib(default="cpu")
+    """[Pre-trained tokenizer](https://huggingface.co/transformers/main_classes/tokenizer.html#pretrainedtokenizer)."""
 
-    # texts_
+    model: PreTrainedModel = attr.ib()
+    """[Pre-trained model](https://huggingface.co/transformers/main_classes/model.html#pretrainedmodel) for text summarization."""
+
+    concat_token: str = attr.ib(default=" | ")
+    """Token used for the workers' texts concatenation."""
+
+    num_beams: int = attr.ib(default=16)
+    """Number of beams for beam search. 1 means no beam search."""
+
+    n_permutations: Optional[int] = attr.ib(default=None)
+    """Number of input permutations to use. If `None`, use a single permutation according to the input's order."""
+
+    permutation_aggregator: Optional[BaseTextsAggregator] = attr.ib(default=None)
+    """Text aggregation method to use for aggregating outputs of multiple input permutations if `use_permutations` flag is set."""
+
+    device: str = attr.ib(default="cpu")
+    """Device to use such as `cpu` or `cuda`."""
 
     def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
         """Run the aggregation and return the aggregated texts.

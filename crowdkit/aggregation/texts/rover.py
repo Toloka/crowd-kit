@@ -42,11 +42,6 @@ class ROVER(BaseTextsAggregator):
     *1997 IEEE Workshop on Automatic Speech Recognition and Understanding Proceedings*, 1997, pp. 347-354.
     <https://doi.org/10.1109/ASRU.1997.659110>
 
-    Args:
-        tokenizer: A callable that takes a string and returns a list of tokens.
-        detokenizer: A callable that takes a list of tokens and returns a string.
-        silent: If false, show a progress bar.
-
     Examples:
         >>> from crowdkit.aggregation import load_dataset
         >>> from crowdkit.aggregation import ROVER
@@ -58,13 +53,17 @@ class ROVER(BaseTextsAggregator):
 
     Attributes:
         texts_ (Series): Tasks' texts.
-            A pandas.Series indexed by `task` such that `result.loc[task, text]`
-            is the task's text.
+            A pandas.Series indexed by `task` such that `result.loc[task, text]` is the task's text.
     """
 
     tokenizer: Callable[[str], List[str]] = attr.ib()
+    """A callable that takes a string and returns a list of tokens."""
+
     detokenizer: Callable[[List[str]], str] = attr.ib()
+    """A callable that takes a list of tokens and returns a string."""
+
     silent: bool = attr.ib(default=True)
+    """If false, show a progress bar."""
 
     # Available after fit
     # texts_

@@ -44,47 +44,42 @@ class DawidSkene(BaseClassificationAggregator):
 
     <https://doi.org/10.2307/2346806>
 
-    Args:
-        n_iter: The maximum number of EM iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-
     Examples:
         >>> from crowdkit.aggregation import DawidSkene
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> ds = DawidSkene(100)
         >>> result = ds.fit_predict(df)
-
-    Attributes:
-        labels_ (Optional[pd.Series]): The task labels.
-            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
-
-        probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
-
-        priors_ (Optional[pd.Series]): The prior label distribution.
-            The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label
-            occurrence. Each probability is in the range from 0 to 1,
-            all probabilities must sum up to 1.
-
-        errors_ (Optional[pandas.core.frame.DataFrame]): The workers' error matrices.
-            The `pandas.DataFrame` data is indexed by `worker` and `label` with a column for every
-            `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the probability
-            that `worker` produces `observed_label`, given that the task true label is `true_label`.
-
-        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=100)
+    """The maximum number of EM iterations."""
+
     tol: float = attr.ib(default=1e-5)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The probability distributions of task labels.
+    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
+
     priors_: Optional["pd.Series[Any]"] = named_series_attrib(name="prior")
-    # labels_
+    """The prior label distribution.
+    The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that
+    the `task` true label is equal to `label`. Each probability is in the range from 0 to 1, all task probabilities
+    must sum up to 1."""
+
+    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
+    """The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label occurrence.
+    Each probability is in the range from 0 to 1, all probabilities must sum up to 1."""
+
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The workers' error matrices. The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
+    for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the probability
+    that `worker` produces `observed_label`, given that the task true label is `true_label`."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """ A list of loss values during training."""
 
     @staticmethod
     def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> pd.DataFrame:
@@ -273,48 +268,47 @@ class OneCoinDawidSkene(DawidSkene):
 
     <https://doi.org/10.48550/arXiv.1406.3824>
 
-    Args:
-        n_iter: The maximum number of EM iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-
     Examples:
         >>> from crowdkit.aggregation import OneCoinDawidSkene
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> hds = OneCoinDawidSkene(100)
         >>> result = hds.fit_predict(df)
-
-    Attributes:
-        labels_ (Optional[pd.Series]): The task labels.
-            The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
-
-        probas_ (Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
-
-        priors_ (Optional[pd.Series]): The prior label distribution.
-            The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label
-            occurrence. Each probability is in the range from 0 to 1, all probabilities must sum up to 1.
-
-        errors_ (Optional[pandas.core.frame.DataFrame]): The workers' error matrices.
-            The `pandas.DataFrame` data is indexed by `worker` and `label` with a column for every
-            `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the probability
-            that `worker` produces `observed_label`, given that the task true label is `true_label`.
-
-        skills_ (Optional[pd.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill.
-
-        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=100)
+    """The maximum number of EM iterations."""
+
     tol: float = attr.ib(default=1e-5)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
+
+    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
+    """The task labels.
+    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The probability distributions of task labels.
+    The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that
+    the `task` true label is equal to `label`. Each probability is in the range from 0 to 1, all task probabilities
+    must sum up to 1."""
+
     priors_: Optional["pd.Series[Any]"] = named_series_attrib(name="prior")
+    """The prior label distribution.
+    The `pandas.Series` data is indexed by `label` and contains the probability of the corresponding label occurrence.
+    Each probability is in the range from 0 to 1, all probabilities must sum up to 1."""
+
     errors_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The workers' error matrices.
+    The `pandas.DataFrame` data is indexed by `worker` and `label` with a column for every `label_id` found in `data`
+    so that `result.loc[worker, observed_label, true_label]` is the probability that `worker` produces `observed_label`,
+    given that the task true label is `true_label`."""
+
     skills_: Optional["pd.Series[Any]"] = attr.ib(init=False)
+    """The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     @staticmethod
     def _assign_skills(row: "pd.Series[Any]", skills: pd.DataFrame) -> pd.DataFrame:

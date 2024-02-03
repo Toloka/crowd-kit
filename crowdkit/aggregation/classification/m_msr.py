@@ -27,7 +27,6 @@ class MMSR(BaseClassificationAggregator):
     workers, and $\boldsymbol{1}\boldsymbol{1}^T$ is the all-ones matrix which has the same
     size as $\widetilde{C}$.
 
-
     Thus, the problem of estimating the skill level vector $s$ becomes equivalent to the
     rank-one matrix completion problem. The M-MSR algorithm is an iterative algorithm for the *robust*
     rank-one matrix completion, so its result is an estimator of the vector $s$.
@@ -39,61 +38,62 @@ class MMSR(BaseClassificationAggregator):
 
     <https://arxiv.org/abs/2010.12181>
 
-    Args:
-        n_iter: The maximum number of iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-        random_state: The seed number for the random initialization.
-        _observation_matrix: The matrix representing which workers give responses to which tasks.
-        _covariation_matrix: The matrix representing the covariance between workers.
-        _n_common_tasks: The matrix representing workers with tasks in common.
-        _n_workers: The number of workers.
-        _n_tasks: The number of tasks that are assigned to workers.
-        _n_labels: The number of possible labels for a series of classification tasks.
-        _labels_mapping: The mapping of labels and integer values.
-        _workers_mapping: The mapping of workers and integer values.
-        _tasks_mapping: The mapping of tasks and integer values.
-
     Examples:
         >>> from crowdkit.aggregation import MMSR
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> mmsr = MMSR()
         >>> result = mmsr.fit_predict(df)
-    Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
-
-        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker`
-            and has the corresponding worker skill.
-
-        scores_ (typing.Optional[pandas.core.frame.DataFrame]): The task label scores. The `pandas.DataFrame` data is indexed by `task`
-            so that `result.loc[task, label]` is a score of `label` for `task`.
-
-        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=10000)
+    """The maximum number of iterations."""
+
     tol: float = attr.ib(default=1e-10)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps. The algorithm converges when the loss change is less than the `tol` parameter."""
+
     random_state: Optional[int] = attr.ib(default=0)
+    """The seed number for the random initialization."""
+
     _observation_matrix: npt.NDArray[Any] = attr.ib(factory=lambda: np.array([]))
+    """The matrix representing which workers give responses to which tasks."""
+
     _covariation_matrix: npt.NDArray[Any] = attr.ib(factory=lambda: np.array([]))
+    """The matrix representing the covariance between workers."""
+
     _n_common_tasks: npt.NDArray[Any] = attr.ib(factory=lambda: np.array([]))
+    """The matrix representing workers with tasks in common."""
+
     _n_workers: int = attr.ib(default=0)
+    """The number of workers."""
+
     _n_tasks: int = attr.ib(default=0)
+    """The number of tasks that are assigned to workers."""
+
     _n_labels: int = attr.ib(default=0)
+    """The number of possible labels for a series of classification tasks."""
+
     _labels_mapping: Dict[Any, int] = attr.ib(factory=dict)
+    """The mapping of labels and integer values."""
+
     _workers_mapping: Dict[Any, int] = attr.ib(factory=dict)
+    """The mapping of workers and integer values."""
+
     _tasks_mapping: Dict[Any, int] = attr.ib(factory=dict)
+    """The mapping of tasks and integer values."""
 
     # Available after fit
     skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
+    """The task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
 
-    # Available after predict or predict_score
-    # labels_
+    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
+    """The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
+
     scores_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The task label scores. The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is a score of `label` for `task`."""
 
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     def _apply(self, data: pd.DataFrame) -> "MMSR":
         mv = MajorityVote().fit(data, skills=self.skills_)

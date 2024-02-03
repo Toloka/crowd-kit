@@ -17,14 +17,14 @@ from ..utils import factorize, named_series_attrib
 class NoisyBradleyTerry(BasePairwiseAggregator):
     r"""Bradley-Terry model for pairwise comparisons with additional parameters.
 
-    This model is a modification of the [Bradley-Terry model](crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry.md)
-    with parameters for workers' skills (reliability) and biases.
+    This model is a modification of the BradleyTerry model with parameters
+    for workers' skills (reliability) and biases.
 
     Examples:
         The following example shows how to aggregate results of comparisons **grouped by some column**.
         In the example the two questions `q1` and `q2` are used to group the labeled data.
         Temporary data structure is created and the model is applied to it.
-        The results are splitted in two arrays, and each array contains scores for one of the initial groups.
+        The results are split into two arrays, and each array contains scores for one of the initial groups.
 
         >>> import pandas as pd
         >>> from crowdkit.aggregation import NoisyBradleyTerry
@@ -49,23 +49,30 @@ class NoisyBradleyTerry(BasePairwiseAggregator):
         >>> result.index = pd.MultiIndex.from_tuples(result.index, names=['question', 'label'])
         >>> print(result['q1'])      # Scores for all items in the q1 question
         >>> print(result['q2']['b']) # Score for the item b in the q2 question
-
-    Attributes:
-        scores_ (Series): 'Labels' scores.
-            A pandas.Series index by labels and holding corresponding label's scores
-        skills_ (Series): workers' skills.
-            A pandas.Series index by workers and holding corresponding worker's skill
-        biases_ (Series): Predicted biases for each worker. Indicates the probability of a worker to choose the left item..
-            A series of workers' biases indexed by workers
     """
-    n_iter: int = attr.ib(default=100)
-    tol: float = attr.ib(default=1e-5)
-    regularization_ratio: float = attr.ib(default=1e-5)
-    random_state: int = attr.ib(default=0)
-    skills_: "pd.Series[Any]" = named_series_attrib(name="skill")
-    biases_: "pd.Series[Any]" = named_series_attrib(name="bias")
 
-    # scores_
+    n_iter: int = attr.ib(default=100)
+    """A number of optimization iterations."""
+
+    tol: float = attr.ib(default=1e-5)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
+
+    regularization_ratio: float = attr.ib(default=1e-5)
+    """The regularization ratio."""
+
+    random_state: int = attr.ib(default=0)
+    """The state of the random number generator."""
+
+    scores_: "pd.Series[Any]" = attr.ib(init=False)
+    """A pandas.Series index by labels and holding corresponding label's scores"""
+
+    skills_: "pd.Series[Any]" = named_series_attrib(name="skill")
+    """A pandas.Series index by workers and holding corresponding worker's skill"""
+
+    biases_: "pd.Series[Any]" = named_series_attrib(name="bias")
+    """Predicted biases for each worker. Indicates the probability of a worker to choose the left item.
+    A series of worker biases indexed by workers."""
 
     def fit(self, data: pd.DataFrame) -> "NoisyBradleyTerry":
         """Args:

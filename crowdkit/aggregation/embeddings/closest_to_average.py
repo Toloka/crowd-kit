@@ -18,24 +18,17 @@ class ClosestToAverage(BaseEmbeddingsAggregator):
     Here the `embedding` is a vector containing a representation of the `output` which might be any
     type of data such as text, images, NumPy arrays, etc. As a result, the method returns the output which
     embedding is the closest one to the average embedding of the task responses.
-
-    Args:
-        distance: A callable that takes two NumPy arrays (the task embedding and the aggregated embedding) and returns a single `float` number — the distance
-            between these two vectors.
-
-    Attributes:
-        embeddings_and_outputs_ (DataFrame): The task embeddings and outputs.
-            The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
-
-        scores_ (DataFrame): The task label scores.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]`
-            is a score of `label` for `task`.
     """
 
-    # embeddings_and_outputs_
-    scores_: pd.DataFrame
-
     distance: Callable[[npt.NDArray[Any], npt.NDArray[Any]], float] = attr.ib()
+    """A callable that takes two NumPy arrays (the task embedding and the aggregated embedding)
+    and returns a single `float` number: the distance between these two vectors."""
+
+    embeddings_and_outputs_: pd.DataFrame = attr.ib(init=False)
+    """The task embeddings and outputs. The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns."""
+
+    scores_: pd.DataFrame = attr.ib(init=False)
+    """The task label scores. The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is a score of `label` for `task`."""
 
     def fit(
         self,

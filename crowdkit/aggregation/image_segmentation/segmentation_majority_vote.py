@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import BaseImageSegmentationAggregator
-from ..utils import add_skills_to_data
+from ..utils import add_skills_to_data, named_series_attrib
 
 
 @attr.s
@@ -27,9 +27,6 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
 
     <https://ceur-ws.org/Vol-2173/paper10.pdf>
 
-    Args:
-        default_skill: Default worker weight value.
-
     Examples:
         >>> import numpy as np
         >>> import pandas as pd
@@ -43,29 +40,22 @@ class SegmentationMajorityVote(BaseImageSegmentationAggregator):
         >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationMajorityVote().fit_predict(df)
-
-    Attributes:
-        segmentations_ (Series): The task segmentations.
-            The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
-            is the task aggregated segmentation.
-
-        skills_ (Series): The workers' skills. The `pandas.Series` data is indexed by `worker`
-            and has the corresponding worker skill.
-
-        on_missing_skill (str): A value which specifies how to handle assignments performed by workers with an unknown skill.
-
-            Possible values:
-                    * "error" — raises an exception if there is at least one assignment performed by a worker with an unknown skill;
-                    * "ignore" — drops assignments performed by workers with an unknown skill during prediction. Raises an exception if there are no
-                    assignments with a known skill for any task;
-                    * value — the default value will be used if a skill is missing.
     """
 
-    # segmentations_
-    # skills_
+    default_skill: Optional[float] = attr.ib(default=None)
+    """Default worker weight value."""
 
     on_missing_skill: str = attr.ib(default="error")
-    default_skill: Optional[float] = attr.ib(default=None)
+    """A value which specifies how to handle assignments performed by workers with an unknown skill.
+
+    Possible values:
+    * `error`: raises an exception if there is at least one assignment performed by a worker with an unknown skill;
+    * `ignore`: drops assignments performed by workers with an unknown skill during prediction,
+    raises an exception if there are no assignments with a known skill for any task;
+    * `value`: the default value will be used if a skill is missing."""
+
+    skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
+    """The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
 
     def fit(
         self, data: pd.DataFrame, skills: Optional["pd.Series[Any]"] = None

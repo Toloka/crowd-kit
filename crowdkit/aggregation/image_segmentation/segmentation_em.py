@@ -28,13 +28,6 @@ class SegmentationEM(BaseImageSegmentationAggregator):
 
     <https://ceur-ws.org/Vol-2173/paper10.pdf>
 
-
-    Args:
-        n_iter: The maximum number of EM iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-        eps: The convergence threshold.
-
     Examples:
         >>> import numpy as np
         >>> import pandas as pd
@@ -48,37 +41,41 @@ class SegmentationEM(BaseImageSegmentationAggregator):
         >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationEM().fit_predict(df)
-
-    Attributes:
-        segmentations_ (Series): The task segmentations.
-            The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
-            is the task aggregated segmentation.
-
-        segmentation_region_size_ (int): Segmentation region size.
-
-        segmentations_sizes_ (npt.NDArray[Any]): Sizes of image segmentations.
-
-        priors_ (Union[float, npt.NDArray[Any]]): The prior probabilities for each pixel to be included in the resulting aggregate.
-            Each probability is in the range from 0 to 1, all probabilities must sum up to 1.
-
-        posteriors_ (npt.NDArray[Any]): The posterior probabilities for each pixel to be included in the resulting aggregate.
-            Each probability is in the range from 0 to 1, all probabilities must sum up to 1.
-
-        errors_ (npt.NDArray[Any]): The workers' error probability vector.
-
-        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=10)
+    """The maximum number of EM iterations."""
+
     tol: float = attr.ib(default=1e-5)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
+
     eps: float = 1e-15
-    # segmentation_region_size_
-    # segmentations_sizes_
-    # segmentations_
-    # errors_
-    # priors_
-    # posteriors_
+    """The convergence threshold."""
+
+    segmentations_: "pd.Series[Any]" = attr.ib(init=False)
+    """The task segmentations.
+    The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]` is the task aggregated segmentation."""
+
+    segmentation_region_size_: int = attr.ib(init=False)
+    """Segmentation region size."""
+
+    segmentations_sizes_: npt.NDArray[Any] = attr.ib(init=False)
+    """Sizes of image segmentations."""
+
+    priors_: Union[float, npt.NDArray[Any]] = attr.ib(init=False)
+    """The prior probabilities for each pixel to be included in the resulting aggregate.
+    Each probability is in the range from 0 to 1, all probabilities must sum up to 1."""
+
+    posteriors_: npt.NDArray[Any] = attr.ib(init=False)
+    """The posterior probabilities for each pixel to be included in the resulting aggregate.
+    Each probability is in the range from 0 to 1, all probabilities must sum up to 1."""
+
+    errors_: npt.NDArray[Any] = attr.ib(init=False)
+    """The workers' error probability vector."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     @staticmethod
     def _e_step(

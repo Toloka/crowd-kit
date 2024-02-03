@@ -30,11 +30,6 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
 
     <https://doi.org/10.18653/v1/D19-5904>
 
-    Args:
-        n_iter: The maximum number of iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-
     Examples:
         >>> import numpy as np
         >>> import pandas as pd
@@ -48,23 +43,28 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         >>>     columns=['task', 'worker', 'segmentation']
         >>> )
         >>> result = SegmentationRASA().fit_predict(df)
-
-    Attributes:
-        segmentations_ (Series): The task segmentations.
-            The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
-            is the task aggregated segmentation.
-
-        weights_ (npt.NDArray[Any]): A list of workers' weights.
-
-        mv_ (npt.NDArray[Any]): The weighted task segmentations calculated with the Majority Vote algorithm.
-
-        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=10)
+    """The maximum number of iterations."""
+
     tol: float = attr.ib(default=1e-5)
-    # segmentations_
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
+
+    segmentations_: "pd.Series[Any]" = attr.ib(init=False)
+    """The task segmentations.
+    The `pandas.Series` data is indexed by `task` so that `segmentations.loc[task]`
+    is the task aggregated segmentation."""
+
+    weights_: npt.NDArray[Any] = attr.ib(init=False)
+    """A list of workers' weights."""
+
+    mv_: npt.NDArray[Any] = attr.ib(init=False)
+    """The weighted task segmentations calculated with the Majority Vote algorithm."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     @staticmethod
     def _segmentation_weighted(

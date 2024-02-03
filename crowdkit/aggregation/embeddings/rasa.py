@@ -39,12 +39,6 @@ class RASA(BaseEmbeddingsAggregator):
     Hong Kong, China (November 3, 2019), 24–28.
     <https://doi.org/10.18653/v1/D19-5904>
 
-    Args:
-        n_iter: The maximum number of iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-        alpha: The significance level of the chi-squared distribution quantiles in the $\beta$ parameter formula.
-
     Examples:
         >>> import numpy as np
         >>> import pandas as pd
@@ -58,18 +52,19 @@ class RASA(BaseEmbeddingsAggregator):
         >>>     columns=['task', 'worker', 'output', 'embedding']
         >>> )
         >>> result = RASA().fit_predict(df)
-
-    Attributes:
-        embeddings_and_outputs_ (DataFrame): The task embeddings and outputs.
-            The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
-        loss_history_ (List[float]): A list of loss values during training.
     """
 
     n_iter: int = attr.ib(default=100)
+    """The maximum number of iterations."""
+
     tol: float = attr.ib(default=1e-9)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps. The algorithm converges when the loss change is less than the `tol` parameter."""
+
     alpha: float = attr.ib(default=0.05)
-    # embeddings_and_outputs_
+    """The significance level of the chi-squared distribution quantiles in the $\beta$ parameter formula."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     @staticmethod
     def _aggregate_embeddings(

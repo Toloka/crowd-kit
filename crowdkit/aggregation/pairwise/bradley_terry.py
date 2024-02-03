@@ -44,9 +44,6 @@ class BradleyTerry(BasePairwiseAggregator):
     Rank analysis of incomplete block designs. I. The method of paired comparisons.
     *Biometrika*, Vol. 39 (1952): 324–345.
 
-    Args:
-        n_iter: A number of optimization iterations.
-
     Examples:
         The Bradley-Terry model needs the data to be a `DataFrame` containing columns
         `left`, `right`, and `label`. `left` and `right` contain identifiers of left and
@@ -62,16 +59,17 @@ class BradleyTerry(BasePairwiseAggregator):
         >>>     ],
         >>>     columns=['left', 'right', 'label']
         >>> )
-
-    Attributes:
-        scores_ (Series): 'Labels' scores.
-            A pandas.Series index by labels and holding corresponding label's scores
     """
 
     n_iter: int = attr.ib()
+    """A number of optimization iterations."""
+
     tol: float = attr.ib(default=1e-5)
-    # scores_
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     def fit(self, data: pd.DataFrame) -> "BradleyTerry":
         """Args:

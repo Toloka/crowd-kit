@@ -71,21 +71,6 @@ class HRRASA(BaseClassificationAggregator):
 
     <https://doi.org/10.1145/3397271.3401239>
 
-    Args:
-        n_iter: The maximum number of iterations.
-        tol: The tolerance stopping criterion for iterative methods with a variable number of steps.
-            The algorithm converges when the loss change is less than the `tol` parameter.
-        lambda_emb: The weight of reliability calculated on embeddings.
-        lambda_out: The weight of reliability calculated on outputs.
-        alpha: The significance level of the chi-squared distribution quantiles in the $\beta$ parameter formula.
-        calculate_ranks: Specifies if the additional `ranks_` attribute will be calculated (true) or not (false).
-        _output_similarity: The similarity measure $sim$ of the `output` data. By default, it is equal to the GLEU similarity.
-
-    Attributes:
-        embeddings_and_outputs_ (DataFrame): The task embeddings and outputs.
-            The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns.
-        loss_history_ (List[float]): A list of loss values during training.
-
     Examples:
         >>> import numpy as np
         >>> import pandas as pd
@@ -102,16 +87,35 @@ class HRRASA(BaseClassificationAggregator):
     """
 
     n_iter: int = attr.ib(default=100)
+    """The maximum number of iterations."""
+
     tol: float = attr.ib(default=1e-9)
+    """The tolerance stopping criterion for iterative methods with a variable number of steps.
+    The algorithm converges when the loss change is less than the `tol` parameter."""
+
     lambda_emb: float = attr.ib(default=0.5)
+    """The weight of reliability calculated on embeddings."""
+
     lambda_out: float = attr.ib(default=0.5)
+    """The weight of reliability calculated on outputs."""
+
     alpha: float = attr.ib(default=0.05)
+    """The significance level of the chi-squared distribution quantiles in the $\beta$ parameter formula."""
+
     calculate_ranks: bool = attr.ib(default=False)
+    """Specifies if the additional `ranks_` attribute will be calculated (true) or not (false)."""
+
     _output_similarity: Callable[[str, List[List[str]]], float] = attr.ib(
         default=glue_similarity
     )
-    # embeddings_and_outputs_
+    """The similarity measure $sim$ of the `output` data. By default, it is equal to the GLEU similarity."""
+
+    embeddings_and_outputs_: pd.DataFrame = attr.ib(init=False)
+    """The task embeddings and outputs.
+    The `pandas.DataFrame` data is indexed by `task` and has the `embedding` and `output` columns."""
+
     loss_history_: List[float] = attr.ib(init=False)
+    """A list of loss values during training."""
 
     def fit(
         self, data: pd.DataFrame, true_embeddings: Optional["pd.Series[Any]"] = None

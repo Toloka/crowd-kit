@@ -1,6 +1,6 @@
 __all__ = ["KOS"]
 
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 import attr
 import numpy as np
@@ -34,25 +34,23 @@ class KOS(BaseClassificationAggregator):
 
     <https://arxiv.org/abs/1110.3564>
 
-    Args:
-        n_iter: The maximum number of iterations.
-        random_state: The state of the random number generator.
-
     Examples:
         >>> from crowdkit.aggregation import KOS
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> ds = KOS(10)
         >>> result = ds.fit_predict(df)
-
-    Attributes:
-        labels_ (Optional[pd.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
-
     """
 
     n_iter: int = attr.ib(default=100)
+    """The maximum number of iterations."""
+
     random_state: int = attr.ib(default=0)
+    """The state of the random number generator."""
+
+    labels_: "Optional[pd.Series[Any]]" = attr.ib(init=False)
+    """The task labels.
+    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
 
     def fit(self, data: pd.DataFrame) -> "KOS":
         """Fits the model to the training data.

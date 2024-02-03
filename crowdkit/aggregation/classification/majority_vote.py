@@ -30,9 +30,6 @@ class MajorityVote(BaseClassificationAggregator):
 
      {% endnote %}
 
-    Args:
-        default_skill: Default worker weight value.
-
     Examples:
         Basic Majority Vote:
         >>> from crowdkit.aggregation import MajorityVote
@@ -56,33 +53,31 @@ class MajorityVote(BaseClassificationAggregator):
         >>> )
         >>> skills = pd.Series({'p1': 0.5, 'p2': 0.7, 'p3': 0.4})
         >>> result = MajorityVote().fit_predict(df, skills)
-
-    Attributes:
-        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
-
-        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker`
-            and has the corresponding worker skill.
-
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
-
-        on_missing_skill (str): A value which specifies how to handle assignments performed by workers with an unknown skill.
-
-            Possible values:
-                    * "error" — raises an exception if there is at least one assignment performed by a worker with an unknown skill;
-                    * "ignore" — drops assignments performed by workers with an unknown skill during prediction. Raises an exception if there are no
-                    assignments with a known skill for any task;
-                    * value — the default value will be used if a skill is missing.
     """
 
-    # TODO: remove skills_
-    skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
-    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
-    # labels_
-    on_missing_skill: str = attr.ib(default="error")
     default_skill: Optional[float] = attr.ib(default=None)
+    """Default worker weight value."""
+
+    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
+    """The task labels.
+    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
+
+    skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
+    """The workers' skills. The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
+
+    probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The probability distributions of task labels. The `pandas.DataFrame` data is indexed by `task`
+    so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+    Each probability is in the range from 0 to 1, all task probabilities must sum up to 1."""
+
+    on_missing_skill: str = attr.ib(default="error")
+    """A value which specifies how to handle assignments performed by workers with an unknown skill.
+
+    Possible values:
+    * `error`: raises an exception if there is at least one assignment performed by a worker with an unknown skill;
+    * `ignore`: drops assignments performed by workers with an unknown skill during prediction,
+    raises an exception if there are no assignments with a known skill for any task;
+    * `value`: the default value will be used if a skill is missing."""
 
     def fit(
         self, data: pd.DataFrame, skills: Optional["pd.Series[Any]"] = None

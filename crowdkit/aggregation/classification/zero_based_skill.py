@@ -27,43 +27,41 @@ class ZeroBasedSkill(BaseClassificationAggregator):
 
     {% endnote %}
 
-    Args:
-        n_iter: The maximum number of iterations.
-        lr_init: The initial learning rate.
-        lr_steps_to_reduce: The number of steps required to reduce the learning rate.
-        lr_reduce_factor: The factor by which the learning rate will be multiplied every `lr_steps_to_reduce` step.
-        eps: The convergence threshold.
-
     Examples:
         >>> from crowdkit.aggregation import ZeroBasedSkill
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
         >>> result = ZeroBasedSkill().fit_predict(df)
-
-    Attributes:
-        skills_ (typing.Optional[pandas.core.series.Series]): The workers' skills. The `pandas.Series` data is indexed by `worker`
-            and has the corresponding worker skill.
-
-        labels_ (typing.Optional[pandas.core.series.Series]): The task labels. The `pandas.Series` data is indexed by `task`
-            so that `labels.loc[task]` is the most likely true label of tasks.
-
-        probas_ (typing.Optional[pandas.core.frame.DataFrame]): The probability distributions of task labels.
-            The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
-            Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
     """
 
     n_iter: int = 100
+    """The maximum number of iterations."""
+
     lr_init: float = 1.0
+    """The initial learning rate."""
+
     lr_steps_to_reduce: int = 20
+    """The number of steps required to reduce the learning rate."""
+
     lr_reduce_factor: float = 0.5
+    """The factor by which the learning rate will be multiplied every `lr_steps_to_reduce` step."""
+
     eps: float = 1e-5
+    """The convergence threshold."""
 
-    # Available after fit
     skills_: Optional["pd.Series[Any]"] = named_series_attrib(name="skill")
+    """The workers' skills.
+    The `pandas.Series` data is indexed by `worker` and has the corresponding worker skill."""
 
-    # Available after predict or predict_proba
-    # labels_
+    labels_: Optional["pd.Series[Any]"] = attr.ib(init=False)
+    """The task labels.
+    The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
+
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
+    """The probability distributions of task labels.
+    The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that
+    the `task` true label is equal to `label`. Each probability is in the range from 0 to 1,
+    all task probabilities must sum up to 1."""
 
     def _init_skills(self, data: pd.DataFrame) -> "pd.Series[Any]":
         skill_value = 1 / data.label.unique().size + self.eps
