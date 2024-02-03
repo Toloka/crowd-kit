@@ -21,8 +21,8 @@ def test_conal(
     out = conal(embeddings, toy_logits, toy_workers)
     assert out.shape == (3, 5)
     out.sum().backward()
-    assert conal.annotator_confusion_matrices.grad
+    assert conal.annotator_confusion_matrices.grad is not None
     assert conal.annotator_confusion_matrices.grad.shape == (2, 5, 5)
-    assert conal.common_confusion_matrix.grad
+    assert conal.common_confusion_matrix.grad is not None
     assert conal.common_confusion_matrix.grad.shape == (5, 5)
     # I'm not sure that we can properly test the values of the output because the module is randomly initialized.

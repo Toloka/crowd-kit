@@ -13,7 +13,7 @@ def test_crowdlayer_vb(
     assert out.shape == (3, 5)
     assert torch.allclose(out, toy_logits)
     out.sum().backward()
-    assert crowd_layer.weight.grad
+    assert crowd_layer.weight.grad is not None
     assert crowd_layer.weight.grad.shape == (2, 5)
 
 
@@ -25,7 +25,7 @@ def test_crowdlayer_vw(
     assert out.shape == (3, 5)
     assert torch.allclose(out, toy_logits)
     out.sum().backward()
-    assert crowd_layer.weight.grad
+    assert crowd_layer.weight.grad is not None
     assert crowd_layer.weight.grad.shape == (2, 5)
 
 
@@ -37,9 +37,9 @@ def test_crowdlayer_vw_b(
     assert out.shape == (3, 5)
     assert torch.allclose(out, toy_logits)
     out.sum().backward()
-    assert crowd_layer.scale.grad
+    assert crowd_layer.scale.grad is not None
     assert crowd_layer.scale.grad.shape == (2, 5)
-    assert crowd_layer.bias.grad
+    assert crowd_layer.bias.grad is not None
     assert crowd_layer.bias.grad.shape == (2, 5)
 
 
@@ -51,5 +51,5 @@ def test_crowdlayer_mw(
     assert out.shape == (3, 5)
     assert torch.allclose(out, toy_logits)
     out.sum().backward()
-    assert crowd_layer.weight.grad
+    assert crowd_layer.weight.grad is not None
     assert crowd_layer.weight.grad.shape == (2, 5, 5)
