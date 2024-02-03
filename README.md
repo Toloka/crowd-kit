@@ -131,11 +131,6 @@ Below is the list of currently implemented methods, including the already availa
 }
 ```
 
-## Questions and Bug Reports
-
-* To report a bug, post an issue on the [Toloka/bugreport](https://github.com/Toloka/crowdlib/issues) page.
-* To find answers to common questions or start a new discussion, join our English-speaking [Slack community](https://toloka.ai/community).
-
 ## License
 
 &copy; Crowd-Kit team authors, 2020&ndash;2023. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.

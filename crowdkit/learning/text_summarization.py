@@ -48,7 +48,8 @@ class TextSummarization(BaseTextsAggregator):
             Default value: `None`.
         device: Device to use such as `cpu` or `cuda`.
             Default value: `cpu`.
-    Example:
+
+    Examples:
         >>> import torch
         >>> from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, AutoConfig
         >>> from crowdkit.learning import TextSummarization
@@ -59,6 +60,7 @@ class TextSummarization(BaseTextsAggregator):
         >>> agg = TextSummarization(tokenizer, model, device=device)
         >>> result = agg.fit_predict(df)
         ...
+
     Attributes:
         texts_ (Series): Tasks' texts.
             A pandas.Series indexed by `task` such that `result.loc[task, text]`

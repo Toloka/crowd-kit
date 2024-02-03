@@ -1,3 +1,7 @@
+"""
+Routines for embeddings.
+"""
+
 from .closest_to_average import ClosestToAverage
 from .hrrasa import HRRASA
 from .rasa import RASA

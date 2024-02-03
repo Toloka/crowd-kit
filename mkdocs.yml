@@ -1,0 +1,12 @@
+site_name: Crowd-Kit
+site_author: Toloka
+site_description: Control the quality of your labeled data with the Python tools you already know.
+copyright: Copyright &copy; 2020&ndash;2024 Crowd-Kit Team Authors
+repo_name: toloka/crowd-kit
+repo_url: https://github.com/toloka/crowd-kit
+theme:
+  name: material
+plugins:
+- search
+- mkdocstrings:
+    default_handler: python

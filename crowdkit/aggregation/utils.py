@@ -1,3 +1,7 @@
+"""
+Helper routines for aggregation.
+"""
+
 __all__ = [
     "evaluate_in",
     "evaluate_equal",

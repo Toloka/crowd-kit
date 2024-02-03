@@ -1,3 +1,7 @@
+"""
+Routines for classification.
+"""
+
 __all__ = [
     "DawidSkene",
     "GLAD",

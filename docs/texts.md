@@ -1,0 +1,3 @@
+# Textual
+
+::: crowdkit.aggregation.texts

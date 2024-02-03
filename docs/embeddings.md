@@ -1,0 +1,3 @@
+# Embeddings
+
+::: crowdkit.aggregation.embeddings

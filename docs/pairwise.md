@@ -1,0 +1,3 @@
+# Pairwise
+
+::: crowdkit.aggregation.pairwise

@@ -62,8 +62,11 @@ dev = [
     "codecov",
     "notebook",
     "ipywidgets",
-    "stubmaker @ git+https://github.com/Toloka/stubmaker.git@main",
     "pandas-stubs",
+]
+docs = [
+    "mkdocs-material",
+    "mkdocstrings-python"
 ]
 learning = [
     "torch>=1.6.0",

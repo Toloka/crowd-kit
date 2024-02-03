@@ -7,4 +7,4 @@ name = "pypi"
 crowd-kit = {editable = true, path = ".", extras = ["learning"]}
 
 [dev-packages]
-crowd-kit = {editable = true, path = ".", extras = ["dev", "learning"]}
+crowd-kit = {editable = true, path = ".", extras = ["dev", "docs", "learning"]}
