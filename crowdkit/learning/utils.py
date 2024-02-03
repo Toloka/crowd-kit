@@ -3,7 +3,7 @@ __all__ = [
     "batch_identity_matrices",
 ]
 
-from typing import Optional, cast
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
@@ -50,4 +50,4 @@ def batch_identity_matrices(
     """
     x = torch.eye(dim_size, dtype=dtype, device=device)
     x = x.reshape((1, dim_size, dim_size))
-    return cast(torch.Tensor, x.repeat(batch_size, 1, 1))
+    return x.repeat(batch_size, 1, 1)

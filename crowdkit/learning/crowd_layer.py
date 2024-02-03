@@ -2,7 +2,7 @@ __all__ = [
     "CrowdLayer",
 ]
 
-from typing import Optional, cast
+from typing import Optional
 
 import torch
 from torch import nn
@@ -25,10 +25,9 @@ def crowd_layer_mw(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return cast(
-        torch.Tensor,
-        torch.einsum("lij,ljk->lik", weight[workers], outputs.unsqueeze(-1)).squeeze(),
-    )
+    return torch.einsum(
+        "lij,ljk->lik", weight[workers], outputs.unsqueeze(-1)
+    ).squeeze()
 
 
 def crowd_layer_vw(
@@ -45,7 +44,7 @@ def crowd_layer_vw(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return cast(torch.Tensor, weight[workers] * outputs)
+    return weight[workers] * outputs
 
 
 def crowd_layer_vb(
@@ -62,7 +61,7 @@ def crowd_layer_vb(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return cast(torch.Tensor, outputs + weight[workers])
+    return outputs + weight[workers]
 
 
 def crowd_layer_vw_b(
@@ -83,7 +82,7 @@ def crowd_layer_vw_b(
     Returns:
         torch.Tensor: Tensor of shape (batch_size, input_dim)
     """
-    return cast(torch.Tensor, scale[workers] * outputs + bias[workers])
+    return scale[workers] * outputs + bias[workers]
 
 
 class CrowdLayer(nn.Module):
