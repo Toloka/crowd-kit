@@ -51,8 +51,7 @@ def clone_aggregator(
 
 
 def _argmax_random_ties(array: npt.NDArray[Any]) -> int:
-    # Returns the index of the maximum element
-    # If there are several such elements, it returns a random one
+    """Returns the index of the maximum element. If there are several such elements, it returns a random one."""
     return int(np.random.choice(np.flatnonzero(array == array.max())))
 
 
@@ -73,7 +72,7 @@ def evaluate(
 
     assert len(df_true) == len(
         df
-    ), f"Dataset length mismatch, expected {len(df_true):d}, got {len(df):d}"
+    ), f"Dataset length mismatch, expected {len(df_true)}, got {len(df)}"
 
     df["evaluation"] = df.apply(evaluate_func, axis=1)
     return float(df["evaluation"].mean())
