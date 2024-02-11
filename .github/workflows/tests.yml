@@ -31,15 +31,11 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: codecov
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == '3.11'
       - name: Run MkDocs
         run: mkdocs build --strict
       - name: Build wheel
         run: python3 -m build --sdist --wheel .
-      - name: Syntax Check Jupyter
-        run: |
-          jupyter nbconvert examples/*.ipynb --to python
-          python3 -m compileall examples
       - name: Run Jupyter
         run: jupyter nbconvert --to html --TagRemovePreprocessor.remove_cell_tags pip --execute examples/Readability-Pairwise.ipynb examples/TlkAgg-Categorical.ipynb
       - name: Upload Jupyter
@@ -47,9 +43,9 @@ jobs:
         with:
           name: crowd-kit-jupyter
           path: examples/*.html
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == '3.11'
       - name: Validate CITATION.cff
         uses: citation-file-format/cffconvert-github-action@2.0.0
         with:
           args: "--validate"
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == '3.11'

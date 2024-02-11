@@ -28,13 +28,13 @@ classifiers = [
 requires-python = ">= 3.8"
 dependencies = [
     "attrs",
+    "nltk",
     "numpy",
     "pandas >= 1.1.0",
     "pyarrow",
-    "tqdm",
     "scikit-learn",
-    "nltk",
-    "transformers",
+    "tqdm",
+    "transformers"
 ]
 dynamic = ["version"]
 
@@ -52,18 +52,20 @@ Documentation = "https://toloka.ai/en/docs/crowd-kit/"
 
 [project.optional-dependencies]
 dev = [
-    "mypy",
-    "pytest",
-    "twine",
-    "flake8",
     "black",
-    "isort",
-    "pre-commit",
     "build",
     "codecov",
-    "notebook",
+    "flake8",
     "ipywidgets",
+    "isort",
+    "mypy",
+    "nbqa",
+    "notebook",
     "pandas-stubs",
+    "pre-commit",
+    "pytest",
+    "twine",
+    "types-tqdm"
 ]
 docs = [
     "mkdocs-material",
@@ -71,7 +73,7 @@ docs = [
 ]
 learning = [
     "torch>=1.6.0",
-    "transformers>=4.0.0",
+    "transformers>=4.0.0"
 ]
 
 [tool.setuptools]
