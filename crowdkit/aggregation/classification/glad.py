@@ -334,7 +334,7 @@ class GLAD(BaseClassificationAggregator):
 
         self.loss_history_ = []
 
-        def iteration_progress() -> Tuple[Iterator[int], Optional[tqdm[int]]]:
+        def iteration_progress() -> Tuple[Iterator[int], Optional["tqdm[int]"]]:
             if self.silent:
                 return iter(range(self.n_iter)), None
             else:

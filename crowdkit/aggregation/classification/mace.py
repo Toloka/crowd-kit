@@ -202,7 +202,7 @@ class MACE(BaseClassificationAggregator):
                 labels,
             )
 
-            def iteration_progress() -> Tuple[Iterator[int], Optional[tqdm[int]]]:
+            def iteration_progress() -> Tuple[Iterator[int], Optional["tqdm[int]"]]:
                 if self.verbose > 1:
                     trange_ = trange(self.n_iter, desc="Iterations")
                     return iter(trange_), trange_
