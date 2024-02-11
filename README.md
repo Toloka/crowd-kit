@@ -10,8 +10,8 @@
 [github_tests_link]: https://github.com/Toloka/crowd-kit/actions/workflows/tests.yml
 [codecov_badge]: https://codecov.io/gh/Toloka/crowd-kit/branch/main/graph/badge.svg
 [codecov_link]: https://codecov.io/gh/Toloka/crowd-kit
-[docs_badge]: https://img.shields.io/badge/docs-toloka.ai-1E2126
-[docs_link]: https://toloka.ai/en/docs/crowd-kit/
+[docs_badge]: https://readthedocs.org/projects/crowd-kit/badge/
+[docs_link]: https://crowd-kit.readthedocs.io/
 
 **Crowd-Kit** is a powerful Python library that implements commonly-used aggregation methods for crowdsourced annotation and offers the relevant metrics and datasets. We strive to implement functionality that simplifies working with crowdsourced data.
 
