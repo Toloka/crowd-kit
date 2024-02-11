@@ -4,7 +4,7 @@ __all__ = [
 
 from copy import deepcopy
 from enum import Enum, unique
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, Hashable, Iterator, List, Optional, Tuple, cast
 
 import attr
 import numpy as np
@@ -79,11 +79,17 @@ class ROVER(BaseTextsAggregator):
             ROVER: self.
         """
 
+        def grouped_tasks() -> Iterator[Tuple[Hashable, pd.DataFrame]]:
+            grouped = data.groupby("task")
+
+            if self.silent:
+                yield from grouped
+            else:
+                yield from tqdm(grouped)
+
         result = {}
-        grouped_tasks = (
-            data.groupby("task") if self.silent else tqdm(data.groupby("task"))
-        )
-        for task, df in grouped_tasks:
+
+        for task, df in grouped_tasks():
             hypotheses = [self.tokenizer(text) for i, text in enumerate(df["text"])]
 
             edges = self._build_word_transition_network(hypotheses)

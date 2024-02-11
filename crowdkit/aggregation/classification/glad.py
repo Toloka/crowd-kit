@@ -1,6 +1,6 @@
 __all__ = ["GLAD"]
 
-from typing import Any, List, Optional, Tuple, cast
+from typing import Any, Iterator, List, Optional, Tuple, cast
 
 import attr
 import numpy as np
@@ -9,7 +9,7 @@ import pandas as pd
 import scipy
 import scipy.stats
 from scipy.optimize import minimize
-from tqdm.auto import tqdm
+from tqdm.auto import tqdm, trange
 
 # logsumexp was moved to scipy.special in 0.19.0rc1 version of scipy
 try:
@@ -333,13 +333,21 @@ class GLAD(BaseClassificationAggregator):
         Q = self._compute_Q(data)
 
         self.loss_history_ = []
-        iterations_range = (
-            tqdm(range(self.n_iter)) if not self.silent else range(self.n_iter)
-        )
-        for _ in iterations_range:
+
+        def iteration_progress() -> Tuple[Iterator[int], Optional[tqdm[int]]]:
+            if self.silent:
+                return iter(range(self.n_iter)), None
+            else:
+                trange_ = trange(self.n_iter, desc="Iterations")
+                return iter(trange_), trange_
+
+        iterator, pbar = iteration_progress()
+
+        for _ in iterator:
             last_Q = Q
             if not self.silent:
-                iterations_range.set_description(f"Q = {round(Q, 4)}")
+                assert isinstance(pbar, tqdm)
+                pbar.set_description(f"Q = {round(Q, 4)}")
 
             # E-step
             data = self._e_step(data)

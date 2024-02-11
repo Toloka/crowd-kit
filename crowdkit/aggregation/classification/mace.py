@@ -1,6 +1,6 @@
 __all__ = ["MACE"]
 
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
@@ -8,7 +8,7 @@ import pandas as pd
 import scipy.stats as sps
 from numpy.typing import NDArray
 from scipy.special import digamma
-from tqdm.auto import trange
+from tqdm.auto import tqdm, trange
 
 from ..base import BaseClassificationAggregator
 
@@ -178,12 +178,14 @@ class MACE(BaseClassificationAggregator):
         annotation = data.copy(deep=True)
 
         best_log_marginal_likelihood = -np.inf
-        restarts_progress = (
-            trange(self.n_restarts) if self.verbose > 0 else range(self.n_restarts)
-        )
-        if self.verbose > 0:
-            restarts_progress.set_description("Restarts")
-        for _ in restarts_progress:
+
+        def restarts_progress() -> Iterator[int]:
+            if self.verbose > 0:
+                yield from trange(self.n_restarts, desc="Restarts")
+            else:
+                yield from range(self.n_restarts)
+
+        for _ in restarts_progress():
             self._initialize(n_workers, n_labels)
             (
                 log_marginal_likelihood,
@@ -199,10 +201,17 @@ class MACE(BaseClassificationAggregator):
                 workers,
                 labels,
             )
-            iter_progress = (
-                trange(self.n_iter) if self.verbose > 1 else range(self.n_iter)
-            )
-            for _ in iter_progress:
+
+            def iteration_progress() -> Tuple[Iterator[int], Optional[tqdm[int]]]:
+                if self.verbose > 1:
+                    trange_ = trange(self.n_iter, desc="Iterations")
+                    return iter(trange_), trange_
+                else:
+                    return iter(range(self.n_iter)), None
+
+            iterator, pbar = iteration_progress()
+
+            for _ in iterator:
                 if self.method == "vb":
                     self._variational_m_step(
                         knowing_expected_counts, strategy_expected_counts
@@ -224,7 +233,8 @@ class MACE(BaseClassificationAggregator):
                     labels,
                 )
                 if self.verbose > 1:
-                    iter_progress.set_postfix(
+                    assert isinstance(pbar, tqdm)
+                    pbar.set_postfix(
                         {"log_marginal_likelihood": round(log_marginal_likelihood, 5)}
                     )
             if log_marginal_likelihood > best_log_marginal_likelihood:
