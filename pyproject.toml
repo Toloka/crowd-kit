@@ -64,6 +64,7 @@ dev = [
     "pandas-stubs",
     "pre-commit",
     "pytest",
+    "pyupgrade",
     "twine",
     "types-tqdm"
 ]
