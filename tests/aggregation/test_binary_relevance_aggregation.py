@@ -1,6 +1,7 @@
 """
 Simple aggregation tests.
 """
+
 from typing import Any
 
 import pandas as pd

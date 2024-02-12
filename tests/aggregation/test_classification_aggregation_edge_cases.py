@@ -2,6 +2,7 @@
 Simplest aggregation algorythms tests on different datasets
 Testing all boundary conditions and asserts
 """
+
 from typing import Any, Callable, Type
 
 import pandas as pd

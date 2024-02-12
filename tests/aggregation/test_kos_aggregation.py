@@ -2,6 +2,7 @@
 Simplest aggregation algorithms tests on toy YSDA dataset
 Testing all boundary conditions and asserts
 """
+
 from typing import Any
 
 import numpy as np
