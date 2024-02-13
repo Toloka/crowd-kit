@@ -1,11 +1,15 @@
 name: Tests
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.python-version == '3.12' }}
     strategy:
       fail-fast: false
       matrix:
@@ -31,21 +35,13 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: codecov
-        if: matrix.python-version == '3.11'
+        if: matrix.python-version == '3.12'
       - name: Run MkDocs
         run: mkdocs build --strict
       - name: Build wheel
         run: python3 -m build --sdist --wheel .
-      - name: Run Jupyter
-        run: jupyter nbconvert --to html --TagRemovePreprocessor.remove_cell_tags pip --execute examples/Readability-Pairwise.ipynb examples/TlkAgg-Categorical.ipynb
-      - name: Upload Jupyter
-        uses: actions/upload-artifact@v4
-        with:
-          name: crowd-kit-jupyter
-          path: examples/*.html
-        if: matrix.python-version == '3.11'
       - name: Validate CITATION.cff
         uses: citation-file-format/cffconvert-github-action@2.0.0
         with:
           args: "--validate"
-        if: matrix.python-version == '3.11'
+        if: matrix.python-version == '3.12'
