@@ -131,6 +131,10 @@ Below is the list of currently implemented methods, including the already availa
 }
 ```
 
+## Support and Contributions
+
+Please use [GitHub Issues](https://github.com/Toloka/crowd-kit/issues) to seek support and submit feature requests. We accept contributions to Crowd-Kit via GitHub as according to our guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
-&copy; Crowd-Kit team authors, 2020&ndash;2023. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
+&copy; Crowd-Kit team authors, 2020&ndash;2024. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
