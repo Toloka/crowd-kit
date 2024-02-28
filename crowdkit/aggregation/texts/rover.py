@@ -43,7 +43,7 @@ class ROVER(BaseTextsAggregator):
     <https://doi.org/10.1109/ASRU.1997.659110>
 
     Examples:
-        >>> from crowdkit.aggregation import load_dataset
+        >>> from crowdkit.datasets import load_dataset
         >>> from crowdkit.aggregation import ROVER
         >>> df, gt = load_dataset('crowdspeech-test-clean')
         >>> df['text'] = df['text'].str.lower()
