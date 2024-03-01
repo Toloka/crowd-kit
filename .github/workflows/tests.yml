@@ -28,7 +28,7 @@ jobs:
       - name: Lint with Mypy
         run: mypy crowdkit tests
       - name: Pre-Commit Check
-        uses: pre-commit/action@v3.0.0
+        uses: pre-commit/action@v3.0.1
       - name: Test with pytest
         run: coverage run --source crowdkit -m pytest
       - name: Codecov
