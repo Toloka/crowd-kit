@@ -283,11 +283,11 @@ DATA_LOADERS: Dict[
     },
     "netease_crowd": {
         "loader": load_netease_crowd,
-        "description": "NetEaseCrowd(https://github.com/fuxiAIlab/NetEaseCrowd-Dataset)"
+        "description": "NetEaseCrowd(https://github.com/fuxiAIlab/NetEaseCrowd-Dataset) "
         "is a large-scale crowdsourcing annotation dataset based on a mature Chinese data "
         "crowdsourcing platform of NetEase Inc.. NetEaseCrowd dataset contains about 2,400 workers, "
         "1,000,000 tasks, and 6,000,000 annotations between them, "
-        "where the annotations are collected in about 6 months."
+        "where the annotations are collected in about 6 months. "
         "This dataset is licensed under CC BY-SA 4.0",
     },
     "mscoco": {
