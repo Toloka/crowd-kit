@@ -57,6 +57,20 @@ def collect_stats_for_dataset(
             },
         ),
         (
+            "netease_crowd",
+            {
+                "rows": 6016319,
+                "dtypes_labels": {
+                    "worker": np.int64,
+                    "task": np.int64,
+                    "label": np.int64,
+                },
+                "dtypes_gt": np.int64,
+                "name_gt": "true_label",
+                "index_name_gt": "task",
+            },
+        ),
+        (
             "mscoco",
             {
                 "rows": 18000,
