@@ -4,7 +4,8 @@ from typing import Any, Callable, Dict, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from ._base import fetch_remote, get_data_dir
+# from ._base import fetch_remote, get_data_dir
+from crowdkit.datasets._base import fetch_remote, get_data_dir
 
 
 def _load_dataset(
@@ -77,6 +78,38 @@ def load_relevance5(
         true_labels = (
             pd.read_csv(join(data_path, "gt.csv"))
             .set_index("task")["label"]
+            .rename("true_label")
+        )
+
+        return labels, true_labels
+
+    full_data_path = _load_dataset(data_name, data_dir, data_url, checksum_url)
+
+    return load_dataframes(full_data_path)
+
+
+def load_netease_crowd(
+    data_dir: Optional[str] = None,
+) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
+    data_name = "netease_crowd"
+    data_url = (
+        "https://huggingface.co/datasets/"
+        "liuhyuu/NetEaseCrowd/resolve/58cab8743581a2647dcc86590a5a2aaf5429fa8c/NetEaseCrowd.zip"
+    )
+    checksum_url = (
+        "https://huggingface.co/datasets/"
+        "liuhyuu/NetEaseCrowd/resolve/58cab8743581a2647dcc86590a5a2aaf5429fa8c/NetEaseCrowd.md5"
+    )
+
+    def load_dataframes(data_path: str) -> Tuple[pd.DataFrame, "pd.Series[Any]"]:
+        labels = pd.read_csv(
+            join(data_path, "crowd_labels.csv"),
+            usecols=("workerId", "taskId", "answer"),
+        ).rename(columns={"workerId": "worker", "taskId": "task", "answer": "label"})
+        true_labels = (
+            pd.read_csv(join(data_path, "gt.csv"))
+            .rename(columns={"taskId": "task"})
+            .set_index("task")["truth"]
             .rename("true_label")
         )
 
@@ -248,6 +281,15 @@ DATA_LOADERS: Dict[
         "It contains around 1 million anonymized crowdsourced labels collected in the Relevance 5 Gradations project"
         " in 2016 at Yandex. In this project, query-document pairs are labeled on a scale of 1 to 5. from least relevant"
         " to most relevant.",
+    },
+    "netease_crowd": {
+        "loader": load_netease_crowd,
+        "description": "NetEaseCrowd(https://github.com/fuxiAIlab/NetEaseCrowd-Dataset)"
+        "is a large-scale crowdsourcing annotation dataset based on a mature Chinese data "
+        "crowdsourcing platform of NetEase Inc.. NetEaseCrowd dataset contains about 2,400 workers, "
+        "1,000,000 tasks, and 6,000,000 annotations between them, "
+        "where the annotations are collected in about 6 months."
+        "This dataset is licensed under CC BY-SA 4.0",
     },
     "mscoco": {
         "loader": load_mscoco,

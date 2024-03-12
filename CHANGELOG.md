@@ -1,3 +1,8 @@
+
+
+* Add [NetEaseCrowd](https://github.com/fuxiAIlab/NetEaseCrowd-Dataset) dataset
+  * A multi-class classification dataset with 6 millions annotations
+
 1.2.1
 -------------------
 * Bug fixes in RASA, HRRASA, and documentation
