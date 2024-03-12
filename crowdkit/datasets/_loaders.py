@@ -4,8 +4,7 @@ from typing import Any, Callable, Dict, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
-# from ._base import fetch_remote, get_data_dir
-from crowdkit.datasets._base import fetch_remote, get_data_dir
+from ._base import fetch_remote, get_data_dir
 
 
 def _load_dataset(
