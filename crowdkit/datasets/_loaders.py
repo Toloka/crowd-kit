@@ -293,7 +293,7 @@ DATA_LOADERS: Dict[
     "mscoco": {
         "loader": load_mscoco,
         "description": "A sample of 2,000 images segmentations from MSCOCO dataset (https://cocodataset.org, licensed "
-        "under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 911 peformers. "
+        "under Creative Commons Attribution 4.0 International Public License.) annotated on Toloka by 911 performers. "
         "For each image, 9 workers submitted segmentations.",
     },
     "mscoco_small": {
