@@ -44,7 +44,7 @@ def fetch_remote(url: str, checksum_url: str, path: str, data_dir: str) -> None:
     downloaded file.
     Parameters:
         url: str
-        checksum: str
+        checksum_url: str
         path: str, path to save a zip file
         data_dir: path to crowd-kit data directory
     """
