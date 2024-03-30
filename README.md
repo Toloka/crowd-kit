@@ -2,10 +2,13 @@
 
 [![Crowd-Kit](https://tlk.s3.yandex.net/crowd-kit/Crowd-Kit-GitHub.png)](https://github.com/Toloka/crowd-kit)
 
+[![PyPI Version][pypi_badge]][pypi_link]
 [![GitHub Tests][github_tests_badge]][github_tests_link]
 [![Codecov][codecov_badge]][codecov_link]
 [![Documentation][docs_badge]][docs_link]
 
+[pypi_badge]: https://badge.fury.io/py/crowd-kit.svg
+[pypi_link]: https://pypi.python.org/pypi/crowd-kit
 [github_tests_badge]: https://github.com/Toloka/crowd-kit/actions/workflows/tests.yml/badge.svg?branch=main
 [github_tests_link]: https://github.com/Toloka/crowd-kit/actions/workflows/tests.yml
 [codecov_badge]: https://codecov.io/gh/Toloka/crowd-kit/branch/main/graph/badge.svg
