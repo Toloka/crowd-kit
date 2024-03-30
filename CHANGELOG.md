@@ -1,7 +1,11 @@
+1.3.0
+-----
 
-
-* Add [NetEaseCrowd](https://github.com/fuxiAIlab/NetEaseCrowd-Dataset) dataset
-  * A multi-class classification dataset with 6 millions annotations
+* Added [NetEaseCrowd](https://github.com/fuxiAIlab/NetEaseCrowd-Dataset) dataset
+* Fixed bug in GLAD #83
+* Switched to MkDocs
+* Major typing improvements
+* Added more example notebooks
 
 1.2.1
 -------------------
