@@ -6,6 +6,7 @@
 * Switched to MkDocs
 * Major typing improvements
 * Added more example notebooks
+* Set up PyPI Trusted Publishing
 
 1.2.1
 -----
