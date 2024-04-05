@@ -30,7 +30,7 @@ Also, the `learning` subpackage contains PyTorch implementations of deep learnin
 
 To install Crowd-Kit, run the following command: `pip install crowd-kit`. If you also want to use the `learning` subpackage, type `pip install crowd-kit[learning]`.
 
-If you are interested in contributing to Crowd-Kit, use [Pipenv](https://pipenv.pypa.io/en/latest/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://docs.pytest.org/en/7.1.x/) for testing.
+If you are interested in contributing to Crowd-Kit, use [Pipenv](https://pipenv.pypa.io/en/latest/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://pytest.org/) for testing.
 
 ## Getting Started
 
@@ -78,7 +78,6 @@ Below is the list of currently implemented methods, including the already availa
 | [GLAD](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.glad.GLAD) | ✅ |
 | [KOS](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.kos.KOS) | ✅ |
 | [MACE](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.classification.mace.MACE) | ✅ |
-| BCC | 🟡 |
 
 ### Multi-Label Responses
 
