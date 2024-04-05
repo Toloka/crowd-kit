@@ -188,6 +188,6 @@ Our experience running Crowd-Kit in production for processing crowdsourced data 
 
 # Acknowledgements
 
-The work was done while the authors were with Yandex. We are grateful to Enrique G. Rodrigo for sharing the spark-crowd evaluation dataset. We want to thank Daniil Fedulov, Iulian Giliazev, Artem Grigorev, Daniil Likhobaba, Vladimir Losev, Stepan Nosov, Alisa Smirnova, Aleksey Sukhorosov, and Evgeny Tulin for their contributions to the library. Last but not least, we would like to acknowledge the open-source [contributors](https://github.com/Toloka/crowd-kit/graphs/contributors) to our library and the reviewers of this paper. We received no external funding.
+The work was done while the authors were with Yandex. We are grateful to Enrique G. Rodrigo for sharing the spark-crowd evaluation dataset. We want to thank Daniil Fedulov, Iulian Giliazev, Artem Grigorev, Daniil Likhobaba, Vladimir Losev, Stepan Nosov, Alisa Smirnova, Aleksey Sukhorosov, and Evgeny Tulin for their contributions to the library. Last but not least, we appreciate the improvements to our library made by open-source [contributors](https://github.com/Toloka/crowd-kit/graphs/contributors) and the reviewers of this paper. We received no external funding.
 
 # References
