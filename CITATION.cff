@@ -27,6 +27,7 @@ keywords:
 - data quality
 license: Apache-2.0
 preferred-citation:
+  type: generic
   authors:
   - family-names: Ustalov
     given-names: Dmitry
