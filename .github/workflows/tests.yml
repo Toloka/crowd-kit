@@ -44,4 +44,3 @@ jobs:
         uses: citation-file-format/cffconvert-github-action@2.0.0
         with:
           args: "--validate"
-        if: matrix.python-version == '3.12'
