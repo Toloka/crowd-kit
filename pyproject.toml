@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "crowd-kit"
 description = "Computational Quality Control for Crowdsourcing"
-keywords = ["crowdsourcing", "quality control", "answer aggregation"]
+keywords = ["crowdsourcing", "data labeling", "answer aggregation", "truth inference", "learning from crowds", "machine learning", "quality control", "data quality"]
 license = {text = "Apache 2.0"}
 authors = [{name = "Toloka"}]
 classifiers = [
@@ -44,10 +44,10 @@ file = "README.md"
 content-type = "text/markdown"
 
 [project.urls]
-Homepage = "https://github.com/Toloka/crowd-kit"
+"Homepage" = "https://github.com/Toloka/crowd-kit"
 "Bug Tracker" = "https://github.com/Toloka/crowd-kit/issues"
-Documentation = "https://toloka.ai/en/docs/crowd-kit/"
-"API Reference" = "https://toloka.ai/en/docs/crowd-kit/"
+"Documentation" = "https://crowd-kit.readthedocs.io/"
+"API Reference" = "https://crowd-kit.readthedocs.io/"
 "Source Code" = "https://github.com/Toloka/crowd-kit"
 "Release Notes" = "https://github.com/Toloka/crowd-kit/blob/main/CHANGELOG.md"
 
