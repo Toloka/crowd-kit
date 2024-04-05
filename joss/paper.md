@@ -3,17 +3,18 @@ title: 'Learning from Crowds with Crowd-Kit'
 tags:
   - Python
   - crowdsourcing
+  - data labeling
+  - answer aggregation
   - truth inference
-  - aggregation
   - learning from crowds
   - machine learning
   - quality control
+  - data quality
 authors:
   - name: Dmitry Ustalov
     orcid: 0000-0002-9979-2188
     affiliation: 1
     corresponding: true
-    note: The work was done while Dmitry and Boris were with Toloka.
   - name: Nikita Pavlichenko
     orcid: 0000-0002-7330-393X
     affiliation: 2
@@ -23,7 +24,7 @@ authors:
 affiliations:
  - name: JetBrains, Serbia
    index: 1
- - name: Toloka, Serbia
+ - name: JetBrains, Germany
    index: 2
  - name: Planet Farms, Portugal
    index: 3
@@ -33,15 +34,19 @@ bibliography: paper.bib
 
 # Summary
 
-Quality control is a crux of crowdsourcing. While most means for quality control are organizational and imply worker selection, golden tasks, and post-acceptance, computational quality control techniques allow parameterizing the whole crowdsourcing process of workers, tasks, and labels, inferring and revealing relationships between them. In this paper, we present Crowd-Kit, a general-purpose crowdsourcing computational quality control toolkit. It provides efficient implementations in Python of computational quality control algorithms for crowdsourcing, including data quality estimators and truth inference methods. We focus on aggregation methods for all the major annotation tasks, from the categorical annotation in which latent label assumption is met to more complex tasks like image and sequence aggregation. We perform an extensive evaluation of our toolkit on several datasets of different natures, enabling benchmarking computational quality control methods in a uniform, systematic, and reproducible way using the same codebase. We release our code and data under an open-source license at <https://github.com/Toloka/crowd-kit>.
+This paper presents Crowd-Kit, a general-purpose computational quality control toolkit for crowdsourcing. Crowd-Kit provides efficient and convenient implementations of popular quality control algorithms in Python, including methods for truth inference, deep learning from crowds, and data quality estimation. Our toolkit supports multiple modalities of answers and provides dataset loaders and example notebooks for faster prototyping. We extensively evaluated our toolkit on several datasets of different natures, enabling benchmarking computational quality control methods in a uniform, systematic, and reproducible way using the same codebase. We release our code and data under the Apache License 2.0 at <https://github.com/Toloka/crowd-kit>.
 
 # Statement of need
 
-Means for quality control in crowdsourcing include organizational approaches, such as task design, decomposition, and golden task preparation, yet reliably automated, and computational approaches that employ relationships and statistical properties of workers, tasks, and labels. Many crowdsourcing studies of complex crowdsourcing pipelines aim to reduce their tasks to multi-classification or combine multi-classification with post-acceptance, e.g., in a seminal paper by @Bernstein:10. At the same time, researchers from such fields as natural language processing, computer vision, and others develop discipline-specific methods. To be conveniently employed, these methods need to be integrated with popular data science libraries and frameworks. However, such toolkits as SQUARE [@Sheshadri:13], CEKA [@Zhang:15], Truth Inference [@Zheng:17], spark-crowd [@Rodrigo:19], require additional effort to be embedded in applications. We believe in addressing this issue by developing **Crowd-Kit**, an open-source production-ready Python toolkit for computational quality control in crowdsourcing. It implements popular quality control methods, providing a common ground for reliable experimentation and application. We perform an extensive evaluation of the Crowd-Kit library to provide common ground for comparisons. *In all the experiments in this paper, we used our implementations of the corresponding methods.*
+A traditional approach to quality control in crowdsourcing builds upon various organizational means, such as careful task design, decomposition, and preparing golden tasks [@Zhdanovskaya:23]. These techniques yield the best results when accompanied by computational methods that leverage worker-task-label relationships and their statistical properties.
+
+Many studies in crowdsourcing simplify complex tasks via multi-classification or post-acceptance steps, as discussed in a pivotal paper by @Bernstein:10. Meanwhile, researchers in natural language processing and computer vision develop specialized techniques. However, existing toolkits like SQUARE [@Sheshadri:13], CEKA [@Zhang:15], Truth Inference [@Zheng:17], spark-crowd [@Rodrigo:19] require additional effort for integration into applications, popular data science libraries and frameworks.
+
+We propose addressing this challenge with **Crowd-Kit**, an open-source Python toolkit for computational quality control in crowdsourcing. Crowd-Kit implements popular quality control methods, providing a standardized platform for reliable experimentation and application. We extensively evaluate the Crowd-Kit library to establish a basis for comparisons. *In all the experiments in this paper, we used our implementations of the corresponding methods.*
 
 # Design
 
-Our fundamental goal of Crowd-Kit development is to bridge the gap between crowdsourcing research and vivid data science ecosystem of NumPy, SciPy, pandas [@McKinney:10], and scikit-learn [@Pedregosa:11]. We implemented Crowd-Kit in Python and employed the highly optimized data structures and algorithms available in these libraries, ensuring compatibility with the application programming interface (API) of scikit-learn and data frames/series of pandas. Even for a user not familiar with crowdsourcing but familiar with scientific computing and data analysis in Python, the basic API usage will be very straightforward:
+Our fundamental goal of Crowd-Kit development was to bridge the gap between crowdsourcing research and vivid data science ecosystem of NumPy, SciPy, pandas [@McKinney:10], and scikit-learn [@Pedregosa:11]. We implemented Crowd-Kit in Python and employed the highly optimized data structures and algorithms available in these libraries, maintaining compatibility with the application programming interface (API) of scikit-learn and data frames/series of pandas. Even for a user not familiar with crowdsourcing but familiar with scientific computing and data analysis in Python, the basic API usage would be straightforward:
 
 ```python
 # df is a DataFrame with labeled data in form of (task, label, worker)
@@ -52,15 +57,15 @@ df, gt = load_dataset('relevance-2')  # binary relevance sample dataset
 agg_ds = DawidSkene(n_iter=10).fit_predict(df)  # same format as gt
 ```
 
-We implemented all the methods in Crowd-Kit from scratch in Python. Although unlike spark-crowd [@Rodrigo:19], our library does not provide means for running on a distributed computational cluster, it leverages efficient implementations of numerical algorithms in underlying libraries widely used in the research community. In addition to categorical aggregation methods, Crowd-Kit offers non-categorical aggregation methods, dataset loaders, and annotation quality characteristics.
+We implemented all the methods in Crowd-Kit from scratch in Python. Although unlike spark-crowd [@Rodrigo:19], our library did not provide a means for running on a distributed computational cluster, it leveraged efficient implementations of numerical algorithms in underlying libraries widely used in the research community. In addition to categorical aggregation methods, Crowd-Kit offers non-categorical aggregation methods, dataset loaders, and annotation quality estimators.
 
 # Maintenance and governance
 
-Crowd-Kit is not bound to any specific crowdsourcing platform, allowing analyzing data from any crowdsourcing marketplace (as soon as one can download the labeled data from that platform). Crowd-Kit is an open-source library working under most operating systems and available under Apache license both on GitHub and Python Package Index (PyPI).[^1]
-
-We build Crowd-Kit on top of the established open-source ecosystem and best practices. We widely use the continuous integration facilities offered by GitHub Actions for two purposes. First, every patch (*commit* in git terminology) invokes unit testing and coverage, type checking, linting, and documentation and packaging dry run. Second, every release is automatically submitted to PyPI directly from GitHub Actions via the trusted publishing mechanism to avoid potential side effects on the individual developer machines. Besides commit checks, every code change (*pull request* on GitHub) goes through code review by Crowd-Kit developers. Issues are also reported on GitHub. All code of Crowd-Kit has type annotations for additional safety and clarity. By the time of submission, our library had a test coverage of 93%.
+Crowd-Kit is not bound to any specific crowdsourcing platform, allowing analyzing data from any crowdsourcing marketplace (as soon as one can download the labeled data from that platform). Crowd-Kit is an open-source library working under most operating systems and available under the Apache license 2.0 both on GitHub and Python Package Index (PyPI).[^1] All code of Crowd-Kit has strict type annotations for additional safety and clarity. By the time of submission, our library had a test coverage of 93%.
 
 [^1]: <https://github.com/Toloka/crowd-kit> & <https://pypi.org/project/crowd-kit/>
+
+We built Crowd-Kit on top of the established open-source frameworks and best practices. We widely use the continuous integration facilities via GitHub Actions for two purposes. First, every patch (*commit* in git terminology) invokes unit testing and coverage, type checking, linting, documentation and packaging dry run. Second, every release is automatically submitted to PyPI directly from GitHub Actions via the trusted publishing mechanism to avoid potential side effects on the individual developer machines. Besides commit checks, every code change (*pull request* on GitHub) goes through a code review by the Crowd-Kit developers. We accept bug reports via GitHub Issues.
 
 # Functionality
 
@@ -68,7 +73,7 @@ Crowd-Kit implements a selection of popular methods for answer aggregation and l
 
 ## Aggregating and learning with Crowd-Kit
 
-Crowd-Kit features aggregation methods suitable for most kinds of crowdsourced data, including categorical, pairwise, sequential, and image segmentation answers (see the summary in \autoref{tab:methods}).
+Crowd-Kit features aggregation methods suitable for most kinds of crowdsourced responses, including categorical, pairwise, sequential, and image segmentation answers (see the summary in \autoref{tab:methods}).
 
 Methods for *categorical aggregation*, which are the most widespread in practice, assume that there is only one correct objective label per task and aim at recovering a latent true label from the observed noisy data. Some of these methods, such as Dawid-Skene and GLAD, also estimate latent parameters --- aka skills --- of the workers. Where the task design does not meet the latent label assumption, Crowd-Kit offers methods for aggregation *pairwise comparisons*, which are essential for subjective opinion gathering. Also, Crowd-Kit provides specialized methods for aggregating *sequences* (such as texts) and *image segmentation*. All these aggregation methods are implemented purely using NumPy, SciPy, pandas, and scikit-learn without any deep learning framework. Last but not least, Crowd-Kit offers methods for *deep learning from crowds* that learn an end-to-end machine learning model from raw responses submitted by the workers without the use of aggregation, which are available as ready-to-use modules for PyTorch [@Paszke:19].
 
@@ -105,7 +110,7 @@ Crowd-Kit offers convenient dataset loaders for some popular or demonstrative da
 
 [^3]: See the implementation of CrowdLayer at <https://github.com/Toloka/crowd-kit/blob/main/crowdkit/learning/crowd_layer.py> as an example of a method for deep learning from crowds.
 
-## Annotation quality characteristics
+## Annotation quality estimators
 
 Crowd-Kit allows one to apply commonly-used techniques to evaluate data and annotation quality, providing a unified pandas-compatible API to compute $\alpha$ [@Krippendorff:18], annotation uncertainty [@Malinin:19], agreement with aggregate [@Wawa], Dawid-Skene posterior probability, etc.
 
@@ -153,7 +158,7 @@ We extensively evaluate Crowd-Kit methods for answer aggregation and learning fr
 |              | test-clean  |  $0.729$  | $0.860$  |  $0.859$   |
 |              | test-other  |  $0.134$  | $0.157$  |  $0.157$   |
 
-**Segmentation.** We annotated on Toloka a sample of 2,000 images from the MS COCO [@Lin:14] dataset consisting of four object labels. For each image, nine workers submitted segmentations. The dataset is available in Crowd-Kit as `mscoco_small`. In total, we received 18,000 responses. \autoref{tab:segmentation} shows the comparison of the methods on the above-described dataset using the *intersection over union* (IoU) criterion.
+**Segmentation.** We annotated on the Toloka crowdsourcing platform a sample of 2,000 images from the MS COCO [@Lin:14] dataset consisting of four object labels. For each image, nine workers submitted segmentations. The dataset is available in Crowd-Kit as `mscoco_small`. In total, we received 18,000 responses. \autoref{tab:segmentation} shows the comparison of the methods on the above-described dataset using the *intersection over union* (IoU) criterion.
 
 : Comparison of implemented image aggregation algorithms (IoU is used).\label{tab:segmentation}
 
@@ -165,7 +170,7 @@ We extensively evaluate Crowd-Kit methods for answer aggregation and learning fr
 
 To demonstrate the impact of learning on raw annotator labels compared to answer aggregation in crowdsourcing, we compared the implemented methods for learning from crowds with the two classical aggregation algorithms, Majority Vote (MV) and Dawid-Skene (DS). We picked the two most common machine learning tasks for which ground truth datasets are available: text classification and image classification. For text classification, we used the IMDB Movie Reviews dataset [@Maas:11], and for image classification, we chose CIFAR-10 [@Krizhevsky:09]. In each dataset, each object was annotated by three different annotators; 100 objects were used as golden tasks.
 
-We compared how different methods for learning from crowds impact test accuracy. We picked two different backbone networks for text classification, LSTM [@Hochreiter:97] and RoBERTa [@Liu:19], and one backbone network for image classification, VGG-16 [@Simonyan:15]. Then, we trained each backbone in three scenarios: use the fully-connected layer after the backbone without taking into account any specifics of crowdsourcing (Base), CrowdLayer method by @Rodrigues:18, and CoNAL method by @Chu:21. \autoref{tab:learning} shows the evaluation results.
+We compared how different methods for learning from crowds impact test accuracy. We picked two different backbone networks for text classification, LSTM [@Hochreiter:97] and RoBERTa [@Liu:19], and one backbone network for image classification, VGG-16 [@Simonyan:15]. Then, we trained each backbone in three scenarios: use the fully connected layer after the backbone without taking into account any specifics of crowdsourcing (Base), CrowdLayer method by @Rodrigues:18, and CoNAL method by @Chu:21. \autoref{tab:learning} shows the evaluation results.
 
 : Comparison of different methods for deep learning from crowds with traditional answer aggregation methods (test set accuracy is used).\label{tab:learning}
 
@@ -175,7 +180,7 @@ We compared how different methods for learning from crowds impact test accuracy.
 | IMDb         |   RoBERTa    |  $0.932$  |    $0.928$     | $0.927$  | $0.932$ | $0.927$ |
 | CIFAR-10     |    VGG-16    |  $0.825$  |    $0.863$     | $0.882$  | $0.877$ | $0.865$ |
 
-Our experiment shows that it is feasible to train a deep learning model from the raw annotated data, skipping trivial aggregation methods like MV. However, specialized methods like CoNAL and CrowdLayer or non-trivial aggregation methods such as DS can significantly enhance prediction accuracy. It is crucial to make a well-informed model selection to achieve optimal results. We believe that Crowd-Kit can seamlessly integrate these methods into machine learning pipelines that utilize crowdsourced data with reliability and ease.
+Our experiment shows the feasibility of training a deep learning model directly from the raw annotated data, skipping trivial aggregation methods like MV. However, specialized methods like CoNAL and CrowdLayer or non-trivial aggregation methods like DS can significantly enhance prediction accuracy. It is crucial to make a well-informed model selection to achieve optimal results. We believe that Crowd-Kit can seamlessly integrate these methods into machine learning pipelines that utilize crowdsourced data with reliability and ease.
 
 # Conclusion
 
@@ -183,6 +188,6 @@ Our experience running Crowd-Kit in production for processing crowdsourced data 
 
 # Acknowledgements
 
-We are grateful to Enrique G. Rodrigo for sharing the spark-crowd evaluation dataset. We want to thank Vladimir Losev, Evgeny Tulin, and Iulian Giliazev for their earlier contributions to the library. We received no external funding.
+The work was done while the authors were with Yandex. We are grateful to Enrique G. Rodrigo for sharing the spark-crowd evaluation dataset. We want to thank Daniil Fedulov, Iulian Giliazev, Artem Grigorev, Daniil Likhobaba, Vladimir Losev, Stepan Nosov, Alisa Smirnova, Aleksey Sukhorosov, and Evgeny Tulin for their contributions to the library. We received no external funding.
 
 # References
