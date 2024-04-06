@@ -6,6 +6,7 @@
 [![GitHub Tests][github_tests_badge]][github_tests_link]
 [![Codecov][codecov_badge]][codecov_link]
 [![Documentation][docs_badge]][docs_link]
+[![Paper][paper_badge]][paper_link]
 
 [pypi_badge]: https://badge.fury.io/py/crowd-kit.svg
 [pypi_link]: https://pypi.python.org/pypi/crowd-kit
@@ -15,6 +16,8 @@
 [codecov_link]: https://codecov.io/gh/Toloka/crowd-kit
 [docs_badge]: https://readthedocs.org/projects/crowd-kit/badge/
 [docs_link]: https://crowd-kit.readthedocs.io/
+[paper_badge]: https://joss.theoj.org/papers/10.21105/joss.06227/status.svg
+[paper_link]: https://doi.org/10.21105/joss.06227
 
 **Crowd-Kit** is a powerful Python library that implements commonly-used aggregation methods for crowdsourced annotation and offers the relevant metrics and datasets. We strive to implement functionality that simplifies working with crowdsourced data.
 
@@ -117,18 +120,23 @@ Below is the list of currently implemented methods, including the already availa
 
 ## Citation
 
-* Ustalov D., Pavlichenko N., Tseitlin B. [Learning from Crowds with Crowd-Kit](https://arxiv.org/abs/2109.08584). 2023. arXiv: [2109.08584 [cs.HC]](https://arxiv.org/abs/2109.08584).
+* Ustalov D., Pavlichenko N., Tseitlin B. (2024). [Learning from Crowds with Crowd-Kit](https://doi.org/10.21105/joss.06227). Journal of Open Source Software, 9(96), 6227
 
 ```bibtex
-@misc{CrowdKit,
+@article{CrowdKit,
   author    = {Ustalov, Dmitry and Pavlichenko, Nikita and Tseitlin, Boris},
   title     = {{Learning from Crowds with Crowd-Kit}},
-  year      = {2023},
-  publisher = {arXiv},
+  year      = {2024},
+  journal   = {Journal of Open Source Software},
+  volume    = {9},
+  number    = {96},
+  pages     = {6227},
+  publisher = {The Open Journal},
+  doi       = {10.21105/joss.06227},
+  issn      = {2475-9066},
   eprint    = {2109.08584},
   eprinttype = {arxiv},
   eprintclass = {cs.HC},
-  url       = {https://arxiv.org/abs/2109.08584},
   language  = {english},
 }
 ```

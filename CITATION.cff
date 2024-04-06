@@ -27,7 +27,7 @@ keywords:
 - data quality
 license: Apache-2.0
 preferred-citation:
-  type: generic
+  type: article
   authors:
   - family-names: Ustalov
     given-names: Dmitry
@@ -39,6 +39,14 @@ preferred-citation:
     family-names: Tseitlin
     orcid: "https://orcid.org/0000-0001-8553-4260"
   title: "Learning from Crowds with Crowd-Kit"
+  year: 2024
+  journal: Journal of Open Source Software
+  volume: 9
+  issue: 96
+  start: 6227
+  end: 6227
+  doi: "10.21105/joss.06227"
+  issn: 2475-9066
   identifiers:
   - type: other
     value: "arXiv:2109.08584"
