@@ -1,3 +1,8 @@
+1.3.0.post0
+-----------
+
+- Article reference update: <https://doi.org/10.21105/joss.06227>
+
 1.3.0
 -----
 
