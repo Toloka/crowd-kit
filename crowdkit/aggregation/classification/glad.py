@@ -157,9 +157,7 @@ class GLAD(BaseClassificationAggregator):
         probas = probas.groupby(["task"]).transform(self._softmax)
         # put posterior in data['posterior']
         probas.name = "posterior"
-        data = pd.merge(
-            data.drop("posterior", axis=1), probas, on=["task", "variable"], copy=False
-        )
+        data = pd.merge(data.drop("posterior", axis=1), probas, on=["task", "variable"])
 
         self.probas_ = probas.unstack()
         return data
