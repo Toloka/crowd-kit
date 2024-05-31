@@ -158,7 +158,7 @@ class GLAD(BaseClassificationAggregator):
         # put posterior in data['posterior']
         probas.name = "posterior"
         data = pd.merge(
-            data.drop("posterior", axis=1), probas, on=["task", "variable"], copy=False
+            data.drop("posterior", axis=1), probas, on=["task", "variable"], copy=False  # type: ignore[call-arg,unused-ignore]
         )
 
         self.probas_ = probas.unstack()
