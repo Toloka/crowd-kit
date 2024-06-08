@@ -16,13 +16,14 @@ from .majority_vote import MajorityVote
 
 @attr.s
 class MMSR(BaseClassificationAggregator):
-    r"""The **Matrix Mean-Subsequence-Reduced Algorithm** (M-MSR) model assumes that workers have different expertise levels and are represented
-    as a vector of "skills" $s$ which entries $s_i$ show the probability
-    that the worker $i$ will answer the given task correctly. Having that, we can estimate the probability of each worker via solving a rank-one matrix completion problem as follows:
-    $$
-    \mathbb{E}\left[\frac{M}{M-1}\widetilde{C}-\frac{1}{M-1}\boldsymbol{1}\boldsymbol{1}^T\right]
-     = \boldsymbol{s}\boldsymbol{s}^T,
-    $$
+    r"""The **Matrix Mean-Subsequence-Reduced Algorithm** (M-MSR) model assumes that workers have different
+    expertise levels and are represented as a vector of "skills" $s$ which entries $s_i$ show the probability
+    that the worker $i$ will answer the given task correctly. Having that, we can estimate the probability of
+    each worker via solving a rank-one matrix completion problem as follows:
+
+    $\mathbb{E}\left[\frac{M}{M-1}\widetilde{C}-\frac{1}{M-1}\boldsymbol{1}\boldsymbol{1}^T\right] =
+    \boldsymbol{s}\boldsymbol{s}^T$,
+
     where $M$ is the total number of classes, $\widetilde{C}$ is a covariance matrix between
     workers, and $\boldsymbol{1}\boldsymbol{1}^T$ is the all-ones matrix which has the same
     size as $\widetilde{C}$.

@@ -33,20 +33,17 @@ class GLAD(BaseClassificationAggregator):
 
     ![GLAD latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/glad_llm.png)
 
-    The prior probability of $z_j$ being equal to $c$ is
-    $$
-    \operatorname{Pr}(z_j = c) = p[c],
-    $$
+    The prior probability of $z_j$ being equal to $c$ is $\operatorname{Pr}(z_j = c) = p[c]$,
     and the probability distribution of the worker responses with the true label $c$ follows the
     single coin Dawid-Skene model where the true label probability is a sigmoid function of the product of the
     worker ability and the inverse task difficulty:
-    $$
-    \operatorname{Pr}(y^i_j = k | z_j = c) = \begin{cases}a(i, j), & k = c \\ \frac{1 - a(i,j)}{K-1}, & k \neq c\end{cases},
-    $$
-    where
-    $$
-    a(i,j) = \frac{1}{1 + \exp(-\alpha_i\beta_j)}.
-    $$
+
+    $\operatorname{Pr}(y^i_j = k | z_j = c) = \begin{cases}
+        a(i, j), & k = c \\
+        \frac{1 - a(i,j)}{K-1}, & k \neq c
+    \end{cases}$,
+
+    where $a(i,j) = \frac{1}{1 + \exp(-\alpha_i\beta_j)}$.
 
     Parameters $p$, $\alpha$, $\beta$, and latent variables $z$ are optimized with the Expectation-Minimization algorithm:
     1. **E-step**. Estimates the true task label probabilities using the alpha parameters of workers' abilities,

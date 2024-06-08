@@ -33,23 +33,18 @@ class HRRASA(BaseClassificationAggregator):
     **Step 2**. Estimate the *local* workers' reliabilities that represent how well a
     worker responds to one particular task. The local reliability of the worker $k$ on the task $i$ is
     denoted by $\gamma_i^k$ and is calculated by incorporating both types of representations:
-    $$
-    \gamma_i^k = \lambda_{emb}\gamma_{i,emb}^k + \lambda_{seq}\gamma_{i,seq}^k, \; \lambda_{emb} + \lambda_{seq} = 1,
-    $$
-    where the $\gamma_{i,emb}^k$ value is a reliability calculated on `embedding`, and the $\gamma_{i,seq}^k$ value is a
-    reliability calculated on `output`.
+    $\gamma_i^k = \lambda_{emb}\gamma_{i,emb}^k + \lambda_{seq}\gamma_{i,seq}^k, \; \lambda_{emb} + \lambda_{seq} = 1$,
+    where the $\gamma_{i,emb}^k$ value is a reliability calculated on `embedding`, and the $\gamma_{i,seq}^k$
+    value is a reliability calculated on `output`.
 
     The $\gamma_{i,emb}^k$ value is calculated by the following equation:
-    $$
-    \gamma_{i,emb}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}
-    \exp\left(\frac{\|e_i^k-e_i^{k'}\|^2}{\|e_i^k\|^2\|e_i^{k'}\|^2}\right),
-    $$
+    $\gamma_{i,emb}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}
+    \exp\left(\frac{\|e_i^k-e_i^{k'}\|^2}{\|e_i^k\|^2\|e_i^{k'}\|^2}\right)$,
     where $\mathcal{U_i}$ is a set of workers' responses on task $i$.
 
-    The $\gamma_{i,seq}^k$ value uses some similarity measure $sim$ on the `output` data, e.g. GLEU similarity on texts:
-    $$
-    \gamma_{i,seq}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}sim(a_i^k, a_i^{k'}).
-    $$
+    The $\gamma_{i,seq}^k$ value uses some similarity measure $sim$ on the `output` data,
+    e.g. GLEU similarity on texts:
+    $\gamma_{i,seq}^k = \frac{1}{|\mathcal{U}_i| - 1}\sum_{a_i^{k'} \in \mathcal{U}_i, k \neq k'}sim(a_i^k, a_i^{k'})$.
 
     **Step 3**. Estimate the *global* workers' reliabilities $\beta$ by iteratively performing two steps:
     1. For each task, estimate the aggregated embedding: $\hat{e}_i = \frac{\sum_k \gamma_i^k
@@ -58,12 +53,9 @@ class HRRASA(BaseClassificationAggregator):
     |\mathcal{V}_k|)}}{\sum_i\left(\|e_i^k - \hat{e}_i\|^2/\gamma_i^k\right)}$, where $\mathcal{V}_k$
     is a set of tasks completed by the worker $k$.
 
-    **Step 4**. Estimate the aggregated result. It is the output which embedding is
-    the closest one to $\hat{e}_i$. If `calculate_ranks` is true, the method also calculates ranks for
-    each worker response as
-    $$
-    s_i^k = \beta_k \exp\left(-\frac{\|e_i^k - \hat{e}_i\|^2}{\|e_i^k\|^2\|\hat{e}_i\|^2}\right) + \gamma_i^k.
-    $$
+    **Step 4**. Estimate the aggregated result. It is the output which embedding is the closest one to
+    $\hat{e}_i$. If `calculate_ranks` is true, the method also calculates ranks for each worker response as
+    $s_i^k = \beta_k \exp\left(-\frac{\|e_i^k - \hat{e}_i\|^2}{\|e_i^k\|^2\|\hat{e}_i\|^2}\right) + \gamma_i^k$.
 
     Jiyi Li. Crowdsourced Text Sequence Aggregation based on Hybrid Reliability and Representation.
     In *Proceedings of the 43rd International ACM SIGIR Conference on Research and Development

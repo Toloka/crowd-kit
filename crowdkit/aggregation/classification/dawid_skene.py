@@ -24,15 +24,9 @@ class DawidSkene(BaseClassificationAggregator):
 
     ![Dawid-Skene latent label model](https://tlk.s3.yandex.net/crowd-kit/docs/ds_llm.png)
 
-    Here the prior true label probability is
-    $$
-    \operatorname{Pr}(z_j = c) = p[c],
-    $$
-    and the probability distribution of the worker responses with the true label $c$ is represented by the
-    corresponding column of the error matrix:
-    $$
-    \operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c].
-    $$
+    Here the prior true label probability is $\operatorname{Pr}(z_j = c) = p[c]$, and the probability distribution
+    of the worker responses with the true label $c$ is represented by the corresponding column of the error matrix:
+    $\operatorname{Pr}(y_j^w = k | z_j = c) = e^w[k, c]$.
 
     Parameters $p$, $e^w$, and latent variables $z$ are optimized with the Expectation-Maximization algorithm:
     1. **E-step**. Estimates the true task label probabilities using the specified workers' responses,
@@ -239,15 +233,14 @@ class OneCoinDawidSkene(DawidSkene):
     at the M-step of the algorithm.
 
     For the one-coin model, a worker confusion (error) matrix is parameterized by a single parameter $s_w$:
-    $$
-    e^w_{j,z_j}  = \begin{cases}
+
+    $e^w_{j,z_j}  = \begin{cases}
         s_{w} & y^w_j = z_j \\
         \frac{1 - s_{w}}{K - 1} & y^w_j \neq z_j
-    \end{cases}
-    $$
+    \end{cases}$,
+
     where $e^w$ is a worker confusion (error) matrix of size $K \times K$ in case of the $K$ class classification,
-    $z_j$ be a true task label, $y^w_j$ is a worker
-    response to the task $j$, and $s_w$ is a worker skill (accuracy).
+    $z_j$ be a true task label, $y^w_j$ is a worker response to the task $j$, and $s_w$ is a worker skill (accuracy).
 
     In other words, the worker $w$ uses a single coin flip to decide their assignment. No matter what the true label is,
     the worker has the $s_w$ probability to assign the correct label, and

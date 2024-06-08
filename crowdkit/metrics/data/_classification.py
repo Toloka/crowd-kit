@@ -113,7 +113,7 @@ def uncertainty(
 ) -> Union[float, "pd.Series[Any]"]:
     r"""Label uncertainty metric: entropy of labels probability distribution.
     Computed as Shannon's Entropy with label probabilities computed either for tasks or workers:
-    $$H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))$$
+    $H(L) = -\sum_{label_i \in L} p(label_i) \cdot \log(p(label_i))$.
 
     Args:
         answers: A data frame containing `task`, `worker` and `label` columns.

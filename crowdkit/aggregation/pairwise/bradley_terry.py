@@ -18,14 +18,13 @@ class BradleyTerry(BasePairwiseAggregator):
     The algorithm constructs an items' ranking based on pairwise comparisons. Given
     a pair of two items $i$ and $j$, the probability of $i$ to be ranked higher is,
     according to the Bradley-Terry's probabilistic model,
-    $$
-    P(i > j) = \frac{p_i}{p_i + p_j}.
-    $$
+    $P(i > j) = \frac{p_i}{p_i + p_j}$.
+
     Here $\boldsymbol{p}$ is a vector of positive real-valued parameters that the algorithm optimizes. These
     optimization process maximizes the log-likelihood of observed comparisons outcomes by the MM-algorithm:
-    $$
-    L(\boldsymbol{p}) = \sum_{i=1}^n\sum_{j=1}^n[w_{ij}\ln p_i - w_{ij}\ln (p_i + p_j)],
-    $$
+
+    $L(\boldsymbol{p}) = \sum_{i=1}^n\sum_{j=1}^n[w_{ij}\ln p_i - w_{ij}\ln (p_i + p_j)]$,
+
     where $w_{ij}$ denotes the number of comparisons of $i$ and $j$ "won" by $i$.
 
     {% note info %}
