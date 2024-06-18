@@ -39,7 +39,9 @@ jobs:
       - name: Run MkDocs
         run: mkdocs build --strict
       - name: Build wheel
-        run: python3 -m build --sdist --wheel .
+        run: |
+          python3 -m build --sdist --wheel .
+          twine check --strict dist/*
       - name: Validate CITATION.cff
         uses: citation-file-format/cffconvert-github-action@2.0.0
         with:
