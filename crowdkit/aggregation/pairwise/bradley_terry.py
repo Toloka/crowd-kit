@@ -99,7 +99,7 @@ class BradleyTerry(BasePairwiseAggregator):
         self.loss_history_ = []
 
         for _ in range(self.n_iter):
-            P: npt.NDArray[np.float_] = np.broadcast_to(p, M.shape)
+            P: npt.NDArray[np.float64] = np.broadcast_to(p, M.shape)
 
             Z[active] = T[active] / (P[active] + P.T[active])
 

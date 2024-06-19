@@ -47,7 +47,7 @@ def test_aggregate_mace_on_simple(
 
 
 @pytest.fixture
-def thetas_simple() -> NDArray[np.float_]:
+def thetas_simple() -> NDArray[np.float64]:
     return np.array(
         [
             [0.27249486, 0.27249486, 0.42663689],

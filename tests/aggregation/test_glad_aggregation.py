@@ -57,7 +57,7 @@ def single_task_simple_df(simple_answers_df: pd.DataFrame) -> pd.DataFrame:
 
 
 @pytest.fixture
-def single_task_simple_df_e_step_probas() -> npt.NDArray[np.float_]:
+def single_task_simple_df_e_step_probas() -> npt.NDArray[np.float64]:
     return np.array([[0.995664, 0.004336]])
 
 
