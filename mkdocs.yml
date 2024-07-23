@@ -20,6 +20,7 @@ plugins:
     handlers:
       python:
         import:
+        - https://docs.python.org/3/objects.inv
         - https://www.attrs.org/en/stable/objects.inv
         - https://pandas.pydata.org/docs/objects.inv
         - https://pytorch.org/docs/stable/objects.inv
