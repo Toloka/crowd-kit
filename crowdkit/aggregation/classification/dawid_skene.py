@@ -146,11 +146,15 @@ class DawidSkene(BaseClassificationAggregator):
         entropy = -(np.log(probas) * probas).sum().sum()
         return float(joint_expectation + entropy)
 
-    def fit(self, data: pd.DataFrame) -> "DawidSkene":
+    def fit(
+        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
+    ) -> "DawidSkene":
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            true_labels (Series): The ground truth labels of tasks. The `pandas.Series` data is indexed by `task`
+                        so that `labels.loc[task]` is the task ground truth label.
         Returns:
             DawidSkene: self.
         """
@@ -167,6 +171,9 @@ class DawidSkene(BaseClassificationAggregator):
 
         # Initialization
         probas = MajorityVote().fit_predict_proba(data)
+        # correct the probas by true_labels
+        if true_labels is not None:
+            probas = self._correct_probas_with_golden(probas, true_labels)
         priors = probas.mean()
         errors = self._m_step(data, probas)
         loss = -np.inf
@@ -175,6 +182,9 @@ class DawidSkene(BaseClassificationAggregator):
         # Updating proba and errors n_iter times
         for _ in range(self.n_iter):
             probas = self._e_step(data, priors, errors)
+            # correct the probas by true_labels
+            if true_labels is not None:
+                probas = self._correct_probas_with_golden(probas, true_labels)
             priors = probas.mean()
             errors = self._m_step(data, probas)
             new_loss = self._evidence_lower_bound(data, probas, priors, errors) / len(
@@ -224,6 +234,29 @@ class DawidSkene(BaseClassificationAggregator):
         self.fit(data)
         assert self.labels_ is not None, "no labels_"
         return self.labels_
+
+    @staticmethod
+    def _correct_probas_with_golden(
+        probas: pd.DataFrame, true_labels: "pd.Series[Any]"
+    ) -> pd.DataFrame:
+        """
+        Correct the probas by `true_labels`
+        """
+        corrected_probas = probas
+
+        # Iterate over the unique labels present in true_labels
+        for label in true_labels.unique():
+            # Find the indices in both probas and true_labels where the true label is the current label
+            indices = true_labels[true_labels == label].index.intersection(probas.index)
+            # Set the corresponding probabilities to 1 for the correct label and 0 for others
+            corrected_probas.loc[indices] = (
+                0  # Set all columns to 0 for the given indices
+            )
+            corrected_probas.loc[indices, label] = (
+                1  # Set the correct label column to 1
+            )
+
+        return corrected_probas
 
 
 @attr.s
@@ -308,7 +341,7 @@ class OneCoinDawidSkene(DawidSkene):
         skills = skilled_data.groupby(["worker"], sort=False)["skill"].mean()
         return skills
 
-    def fit(self, data: pd.DataFrame) -> "OneCoinDawidSkene":
+    def fit(self, data: pd.DataFrame) -> "OneCoinDawidSkene":  # type: ignore[override]
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
