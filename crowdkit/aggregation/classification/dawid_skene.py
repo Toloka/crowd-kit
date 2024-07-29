@@ -146,9 +146,7 @@ class DawidSkene(BaseClassificationAggregator):
         entropy = -(np.log(probas) * probas).sum().sum()
         return float(joint_expectation + entropy)
 
-    def fit(
-        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
-    ) -> "DawidSkene":
+    def fit(self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None) -> "DawidSkene":  # type: ignore
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
