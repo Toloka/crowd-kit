@@ -146,7 +146,9 @@ class DawidSkene(BaseClassificationAggregator):
         entropy = -(np.log(probas) * probas).sum().sum()
         return float(joint_expectation + entropy)
 
-    def fit(self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None) -> "DawidSkene":  # type: ignore
+    def fit(
+        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
+    ) -> "DawidSkene":
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -339,7 +341,7 @@ class OneCoinDawidSkene(DawidSkene):
         skills = skilled_data.groupby(["worker"], sort=False)["skill"].mean()
         return skills
 
-    def fit(self, data: pd.DataFrame) -> "OneCoinDawidSkene":
+    def fit(self, data: pd.DataFrame) -> "OneCoinDawidSkene":  # type: ignore[override]
         """Fits the model to the training data with the EM algorithm.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
