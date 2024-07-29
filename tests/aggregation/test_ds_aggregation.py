@@ -14,6 +14,21 @@ from crowdkit.aggregation import DawidSkene, OneCoinDawidSkene
 
 
 @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
+def test_aggregate_ds_gold_on_toy_ysda(
+    n_iter: int,
+    tol: float,
+    toy_answers_df: pd.DataFrame,
+    toy_ground_truth_df: "pd.Series[Any]",
+    toy_gold_df: "pd.Series[Any]",
+) -> None:
+    np.random.seed(42)
+    assert_series_equal(
+        DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, toy_gold_df).labels_.sort_index(),  # type: ignore
+        toy_ground_truth_df.sort_index(),
+    )
+
+
+@pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
 def test_aggregate_ds_on_toy_ysda(
     n_iter: int,
     tol: float,
