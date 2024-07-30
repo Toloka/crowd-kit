@@ -44,6 +44,17 @@ class DawidSkene(BaseClassificationAggregator):
         >>> df, gt = load_dataset('relevance-2')
         >>> ds = DawidSkene(100)
         >>> result = ds.fit_predict(df)
+
+    We can use the golden labels to correct the probability distributions of task labels
+    by the true labels during the iterative process:
+
+    Examples:
+        >>> from crowdkit.aggregation import DawidSkene
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> true_labels = gt[:1000]  # use the first 100 true labels
+        >>> ds = DawidSkene(100)
+        >>> result = ds.fit_predict(df, true_labels)
     """
 
     n_iter: int = attr.ib(default=100)
@@ -96,12 +107,13 @@ class DawidSkene(BaseClassificationAggregator):
         Estimates the true task label probabilities using the specified workers' responses,
         the prior label probabilities, and the workers' error probability matrix.
         """
-
         # We have to multiply lots of probabilities and such products are known to converge
         # to zero exponentially fast. To avoid floating-point precision problems we work with
         # logs of original values
         joined = data.join(np.log2(errors), on=["worker", "label"])  # type: ignore
         joined.drop(columns=["worker", "label"], inplace=True)
+
+        priors.clip(lower=_EPS, inplace=True)
         log_likelihoods = np.log2(priors) + joined.groupby("task", sort=False).sum()
         log_likelihoods.rename_axis("label", axis=1, inplace=True)
 
@@ -135,6 +147,7 @@ class DawidSkene(BaseClassificationAggregator):
         # escape boolean index/column names to prevent confusion between indexing by boolean array and iterable of names
         joined = joined.rename(columns={True: "True", False: "False"}, copy=False)
         priors = priors.rename(index={True: "True", False: "False"}, copy=False)
+        priors.clip(lower=_EPS, inplace=True)
 
         joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))  # type: ignore
 
@@ -142,7 +155,7 @@ class DawidSkene(BaseClassificationAggregator):
         joint_expectation = (
             (probas.rename(columns={True: "True", False: "False"}) * joined).sum().sum()
         )
-
+        probas.clip(lower=_EPS, inplace=True)
         entropy = -(np.log(probas) * probas).sum().sum()
         return float(joint_expectation + entropy)
 
@@ -150,11 +163,15 @@ class DawidSkene(BaseClassificationAggregator):
         self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
     ) -> "DawidSkene":
         """Fits the model to the training data with the EM algorithm.
+
         Args:
             data (DataFrame): The training dataset of workers' labeling results
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
-            true_labels (Series): The ground truth labels of tasks. The `pandas.Series` data is indexed by `task`
-                        so that `labels.loc[task]` is the task ground truth label.
+            true_labels (Series): The ground truth labels of tasks.
+                The `pandas.Series` data is indexed by `task`  so that `labels.loc[task]` is the task ground truth label.
+                When provided, the model will correct the probability distributions of task labels by the true labels
+                during the iterative process.
+
         Returns:
             DawidSkene: self.
         """
@@ -207,31 +224,47 @@ class DawidSkene(BaseClassificationAggregator):
 
         return self
 
-    def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
+    def fit_predict_proba(
+        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
+    ) -> pd.DataFrame:
         """Fits the model to the training data and returns probability distributions of labels for each task.
+
         Args:
             data (DataFrame): The training dataset of workers' labeling results
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            true_labels (Series): The ground truth labels of tasks.
+                The `pandas.Series` data is indexed by `task`  so that `labels.loc[task]` is the task ground truth label.
+                When provided, the model will correct the probability distributions of task labels by the true labels
+                during the iterative process.
+
         Returns:
             DataFrame: Probability distributions of task labels.
                 The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
                 Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
         """
 
-        self.fit(data)
+        self.fit(data, true_labels)
         assert self.probas_ is not None, "no probas_"
         return self.probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
+    def fit_predict(
+        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
+    ) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
+
         Args:
             data (DataFrame): The training dataset of workers' labeling results
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+            true_labels (Series): The ground truth labels of tasks.
+                The `pandas.Series` data is indexed by `task`  so that `labels.loc[task]` is the task ground truth label.
+                When provided, the model will correct the probability distributions of task labels by the true labels
+                during the iterative process.
+
         Returns:
             Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        self.fit(data)
+        self.fit(data, true_labels)
         assert self.labels_ is not None, "no labels_"
         return self.labels_
 
