@@ -48,6 +48,9 @@ def test_ds_gold_probas_correction_with_iters(
     assert match_count == len(toy_gold_df), f"{match_count=}, {len(toy_gold_df)=}"
     # check that all probas sum to 1(check that all probas are correct)
     assert np.allclose(probas.drop("true_label", axis=1).sum(axis=1), 1.0, atol=1e-8)
+    # check labels
+    assert ds.labels_ is not None, "no labels_"
+    assert_series_equal(ds.labels_[toy_gold_df.index], toy_gold_df, check_names=False)
 
 
 @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
