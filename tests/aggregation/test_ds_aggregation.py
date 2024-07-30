@@ -28,6 +28,28 @@ def test_aggregate_ds_gold_on_toy_ysda(
     )
 
 
+@pytest.mark.parametrize("n_iter", [0, 1, 2])
+def test_ds_gold_probas_correction_with_iters(
+    n_iter: int,
+    toy_answers_df: pd.DataFrame,
+    toy_ground_truth_df: "pd.Series[Any]",
+    toy_gold_df: "pd.Series[Any]",
+) -> None:
+    ds = DawidSkene(n_iter).fit(toy_answers_df, toy_gold_df)
+    probas = ds.probas_
+    assert probas is not None, "no probas_"
+    probas = probas.merge(
+        toy_gold_df.rename("true_label"), left_on="task", right_index=True
+    )
+    # check that gold label probas are correct, i.e. equal to 1.0
+    match_count = probas.apply(
+        lambda row: np.isclose(row[row.true_label], 1.0, atol=1e-8), axis=1
+    ).sum()
+    assert match_count == len(toy_gold_df), f"{match_count=}, {len(toy_gold_df)=}"
+    # check that all probas sum to 1(check that all probas are correct)
+    assert np.allclose(probas.drop("true_label", axis=1).sum(axis=1), 1.0, atol=1e-8)
+
+
 @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
 def test_aggregate_ds_on_toy_ysda(
     n_iter: int,
