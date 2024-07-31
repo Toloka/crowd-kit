@@ -376,6 +376,7 @@ class OneCoinDawidSkene(DawidSkene):
 
     def fit(self, data: pd.DataFrame) -> "OneCoinDawidSkene":  # type: ignore[override]
         """Fits the model to the training data with the EM algorithm.
+
         Args:
             data (DataFrame): The training dataset of workers' labeling results
                 which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
