@@ -24,3 +24,6 @@ plugins:
         - https://www.attrs.org/en/stable/objects.inv
         - https://pandas.pydata.org/docs/objects.inv
         - https://pytorch.org/docs/stable/objects.inv
+        options:
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
