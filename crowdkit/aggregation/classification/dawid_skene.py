@@ -160,7 +160,10 @@ class DawidSkene(BaseClassificationAggregator):
         return float(joint_expectation + entropy)
 
     def fit(
-        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
+        self,
+        data: pd.DataFrame,
+        true_labels: Optional["pd.Series[Any]"] = None,
+        initial_error: Optional[pd.DataFrame] = None,
     ) -> "DawidSkene":
         """Fits the model to the training data with the EM algorithm.
 
@@ -171,6 +174,8 @@ class DawidSkene(BaseClassificationAggregator):
                 The `pandas.Series` data is indexed by `task`  so that `labels.loc[task]` is the task ground truth label.
                 When provided, the model will correct the probability distributions of task labels by the true labels
                 during the iterative process.
+            initial_error (DataFrame): The workers' initial error matrices, comes from historical performance data.
+                The `initial_error` should have the same shape as the `errors_` attribute.
 
         Returns:
             DawidSkene: self.
@@ -192,7 +197,11 @@ class DawidSkene(BaseClassificationAggregator):
         if true_labels is not None:
             probas = self._correct_probas_with_golden(probas, true_labels)
         priors = probas.mean()
+
         errors = self._m_step(data, probas)
+        if initial_error is not None:
+            errors += initial_error
+
         loss = -np.inf
         self.loss_history_ = []
 
@@ -225,7 +234,10 @@ class DawidSkene(BaseClassificationAggregator):
         return self
 
     def fit_predict_proba(
-        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
+        self,
+        data: pd.DataFrame,
+        true_labels: Optional["pd.Series[Any]"] = None,
+        initial_error: Optional[pd.DataFrame] = None,
     ) -> pd.DataFrame:
         """Fits the model to the training data and returns probability distributions of labels for each task.
 
@@ -236,6 +248,8 @@ class DawidSkene(BaseClassificationAggregator):
                 The `pandas.Series` data is indexed by `task`  so that `labels.loc[task]` is the task ground truth label.
                 When provided, the model will correct the probability distributions of task labels by the true labels
                 during the iterative process.
+            initial_error (DataFrame): The workers' initial error matrices, comes from historical performance data.
+                The `initial_error` should have the same shape as the `errors_` attribute.
 
         Returns:
             DataFrame: Probability distributions of task labels.
@@ -243,12 +257,15 @@ class DawidSkene(BaseClassificationAggregator):
                 Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
         """
 
-        self.fit(data, true_labels)
+        self.fit(data, true_labels, initial_error)
         assert self.probas_ is not None, "no probas_"
         return self.probas_
 
     def fit_predict(
-        self, data: pd.DataFrame, true_labels: Optional["pd.Series[Any]"] = None
+        self,
+        data: pd.DataFrame,
+        true_labels: Optional["pd.Series[Any]"] = None,
+        initial_error: Optional[pd.DataFrame] = None,
     ) -> "pd.Series[Any]":
         """Fits the model to the training data and returns the aggregated results.
 
@@ -259,12 +276,14 @@ class DawidSkene(BaseClassificationAggregator):
                 The `pandas.Series` data is indexed by `task`  so that `labels.loc[task]` is the task ground truth label.
                 When provided, the model will correct the probability distributions of task labels by the true labels
                 during the iterative process.
+            initial_error (DataFrame): The workers' initial error matrices, comes from historical performance data.
+                The `initial_error` should have the same shape as the `errors_` attribute.
 
         Returns:
             Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
         """
 
-        self.fit(data, true_labels)
+        self.fit(data, true_labels, initial_error)
         assert self.labels_ is not None, "no labels_"
         return self.labels_
 
