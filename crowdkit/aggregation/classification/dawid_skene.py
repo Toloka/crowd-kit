@@ -83,7 +83,11 @@ class DawidSkene(BaseClassificationAggregator):
     """ A list of loss values during training."""
 
     @staticmethod
-    def _m_step(data: pd.DataFrame, probas: pd.DataFrame) -> pd.DataFrame:
+    def _m_step(
+        data: pd.DataFrame,
+        probas: pd.DataFrame,
+        initial_error: Optional[pd.DataFrame] = None,
+    ) -> pd.DataFrame:
         """Performs M-step of the Dawid-Skene algorithm.
 
         Estimates the workers' error probability matrix using the specified workers' responses and the true task label probabilities.
@@ -92,6 +96,8 @@ class DawidSkene(BaseClassificationAggregator):
         joined.drop(columns=["task"], inplace=True)
 
         errors = joined.groupby(["worker", "label"], sort=False).sum()
+        if initial_error is not None:
+            errors += initial_error
         errors.clip(lower=_EPS, inplace=True)
         errors /= errors.groupby("worker", sort=False).sum()
 
@@ -197,11 +203,7 @@ class DawidSkene(BaseClassificationAggregator):
         if true_labels is not None:
             probas = self._correct_probas_with_golden(probas, true_labels)
         priors = probas.mean()
-
-        errors = self._m_step(data, probas)
-        if initial_error is not None:
-            errors += initial_error
-
+        errors = self._m_step(data, probas, initial_error)
         loss = -np.inf
         self.loss_history_ = []
 
