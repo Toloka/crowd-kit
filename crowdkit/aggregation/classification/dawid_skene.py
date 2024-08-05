@@ -97,7 +97,7 @@ class DawidSkene(BaseClassificationAggregator):
 
         errors = joined.groupby(["worker", "label"], sort=False).sum()
         if initial_error is not None:
-            errors += initial_error
+            errors = errors.add(initial_error, fill_value=0.0)
         errors.clip(lower=_EPS, inplace=True)
         errors /= errors.groupby("worker", sort=False).sum()
 

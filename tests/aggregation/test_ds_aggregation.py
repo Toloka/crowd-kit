@@ -13,6 +13,152 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 from crowdkit.aggregation import DawidSkene, OneCoinDawidSkene
 
 
+class TestWorkerInitError:
+
+    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
+    def test_zero_error_on_toy_ysda(
+        self,
+        n_iter: int,
+        tol: float,
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: pd.DataFrame,
+    ) -> None:
+        """
+        Basic parameter compatibility test: when worker_init_error contains all workers
+        """
+        np.random.seed(42)
+        init_error_df = toy_worker_init_error_zero_df
+        assert_series_equal(
+            DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, initial_error=init_error_df).labels_.sort_index(),  # type: ignore
+            toy_ground_truth_df.sort_index(),
+        )
+
+    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
+    def test_zero_partial_error_on_toy_ysda(
+        self,
+        n_iter: int,
+        tol: float,
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: pd.DataFrame,
+    ) -> None:
+        """
+        Basic parameter compatibility test: when worker_init_error doesn't contain all workers
+        """
+        np.random.seed(42)
+        initial_error_df = toy_worker_init_error_zero_df[:3]
+        assert_series_equal(
+            DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, initial_error=initial_error_df).labels_.sort_index(),  # type: ignore
+            toy_ground_truth_df.sort_index(),
+        )
+
+    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
+    def test_consistency_on_toy_ysda(
+        self,
+        n_iter: int,
+        tol: float,
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: "pd.Series[Any]",
+    ) -> None:
+        """
+        Behavior test: when worker's init error matrix is similar to the error matrix in these tasks,
+        the aggregation result should be the same as before(without init error)
+        """
+        np.random.seed(42)
+        # According to the ground truth data, w2's answer is always right.
+        # so when we set the initial error matrix of w2 to almost right, we should get same results
+        init_error_df = toy_worker_init_error_zero_df
+        init_error_df.loc[("w2", "yes"), "no"] = 1
+        init_error_df.loc[("w2", "yes"), "yes"] = 99
+        init_error_df.loc[("w2", "no"), "yes"] = 1
+        init_error_df.loc[("w2", "no"), "no"] = 99
+
+        assert_series_equal(
+            DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, initial_error=init_error_df).labels_.sort_index(),  # type: ignore
+            toy_ground_truth_df.sort_index(),
+        )
+
+    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
+    def test_desired_label_on_toy_ysda(
+        self,
+        n_iter: int,
+        tol: float,
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: "pd.Series[Any]",
+    ) -> None:
+        """
+        Behavior test: dedicate init error matrices should lead to desired results
+        """
+        np.random.seed(42)
+        # worker's annotation on t2: w1: yes, w2: yes, w3: yes, w4: no, w5: no
+        # ground truth: t2: yes
+
+        # When we set workers' init error matrices as fellow, we should get the desired result
+        # In these case, we want the t2's label to be no rather than yes
+        init_error_df = toy_worker_init_error_zero_df
+        init_error_df.loc[("w1", "yes"), "no"] = 99
+        init_error_df.loc[("w2", "yes"), "no"] = 99
+        init_error_df.loc[("w3", "yes"), "no"] = 99
+        init_error_df.loc[("w4", "no"), "no"] = 99
+        init_error_df.loc[("w5", "no"), "no"] = 99
+
+        ds = DawidSkene(n_iter=n_iter, tol=tol)
+        ds = ds.fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
+        assert ds.labels_["t2"] == "no"  # type: ignore
+
+    def test_inner_state_on_toy_ysda(
+        self,
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: "pd.Series[Any]",
+    ) -> None:
+        """
+        Inner state test.
+
+        Without init error, w2's error matrix(without avg) in iter 0 is as fellows:
+
+                no  yes
+        label
+        yes    0.9  2.1
+        no     1.4  0.6
+
+        After fitting with init error, w2's error matrix(without avg) in iter 0 should be:
+
+                no  yes
+        label
+        yes    2  3
+        no     2  1
+
+        After the avg of error matrix:
+                no  yes
+        label
+        yes    0.5  0.75
+        no     0.5  0.25
+        """
+        np.random.seed(42)
+        init_error_df = toy_worker_init_error_zero_df
+        init_error_df.loc[("w2", "yes"), "no"] = 1.1  # 1.1 + 0.9 = 2
+        init_error_df.loc[("w2", "yes"), "yes"] = 0.9  # 0.9 + 2.1 = 3
+        init_error_df.loc[("w2", "no"), "yes"] = 0.4  # 0.4 + 0.6 = 1
+        init_error_df.loc[("w2", "no"), "no"] = 0.6  # 0.6 + 1.4 = 2
+
+        # fit with init error
+        with_init_errors = DawidSkene(n_iter=0, tol=0.0).fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
+
+        # check w2 error matrix
+        item_probs = [
+            ("yes", "no", 0.5),
+            ("yes", "yes", 0.75),
+            ("no", "yes", 0.25),
+            ("no", "no", 0.5),
+        ]
+        for observed, label, prob in item_probs:
+            assert np.isclose(with_init_errors.errors_.loc["w2"].loc[observed, label], prob)  # type: ignore
+
+
 @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
 def test_aggregate_ds_gold_on_toy_ysda(
     n_iter: int,

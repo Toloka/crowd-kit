@@ -67,6 +67,23 @@ def toy_gold_df() -> "pd.Series[Any]":
     )
 
 
+@pytest.fixture
+def toy_worker_init_error_zero_df() -> pd.DataFrame:
+    """
+    The initial error matrix for toy dataset, which is filled with zeros.
+    """
+    worker_labels = [["w1", "w2", "w3", "w4", "w5"], ["yes", "no"]]
+    worker_label_index = pd.MultiIndex.from_product(
+        worker_labels, names=["worker", "label"]
+    )
+    init_error_df = pd.DataFrame(
+        np.zeros((len(worker_label_index), 2)),
+        index=worker_label_index,
+        columns=["no", "yes"],
+    )
+    return init_error_df
+
+
 # Simple dataset that imitates real toloka answers
 
 
