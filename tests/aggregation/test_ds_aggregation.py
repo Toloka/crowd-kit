@@ -70,10 +70,10 @@ class TestWorkerInitError:
         # According to the ground truth data, w2's answer is always right.
         # so when we set the initial error matrix of w2 to almost right, we should get same results
         init_error_df = toy_worker_init_error_zero_df
-        init_error_df.loc[("w2", "yes"), "no"] = 1
-        init_error_df.loc[("w2", "yes"), "yes"] = 99
-        init_error_df.loc[("w2", "no"), "yes"] = 1
-        init_error_df.loc[("w2", "no"), "no"] = 99
+        init_error_df[("w2", "yes"), "no"] = 1
+        init_error_df[("w2", "yes"), "yes"] = 99
+        init_error_df[("w2", "no"), "yes"] = 1
+        init_error_df[("w2", "no"), "no"] = 99
 
         assert_series_equal(
             DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, initial_error=init_error_df).labels_.sort_index(),  # type: ignore
@@ -99,11 +99,11 @@ class TestWorkerInitError:
         # When we set workers' init error matrices as fellow, we should get the desired result
         # In these case, we want the t2's label to be no rather than yes
         init_error_df = toy_worker_init_error_zero_df
-        init_error_df.loc[("w1", "yes"), "no"] = 99
-        init_error_df.loc[("w2", "yes"), "no"] = 99
-        init_error_df.loc[("w3", "yes"), "no"] = 99
-        init_error_df.loc[("w4", "no"), "no"] = 99
-        init_error_df.loc[("w5", "no"), "no"] = 99
+        init_error_df[("w1", "yes"), "no"] = 99
+        init_error_df[("w2", "yes"), "no"] = 99
+        init_error_df[("w3", "yes"), "no"] = 99
+        init_error_df[("w4", "no"), "no"] = 99
+        init_error_df[("w5", "no"), "no"] = 99
 
         ds = DawidSkene(n_iter=n_iter, tol=tol)
         ds = ds.fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
@@ -140,10 +140,10 @@ class TestWorkerInitError:
         """
         np.random.seed(42)
         init_error_df = toy_worker_init_error_zero_df
-        init_error_df.loc[("w2", "yes"), "no"] = 1.1  # 1.1 + 0.9 = 2
-        init_error_df.loc[("w2", "yes"), "yes"] = 0.9  # 0.9 + 2.1 = 3
-        init_error_df.loc[("w2", "no"), "yes"] = 0.4  # 0.4 + 0.6 = 1
-        init_error_df.loc[("w2", "no"), "no"] = 0.6  # 0.6 + 1.4 = 2
+        init_error_df[("w2", "yes"), "no"] = 1.1  # 1.1 + 0.9 = 2
+        init_error_df[("w2", "yes"), "yes"] = 0.9  # 0.9 + 2.1 = 3
+        init_error_df[("w2", "no"), "yes"] = 0.4  # 0.4 + 0.6 = 1
+        init_error_df[("w2", "no"), "no"] = 0.6  # 0.6 + 1.4 = 2
 
         # fit with init error
         with_init_errors = DawidSkene(n_iter=0, tol=0.0).fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
