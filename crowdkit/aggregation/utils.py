@@ -191,7 +191,7 @@ def named_series_attrib(name: str) -> "pd.Series[Any]":
         series.name = name
         return series
 
-    return attr.ib(init=False, converter=converter, on_setattr=attr.setters.convert)
+    return attr.ib(init=False, converter=converter, on_setattr=attr.setters.convert)  # type: ignore[no-any-return]
 
 
 def add_skills_to_data(
