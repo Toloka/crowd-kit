@@ -55,6 +55,40 @@ class DawidSkene(BaseClassificationAggregator):
         >>> true_labels = gt[:1000]  # use the first 100 true labels
         >>> ds = DawidSkene(100)
         >>> result = ds.fit_predict(df, true_labels)
+
+    We can also provide the workers' initial error matrices, which come from historical performance data.
+    Here we create simple error matrices with two workers:
+
+    ```
+                  0  1
+    worker label
+    w851   0      9  1
+           1      1  9
+    w6991  0      9  1
+           1      1  9
+    ```
+
+    Note:
+        1. Make sure the error matrix is indexed by `worker` and `label`
+        with columns for every `label_id` appeared in `data`.
+        You can use the `pandas.MultiIndex` to create such an index, see the example below.
+
+        2. The error matrix should contain the history **count**(not probability) that `worker` produces `observed_label`,
+        given that the task true label is `true_label`.
+
+    Examples:
+        >>> from crowdkit.aggregation import DawidSkene
+        >>> from crowdkit.datasets import load_dataset
+        >>> df, gt = load_dataset('relevance-2')
+        >>> error_matrix_index = pd.MultiIndex.from_arrays([['w851', 'w851', 'w6991', 'w6991'], [0, 1, 0, 1]], names=['worker', 'label'])
+        >>> initial_error = pd.DataFrame(
+        ...     data=[[9, 1], [1, 9], [9, 1], [1, 9]],
+        ...     index=error_matrix_index,
+        ...     columns=[0, 1],
+        ... )
+        >>> ds = DawidSkene(100)
+        >>> result = ds.fit_predict(df, initial_error=initial_error)
+
     """
 
     n_iter: int = attr.ib(default=100)
@@ -97,7 +131,7 @@ class DawidSkene(BaseClassificationAggregator):
 
         errors = joined.groupby(["worker", "label"], sort=False).sum()
         if initial_error is not None:
-            errors = errors.add(initial_error, fill_value=0.0)
+            errors = errors.add(initial_error, axis="index", fill_value=0.0)
         errors.clip(lower=_EPS, inplace=True)
         errors /= errors.groupby("worker", sort=False).sum()
 
@@ -181,7 +215,9 @@ class DawidSkene(BaseClassificationAggregator):
                 When provided, the model will correct the probability distributions of task labels by the true labels
                 during the iterative process.
             initial_error (DataFrame): The workers' initial error matrices, comes from historical performance data.
-                The `initial_error` should have the same shape as the `errors_` attribute.
+                The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
+                for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the
+                history **count** that `worker` produces `observed_label`, given that the task true label is `true_label`.
 
         Returns:
             DawidSkene: self.
@@ -251,7 +287,9 @@ class DawidSkene(BaseClassificationAggregator):
                 When provided, the model will correct the probability distributions of task labels by the true labels
                 during the iterative process.
             initial_error (DataFrame): The workers' initial error matrices, comes from historical performance data.
-                The `initial_error` should have the same shape as the `errors_` attribute.
+                The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
+                for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the
+                history **count** that `worker` produces `observed_label`, given that the task true label is `true_label`.
 
         Returns:
             DataFrame: Probability distributions of task labels.
@@ -279,7 +317,9 @@ class DawidSkene(BaseClassificationAggregator):
                 When provided, the model will correct the probability distributions of task labels by the true labels
                 during the iterative process.
             initial_error (DataFrame): The workers' initial error matrices, comes from historical performance data.
-                The `initial_error` should have the same shape as the `errors_` attribute.
+                The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
+                for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the
+                history **count** that `worker` produces `observed_label`, given that the task true label is `true_label`.
 
         Returns:
             Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
