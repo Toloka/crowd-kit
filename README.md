@@ -37,6 +37,7 @@ If you are interested in contributing to Crowd-Kit, use [uv](https://github.com/
 
 ```shell
 uv venv
+uv tool run pre-commit install
 uv pip install -e '.[dev,docs,learning]
 ```
 
