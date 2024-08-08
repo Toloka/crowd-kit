@@ -221,8 +221,8 @@ class TestWorkerInitError:
             tol=0.0,
             initial_error_strategy="addition",
         ).fit(
-            toy_answers_df, initial_error=init_error_df
-        )  # type: ignore
+            toy_answers_df, initial_error=init_error_df  # type: ignore
+        )
 
         # check w2 error matrix
         item_probs = [

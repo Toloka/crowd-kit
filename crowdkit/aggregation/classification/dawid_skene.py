@@ -151,11 +151,12 @@ class DawidSkene(BaseClassificationAggregator):
     loss_history_: List[float] = attr.ib(init=False)
     """ A list of loss values during training."""
 
+    @staticmethod
     def _m_step(
-        self,
         data: pd.DataFrame,
         probas: pd.DataFrame,
         initial_error: Optional[pd.DataFrame] = None,
+        initial_error_strategy: Optional[Literal["assign", "addition"]] = None,
     ) -> pd.DataFrame:
         """Performs M-step of the Dawid-Skene algorithm.
 
@@ -165,50 +166,11 @@ class DawidSkene(BaseClassificationAggregator):
         joined.drop(columns=["task"], inplace=True)
         errors = joined.groupby(["worker", "label"], sort=False).sum()
         # Apply the initial error matrix
-        errors = self._initial_error_apply(errors, initial_error)
+        errors = initial_error_apply(errors, initial_error, initial_error_strategy)
         # Normalize the error matrix
         errors.clip(lower=_EPS, inplace=True)
         errors /= errors.groupby("worker", sort=False).sum()
 
-        return errors
-
-    def _initial_error_apply(
-        self,
-        errors: pd.DataFrame,
-        initial_error: Optional[pd.DataFrame],
-    ) -> pd.DataFrame:
-        if self.initial_error_strategy is None or initial_error is None:
-            return errors
-        # check the index names of initial_error
-        if initial_error.index.names != errors.index.names:
-            raise ValueError(
-                f"The index of initial_error must be: {errors.index.names},"
-                f"but got: {initial_error.index.names}"
-            )
-        if self.initial_error_strategy == "assign":
-            # check the completeness of initial_error: all the workers in data should be in initial_error
-            mask = errors.index.isin(initial_error.index)
-            if not mask.all():
-                raise ValueError(
-                    f"All the workers in data should be in initial_error: "
-                    f"Can not find {errors.index[~mask]} in initial_error"
-                )
-            # if the values in initial_error are probability, check the sum of each worker's error matrix
-            if (initial_error <= 1.0).all().all():
-                if not np.allclose(
-                    initial_error.groupby("worker", sort=False).sum(), 1.0
-                ):
-                    raise ValueError(
-                        "The sum of each worker's error matrix in initial_error should be 1.0"
-                    )
-            errors = initial_error
-        elif self.initial_error_strategy == "addition":
-            errors = errors.add(initial_error, axis="index", fill_value=0.0)
-        else:
-            raise ValueError(
-                f"Invalid initial_error_strategy: {self.initial_error_strategy},"
-                f"should be 'assign' or 'addition'"
-            )
         return errors
 
     @staticmethod
@@ -313,7 +275,7 @@ class DawidSkene(BaseClassificationAggregator):
         if true_labels is not None:
             probas = self._correct_probas_with_golden(probas, true_labels)
         priors = probas.mean()
-        errors = self._m_step(data, probas, initial_error)
+        errors = self._m_step(data, probas, initial_error, self.initial_error_strategy)
         loss = -np.inf
         self.loss_history_ = []
 
@@ -425,6 +387,45 @@ class DawidSkene(BaseClassificationAggregator):
             )
 
         return corrected_probas
+
+
+def initial_error_apply(
+    errors: pd.DataFrame,
+    initial_error: Optional[pd.DataFrame],
+    initial_error_strategy: Optional[Literal["assign", "addition"]],
+) -> pd.DataFrame:
+    if initial_error_strategy is None or initial_error is None:
+        return errors
+    # check the index names of initial_error
+    if initial_error.index.names != errors.index.names:
+        raise ValueError(
+            f"The index of initial_error must be: {errors.index.names},"
+            f"but got: {initial_error.index.names}"
+        )
+    if initial_error_strategy == "assign":
+        # check the completeness of initial_error: all the workers in data should be in initial_error
+        mask = errors.index.isin(initial_error.index)
+        if not mask.all():
+            raise ValueError(
+                f"All the workers in data should be in initial_error: "
+                f"Can not find {errors.index[~mask]} in initial_error"
+            )
+        # if the values in initial_error are probability, check the sum of each worker's error matrix
+        if (initial_error <= 1.0).all().all() and not np.allclose(
+            initial_error.groupby("worker", sort=False).sum(), 1.0
+        ):
+            raise ValueError(
+                "The sum of each worker's error matrix in initial_error should be 1.0"
+            )
+        errors = initial_error
+    elif initial_error_strategy == "addition":
+        errors = errors.add(initial_error, axis="index", fill_value=0.0)
+    else:
+        raise ValueError(
+            f"Invalid initial_error_strategy: {initial_error_strategy},"
+            f"should be 'assign' or 'addition'"
+        )
+    return errors
 
 
 @attr.s
