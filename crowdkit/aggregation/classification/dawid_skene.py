@@ -57,6 +57,7 @@ class DawidSkene(BaseClassificationAggregator):
         >>> result = ds.fit_predict(df, true_labels)
 
     We can also provide the workers' initial error matrices, which come from historical performance data.
+    There two strategies to initialize the workers' error matrices: `assign` and `addition`.
     Here we create simple error matrices with two workers:
 
     ```
@@ -73,10 +74,14 @@ class DawidSkene(BaseClassificationAggregator):
         with columns for every `label_id` appeared in `data`.
         You can use the `pandas.MultiIndex` to create such an index, see the example below.
 
-        2. The error matrix should contain the history **count**(not probability) that `worker` produces `observed_label`,
+        2. When using `addition` strategy, the error matrix should contain the history **count**(not probability) that `worker` produces `observed_label`,
         given that the task true label is `true_label`.
 
+    When we use the `addition` strategy, partial error matrices are acceptable,
+    which will be added to the workers' priori error matrices estimated from the given data.
+
     Examples:
+        >>> import pandas as pd
         >>> from crowdkit.aggregation import DawidSkene
         >>> from crowdkit.datasets import load_dataset
         >>> df, gt = load_dataset('relevance-2')
@@ -86,9 +91,11 @@ class DawidSkene(BaseClassificationAggregator):
         ...     index=error_matrix_index,
         ...     columns=[0, 1],
         ... )
-        >>> ds = DawidSkene(100)
+        >>> ds = DawidSkene(100, initial_error_strategy='addition')
         >>> result = ds.fit_predict(df, initial_error=initial_error)
 
+    We can also use the `assign` strategy to initialize the workers' error matrices.
+    But in this case, the `initial_error` **must** contain all the workers' error matrices in the data.
     """
 
     n_iter: int = attr.ib(default=100)
@@ -107,30 +114,33 @@ class DawidSkene(BaseClassificationAggregator):
     from the given data. If `None`, the initial error matrix is not used.
 
     Note:
-        - `addition` strategy: the initial error matrix values should be the history **count** that
-        `worker` produces `observed_label`, given that the task true label is `true_label`.
-        For example:
-        ```
-                      0  1
-        worker label
-        w851   0      9  1
-               1      1  9
-        w6991  0      9  1
-               1      1  9
-        ```
+        - `addition` strategy
+            - The initial error matrix can be partial, not all workers' error matrices need to be provided.
+            - The initial error matrix values should be the history **count** that
+              `worker` produces `observed_label`, given that the task true label is `true_label`.
+              For example(count values error matrix):
 
-        - `assign` strategy: the initial error matrix values could be the probability or count that
-        `worker` produces `observed_label`, given that the task true label is `true_label`.
-        And the probability values should sum up to 1 for each worker at each `true_label` column.
-        For example(probability values error matrix):
-        ```
-                      0    1
-        worker label
-        w851   0      0.9  0.1
-               1      0.1  0.9
-        w6991  0      0.9  0.1
-               1      0.1  0.9
-        ```
+                                  0  1
+                    worker label
+                    w851   0      9  1
+                           1      1  9
+                    w6991  0      9  1
+                           1      1  9
+
+        - `assign` strategy
+            - The initial error matrix must contain all the workers' error matrices in the data.
+            - The initial error matrix values could be the probability or count that
+              `worker` produces `observed_label`, given that the task true label is `true_label`.
+              When given probability error matrix, the values should sum up to 1 for each worker at each `true_label` column.
+              For example(probability values error matrix):
+
+                                  0    1
+                    worker label
+                    w851   0      0.9  0.1
+                           1      0.1  0.9
+                    w6991  0      0.9  0.1
+                           1      0.1  0.9
+                    ...
     """
 
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
@@ -254,7 +264,8 @@ class DawidSkene(BaseClassificationAggregator):
                 The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
                 for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the
                 history **count** that `worker` produces `observed_label`, given that the task true label is `true_label`.
-
+                When the `initial_error_strategy` is `assign`, the values in the error matrix can be the probability too.
+                Check the examples in the class docstring for more details.
         Returns:
             DawidSkene: self.
         """
@@ -326,6 +337,8 @@ class DawidSkene(BaseClassificationAggregator):
                 The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
                 for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the
                 history **count** that `worker` produces `observed_label`, given that the task true label is `true_label`.
+                When the `initial_error_strategy` is `assign`, the values in the error matrix can be the probability too.
+                Check the examples in the class docstring for more details.
 
         Returns:
             DataFrame: Probability distributions of task labels.
@@ -356,6 +369,8 @@ class DawidSkene(BaseClassificationAggregator):
                 The `pandas.DataFrame` data is indexed by `worker` and `label` with a column
                 for every `label_id` found in `data` so that `result.loc[worker, observed_label, true_label]` is the
                 history **count** that `worker` produces `observed_label`, given that the task true label is `true_label`.
+                When the `initial_error_strategy` is `assign`, the values in the error matrix can be the probability too.
+                Check the examples in the class docstring for more details.
 
         Returns:
             Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
@@ -406,9 +421,10 @@ def initial_error_apply(
         # check the completeness of initial_error: all the workers in data should be in initial_error
         mask = errors.index.isin(initial_error.index)
         if not mask.all():
+            not_found_workers = errors.index[~mask].get_level_values("worker").unique()
             raise ValueError(
                 f"All the workers in data should be in initial_error: "
-                f"Can not find {errors.index[~mask]} in initial_error"
+                f"Can not find {len(not_found_workers)} workers' error matrix in initial_error"
             )
         # if the values in initial_error are probability, check the sum of each worker's error matrix
         if (initial_error <= 1.0).all().all() and not np.allclose(
