@@ -3,7 +3,7 @@ Simplest aggregation algorithms tests on toy YSDA dataset
 Testing all boundary conditions and asserts
 """
 
-from typing import Any, List, cast
+from typing import Any, List, Literal, Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -15,11 +15,46 @@ from crowdkit.aggregation import DawidSkene, OneCoinDawidSkene
 
 class TestWorkerInitError:
 
-    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
-    def test_zero_error_on_toy_ysda(
+    @pytest.mark.parametrize(
+        "n_iter, tol, strategy",
+        [
+            (10, 0, "addition"),
+            (10, 0, "assign"),
+            (10, 0, None),
+        ],
+    )
+    def test_without_initial_error_on_toy_ysda(
         self,
         n_iter: int,
         tol: float,
+        strategy: Optional[Literal["assign", "addition"]],
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+    ) -> None:
+        """
+        Basic parameter compatibility test
+        """
+        np.random.seed(42)
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
+        assert_series_equal(
+            ds.fit(toy_answers_df, initial_error=None).labels_.sort_index(),  # type: ignore
+            toy_ground_truth_df.sort_index(),
+        )
+
+    @pytest.mark.parametrize(
+        "n_iter, tol, strategy",
+        [
+            (10, 0, "addition"),
+            (10, 0, "assign"),
+            (100500, 1e-5, "addition"),
+            (100500, 1e-5, "assign"),
+        ],
+    )
+    def test_zero_error_addition_on_toy_ysda(
+        self,
+        n_iter: int,
+        tol: float,
+        strategy: Literal["assign", "addition"],
         toy_answers_df: pd.DataFrame,
         toy_ground_truth_df: "pd.Series[Any]",
         toy_worker_init_error_zero_df: pd.DataFrame,
@@ -28,17 +63,34 @@ class TestWorkerInitError:
         Basic parameter compatibility test: when worker_init_error contains all workers
         """
         np.random.seed(42)
-        init_error_df = toy_worker_init_error_zero_df
-        assert_series_equal(
-            DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, initial_error=init_error_df).labels_.sort_index(),  # type: ignore
-            toy_ground_truth_df.sort_index(),
-        )
+        initial_error_df = toy_worker_init_error_zero_df
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
+        if strategy == "addition":
+            assert_series_equal(
+                ds.fit(toy_answers_df, initial_error=initial_error_df).labels_.sort_index(),  # type: ignore
+                toy_ground_truth_df.sort_index(),
+            )
+        else:
+            with pytest.raises(
+                ValueError,
+                match="The sum of each worker's error matrix in initial_error should be 1.0",
+            ):
+                ds.fit(toy_answers_df, initial_error=initial_error_df)
 
-    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
+    @pytest.mark.parametrize(
+        "n_iter, tol, strategy",
+        [
+            (10, 0, "addition"),
+            (10, 0, "assign"),
+            (100500, 1e-5, "addition"),
+            (100500, 1e-5, "assign"),
+        ],
+    )
     def test_zero_partial_error_on_toy_ysda(
         self,
         n_iter: int,
         tol: float,
+        strategy: Literal["assign", "addition"],
         toy_answers_df: pd.DataFrame,
         toy_ground_truth_df: "pd.Series[Any]",
         toy_worker_init_error_zero_df: pd.DataFrame,
@@ -48,16 +100,26 @@ class TestWorkerInitError:
         """
         np.random.seed(42)
         initial_error_df = toy_worker_init_error_zero_df[:3]
-        assert_series_equal(
-            DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, initial_error=initial_error_df).labels_.sort_index(),  # type: ignore
-            toy_ground_truth_df.sort_index(),
-        )
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
+        if strategy == "addition":
+            assert_series_equal(
+                ds.fit(toy_answers_df, initial_error=initial_error_df).labels_.sort_index(),  # type: ignore
+                toy_ground_truth_df.sort_index(),
+            )
+        else:
+            with pytest.raises(
+                ValueError,
+            ):
+                ds.fit(toy_answers_df, initial_error=initial_error_df)
 
-    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
-    def test_consistency_on_toy_ysda(
+    @pytest.mark.parametrize(
+        "n_iter, tol, strategy", [(10, 0, "addition"), (100500, 1e-5, "addition")]
+    )
+    def test_addition_consistency_on_toy_ysda(
         self,
         n_iter: int,
         tol: float,
+        strategy: Literal["assign", "addition"],
         toy_answers_df: pd.DataFrame,
         toy_ground_truth_df: "pd.Series[Any]",
         toy_worker_init_error_zero_df: "pd.Series[Any]",
@@ -75,16 +137,20 @@ class TestWorkerInitError:
         init_error_df[("w2", "no"), "yes"] = 1
         init_error_df[("w2", "no"), "no"] = 99
 
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
         assert_series_equal(
-            DawidSkene(n_iter=n_iter, tol=tol).fit(toy_answers_df, initial_error=init_error_df).labels_.sort_index(),  # type: ignore
+            ds.fit(toy_answers_df, initial_error=init_error_df).labels_.sort_index(),  # type: ignore
             toy_ground_truth_df.sort_index(),
         )
 
-    @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
-    def test_desired_label_on_toy_ysda(
+    @pytest.mark.parametrize(
+        "n_iter, tol, strategy", [(10, 0, "addition"), (100500, 1e-5, "addition")]
+    )
+    def test_addition_desired_label_on_toy_ysda(
         self,
         n_iter: int,
         tol: float,
+        strategy: Literal["assign", "addition"],
         toy_answers_df: pd.DataFrame,
         toy_ground_truth_df: "pd.Series[Any]",
         toy_worker_init_error_zero_df: "pd.Series[Any]",
@@ -109,11 +175,11 @@ class TestWorkerInitError:
         for loc in item_indexes:
             init_error_df.loc[loc[0], loc[1]] = 99  # type: ignore
 
-        ds = DawidSkene(n_iter=n_iter, tol=tol)
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
         ds = ds.fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
         assert ds.labels_["t2"] == "no"  # type: ignore
 
-    def test_inner_state_on_toy_ysda(
+    def test_addition_inner_state_on_toy_ysda(
         self,
         toy_answers_df: pd.DataFrame,
         toy_ground_truth_df: "pd.Series[Any]",
@@ -150,7 +216,13 @@ class TestWorkerInitError:
         init_error_df.loc[("w2", "no"), "no"] = 0.6  # type: ignore  # 0.6 + 1.4 = 2
 
         # fit with init error
-        with_init_errors = DawidSkene(n_iter=0, tol=0.0).fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
+        with_init_errors = DawidSkene(
+            n_iter=0,
+            tol=0.0,
+            initial_error_strategy="addition",
+        ).fit(
+            toy_answers_df, initial_error=init_error_df
+        )  # type: ignore
 
         # check w2 error matrix
         item_probs = [

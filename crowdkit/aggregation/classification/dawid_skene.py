@@ -1,6 +1,6 @@
 __all__ = ["DawidSkene", "OneCoinDawidSkene"]
 
-from typing import Any, List, Optional, cast
+from typing import Any, List, Literal, Optional, cast
 
 import attr
 import numpy as np
@@ -98,6 +98,41 @@ class DawidSkene(BaseClassificationAggregator):
     """The tolerance stopping criterion for iterative methods with a variable number of steps.
     The algorithm converges when the loss change is less than the `tol` parameter."""
 
+    initial_error_strategy: Optional[Literal["assign", "addition"]] = attr.ib(
+        default=None
+    )
+    """The strategy for initializing the workers' error matrices.
+    The `assign` strategy assigns the initial error matrix to the workers' error matrices;
+    the `addition` strategy adds the initial error matrix with the workers' priori error matrices estimated
+    from the given data. If `None`, the initial error matrix is not used.
+
+    Note:
+        - `addition` strategy: the initial error matrix values should be the history **count** that
+        `worker` produces `observed_label`, given that the task true label is `true_label`.
+        For example:
+        ```
+                      0  1
+        worker label
+        w851   0      9  1
+               1      1  9
+        w6991  0      9  1
+               1      1  9
+        ```
+
+        - `assign` strategy: the initial error matrix values could be the probability or count that
+        `worker` produces `observed_label`, given that the task true label is `true_label`.
+        And the probability values should sum up to 1 for each worker at each `true_label` column.
+        For example(probability values error matrix):
+        ```
+                      0    1
+        worker label
+        w851   0      0.9  0.1
+               1      0.1  0.9
+        w6991  0      0.9  0.1
+               1      0.1  0.9
+        ```
+    """
+
     probas_: Optional[pd.DataFrame] = attr.ib(init=False)
     """The probability distributions of task labels.
     The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks."""
@@ -116,8 +151,8 @@ class DawidSkene(BaseClassificationAggregator):
     loss_history_: List[float] = attr.ib(init=False)
     """ A list of loss values during training."""
 
-    @staticmethod
     def _m_step(
+        self,
         data: pd.DataFrame,
         probas: pd.DataFrame,
         initial_error: Optional[pd.DataFrame] = None,
@@ -128,13 +163,52 @@ class DawidSkene(BaseClassificationAggregator):
         """
         joined = data.join(probas, on="task")
         joined.drop(columns=["task"], inplace=True)
-
         errors = joined.groupby(["worker", "label"], sort=False).sum()
-        if initial_error is not None:
-            errors = errors.add(initial_error, axis="index", fill_value=0.0)
+        # Apply the initial error matrix
+        errors = self._initial_error_apply(errors, initial_error)
+        # Normalize the error matrix
         errors.clip(lower=_EPS, inplace=True)
         errors /= errors.groupby("worker", sort=False).sum()
 
+        return errors
+
+    def _initial_error_apply(
+        self,
+        errors: pd.DataFrame,
+        initial_error: Optional[pd.DataFrame],
+    ) -> pd.DataFrame:
+        if self.initial_error_strategy is None or initial_error is None:
+            return errors
+        # check the index names of initial_error
+        if initial_error.index.names != errors.index.names:
+            raise ValueError(
+                f"The index of initial_error must be: {errors.index.names},"
+                f"but got: {initial_error.index.names}"
+            )
+        if self.initial_error_strategy == "assign":
+            # check the completeness of initial_error: all the workers in data should be in initial_error
+            mask = errors.index.isin(initial_error.index)
+            if not mask.all():
+                raise ValueError(
+                    f"All the workers in data should be in initial_error: "
+                    f"Can not find {errors.index[~mask]} in initial_error"
+                )
+            # if the values in initial_error are probability, check the sum of each worker's error matrix
+            if (initial_error <= 1.0).all().all():
+                if not np.allclose(
+                    initial_error.groupby("worker", sort=False).sum(), 1.0
+                ):
+                    raise ValueError(
+                        "The sum of each worker's error matrix in initial_error should be 1.0"
+                    )
+            errors = initial_error
+        elif self.initial_error_strategy == "addition":
+            errors = errors.add(initial_error, axis="index", fill_value=0.0)
+        else:
+            raise ValueError(
+                f"Invalid initial_error_strategy: {self.initial_error_strategy},"
+                f"should be 'assign' or 'addition'"
+            )
         return errors
 
     @staticmethod
