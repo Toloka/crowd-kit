@@ -40,7 +40,7 @@ uv venv
 uv pip install -e '.[dev,docs,learning]
 ```
 
-We use [pytest](https://pytest.org/) for testing and a variety of linters, including [pre-commit](https://pre-commit.com/), [Black](https://github.com/psf/black), [isort](https://github.com/pycqa/isort), [Flake8](https://github.com/pycqa/flake8), and [nbQA](https://github.com/nbQA-dev/nbQA), to simplify code maintenance.
+We use [pytest](https://pytest.org/) for testing and a variety of linters, including [pre-commit](https://pre-commit.com/), [Black](https://github.com/psf/black), [isort](https://github.com/pycqa/isort), [Flake8](https://github.com/pycqa/flake8), [pyupgrade](https://github.com/asottile/pyupgrade), and [nbQA](https://github.com/nbQA-dev/nbQA), to simplify code maintenance.
 
 ## Getting Started
 
