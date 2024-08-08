@@ -33,7 +33,14 @@ Also, the `learning` subpackage contains PyTorch implementations of deep learnin
 
 To install Crowd-Kit, run the following command: `pip install crowd-kit`. If you also want to use the `learning` subpackage, type `pip install crowd-kit[learning]`.
 
-If you are interested in contributing to Crowd-Kit, use [Pipenv](https://pipenv.pypa.io/en/latest/) to install the library with its dependencies: `pipenv install --dev`. We use [pytest](https://pytest.org/) for testing.
+If you are interested in contributing to Crowd-Kit, use [uv](https://github.com/astral-sh/uv) to manage the dependencies:
+
+```shell
+uv venv
+uv pip install -e '.[dev,docs,learning]
+```
+
+We use [pytest](https://pytest.org/) for testing and a variety of linters, including [pre-commit](https://pre-commit.com/), [Black](https://github.com/psf/black), [isort](https://github.com/pycqa/isort), [Flake8](https://github.com/pycqa/flake8), [pyupgrade](https://github.com/asottile/pyupgrade), and [nbQA](https://github.com/nbQA-dev/nbQA), to simplify code maintenance.
 
 ## Getting Started
 

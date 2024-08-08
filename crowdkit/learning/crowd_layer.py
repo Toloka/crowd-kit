@@ -126,7 +126,7 @@ class CrowdLayer(nn.Module):
         Raises:
             ValueError: If conn_type is not one of 'mw', 'vw', 'vb', 'vw+b'.
         """
-        super(CrowdLayer, self).__init__()
+        super().__init__()
         self.conn_type = conn_type
 
         self.n_workers = n_workers

@@ -144,10 +144,10 @@ class TestUncertaintyMetric:
         assert sorted(np.unique(entropies.index).tolist()) == ["A", "B", "C"]
 
         # B always answers the same, entropy = 0
-        np.testing.assert_allclose(entropies["B"], 0, atol=1e-6)  # type: ignore
+        np.testing.assert_allclose(entropies["B"], 0, atol=1e-6)
 
         # A answers uniformly, entropy = max possible
-        np.testing.assert_allclose(entropies["A"], 0.693147, atol=1e-6)  # type: ignore
+        np.testing.assert_allclose(entropies["A"], 0.693147, atol=1e-6)
 
         # C answers non-uniformly, entropy = between B and A
         assert entropies["A"] > entropies["C"] > entropies["B"]
@@ -190,15 +190,15 @@ class TestUncertaintyMetric:
         assert sorted(np.unique(entropies.index).tolist()) == ["1", "2", "3", "4", "5"]
 
         # Everybody answered same on tasks 2 and 4
-        np.testing.assert_allclose(entropies["2"], 0, atol=1e-6)  # type: ignore
-        np.testing.assert_allclose(entropies["4"], 0, atol=1e-6)  # type: ignore
+        np.testing.assert_allclose(entropies["2"], 0, atol=1e-6)
+        np.testing.assert_allclose(entropies["4"], 0, atol=1e-6)
 
         # On tasks 1 and 3, 2 workers agreed and one answered differently
-        assert entropies["1"] > 0  # type: ignore
-        np.testing.assert_allclose(entropies["1"], entropies["3"], atol=1e-6)  # type: ignore
+        assert entropies["1"] > 0
+        np.testing.assert_allclose(entropies["1"], entropies["3"], atol=1e-6)
 
         # Complete disagreement on task 5, max possible entropy
-        np.testing.assert_allclose(entropies["5"], 0.693147, atol=1e-6)  # type: ignore
+        np.testing.assert_allclose(entropies["5"], 0.693147, atol=1e-6)
 
         assert entropies.mean() == uncertainty(
             answers, workers_skills, compute_by="task", aggregate=True

@@ -56,7 +56,7 @@ def fetch_remote(url: str, checksum_url: str, path: str, data_dir: str) -> None:
         with open(checksum_path) as f:
             checksum = f.read().strip()
     if checksum != fetched_checksum:
-        raise IOError(
+        raise OSError(
             f"{path} has an MD5 checksum ({fetched_checksum}) differing from expected ({checksum}), file may be corrupted."
         )
     listed_data_dir = listdir(data_dir)
