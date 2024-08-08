@@ -31,8 +31,10 @@ jobs:
       - name: Lint with Mypy
         run: mypy crowdkit tests
         if: matrix.python-version != '3.8'
+      # pyupgrade is incompatible with Python 3.8 and older versions
       - name: Pre-Commit Check
         uses: pre-commit/action@v3.0.1
+        if: matrix.python-version != '3.8'
       - name: Test with pytest
         run: coverage run --source crowdkit -m pytest
       - name: Codecov
