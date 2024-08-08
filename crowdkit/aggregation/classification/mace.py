@@ -131,8 +131,7 @@ class MACE(BaseClassificationAggregator):
     """The state of the random number generator."""
 
     verbose: int = attr.ib(default=0)
-    """Specifies if the progress will be printed or not:
-    0 — no progress bar, 1 — only for restarts, 2 — for both restarts and optimization."""
+    """The state of progress bar: 0 — no progress bar, 1 — only for restarts, 2 — for both restarts and optimization."""
 
     spamming_: NDArray[np.float64] = attr.ib(init=False)
     """The posterior distribution of workers' spamming states."""
