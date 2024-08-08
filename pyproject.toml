@@ -28,7 +28,7 @@ classifiers = [
 ]
 requires-python = ">= 3.8"
 dependencies = [
-    "attrs <= 23.2.0",
+    "attrs ~= 23.2",
     "nltk",
     "numpy",
     "pandas >= 1.1.0",
@@ -74,8 +74,8 @@ docs = [
     "mkdocstrings-python"
 ]
 learning = [
-    "torch>=1.6.0",
-    "transformers>=4.0.0"
+    "torch >= 1.6.0",
+    "transformers >= 4.0.0"
 ]
 
 [tool.setuptools]

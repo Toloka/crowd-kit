@@ -17,9 +17,8 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          pip install pipenv
-          pipenv install --python "3.12" --dev --system --skip-lock
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv pip install --system -e '.[dev,docs,learning]'
       - name: Build
         run: python3 -m build --sdist --wheel .
       - name: Publish

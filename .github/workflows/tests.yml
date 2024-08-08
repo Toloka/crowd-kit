@@ -22,9 +22,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          pip install pipenv
-          pipenv install --python "${{ matrix.python-version }}" --dev --system --skip-lock
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv pip install --system -e '.[dev,docs,learning]'
       - name: Lint with Mypy
         run: mypy crowdkit tests
       - name: Pre-Commit Check
