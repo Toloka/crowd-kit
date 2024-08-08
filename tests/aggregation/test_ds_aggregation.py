@@ -233,10 +233,10 @@ class TestWorkerInitError:
         # ground truth: t2: yes
 
         # When we set workers' init error matrices as fellow, we should get the desired result
-        # In these case, we want the t2's label to be no rather than yes
+        # In this case, we want the t2's label to be no rather than yes
         # init all probability with 0.5
         init_error_df = toy_worker_init_error_zero_df
-        init_error_df.loc[:, :] = 0.5  # type: ignore
+        init_error_df.loc[:, :] = 0.5
         # set dedicated probability
         item_indexes = [
             [("w1", "yes"), ("w1", "no")],
@@ -246,8 +246,8 @@ class TestWorkerInitError:
             [("w5", "no"), ("w5", "yes")],
         ]
         for loc in item_indexes:
-            init_error_df.loc[loc[0], "no"] = 0.99  # type: ignore
-            init_error_df.loc[loc[1], "no"] = 0.01  # type: ignore
+            init_error_df.loc[loc[0], "no"] = 0.99
+            init_error_df.loc[loc[1], "no"] = 0.01
 
         ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
         ds = ds.fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
@@ -284,10 +284,10 @@ class TestWorkerInitError:
         """
         np.random.seed(42)
         init_error_df = toy_worker_init_error_zero_df
-        init_error_df.loc[("w2", "yes"), "no"] = 1.1  # type: ignore  # 1.1 + 0.9 = 2
-        init_error_df.loc[("w2", "yes"), "yes"] = 0.9  # type: ignore  # 0.9 + 2.1 = 3
-        init_error_df.loc[("w2", "no"), "yes"] = 0.4  # type: ignore  # 0.4 + 0.6 = 1
-        init_error_df.loc[("w2", "no"), "no"] = 0.6  # type: ignore  # 0.6 + 1.4 = 2
+        init_error_df.loc[("w2", "yes"), "no"] = 1.1   # 1.1 + 0.9 = 2
+        init_error_df.loc[("w2", "yes"), "yes"] = 0.9  # 0.9 + 2.1 = 3
+        init_error_df.loc[("w2", "no"), "yes"] = 0.4   # 0.4 + 0.6 = 1
+        init_error_df.loc[("w2", "no"), "no"] = 0.6    # 0.6 + 1.4 = 2
 
         # fit with init error
         with_init_errors = DawidSkene(
@@ -320,7 +320,7 @@ class TestWorkerInitError:
         np.random.seed(42)
         # generate random init error matrix
         init_error_df = toy_worker_init_error_zero_df
-        init_error_df.loc[:, :] = np.random.randint(1, 100, size=init_error_df.shape)  # type: ignore
+        init_error_df.loc[:, :] = np.random.randint(1, 100, size=init_error_df.shape)
         init_error_df = (
             init_error_df / init_error_df.groupby("worker", sort=False).sum()
         )
