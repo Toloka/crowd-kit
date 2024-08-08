@@ -100,3 +100,6 @@ strict = true
 [tool.isort]
 profile = "black"
 src_paths = ["crowdkit", "tests"]
+
+[tool.pyupgrade]
+py38-plus = true

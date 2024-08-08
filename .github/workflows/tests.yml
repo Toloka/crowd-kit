@@ -25,7 +25,7 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           uv pip install --system -e '.[dev,docs,learning]'
       # NumPy 2.0 is not available for Python 3.8 and older versions, which leads to broken tests
-      - name: Lint with Mypy
+      - name: Lint with Mypy (Python 3.8)
         run: mypy crowdkit
         if: matrix.python-version == '3.8'
       - name: Lint with Mypy
