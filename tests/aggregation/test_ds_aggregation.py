@@ -32,7 +32,7 @@ class TestWorkerInitError:
         toy_ground_truth_df: "pd.Series[Any]",
     ) -> None:
         """
-        Basic parameter compatibility test
+        Basic parameter compatibility test: None parameters
         """
         np.random.seed(42)
         ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
@@ -60,7 +60,7 @@ class TestWorkerInitError:
         toy_worker_init_error_zero_df: pd.DataFrame,
     ) -> None:
         """
-        Basic parameter compatibility test: when worker_init_error contains all workers
+        Basic parameter compatibility test: zeros initial error matrix
         """
         np.random.seed(42)
         initial_error_df = toy_worker_init_error_zero_df
@@ -96,7 +96,7 @@ class TestWorkerInitError:
         toy_worker_init_error_zero_df: pd.DataFrame,
     ) -> None:
         """
-        Basic parameter compatibility test: when worker_init_error doesn't contain all workers
+        Basic parameter compatibility test: when initial_error doesn't contain all workers
         """
         np.random.seed(42)
         initial_error_df = toy_worker_init_error_zero_df[:3]
@@ -144,6 +144,40 @@ class TestWorkerInitError:
         )
 
     @pytest.mark.parametrize(
+        "n_iter, tol, strategy", [(10, 0, "assign"), (100500, 1e-5, "assign")]
+    )
+    def test_assign_consistency_on_toy_ysda(
+        self,
+        n_iter: int,
+        tol: float,
+        strategy: Literal["assign", "addition"],
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: "pd.Series[Any]",
+    ) -> None:
+        """
+        Behavior test: when worker's init error matrix is similar to the error matrix in these tasks,
+        the aggregation result should be the same as before(without init error)
+        """
+        # step1: get the original estimated error matrix
+        np.random.seed(42)
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=None)
+        assert_series_equal(
+            ds.fit(toy_answers_df, initial_error=None).labels_.sort_index(),  # type: ignore
+            toy_ground_truth_df.sort_index(),
+        )
+        original_error_df = ds.errors_
+
+        # step2: use the original_error_df as initial_error to fit the model
+        init_error_df = original_error_df
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
+        # step3: check the result, which should be the same as the original one
+        assert_series_equal(
+            ds.fit(toy_answers_df, initial_error=init_error_df).labels_.sort_index(),  # type: ignore
+            toy_ground_truth_df.sort_index(),
+        )
+
+    @pytest.mark.parametrize(
         "n_iter, tol, strategy", [(10, 0, "addition"), (100500, 1e-5, "addition")]
     )
     def test_addition_desired_label_on_toy_ysda(
@@ -174,6 +208,46 @@ class TestWorkerInitError:
         ]
         for loc in item_indexes:
             init_error_df.loc[loc[0], loc[1]] = 99  # type: ignore
+
+        ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
+        ds = ds.fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
+        assert ds.labels_["t2"] == "no"  # type: ignore
+
+    @pytest.mark.parametrize(
+        "n_iter, tol, strategy", [(10, 0, "assign"), (100500, 1e-5, "assign")]
+    )
+    def test_assign_desired_label_on_toy_ysda(
+        self,
+        n_iter: int,
+        tol: float,
+        strategy: Literal["assign", "addition"],
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: "pd.Series[Any]",
+    ) -> None:
+        """
+        Behavior test: dedicate init error matrices should lead to desired results
+        """
+        np.random.seed(42)
+        # worker's annotation on t2: w1: yes, w2: yes, w3: yes, w4: no, w5: no
+        # ground truth: t2: yes
+
+        # When we set workers' init error matrices as fellow, we should get the desired result
+        # In these case, we want the t2's label to be no rather than yes
+        # init all probability with 0.5
+        init_error_df = toy_worker_init_error_zero_df
+        init_error_df.loc[:, :] = 0.5  # type: ignore
+        # set dedicated probability
+        item_indexes = [
+            [("w1", "yes"), ("w1", "no")],
+            [("w2", "yes"), ("w2", "no")],
+            [("w3", "yes"), ("w3", "no")],
+            [("w4", "no"), ("w4", "yes")],
+            [("w5", "no"), ("w5", "yes")],
+        ]
+        for loc in item_indexes:
+            init_error_df.loc[loc[0], "no"] = 0.99  # type: ignore
+            init_error_df.loc[loc[1], "no"] = 0.01  # type: ignore
 
         ds = DawidSkene(n_iter=n_iter, tol=tol, initial_error_strategy=strategy)
         ds = ds.fit(toy_answers_df, initial_error=init_error_df)  # type: ignore
@@ -233,6 +307,34 @@ class TestWorkerInitError:
         ]
         for observed, label, prob in item_probs:
             assert np.isclose(with_init_errors.errors_.loc["w2"].loc[observed, label], prob)  # type: ignore
+
+    def test_assign_inner_state_on_toy_ysda(
+        self,
+        toy_answers_df: pd.DataFrame,
+        toy_ground_truth_df: "pd.Series[Any]",
+        toy_worker_init_error_zero_df: "pd.Series[Any]",
+    ) -> None:
+        """
+        Inner state test.
+        """
+        np.random.seed(42)
+        # generate random init error matrix
+        init_error_df = toy_worker_init_error_zero_df
+        init_error_df.loc[:, :] = np.random.randint(1, 100, size=init_error_df.shape)  # type: ignore
+        init_error_df = (
+            init_error_df / init_error_df.groupby("worker", sort=False).sum()
+        )
+        # fit with init error
+        ds = DawidSkene(
+            n_iter=0,
+            tol=0.0,
+            initial_error_strategy="assign",
+        ).fit(
+            toy_answers_df, initial_error=init_error_df  # type: ignore
+        )
+
+        # check w2 error matrix
+        assert_frame_equal(init_error_df, ds.errors_)  # type: ignore
 
 
 @pytest.mark.parametrize("n_iter, tol", [(10, 0), (100500, 1e-5)])
