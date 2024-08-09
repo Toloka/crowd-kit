@@ -38,7 +38,7 @@ If you are interested in contributing to Crowd-Kit, use [uv](https://github.com/
 ```shell
 uv venv
 uv tool run pre-commit install
-uv pip install -e '.[dev,docs,learning]
+uv pip install -e '.[dev,docs,learning]'
 ```
 
 We use [pytest](https://pytest.org/) for testing and a variety of linters, including [pre-commit](https://pre-commit.com/), [Black](https://github.com/psf/black), [isort](https://github.com/pycqa/isort), [Flake8](https://github.com/pycqa/flake8), [pyupgrade](https://github.com/asottile/pyupgrade), and [nbQA](https://github.com/nbQA-dev/nbQA), to simplify code maintenance.
