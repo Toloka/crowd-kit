@@ -266,6 +266,7 @@ class DawidSkene(BaseClassificationAggregator):
                 history **count** that `worker` produces `observed_label`, given that the task true label is `true_label`.
                 When the `initial_error_strategy` is `assign`, the values in the error matrix can be the probability too.
                 Check the examples in the class docstring for more details.
+
         Returns:
             DawidSkene: self.
         """
