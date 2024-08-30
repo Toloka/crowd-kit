@@ -1,3 +1,11 @@
+1.4.0
+-----
+
+- Add the `initial_error` option to Dawid-Skene
+- Freeze the attrs version to `<= 23.2.0`
+- Switch to uv
+- Minor documentation and typing fixes
+
 1.3.0.post0
 -----------
 
