@@ -28,14 +28,14 @@ classifiers = [
 ]
 requires-python = ">= 3.8"
 dependencies = [
-    "attrs ~= 23.2",
+    "attrs",
     "nltk",
     "numpy",
     "pandas >= 1.1.0",
     "pyarrow",
     "scikit-learn",
     "tqdm",
-    "transformers"
+    "transformers",
 ]
 dynamic = ["version"]
 
