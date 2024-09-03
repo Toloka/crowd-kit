@@ -3,7 +3,7 @@
 
 - Unfreeze the attrs version
 
-11.4.0
+1.4.0
 -----
 
 - Add the `initial_error` option to Dawid-Skene
