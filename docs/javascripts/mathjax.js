@@ -8,7 +8,9 @@ window.MathJax = {
   options: {
     ignoreHtmlClass: ".*|",
     processHtmlClass: "arithmatex"
-  }
+  },
+  loader: { load: ['[tex]/boldsymbol'] },
+  tex: { packages: { '[+]': ['boldsymbol'] } }
 };
 
 document$.subscribe(() => {
