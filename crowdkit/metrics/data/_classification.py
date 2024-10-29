@@ -48,7 +48,7 @@ def consistency(
 ) -> Union[float, "pd.Series[Any]"]:
     """
     Consistency metric: posterior probability of aggregated label given workers skills
-    calculated using the standard Dawid-Skene model.
+    calculated using the specified aggregator.
 
     Args:
         answers (pandas.DataFrame): A data frame containing `task`, `worker` and `label` columns.
