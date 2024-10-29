@@ -87,7 +87,7 @@ class MACE(BaseClassificationAggregator):
     The marginal data likelihood is maximized with the Expectation-Maximization algorithm:
     1. **E-step**. Performs `n_restarts` random restarts, and keeps the model with the best marginal data likelihood.
     2. **M-step**. Smooths parameters by adding a fixed value `smoothing` to the fractional counts before normalizing.
-    3. **Variational M-step**. Employs Variational-Bayes (VB) training with symmetric Beta priors on $\theta_j$ and symmetric Dirichlet priors on the strategy parameters $\xi_j.
+    3. **Variational M-step**. Employs Variational-Bayes (VB) training with symmetric Beta priors on $\theta_j$ and symmetric Dirichlet priors on the strategy parameters $\xi_j$.
 
     D. Hovy, T. Berg-Kirkpatrick, A. Vaswani and E. Hovy. Learning Whom to Trust with MACE.
     In *Proceedings of NAACL-HLT*, Atlanta, GA, USA (2013), 1120–1130.
@@ -122,10 +122,10 @@ class MACE(BaseClassificationAggregator):
     """The default noise parameter for the initialization."""
 
     alpha: float = attr.ib(default=0.5)
-    """The prior parameter for the Beta distribution on $\theta_j$."""
+    r"""The prior parameter for the Beta distribution on $\theta_j$."""
 
     beta: float = attr.ib(default=0.5)
-    """The prior parameter for the Beta distribution on $\theta_j$."""
+    r"""The prior parameter for the Beta distribution on $\theta_j$."""
 
     random_state: int = attr.ib(default=0)
     """The state of the random number generator."""
