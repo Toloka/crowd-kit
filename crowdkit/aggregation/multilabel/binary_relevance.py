@@ -19,13 +19,11 @@ class BinaryRelevance(BaseClassificationAggregator):
     each label is treated as a class in binary classification problem and aggregated separately using
     aggregation algorithms for classification, e.g. Majority Vote or Dawid Skene.
 
-    {% note info %}
+    Note:
+        If this method is used for single-label classification, the output of the BinaryRelevance method may differ
+        from the output of the basic aggregator used for its intended purpose, since each class generates a binary
+        classification task, and therefore it is considered separately. For example, some objects may not have labels.
 
-    If this method is used for single-label classification, the output of the BinaryRelevance method may differ
-    from the output of the basic aggregator used for its intended purpose, since each class generates a binary
-    classification task, and therefore it is considered separately. For example, some objects may not have labels.
-
-    {% endnote %}
 
     Examples:
         >>> import pandas as pd
