@@ -23,12 +23,9 @@ class MajorityVote(BaseClassificationAggregator):
     resulting label will have the largest sum of weights.
 
 
-    {% note info %}
-
-     If two or more labels have the largest number of votes, the resulting
-     label will be the same for all tasks that have the same set of labels with the same number of votes.
-
-     {% endnote %}
+    Note:
+        If two or more labels have the largest number of votes, the resulting
+        label will be the same for all tasks that have the same set of labels with the same number of votes.
 
     Examples:
         Basic Majority Vote:
