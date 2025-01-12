@@ -578,3 +578,31 @@ class OneCoinDawidSkene(DawidSkene):
         self.labels_ = get_most_probable_labels(probas)
 
         return self
+
+    def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Fits the model to the training data and returns probability distributions of labels for each task.
+        Args:
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+        Returns:
+            DataFrame: Probability distributions of task labels.
+                The `pandas.DataFrame` data is indexed by `task` so that `result.loc[task, label]` is the probability that the `task` true label is equal to `label`.
+                Each probability is in the range from 0 to 1, all task probabilities must sum up to 1.
+        """
+
+        self.fit(data)
+        assert self.probas_ is not None, "no probas_"
+        return self.probas_
+
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
+        """Fits the model to the training data and returns the aggregated results.
+        Args:
+            data (DataFrame): The training dataset of workers' labeling results
+                which is represented as the `pandas.DataFrame` data containing `task`, `worker`, and `label` columns.
+        Returns:
+            Series: Task labels. The `pandas.Series` data is indexed by `task` so that `labels.loc[task]` is the most likely true label of tasks.
+        """
+
+        self.fit(data)
+        assert self.labels_ is not None, "no labels_"
+        return self.labels_
