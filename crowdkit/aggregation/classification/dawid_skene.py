@@ -579,7 +579,7 @@ class OneCoinDawidSkene(DawidSkene):
 
         return self
 
-    def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:
+    def fit_predict_proba(self, data: pd.DataFrame) -> pd.DataFrame:  # type: ignore[override]
         """Fits the model to the training data and returns probability distributions of labels for each task.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
@@ -594,7 +594,7 @@ class OneCoinDawidSkene(DawidSkene):
         assert self.probas_ is not None, "no probas_"
         return self.probas_
 
-    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":
+    def fit_predict(self, data: pd.DataFrame) -> "pd.Series[Any]":  # type: ignore[override]
         """Fits the model to the training data and returns the aggregated results.
         Args:
             data (DataFrame): The training dataset of workers' labeling results
