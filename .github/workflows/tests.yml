@@ -7,23 +7,29 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  UV_SYSTEM_PYTHON: 1
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          cache-dependency-glob: |
+            **/pyproject.toml
       - name: Install dependencies
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          uv pip install --system -e '.[dev,docs,learning]'
+        run: uv sync --all-extras
       # NumPy 2.0 is not available for Python 3.8 and older versions, which leads to broken tests
       - name: Lint with Mypy (Python 3.8)
         run: mypy crowdkit
@@ -41,7 +47,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: codecov
-        if: matrix.python-version == '3.12'
+        if: matrix.python-version == '3.13'
       - name: Run MkDocs
         run: mkdocs build --strict
       - name: Build wheel
