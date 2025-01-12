@@ -104,3 +104,8 @@ src_paths = ["crowdkit", "tests"]
 
 [tool.pyupgrade]
 py38-plus = true
+
+[tool.uv]
+override-dependencies = [
+    "torch < 2.5.0; python_version < 3.9"
+]
