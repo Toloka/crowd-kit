@@ -27,8 +27,12 @@ jobs:
         with:
           cache-dependency-glob: |
             **/pyproject.toml
+      - name: Install dependencies (Python 3.8)
+        run: uv sync --all-extras --resolution=lowest-direct
+        if: matrix.python-version == '3.8'
       - name: Install dependencies
         run: uv sync --all-extras
+        if: matrix.python-version != '3.8'
       # NumPy 2.0 is not available for Python 3.8 and older versions, which leads to broken tests
       - name: Lint with Mypy (Python 3.8)
         run: uv run mypy crowdkit
