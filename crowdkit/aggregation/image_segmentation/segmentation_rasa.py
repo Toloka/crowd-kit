@@ -105,7 +105,7 @@ class SegmentationRASA(BaseImageSegmentationAggregator):
         for _ in range(self.n_iter):
             weighted = self._segmentation_weighted(segmentations_np, weights)
             mv = weighted >= 0.5
-            weights = self._calculate_weights(segmentations_np, mv)  # type: ignore[assignment]
+            weights = self._calculate_weights(segmentations_np, mv)
 
             if last_aggregated is not None:
                 delta = weighted - last_aggregated
