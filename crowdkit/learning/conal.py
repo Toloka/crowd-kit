@@ -36,7 +36,7 @@ def _identity_init(shape: Union[Tuple[int, int], Tuple[int, int, int]]) -> torch
     return torch.Tensor(out)
 
 
-class CoNAL(nn.Module):  # type: ignore[misc]
+class CoNAL(nn.Module):
     """
     Common Noise Adaptation Layers (CoNAL). This method introduces two types of confusions: worker-specific and
     global. Each is parameterized by a confusion matrix. The ratio of the two confusions is determined by the
