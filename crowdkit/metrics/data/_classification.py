@@ -266,7 +266,7 @@ def alpha_krippendorff(
         0.4444444444444444
     """
     _check_answers(answers)
-    data: List[Tuple[Any, Hashable, Hashable]] = answers[
+    data = answers[
         ["worker", "task", "label"]
     ].values.tolist()
     return float(AnnotationTask(data, distance).alpha())
