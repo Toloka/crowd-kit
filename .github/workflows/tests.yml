@@ -2,10 +2,12 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+
+env:
+  UV_SYSTEM_PYTHON: 1
 
 jobs:
   build:
@@ -13,41 +15,44 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          cache-dependency-glob: |
+            **/pyproject.toml
       - name: Install dependencies
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          uv pip install --system -e '.[dev,docs,learning]'
+        run: uv sync --all-extras
       # NumPy 2.0 is not available for Python 3.8 and older versions, which leads to broken tests
       - name: Lint with Mypy (Python 3.8)
-        run: mypy crowdkit
+        run: uv run mypy crowdkit
         if: matrix.python-version == '3.8'
       - name: Lint with Mypy
-        run: mypy crowdkit tests
+        run: uv run mypy crowdkit tests
         if: matrix.python-version != '3.8'
       # pyupgrade is incompatible with Python 3.8 and older versions
       - name: Pre-Commit Check
         uses: pre-commit/action@v3.0.1
         if: matrix.python-version != '3.8'
       - name: Test with pytest
-        run: coverage run --source crowdkit -m pytest
+        run: uv run coverage run --source crowdkit -m pytest
       - name: Codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: codecov
-        if: matrix.python-version == '3.12'
+        run: uv run codecov
+        if: matrix.python-version == '3.13'
       - name: Run MkDocs
-        run: mkdocs build --strict
+        run: uv run mkdocs build --strict
       - name: Build wheel
         run: |
-          python3 -m build --sdist --wheel .
-          twine check --strict dist/*
+          uv run python3 -m build --sdist --wheel .
+          uv run twine check --strict dist/*
       - name: Validate CITATION.cff
         uses: citation-file-format/cffconvert-github-action@2.0.0
         with:
