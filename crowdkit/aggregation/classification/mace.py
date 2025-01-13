@@ -8,7 +8,6 @@ import pandas as pd
 import scipy.stats as sps
 from numpy.typing import NDArray
 from scipy.special import digamma
-from torch import dtype
 from tqdm.auto import tqdm, trange
 
 from ..base import BaseClassificationAggregator
