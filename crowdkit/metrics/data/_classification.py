@@ -4,7 +4,7 @@ __all__ = [
     "alpha_krippendorff",
 ]
 
-from typing import Any, Callable, Hashable, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Hashable, List, Optional, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -266,7 +266,5 @@ def alpha_krippendorff(
         0.4444444444444444
     """
     _check_answers(answers)
-    data = answers[
-        ["worker", "task", "label"]
-    ].values.tolist()
+    data = answers[["worker", "task", "label"]].values.tolist()
     return float(AnnotationTask(data, distance).alpha())
