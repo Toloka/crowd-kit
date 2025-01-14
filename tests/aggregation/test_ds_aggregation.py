@@ -405,7 +405,9 @@ def test_aggregate_hds_on_toy_ysda(
     )
 
     assert_series_equal(
-        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit_predict(toy_answers_df).sort_index(),
+        OneCoinDawidSkene(n_iter=n_iter, tol=tol)
+        .fit_predict(toy_answers_df)
+        .sort_index(),
         toy_ground_truth_df.sort_index(),
     )
 
@@ -441,7 +443,9 @@ def test_aggregate_hds_on_simple(
     )
 
     assert_series_equal(
-        OneCoinDawidSkene(n_iter=n_iter, tol=tol).fit_predict(simple_answers_df).sort_index(),
+        OneCoinDawidSkene(n_iter=n_iter, tol=tol)
+        .fit_predict(simple_answers_df)
+        .sort_index(),
         simple_ground_truth.sort_index(),
     )
 
