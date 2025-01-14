@@ -313,7 +313,9 @@ class MACE(BaseClassificationAggregator):
             self.theta_priors_[:, 0] = self.alpha
             self.theta_priors_[:, 1] = self.beta
 
-            self.strategy_priors_ = np.ones((n_workers, n_labels)) * 10.0
+            self.strategy_priors_ = np.multiply(
+                10.0, np.ones((n_workers, n_labels)), dtype=np.float64
+            )
 
     def _e_step(
         self,
