@@ -114,9 +114,9 @@ class TextRASA(BaseTextsAggregator):
             self._encode_data(data), self._encode_true_objects(true_objects)
         )
         self.texts_ = (
-            rasa_results.reset_index()[["task", "output"]]  # type: ignore
+            rasa_results.reset_index()[["task", "output"]]
             .rename(columns={"output": "text"})
-            .set_index("task")
+            .set_index("task")["text"]
         )
         return self.texts_
 
@@ -126,4 +126,4 @@ class TextRASA(BaseTextsAggregator):
         return data
 
     def _encode_true_objects(self, true_objects: "pd.Series[Any]") -> "pd.Series[Any]":
-        return true_objects and true_objects.apply(self.encoder)  # type: ignore
+        return true_objects and true_objects.apply(self.encoder)

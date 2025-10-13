@@ -3,7 +3,7 @@ Simplest aggregation algorithms tests on toy YSDA dataset
 Testing all boundary conditions and asserts
 """
 
-from typing import Any, List, Literal, Optional, cast
+from typing import Any, List, Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -461,14 +461,12 @@ def _make_probas(data: List[List[Any]]) -> pd.DataFrame:
     return pd.DataFrame(data, columns=columns).set_index("task")
 
 
-def _make_tasks_labels(data: List[List[Any]]) -> pd.DataFrame:
+def _make_tasks_labels(data: List[List[Any]]) -> "pd.Series[Any]":
     # TODO: should task be indexed?
-    return cast(
-        pd.DataFrame,
+    return (
         pd.DataFrame(data, columns=["task", "label"])
-        .set_index("task")
-        .squeeze()
-        .rename("agg_label"),
+        .set_index("task")["label"]
+        .rename("agg_label")
     )
 
 
@@ -532,7 +530,7 @@ def priors_iter_0() -> "pd.Series[Any]":
 
 
 @pytest.fixture
-def tasks_labels_iter_0() -> pd.DataFrame:
+def tasks_labels_iter_0() -> "pd.Series[Any]":
     return _make_tasks_labels(
         [
             ["t1", "no"],
@@ -581,7 +579,7 @@ def priors_iter_1() -> "pd.Series[Any]":
 
 
 @pytest.fixture
-def tasks_labels_iter_1() -> pd.DataFrame:
+def tasks_labels_iter_1() -> "pd.Series[Any]":
     return _make_tasks_labels(
         [
             ["t1", "yes"],
@@ -670,7 +668,7 @@ def test_dawid_skene_overlap(overlap: int) -> None:
     assert ds.priors_ is not None, "no priors_"
     assert ds.labels_ is not None, "no labels_"
     assert_frame_equal(expected_probas, ds.probas_, check_like=True, atol=0.005)
-    assert_series_equal(expected_labels, ds.labels_, atol=0.005)  # type: ignore
+    assert_series_equal(expected_labels, ds.labels_, atol=0.005)
     assert_series_equal(
         pd.Series([1 / 3, 2 / 3], pd.Index(["no", "yes"], name="label"), name="prior"),
         ds.priors_,

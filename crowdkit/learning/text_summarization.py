@@ -82,7 +82,7 @@ class TextSummarization(BaseTextsAggregator):
 
         data = data[["task", "worker", "text"]]
 
-        self.model = self.model.to(self.device)
+        self.model = self.model.to(self.device)  # type: ignore[arg-type]
         self.texts_ = data.groupby("task")["text"].apply(self._aggregate_one)
         return self.texts_
 
@@ -117,5 +117,5 @@ class TextSummarization(BaseTextsAggregator):
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt").to(
             self.device
         )
-        outputs = self.model.generate(input_ids, num_beams=self.num_beams)
-        return cast(str, self.tokenizer.decode(outputs[0], skip_special_tokens=True))
+        outputs = self.model.generate(input_ids, num_beams=self.num_beams)  # type: ignore[operator]
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)

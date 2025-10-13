@@ -85,7 +85,7 @@ def test_glad_e_step(
 
 
 def test_glad_derivative(
-    single_task_initialized_glad: Tuple[pd.DataFrame, GLAD]
+    single_task_initialized_glad: Tuple[pd.DataFrame, GLAD],
 ) -> None:
     data, glad = single_task_initialized_glad
     glad._current_data = data

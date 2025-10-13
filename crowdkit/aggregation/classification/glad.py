@@ -226,8 +226,8 @@ class GLAD(BaseClassificationAggregator):
         dQalpha, dQbeta = self._gradient_Q(self._current_data)
 
         minus_grad = np.zeros_like(x)
-        minus_grad[: len(self.workers_)] = -dQalpha[self.workers_].values  # type: ignore
-        minus_grad[len(self.workers_) :] = -dQbeta[self.tasks_].values  # type: ignore
+        minus_grad[: len(self.workers_)] = -dQalpha[self.workers_].values  # type: ignore[operator,index]
+        minus_grad[len(self.workers_) :] = -dQbeta[self.tasks_].values  # type: ignore[operator,index]
         return minus_grad
 
     def _update_alphas_betas(
@@ -245,9 +245,9 @@ class GLAD(BaseClassificationAggregator):
     def _get_alphas_betas_by_point(
         self, x: npt.NDArray[Any]
     ) -> Tuple["pd.Series[Any]", "pd.Series[Any]"]:
-        alphas = pd.Series(x[: len(self.workers_)], index=self.workers_, name="alpha")  # type: ignore
+        alphas = pd.Series(x[: len(self.workers_)], index=self.workers_, name="alpha")
         alphas.index.name = "worker"
-        betas = pd.Series(x[len(self.workers_) :], index=self.tasks_, name="beta")  # type: ignore
+        betas = pd.Series(x[len(self.workers_) :], index=self.tasks_, name="beta")
         betas.index.name = "task"
         return alphas, betas
 
@@ -268,15 +268,15 @@ class GLAD(BaseClassificationAggregator):
         return self._current_data
 
     def _init(self, data: pd.DataFrame) -> None:
-        self.alphas_ = pd.Series(1.0, index=pd.unique(data.worker))  # type: ignore
-        self.betas_ = pd.Series(1.0, index=pd.unique(data.task))  # type: ignore
+        self.alphas_ = pd.Series(1.0, index=pd.unique(data.worker))
+        self.betas_ = pd.Series(1.0, index=pd.unique(data.task))
         self.tasks_ = pd.unique(data["task"])
         self.workers_ = pd.unique(data["worker"])
         self.priors_ = self.labels_priors
         if self.priors_ is None:
             self.prior_labels_ = pd.unique(data["label"])
             self.priors_ = pd.Series(
-                1.0 / len(self.prior_labels_), index=self.prior_labels_  # type: ignore
+                1.0 / len(self.prior_labels_), index=self.prior_labels_
             )
         else:
             self.prior_labels_ = self.priors_.index  # type: ignore

@@ -1,6 +1,6 @@
 __all__ = ["MACE"]
 
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple, Union, cast
 
 import attr
 import numpy as np
@@ -24,11 +24,14 @@ def normalize(x: NDArray[np.float64], smoothing: float) -> NDArray[np.float64]:
         np.ndarray: Normalized array
     """
     norm = (x + smoothing).sum(axis=1)
-    return np.divide(
-        x + smoothing,
-        norm[:, np.newaxis],
-        out=np.zeros_like(x),
-        where=~np.isclose(norm[:, np.newaxis], np.zeros_like(norm[:, np.newaxis])),
+    return cast(
+        NDArray[np.float64],
+        np.divide(
+            x + smoothing,
+            norm[:, np.newaxis],
+            out=np.zeros_like(x),
+            where=~np.isclose(norm[:, np.newaxis], np.zeros_like(norm[:, np.newaxis])),
+        ),
     )
 
 
@@ -46,11 +49,14 @@ def variational_normalize(
     """
     norm = (x + hparams).sum(axis=1)
     norm = np.exp(digamma(norm))
-    return np.divide(
-        np.exp(digamma(x + hparams)),
-        norm[:, np.newaxis],
-        out=np.zeros_like(x),
-        where=~np.isclose(norm[:, np.newaxis], np.zeros_like(norm[:, np.newaxis])),
+    return cast(
+        NDArray[np.float64],
+        np.divide(
+            np.exp(digamma(x + hparams)),
+            norm[:, np.newaxis],
+            out=np.zeros_like(x),
+            where=~np.isclose(norm[:, np.newaxis], np.zeros_like(norm[:, np.newaxis])),
+        ),
     )
 
 

@@ -4,11 +4,11 @@ from hashlib import md5
 from os import environ, listdir, makedirs, rename
 from os.path import basename, exists, expanduser, join, splitext
 from shutil import unpack_archive
-from typing import AnyStr, Optional, cast
+from typing import Optional
 from urllib.request import urlretrieve
 
 
-def get_data_dir(data_dir: Optional[AnyStr] = None) -> AnyStr:
+def get_data_dir(data_dir: Optional[str] = None) -> str:
     """Return the path of the crowd-kit data dir.
 
     This folder is used by some large dataset loaders to avoid downloading the
@@ -26,9 +26,7 @@ def get_data_dir(data_dir: Optional[AnyStr] = None) -> AnyStr:
             is `~/crowdkit_data`.
     """
     if data_dir is None:
-        data_dir = cast(
-            AnyStr, environ.get("CROWDKIT_DATA", join("~", "crowdkit_data"))
-        )
+        data_dir = environ.get("CROWDKIT_DATA", join("~", "crowdkit_data"))
         data_dir = expanduser(data_dir)
 
     if not exists(data_dir):

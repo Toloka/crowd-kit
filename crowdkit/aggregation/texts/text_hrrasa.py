@@ -112,16 +112,16 @@ class TextHRRASA(BaseTextsAggregator):
             self._encode_data(data), self._encode_true_objects(true_objects)
         )
         self.texts_ = (
-            hrrasa_results.reset_index()[["task", "output"]]  # type: ignore
+            hrrasa_results.reset_index()[["task", "output"]]
             .rename(columns={"output": "text"})
-            .set_index("task")
+            .set_index("task")["text"]
         )
         return self.texts_
 
     def _encode_data(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data[["task", "worker", "text"]].rename(columns={"text": "output"})
-        data["embedding"] = data.output.apply(self.encoder)  # type: ignore
+        data["embedding"] = data.output.apply(self.encoder)  # type: ignore[arg-type]
         return data
 
     def _encode_true_objects(self, true_objects: "pd.Series[Any]") -> "pd.Series[Any]":
-        return true_objects and true_objects.apply(self.encoder)  # type: ignore
+        return true_objects and true_objects.apply(self.encoder)

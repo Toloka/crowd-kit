@@ -1,6 +1,6 @@
 __all__ = ["DawidSkene", "OneCoinDawidSkene"]
 
-from typing import Any, List, Literal, Optional, cast
+from typing import Any, List, Literal, Optional, Tuple, cast
 
 import attr
 import numpy as np
@@ -235,7 +235,7 @@ class DawidSkene(BaseClassificationAggregator):
         priors = priors.rename(index={True: "True", False: "False"}, copy=False)
         priors.clip(lower=_EPS, inplace=True)
 
-        joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))  # type: ignore
+        joined.loc[:, priors.index] = joined.loc[:, priors.index].add(np.log(priors))
 
         joined.set_index(["task", "worker"], inplace=True)
         joint_expectation = (
@@ -487,17 +487,21 @@ class OneCoinDawidSkene(DawidSkene):
     """
 
     @staticmethod
-    def _assign_skills(row: "pd.Series[Any]", skills: pd.DataFrame) -> pd.DataFrame:
+    def _assign_skills(
+        row: "pd.Series[Any]", skills: "pd.Series[Any]"
+    ) -> "pd.Series[Any]":
         """
         Assigns user skills to error matrix row by row.
         """
         num_categories = len(row)
         for column_name, _ in row.items():
-            if column_name == row.name[1]:  # type: ignore
-                row[column_name] = skills[row.name[0]]  # type: ignore
+            if column_name == cast(Tuple[Any, Any], row.name)[1]:
+                row[column_name] = skills.loc[cast(Tuple[Any, Any], row.name)[0]]
             else:
-                row[column_name] = (1 - skills[row.name[0]]) / (num_categories - 1)  # type: ignore
-        return row  # type: ignore
+                row[column_name] = (
+                    1 - skills.loc[cast(Tuple[Any, Any], row.name)[0]]
+                ) / (num_categories - 1)
+        return row
 
     @staticmethod
     def _process_skills_to_errors(
@@ -505,7 +509,7 @@ class OneCoinDawidSkene(DawidSkene):
     ) -> pd.DataFrame:
         errors = DawidSkene._m_step(data, probas)
 
-        errors = errors.apply(OneCoinDawidSkene._assign_skills, args=(skills,), axis=1)  # type: ignore
+        errors = errors.apply(OneCoinDawidSkene._assign_skills, args=(skills,), axis=1)
         errors.clip(lower=_EPS, upper=1 - _EPS, inplace=True)
 
         return errors

@@ -90,7 +90,7 @@ def test_segmentation_majority_vote_with_missing_skills_value(
 
 
 def test_segmentation_majority_vote_with_missing_skills_error(
-    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"]  # noqa F811
+    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"],  # noqa F811
 ) -> None:
     answers_df, skills = image_with_skills_df
     mv = SegmentationMajorityVote(on_missing_skill="error", default_skill=3)
@@ -100,7 +100,7 @@ def test_segmentation_majority_vote_with_missing_skills_error(
 
 
 def test_segmentation_majority_vote_with_missing_skills_ignore(
-    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"]  # noqa F811
+    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"],  # noqa F811
 ) -> None:
     answers_df, skills = image_with_skills_df
     mv = SegmentationMajorityVote(on_missing_skill="ignore")
@@ -112,7 +112,7 @@ def test_segmentation_majority_vote_with_missing_skills_ignore(
 
 
 def test_segmentation_majority_vote_with_missing_skills_ignore_all(
-    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"]  # noqa F811
+    image_with_skills_df: Tuple[pd.DataFrame, "pd.Series[Any]"],  # noqa F811
 ) -> None:
     answers_df, skills = image_with_skills_df
     mv = SegmentationMajorityVote(on_missing_skill="ignore")

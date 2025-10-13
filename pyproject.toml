@@ -96,7 +96,6 @@ version = {attr = "crowdkit.__version__"}
 
 [tool.mypy]
 ignore_missing_imports = true
-plugins = ["numpy.typing.mypy_plugin"]
 strict = true
 
 [tool.isort]
