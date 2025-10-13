@@ -10,12 +10,13 @@ from typing import Any, Optional
 
 import attr
 import pandas as pd
+from sklearn.base import BaseEstimator
 
 from ..utils import named_series_attrib
 
 
 @attr.s
-class BaseClassificationAggregator:
+class BaseClassificationAggregator(BaseEstimator):  # type: ignore[misc]
     """This is a base class for all classification aggregators
 
     Attributes:
