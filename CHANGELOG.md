@@ -1,3 +1,10 @@
+1.4.2
+-----
+
+- Fixed documentation issues (#124, #125, #126)
+- Fixed broken One-Coin Dawid Skene (#127, #128)
+- Fixed tests and mypy issues
+
 1.4.1
 -----
 
