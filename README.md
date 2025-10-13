@@ -119,6 +119,9 @@ Below is the list of currently implemented methods, including the already availa
 | [Bradley-Terry](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.pairwise.bradley_terry.BradleyTerry) | ✅ |
 | [Noisy Bradley-Terry](https://toloka.ai/docs/crowd-kit/reference/crowdkit.aggregation.pairwise.noisy_bt.NoisyBradleyTerry) | ✅ |
 
+> [!TIP]
+> Consider using the more modern [Evalica](https://github.com/dustalov/evalica) library to aggregate pairwise comparisons.
+
 ### Learning from Crowds
 
 |Method|Status|

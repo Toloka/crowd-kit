@@ -29,13 +29,9 @@ jobs:
             **/pyproject.toml
       - name: Install dependencies
         run: uv sync --all-extras
-      # NumPy 2.0 is not available for Python 3.8 and older versions, which leads to broken tests
-      - name: Lint with Mypy (Python 3.8)
-        run: uv run mypy crowdkit
-        if: matrix.python-version == '3.8'
       - name: Lint with Mypy
         run: uv run mypy crowdkit tests
-        if: matrix.python-version != '3.8'
+        if: matrix.python-version != '3.8' && matrix.python-version != '3.9'
       # pyupgrade is incompatible with Python 3.8 and older versions
       - name: Pre-Commit Check
         uses: pre-commit/action@v3.0.1
