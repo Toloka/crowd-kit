@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "crowd-kit"
 description = "Computational Quality Control for Crowdsourcing"
 keywords = ["crowdsourcing", "data labeling", "answer aggregation", "truth inference", "learning from crowds", "machine learning", "quality control", "data quality"]
-license = "Apache-2.0"
+license = {text = "Apache-2.0"}
 authors = [{name = "Toloka"}]
 classifiers = [
     "Development Status :: 6 - Mature",
