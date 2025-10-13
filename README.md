@@ -158,4 +158,4 @@ Please use [GitHub Issues](https://github.com/Toloka/crowd-kit/issues) to seek s
 
 ## License
 
-&copy; Crowd-Kit team authors, 2020&ndash;2024. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
+&copy; Crowd-Kit team authors, 2020&ndash;2025. Licensed under the Apache License, Version 2.0. See LICENSE file for more details.
